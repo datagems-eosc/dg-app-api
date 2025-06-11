@@ -1,0 +1,20 @@
+{
+  "ErrorThesaurus": {
+    "SystemError": {
+      "Code": 100,
+      "Message": "an unexpected system error occured"
+    },
+    "Forbidden": {
+      "Code": 101,
+      "Message": "insufficient rights"
+    },
+    "ModelValidation": {
+      "Code": 102,
+      "Message": null
+    },
+    "UnsupportedAction": {
+      "Code": 103,
+      "Message": "request for unsupported action"
+    }
+  }
+}

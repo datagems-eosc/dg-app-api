@@ -1,0 +1,9 @@
+dg-app-api/.vs/
+dg-app-api/DataGEMS.Gateway.Api/bin/
+dg-app-api/DataGEMS.Gateway.Api/Configuration/cors.Development.json
+dg-app-api/DataGEMS.Gateway.Api/Configuration/idp.client.Development.json
+dg-app-api/DataGEMS.Gateway.Api/obj/
+dg-app-api/DataGEMS.Gateway.App/bin/
+dg-app-api/DataGEMS.Gateway.App/obj/
+dg-app-api/DataGEMS.Gateway.Resources/bin/
+dg-app-api/DataGEMS.Gateway.Resources/obj/

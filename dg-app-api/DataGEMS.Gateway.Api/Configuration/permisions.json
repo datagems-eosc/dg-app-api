@@ -1,0 +1,16 @@
+{
+	"Permissions": {
+		"ExtendedClaims": [],
+		"Policies": {
+			//Something
+			"BrowseSomething": {
+				"Roles": [ "admin" ],
+				"AffiliatedRoles": [],
+				"Claims": [],
+				"Clients": [],
+				"AllowAnonymous": false,
+				"AllowAuthenticated": false
+			}
+		}
+	}
+}

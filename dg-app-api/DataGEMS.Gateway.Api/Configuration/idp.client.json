@@ -1,0 +1,15 @@
+{
+	"Idp": {
+		"Client": {
+			"Authority": null,
+			"ClientId": "dg-app-api",
+			"ClientSecret": null,
+			"ClientAccessTokenUrl": null,
+			"RequireHttps": true,
+			"ValidateIssuer": true,
+			"ValidateAudience": true,
+			"ValidateIssuerSigningKey": true,
+			"MapInboundClaims": false
+		}
+	}
+}

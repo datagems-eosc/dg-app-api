@@ -1,0 +1,23 @@
+{
+  "HealthCheck": {
+    "Folder": {
+      "Paths": [ "/logs" ]
+    },
+    "Memory": {
+      "maxPrivateMemoryBytes": 10485760, //10MB = 10485760B
+      "maxProcessMemoryBytes": 10485760, //10MB = 10485760B
+      "maxVirtualMemoryBytes": 10485760 //10MB = 10485760B
+    },
+    "Endpoint": {
+      "IsEnabled": false,
+      "EndpointPath": "/health-check",
+      "RequireHosts": null,
+      "IncludeTag": null,
+      "AllowCaching": false,
+      "HealthyStatusCode": 200,
+      "DegradedStatusCode": 200,
+      "UnhealthyStatusCode": 503,
+      "VerboseResponse": true
+    }
+  }
+}

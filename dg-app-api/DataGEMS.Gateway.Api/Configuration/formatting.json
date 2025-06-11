@@ -1,0 +1,84 @@
+{
+	"Formatting": {
+		"Cache": {
+			"LookupCache": {
+				"Prefix": "%{CacheDisambiguation}%",
+				"KeyPattern": "{prefix}:Formatting:{key}:v0",
+				//30 minutes in seconds = 1800
+				"SlidingExpirationSeconds": 1800,
+				//1 hours in seconds = 3600
+				"AbsoluteExpirationSeconds": 3600
+			}
+		},
+		"Options": {
+			"Default": {
+				"IntegerFormat": {
+					"Format": null,
+					"Culture": "en-US"
+				},
+				"DecimalFormat": {
+					"Format": null,
+					"Culture": "en-US"
+				},
+				"CurrencyFormat": {
+					"Format": "0.##",
+					"Culture": "en-US"
+				},
+				"PercentageFormat": {
+					"Format": "0.##%",
+					"Culture": "en-US"
+				},
+				"TotalHoursFormat": {
+					"Format": "0.#",
+					"Culture": "en-US"
+				},
+				"DateTimeFormat": {
+					"Format": "yyyy-MM-dd HH:mm:ss",
+					"Culture": null
+				},
+				"DateOnlyFormat": {
+					"Format": "yyyy-MM-dd",
+					"Culture": null
+				},
+				"TimeOnlyOption": {
+					"Format": "HH:mm:ss",
+					"Culture": null
+				}
+			},
+			"Override": {
+				"IntegerFormat": {
+					"Format": null,
+					"Culture": null
+				},
+				"DecimalFormat": {
+					"Format": null,
+					"Culture": null
+				},
+				"CurrencyFormat": {
+					"Format": null,
+					"Culture": null
+				},
+				"PercentageFormat": {
+					"Format": null,
+					"Culture": null
+				},
+				"TotalHoursFormat": {
+					"Format": null,
+					"Culture": null
+				},
+				"DateTimeFormat": {
+					"Format": null,
+					"Culture": null
+				},
+				"DateOnlyFormat": {
+					"Format": null,
+					"Culture": null
+				},
+				"TimeOnlyFormat": {
+					"Format": null,
+					"Culture": null
+				}
+			}
+		}
+	}
+}

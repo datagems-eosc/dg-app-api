@@ -1,0 +1,24 @@
+{
+	"Tracking": {
+		"Correlation": {
+			"HeaderName": "x-tracking-correlation",
+			"LogAs": "DGCorrelationId"
+		},
+		"Entry": {
+			"Enabled": true,
+			"Level": "Information",
+			"Principal": {
+				"Subject": true,
+				"Username": false,
+				"Client": true
+			},
+			"Invoker": {
+				"IPAddress": true,
+				"IPAddressFamily": true,
+				"RequestScheme": true,
+				"ClientCertificateSubjectName": false,
+				"ClientCertificateThumbpint": false
+			}
+		}
+	}
+}
