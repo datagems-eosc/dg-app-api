@@ -4,6 +4,7 @@ using Cite.Tools.Logging.Extensions;
 using Cite.WebTools.CurrentPrincipal;
 using DataGEMS.Gateway.Api.Model;
 using DataGEMS.Gateway.Api.Validation;
+using DataGEMS.Gateway.App.Accounting;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -39,6 +40,8 @@ namespace DataGEMS.Gateway.Api.Controllers
 				nameof(Account.Permissions),
 				nameof(Account.DeferredPermissions),
 				nameof(Account.More),
+				nameof(Account.Datasets),
+				nameof(Account.DatasetGrants),
 				new String[] { nameof(Account.Principal), nameof(Account.PrincipalInfo.Subject) }.AsIndexer(),
 				new String[] { nameof(Account.Principal), nameof(Account.PrincipalInfo.Name) }.AsIndexer(),
 				new String[] { nameof(Account.Principal), nameof(Account.PrincipalInfo.Username) }.AsIndexer(),

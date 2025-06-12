@@ -1,7 +1,7 @@
 {
   "HealthCheck": {
     "Folder": {
-      "Paths": [ "/logs" ]
+      "Paths": [ "%{LogsPath}%" ]
     },
     "Memory": {
       "maxPrivateMemoryBytes": 10485760, //10MB = 10485760B
@@ -9,7 +9,7 @@
       "maxVirtualMemoryBytes": 10485760 //10MB = 10485760B
     },
     "Endpoint": {
-      "IsEnabled": false,
+      "IsEnabled": true,
       "EndpointPath": "/health-check",
       "RequireHosts": null,
       "IncludeTag": null,

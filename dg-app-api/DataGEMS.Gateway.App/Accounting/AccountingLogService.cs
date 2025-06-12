@@ -50,7 +50,6 @@ namespace DataGEMS.Gateway.App.Accounting
 				.And("action", (info.Action ?? KnownActions.None).ToString())
 				.And("resource", !String.IsNullOrEmpty(info.Resource) ? info.Resource : "N/A")
 				.And("userId", !String.IsNullOrEmpty(info.UserId) ? info.UserId : this._extractor.SubjectString(this._currentPrincipalResolverService.CurrentPrincipal()) ?? "N/A")
-				.And("userDelegate", info.UserDelegate)
 				.And("value", !String.IsNullOrEmpty(info.Value) ? info.Value : "1")
 				.And("measure", (info.Measure ?? KnownUnits.Unit).ToString())
 				.And("type", (info.Type ?? KnownTypes.Additive).AsArray().Select(x =>
@@ -62,10 +61,13 @@ namespace DataGEMS.Gateway.App.Accounting
 						case KnownTypes.Reset: return "0";
 						default: return "+";
 					};
-				}).FirstOrDefault())
-				.And("comment", info.Comment)
-				.And("startTime", info.StartTime?.ToString("O"))
-				.And("endTime", info.EndTime?.ToString("O"));
+				}).FirstOrDefault());
+
+			if (!String.IsNullOrEmpty(info.UserDelegate)) entry.And("userDelegate", info.UserDelegate);
+			if (!String.IsNullOrEmpty(info.Comment)) entry.And("comment", info.Comment);
+			if (info.StartTime.HasValue) entry.And("startTime", info.StartTime.Value.ToString("O"));
+			if (info.EndTime.HasValue) entry.And("endTime", info.EndTime.Value.ToString("O"));
+
 			this._logger.LogSafe(this._config.Level, entry);
 		}
 	}

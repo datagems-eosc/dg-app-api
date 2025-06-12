@@ -32,16 +32,22 @@ namespace DataGEMS.Gateway.Api.LogTracking
 				MapLogEntry entry = new MapLogEntry();
 
 				IPAddress ipAddress = invokerContextResolverService.RemoteIpAddress();
-				if (this._config.Invoker?.IPAddress ?? false) entry.And("ip", ipAddress?.ToString());
-				if (this._config.Invoker?.IPAddressFamily ?? false) entry.And("ip-family", ipAddress?.AddressFamily.ToString());
-				if (this._config.Invoker?.RequestScheme ?? false) entry.And("scheme", invokerContextResolverService.RequestScheme());
-				if (this._config.Invoker?.ClientCertificateSubjectName ?? false) entry.And("cer-sub", invokerContextResolverService.ClientCertificateSubjectName());
-				if (this._config.Invoker?.ClientCertificateThumbpint ?? false) entry.And("cer-thumbprint", invokerContextResolverService.ClientCertificateThumbprint());
+				String requestScheme = invokerContextResolverService.RequestScheme();
+				String cerSub = invokerContextResolverService.ClientCertificateSubjectName();
+				String cerThumbprint = invokerContextResolverService.ClientCertificateThumbprint();
+				if (this._config.Invoker?.IPAddress ?? false && ipAddress != null) entry.And("ip", ipAddress?.ToString());
+				if (this._config.Invoker?.IPAddressFamily ?? false && ipAddress != null) entry.And("ip-family", ipAddress?.AddressFamily.ToString());
+				if (this._config.Invoker?.RequestScheme ?? false && !String.IsNullOrEmpty(requestScheme)) entry.And("scheme", requestScheme);
+				if (this._config.Invoker?.ClientCertificateSubjectName ?? false && !String.IsNullOrEmpty(cerSub)) entry.And("cer-sub", cerSub);
+				if (this._config.Invoker?.ClientCertificateThumbpint ?? false && !String.IsNullOrEmpty(cerThumbprint)) entry.And("cer-thumbprint", cerThumbprint);
 
 				ClaimsPrincipal principal = currentPrincipalResolverService.CurrentPrincipal();
-				if (this._config.Principal?.Subject ?? false) entry.And("sub", extractor.SubjectString(principal));
-				if (this._config.Principal?.Username ?? false) entry.And("n", extractor.PreferredUsername(principal));
-				if (this._config.Principal?.Subject ?? false) entry.And("c", extractor.Client(principal));
+				String subject = extractor.SubjectString(principal);
+				String username = extractor.PreferredUsername(principal);
+				String client = extractor.Client(principal);
+				if (this._config.Principal?.Subject ?? false && !String.IsNullOrEmpty(subject)) entry.And("sub", subject);
+				if (this._config.Principal?.Username ?? false && !String.IsNullOrEmpty(username)) entry.And("n", username);
+				if (this._config.Principal?.Subject ?? false && !String.IsNullOrEmpty(client)) entry.And("c", client);
 
 				logger.LogSafe(this._config.Level, entry);
 			}

@@ -18,8 +18,9 @@ using Cite.WebTools.FieldSet;
 using DataGEMS.Gateway.Api.HealthCheck;
 using DataGEMS.Gateway.Api.Model;
 using DataGEMS.Gateway.App.Accounting;
+using Serilog;
 
-//TODO: Accounting, Validation, Logging config
+//TODO: Validation
 namespace DataGEMS.Gateway.Api
 {
     public class Startup
@@ -95,7 +96,7 @@ namespace DataGEMS.Gateway.Api
 
 			app
 				.UseMiddleware(typeof(LogTrackingCorrelationMiddleware)) //Log Tracking Middleware
-				.UseMiddleware(typeof(LogTrackingEntryMiddleware)) //Log Entry Middleware
+				.UseSerilogRequestLogging() //Aggregated request info logging
 				.UseForwardedHeaders(this._config.GetSection("ForwardedHeaders")) //Handle Forwarded Requests and preserve caller context
 				.UseRequestLocalizationAndConfigure(this._config.GetSection("Localization:SupportedCultures"), this._config.GetSection("Localization:DefaultCulture")) //Request Localization
 				.UseCorsPolicy(this._config.GetSection("CorsPolicy")) //CORS
@@ -103,6 +104,7 @@ namespace DataGEMS.Gateway.Api
 				.UseRouting() //Routing
 				.UseAuthentication() //Authentication
 				.UseAuthorization() //Authorization
+				.UseMiddleware(typeof(LogTrackingEntryMiddleware)) //Log Entry Middleware
 				.UseEndpoints(endpoints => //Endpoints
 				{
 					endpoints.MapControllers();

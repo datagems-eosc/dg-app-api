@@ -4,6 +4,7 @@ using Cite.Tools.FieldSet;
 using Cite.Tools.Logging;
 using Cite.WebTools.CurrentPrincipal;
 using DataGEMS.Gateway.App.Authorization;
+using DataGEMS.Gateway.App.Common.Auth;
 using System.Security.Claims;
 
 namespace DataGEMS.Gateway.Api.Model
@@ -43,6 +44,8 @@ namespace DataGEMS.Gateway.Api.Model
 		public List<String> Roles { get; set; }
 		public List<String> Permissions { get; set; }
 		public List<String> DeferredPermissions { get; set; }
+		public List<String> Datasets { get; set; }
+		public List<DatasetGrant> DatasetGrants { get; set; }
 		[LogSensitive]
 		public Dictionary<String, List<String>> More { get; set; }
 	}
@@ -84,15 +87,14 @@ namespace DataGEMS.Gateway.Api.Model
 
 			IFieldSet tokenFields = fields.ExtractPrefixed(nameof(Account.Token).AsIndexerPrefix());
 			if (!tokenFields.IsEmpty()) model.Token = new Account.TokenInfo();
-			if (principalFields.HasField(nameof(Account.Token.Client))) model.Token.Client = this._extractor.Client(principal);
-			if (principalFields.HasField(nameof(Account.Token.Issuer))) model.Token.Issuer = this._extractor.Issuer(principal);
-			if (principalFields.HasField(nameof(Account.Token.TokenType))) model.Token.TokenType = this._extractor.TokenType(principal);
-			if (principalFields.HasField(nameof(Account.Token.AuthorizedParty))) model.Token.AuthorizedParty = this._extractor.AuthorizedParty(principal);
-			if (principalFields.HasField(nameof(Account.Token.Audience))) model.Token.Audience = this._extractor.Audience(principal);
-			if (principalFields.HasField(nameof(Account.Token.ExpiresAt))) model.Token.ExpiresAt = this._extractor.ExpiresAt(principal);
-			if (principalFields.HasField(nameof(Account.Token.IssuedAt))) model.Token.IssuedAt = this._extractor.IssuedAt(principal);
-			if (principalFields.HasField(nameof(Account.Token.Scope))) model.Token.Scope = this._extractor.Scope(principal);
-
+			if (tokenFields.HasField(nameof(Account.Token.Client))) model.Token.Client = this._extractor.Client(principal);
+			if (tokenFields.HasField(nameof(Account.Token.Issuer))) model.Token.Issuer = this._extractor.Issuer(principal);
+			if (tokenFields.HasField(nameof(Account.Token.TokenType))) model.Token.TokenType = this._extractor.TokenType(principal);
+			if (tokenFields.HasField(nameof(Account.Token.AuthorizedParty))) model.Token.AuthorizedParty = this._extractor.AuthorizedParty(principal);
+			if (tokenFields.HasField(nameof(Account.Token.Audience))) model.Token.Audience = this._extractor.Audience(principal);
+			if (tokenFields.HasField(nameof(Account.Token.ExpiresAt))) model.Token.ExpiresAt = this._extractor.ExpiresAt(principal);
+			if (tokenFields.HasField(nameof(Account.Token.IssuedAt))) model.Token.IssuedAt = this._extractor.IssuedAt(principal);
+			if (tokenFields.HasField(nameof(Account.Token.Scope))) model.Token.Scope = this._extractor.Scope(principal);
 
 			if (fields.HasField(nameof(Account.Permissions))) model.Permissions = new List<string>(this._permissionPolicyService.PermissionsOf(this._extractor.Roles(principal)));
 			if (fields.HasField(nameof(Account.DeferredPermissions)))
@@ -104,6 +106,9 @@ namespace DataGEMS.Gateway.Api.Model
 					model.DeferredPermissions = new List<string>(_permissionPolicyService.PermissionsOfAffiliated(userContextRoles));
 				}
 			}
+			if (fields.HasField(nameof(Account.Roles))) model.Roles = this._extractor.Roles(principal);
+			if (fields.HasField(nameof(Account.Datasets))) model.Datasets = this._extractor.Datasets(principal);
+			if (fields.HasField(nameof(Account.DatasetGrants))) model.DatasetGrants = this._extractor.DatasetGrants(principal);
 
 			return Task.FromResult(model);
 		}

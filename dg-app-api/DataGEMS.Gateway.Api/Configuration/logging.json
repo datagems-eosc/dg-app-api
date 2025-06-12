@@ -1,0 +1,93 @@
+{
+	"Serilog": {
+		"Using": [ "Serilog.Expressions" ],
+		"Properties": {
+			"Application": "%{LogAsApplication}%"
+		},
+		"MinimumLevel": {
+			"Default": "%{DefaultLogLevel}%",
+			"Override": {
+				"Microsoft": "Warning",
+				"DataGEMS.Gateway": "%{DefaultLogLevel}%",
+				"Cite": "Warning",
+				"accounting": "Information"
+			}
+		},
+		"WriteTo:LoggingSublogger": {
+			"Name": "Logger",
+			"Args": {
+				"configureLogger": {
+					"WriteTo": [
+						{
+							"Name": "Async",
+							"Args": {
+								"bufferSize": 10000,
+								"blockWhenFull": true,
+								"configure": [
+									{
+										"Name": "File",
+										"Args": {
+											"path": "%{LogsPath}%/logging.json",
+											//1G = 1073741824 bytes
+											"fileSizeLimitBytes": 1073741824,
+											"rollOnFileSizeLimit ": true,
+											"rollingInterval": "Day",
+											"formatter": "Serilog.Formatting.Compact.CompactJsonFormatter, Serilog.Formatting.Compact",
+											//X days or X*1G worth of logs
+											"retainedFileCountLimit": "%{LogRetainedFileCountLimit}%"
+										}
+									}
+								]
+							}
+						}
+					],
+					"Filter": [
+						{
+							"Name": "ByExcluding",
+							"Args": { "expression": "@p['SourceContext'] = 'accounting'" }
+						}
+					]
+				}
+			}
+		},
+		"WriteTo:AuditSublogger": {
+			"Name": "Logger",
+			"Args": {
+				"configureLogger": {
+					"WriteTo": [
+						{
+							"Name": "Async",
+							"Args": {
+								"bufferSize": 10000,
+								"blockWhenFull": true,
+								"configure": [
+									{
+										"Name": "File",
+										"Args": {
+											"path": "%{LogsPath}%/accounting.json",
+											//1G = 1073741824 bytes
+											"fileSizeLimitBytes": 1073741824,
+											"rollOnFileSizeLimit ": true,
+											"rollingInterval": "Day",
+											"formatter": "Serilog.Formatting.Compact.CompactJsonFormatter, Serilog.Formatting.Compact",
+											//X days or X*1G worth of logs
+											"retainedFileCountLimit": "%{LogRetainedFileCountLimit}%"
+										}
+									}
+								]
+							}
+						}
+					],
+					"Filter": [
+						{
+							"Name": "ByIncludingOnly",
+							"Args": { "expression": "@p['SourceContext'] = 'accounting'" }
+						}
+					]
+				},
+				"restrictedToMinimumLevel": "Information"
+			}
+		},
+		"Enrich": [ "FromLogContext", "WithMachineName", "WithProcessId", "WithThreadId" ]
+	}
+}

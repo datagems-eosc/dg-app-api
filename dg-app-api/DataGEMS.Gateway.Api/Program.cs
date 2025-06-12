@@ -32,6 +32,10 @@ namespace DataGEMS.Gateway.Api
 							.AddJsonFileInPaths("cors.json", sharedConfigPath, "Configuration")
 							.AddJsonFileInPaths("cors.override.json", sharedConfigPath, "Configuration")
 							.AddJsonFileInPaths($"cors.{env.EnvironmentName}.json", sharedConfigPath, "Configuration")
+							//env
+							.AddJsonFileInPaths("env.json", sharedConfigPath, "Configuration")
+							.AddJsonFileInPaths("env.override.json", sharedConfigPath, "Configuration")
+							.AddJsonFileInPaths($"env.{env.EnvironmentName}.json", sharedConfigPath, "Configuration")
 							//errors
 							.AddJsonFileInPaths("errors.json", sharedConfigPath, "Configuration")
 							.AddJsonFileInPaths("errors.override.json", sharedConfigPath, "Configuration")
@@ -60,6 +64,10 @@ namespace DataGEMS.Gateway.Api
 							.AddJsonFileInPaths("localization.json", sharedConfigPath, "Configuration")
 							.AddJsonFileInPaths("localization.override.json", sharedConfigPath, "Configuration")
 							.AddJsonFileInPaths($"localization.{env.EnvironmentName}.json", sharedConfigPath, "Configuration")
+							//logging
+							.AddJsonFileInPaths("logging.json", sharedConfigPath, "Configuration")
+							.AddJsonFileInPaths("logging.override.json", sharedConfigPath, "Configuration")
+							.AddJsonFileInPaths($"logging.{env.EnvironmentName}.json", sharedConfigPath, "Configuration")
 							//log tracking
 							.AddJsonFileInPaths("log-tracking.json", sharedConfigPath, "Configuration")
 							.AddJsonFileInPaths("log-tracking.override.json", sharedConfigPath, "Configuration")
@@ -68,26 +76,6 @@ namespace DataGEMS.Gateway.Api
 							.AddJsonFileInPaths("permissions.json", sharedConfigPath, "Configuration")
 							.AddJsonFileInPaths("permissions.override.json", sharedConfigPath, "Configuration")
 							.AddJsonFileInPaths($"permissions.{env.EnvironmentName}.json", sharedConfigPath, "Configuration");
-						////cipher
-						//.AddJsonFileInPaths("cipher.json", sharedConfigPath, "Configuration")
-						//.AddJsonFileInPaths("cipher.override.json", sharedConfigPath, "Configuration")
-						//.AddJsonFileInPaths($"cipher.{env.EnvironmentName}.json", sharedConfigPath, "Configuration")
-						////idp.client
-						//.AddJsonFileInPaths("idp.client.json", sharedConfigPath, "Configuration")
-						//.AddJsonFileInPaths("idp.client.override.json", sharedConfigPath, "Configuration")
-						//.AddJsonFileInPaths($"idp.client.{env.EnvironmentName}.json", sharedConfigPath, "Configuration")
-						////logging
-						//.AddJsonFileInPaths("logging.json", sharedConfigPath, "Configuration")
-						//.AddJsonFileInPaths("logging.override.json", sharedConfigPath, "Configuration")
-						//.AddJsonFileInPaths($"logging.{env.EnvironmentName}.json", sharedConfigPath, "Configuration")
-						////storage
-						//.AddJsonFileInPaths("storage.json", sharedConfigPath, "Configuration")
-						//.AddJsonFileInPaths("storage.override.json", sharedConfigPath, "Configuration")
-						//.AddJsonFileInPaths($"storage.{env.EnvironmentName}.json", sharedConfigPath, "Configuration")
-						////env
-						//.AddJsonFileInPaths("env.json", sharedConfigPath, "Configuration")
-						//.AddJsonFileInPaths("env.override.json", sharedConfigPath, "Configuration")
-						//.AddJsonFileInPaths($"env.{env.EnvironmentName}.json", sharedConfigPath, "Configuration");
 						config.AddEnvironmentVariables("DG_GW_");
 						config.EnableSubstitutions("%{", "}%");
 					})
