@@ -1,10 +1,10 @@
 {
 	"Idp": {
 		"Client": {
-			"Authority": null,
+			"Authority": "%{IdpAuthority}%",
 			"ClientId": "dg-app-api",
-			"ClientSecret": null,
-			"ClientAccessTokenUrl": null,
+			"ClientSecret": "%{IdpClientSecret}%",
+			"ClientAccessTokenUrl": "%{IdpClientAccessTokenUrl}%",
 			"RequireHttps": true,
 			"ValidateIssuer": true,
 			"ValidateAudience": true,

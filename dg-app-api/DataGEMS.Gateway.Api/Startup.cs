@@ -36,7 +36,6 @@ namespace DataGEMS.Gateway.Api
 
 		public void ConfigureServices(IServiceCollection services)
 		{
-
 			services
 				.AddCacheServices(this._config.GetSection("Cache:Provider")) //distributed cache
 				.AddSingleton<JsonHandlingService>() //Json Handling

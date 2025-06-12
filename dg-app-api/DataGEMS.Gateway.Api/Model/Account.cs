@@ -38,7 +38,7 @@ namespace DataGEMS.Gateway.Api.Model
 			public List<String> Scope { get; set; }
 		}
 
-		public Boolean IsAuthenticated { get; set; }
+		public Boolean? IsAuthenticated { get; set; }
 		public PrincipalInfo Principal { get; set; }
 		public TokenInfo Token { get; set; }
 		public List<String> Roles { get; set; }
@@ -69,12 +69,10 @@ namespace DataGEMS.Gateway.Api.Model
 		public Task<Account> Build(IFieldSet fields, ClaimsPrincipal principal)
 		{
 			Account model = new Account();
-			if (principal == null)
-			{
-				model.IsAuthenticated = false;
-				return Task.FromResult(model);
-			}
-			else model.IsAuthenticated = true;
+
+			Boolean isAuthenticated = principal != null;
+			if(fields.HasField(nameof(Account.IsAuthenticated))) model.IsAuthenticated = isAuthenticated;
+			if(!isAuthenticated) return Task.FromResult(model);
 
 			IFieldSet principalFields = fields.ExtractPrefixed(nameof(Account.Principal).AsIndexerPrefix());
 			if (!principalFields.IsEmpty()) model.Principal = new Account.PrincipalInfo();

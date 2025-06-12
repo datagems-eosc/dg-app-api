@@ -5,7 +5,7 @@
     "AllowedOrigin": null,
     "AllowedMethods": [],
     "AllowedHeaders": [],
-    "ExposedHeaders": [],
+    "ExposedHeaders": [ "Content-Disposition" ],
     "AllowCredentials": true,
     //10 minutes in seconds = 600
     "PreflightMaxAgeSeconds": 600
