@@ -2,35 +2,30 @@
 using Cite.Tools.Logging;
 using Cite.Tools.Logging.Extensions;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DataGEMS.Gateway.App.Authorization
 {
 	public class PermissionPolicyService : IPermissionPolicyService
 	{
 		private static ISet<String> _emptyRoleSet = new HashSet<String>();
-		private static ISet<String> _emptyAffiliatedRoleSet = new HashSet<String>();
+		private static ISet<String> _emptyDatasetRoleSet = new HashSet<String>();
 		private static ISet<String> _emptyClaimSet = new HashSet<String>();
 		private static ISet<String> _emptyClientSet = new HashSet<String>();
 		private static IList<String> _emptyRoleList = new List<String>();
-		private static IList<String> _emptyAffiliatedRoleList = new List<String>();
+		private static IList<String> _emptyDatasetRoleList = new List<String>();
 		private static IList<String> _emptyClaimList = new List<String>();
 		private static IList<String> _emptyClientList = new List<String>();
 
 		private readonly PermissionPolicyConfig _config;
 		private readonly ILogger<PermissionPolicyService> _logger;
 		private Dictionary<String, HashSet<String>> _permissionRoleMap;
-		private Dictionary<String, HashSet<String>> _permissionAffiliatedRoleMap;
+		private Dictionary<String, HashSet<String>> _permissionDatasetRoleMap;
 		private Dictionary<String, Dictionary<String, HashSet<String>>> _permissionClaimMap;
 		private Dictionary<String, HashSet<String>> _permissionClientMap;
 		private Dictionary<String, Boolean> _permissionAnonymousMap;
 		private Dictionary<String, Boolean> _permissionAuthenticatedMap;
 		private Dictionary<String, HashSet<String>> _rolePermissionsMap;
-		private Dictionary<String, HashSet<String>> _affiliatedRolePermissionsMap;
+		private Dictionary<String, HashSet<String>> _datasetRolePermissionsMap;
 		private Dictionary<String, Dictionary<String, HashSet<String>>> _claimPermissionsMap;
 
 		public PermissionPolicyService(
@@ -52,11 +47,11 @@ namespace DataGEMS.Gateway.App.Authorization
 				if (!this._permissionRoleMap.ContainsKey(policyEntry.Key)) this._permissionRoleMap.Add(policyEntry.Key, new HashSet<String>());
 				this._permissionRoleMap[policyEntry.Key].AddRange(policyEntry.Value.Roles ?? PermissionPolicyService._emptyRoleList);
 			}
-			this._permissionAffiliatedRoleMap = new Dictionary<String, HashSet<String>>();
+			this._permissionDatasetRoleMap = new Dictionary<String, HashSet<String>>();
 			foreach (var policyEntry in this._config.Policies)
 			{
-				if (!this._permissionAffiliatedRoleMap.ContainsKey(policyEntry.Key)) this._permissionAffiliatedRoleMap.Add(policyEntry.Key, new HashSet<String>());
-				this._permissionAffiliatedRoleMap[policyEntry.Key].AddRange(policyEntry.Value.AffiliatedRoles ?? PermissionPolicyService._emptyAffiliatedRoleList);
+				if (!this._permissionDatasetRoleMap.ContainsKey(policyEntry.Key)) this._permissionDatasetRoleMap.Add(policyEntry.Key, new HashSet<String>());
+				this._permissionDatasetRoleMap[policyEntry.Key].AddRange(policyEntry.Value.DatasetRoles ?? PermissionPolicyService._emptyDatasetRoleList);
 			}
 			this._permissionClaimMap = new Dictionary<String, Dictionary<String, HashSet<String>>>();
 			foreach (var policyEntry in this._config.Policies)
@@ -99,14 +94,14 @@ namespace DataGEMS.Gateway.App.Authorization
 					this._rolePermissionsMap[role].Add(policyEntry.Key);
 				}
 			}
-			this._affiliatedRolePermissionsMap = new Dictionary<String, HashSet<String>>();
+			this._datasetRolePermissionsMap = new Dictionary<String, HashSet<String>>();
 			foreach (var policyEntry in this._config.Policies)
 			{
-				if (policyEntry.Value.AffiliatedRoles == null || policyEntry.Value.AffiliatedRoles.Count == 0) continue;
-				foreach (String affiliatedRole in policyEntry.Value.AffiliatedRoles)
+				if (policyEntry.Value.DatasetRoles == null || policyEntry.Value.DatasetRoles.Count == 0) continue;
+				foreach (String datasetRole in policyEntry.Value.DatasetRoles)
 				{
-					if (!this._affiliatedRolePermissionsMap.ContainsKey(affiliatedRole)) this._affiliatedRolePermissionsMap.Add(affiliatedRole, new HashSet<String>());
-					this._affiliatedRolePermissionsMap[affiliatedRole].Add(policyEntry.Key);
+					if (!this._datasetRolePermissionsMap.ContainsKey(datasetRole)) this._datasetRolePermissionsMap.Add(datasetRole, new HashSet<String>());
+					this._datasetRolePermissionsMap[datasetRole].Add(policyEntry.Key);
 				}
 			}
 			this._claimPermissionsMap = new Dictionary<String, Dictionary<String, HashSet<String>>>();
@@ -138,15 +133,15 @@ namespace DataGEMS.Gateway.App.Authorization
 			return permissions;
 		}
 
-		public ISet<String> PermissionsOfAffiliated(IEnumerable<String> affiliatedRoles)
+		public ISet<String> PermissionsOfDataset(IEnumerable<String> datasetRoles)
 		{
 			HashSet<String> permissions = new HashSet<String>();
-			if (affiliatedRoles == null || !affiliatedRoles.Any()) return permissions;
+			if (datasetRoles == null || !datasetRoles.Any()) return permissions;
 
-			foreach (String affiliatedRole in affiliatedRoles)
+			foreach (String datasetRole in datasetRoles)
 			{
-				if (!this._affiliatedRolePermissionsMap.ContainsKey(affiliatedRole)) continue;
-				permissions.UnionWith(this._affiliatedRolePermissionsMap[affiliatedRole]);
+				if (!this._datasetRolePermissionsMap.ContainsKey(datasetRole)) continue;
+				permissions.UnionWith(this._datasetRolePermissionsMap[datasetRole]);
 			}
 			return permissions;
 		}
@@ -157,10 +152,10 @@ namespace DataGEMS.Gateway.App.Authorization
 			return this._permissionRoleMap[permission];
 		}
 
-		public ISet<String> AffiliatedRolesHaving(String permission)
+		public ISet<String> DatasetRolesHaving(String permission)
 		{
-			if (!this._permissionAffiliatedRoleMap.ContainsKey(permission)) return PermissionPolicyService._emptyAffiliatedRoleSet;
-			return this._permissionAffiliatedRoleMap[permission];
+			if (!this._permissionDatasetRoleMap.ContainsKey(permission)) return PermissionPolicyService._emptyDatasetRoleSet;
+			return this._permissionDatasetRoleMap[permission];
 		}
 
 		public ISet<String> ClaimsHaving(String claim, String permission)

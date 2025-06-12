@@ -15,6 +15,14 @@
     "UnsupportedAction": {
       "Code": 103,
       "Message": "request for unsupported action"
+    },
+    "UnderpinningService": {
+      "Code": 104,
+      "Message": "error communicating with underpinning service"
+    },
+    "TokenExchange": {
+      "Code": 105,
+      "Message": "error exchanging tokens for underpinning service"
     }
   }
 }

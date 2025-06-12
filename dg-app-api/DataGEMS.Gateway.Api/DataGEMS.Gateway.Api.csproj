@@ -12,10 +12,12 @@
 
   <ItemGroup>
     <PackageReference Include="AspNetCore.HealthChecks.System" Version="8.0.1" />
+    <PackageReference Include="Cite.Tools.Data.Censor.Extensions" Version="8.0.0" />
     <PackageReference Include="Cite.WebTools.Cors.Extensions" Version="8.0.0" />
     <PackageReference Include="Cite.WebTools.FieldSet" Version="8.0.0" />
     <PackageReference Include="Cite.WebTools.HostingEnvironment" Version="8.0.0" />
     <PackageReference Include="Cite.WebTools.Localization.Extensions" Version="8.0.0" />
+    <PackageReference Include="Cite.WebTools.Validation" Version="8.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.16" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.17" />
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="8.0.17" />

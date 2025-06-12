@@ -4,29 +4,24 @@ using DataGEMS.Gateway.App.Authorization;
 
 namespace DataGEMS.Gateway.Api.Authorization
 {
-	public class AffiliatedDeferredAuthorizationHandler : AuthorizationHandler<AffiliatedDeferredAuthorizationRequirement, AffiliatedDeferredResource>
+	public class AffiliatedDatasetAuthorizationHandler : AuthorizationHandler<AffiliatedDatasetAuthorizationRequirement, AffiliatedDatasetResource>
 	{
 		private readonly IPermissionPolicyService _permissionPolicyService;
-		private readonly ILogger<AffiliatedDeferredAuthorizationHandler> _logger;
+		private readonly ILogger<AffiliatedDatasetAuthorizationHandler> _logger;
 
-		public AffiliatedDeferredAuthorizationHandler(
+		public AffiliatedDatasetAuthorizationHandler(
 			IPermissionPolicyService permissionPolicyService,
-			ILogger<AffiliatedDeferredAuthorizationHandler> logger)
+			ILogger<AffiliatedDatasetAuthorizationHandler> logger)
 		{
 			this._logger = logger;
 			this._permissionPolicyService = permissionPolicyService;
 		}
 
-		protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, AffiliatedDeferredAuthorizationRequirement requirement, AffiliatedDeferredResource contextResource)
+		protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, AffiliatedDatasetAuthorizationRequirement requirement, AffiliatedDatasetResource contextResource)
 		{
 			if (context.User == null || !context.User.Claims.Any())
 			{
 				this._logger.Trace("current user not set");
-				return Task.CompletedTask;
-			}
-			if (contextResource.UserIds == null || !contextResource.UserIds.Any())
-			{
-				this._logger.Trace("resource users not set");
 				return Task.CompletedTask;
 			}
 
@@ -37,7 +32,7 @@ namespace DataGEMS.Gateway.Api.Authorization
 			}
 
 			ISet<String> affiliatedPermissions = null;
-			ISet<String> affiliatedRolePermissions = this._permissionPolicyService.PermissionsOfAffiliated(contextResource.AffiliatedRoles);
+			ISet<String> affiliatedRolePermissions = this._permissionPolicyService.PermissionsOfDataset(contextResource.AffiliatedRoles);
 			if (contextResource.AffiliatedPermissions != null && contextResource.AffiliatedPermissions.Any()) affiliatedPermissions = affiliatedRolePermissions.Union(contextResource.AffiliatedPermissions).ToHashSet();
 			else affiliatedPermissions = affiliatedRolePermissions;
 

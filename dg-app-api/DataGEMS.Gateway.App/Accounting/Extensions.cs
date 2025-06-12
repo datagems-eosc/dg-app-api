@@ -17,5 +17,10 @@ namespace DataGEMS.Gateway.App.Accounting
 			services.AddScoped<IAccountingService, AccountingLogService>();
 			return services;
 		}
+
+		public static String AsAccountable(this KnownResources knownResource)
+		{
+			return knownResource.ToString();
+		}
 	}
 }

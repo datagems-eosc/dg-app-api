@@ -53,13 +53,12 @@ namespace DataGEMS.Gateway.Api.Authorization
 			services.AddSingleton<IPermissionPolicyService, PermissionPolicyService>();
 			services.AddScoped<DataGEMS.Gateway.App.Authorization.IAuthorizationService, DataGEMS.Gateway.Api.Authorization.AuthorizationService>();
 			services.AddSingleton<Microsoft.AspNetCore.Authorization.IAuthorizationHandler, PermissionRoleAuthorizationHandler>();
-			services.AddSingleton<Microsoft.AspNetCore.Authorization.IAuthorizationHandler, AffiliatedDeferredAuthorizationHandler>();
+			services.AddSingleton<Microsoft.AspNetCore.Authorization.IAuthorizationHandler, AffiliatedDatasetAuthorizationHandler>();
 			services.AddSingleton<Microsoft.AspNetCore.Authorization.IAuthorizationHandler, PermissionClaimAuthorizationHandler>();
 			services.AddSingleton<Microsoft.AspNetCore.Authorization.IAuthorizationHandler, PermissionClientAuthorizationHandler>();
 			services.AddSingleton<Microsoft.AspNetCore.Authorization.IAuthorizationHandler, OwnedResourceAuthorizationHandler>();
 			services.AddSingleton<Microsoft.AspNetCore.Authorization.IAuthorizationHandler, PermissionAnonymousAuthorizationHandler>();
 			services.AddSingleton<Microsoft.AspNetCore.Authorization.IAuthorizationHandler, PermissionAuthenticatedAuthorizationHandler>();
-			services.AddSingleton<Microsoft.AspNetCore.Authorization.IAuthorizationHandler, AffiliatedResourceAuthorizationHandler>();
 
 			return services;
 		}

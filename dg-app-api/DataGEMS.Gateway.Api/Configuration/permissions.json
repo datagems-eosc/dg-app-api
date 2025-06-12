@@ -2,10 +2,10 @@
 	"Permissions": {
 		"ExtendedClaims": [],
 		"Policies": {
-			//Something
-			"BrowseSomething": {
+			//Dataset
+			"BrowseDataset": {
 				"Roles": [ "admin" ],
-				"AffiliatedRoles": [],
+				"DatasetRoles": [ "browse" ],
 				"Claims": [],
 				"Clients": [],
 				"AllowAnonymous": false,

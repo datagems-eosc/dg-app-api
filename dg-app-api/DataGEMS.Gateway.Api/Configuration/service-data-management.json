@@ -1,0 +1,8 @@
+{
+	"DataManagementService": {
+		"Scope": "data-management-api datasets",
+		"BaseUrl": "http://somepath.eu/datamangement/api/",
+		"DatasetQueryEndpoint": "dataset/query",
+		"DatasetCountEndpoint": "dataset/count"
+	}
+}

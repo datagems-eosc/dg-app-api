@@ -6,9 +6,11 @@ using System.Threading.Tasks;
 
 namespace DataGEMS.Gateway.App.Authorization
 {
-	public static class Permission
+	public interface IAuthorizationContentResolver
 	{
-		//Dataset
-		public const String BrowseDataset = "BrowseDataset";
+		Boolean HasAuthenticated();
+		String CurrentUser();
+
+		Task<List<String>> DatasetRolesOf();
 	}
 }

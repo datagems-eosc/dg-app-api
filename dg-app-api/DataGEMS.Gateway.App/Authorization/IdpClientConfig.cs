@@ -1,4 +1,4 @@
-﻿namespace DataGEMS.Gateway.Api.Authorization
+﻿namespace DataGEMS.Gateway.App.Authorization
 {
     public class IdpClientConfig
     {

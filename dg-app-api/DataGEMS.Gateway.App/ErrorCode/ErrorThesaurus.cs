@@ -12,5 +12,7 @@ namespace DataGEMS.Gateway.App.ErrorCode
 		public ErrorDescription SystemError { get; set; }
 		public ErrorDescription ModelValidation { get; set; }
 		public ErrorDescription UnsupportedAction { get; set; }
+		public ErrorDescription UnderpinningService { get; set; }
+		public ErrorDescription TokenExchange { get; set; }
 	}
 }

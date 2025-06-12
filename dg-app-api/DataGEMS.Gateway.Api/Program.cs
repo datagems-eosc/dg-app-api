@@ -75,7 +75,11 @@ namespace DataGEMS.Gateway.Api
 							//permissions
 							.AddJsonFileInPaths("permissions.json", sharedConfigPath, "Configuration")
 							.AddJsonFileInPaths("permissions.override.json", sharedConfigPath, "Configuration")
-							.AddJsonFileInPaths($"permissions.{env.EnvironmentName}.json", sharedConfigPath, "Configuration");
+							.AddJsonFileInPaths($"permissions.{env.EnvironmentName}.json", sharedConfigPath, "Configuration")
+							//service data management
+							.AddJsonFileInPaths("service-data-management.json", sharedConfigPath, "Configuration")
+							.AddJsonFileInPaths("service-data-management.override.json", sharedConfigPath, "Configuration")
+							.AddJsonFileInPaths($"service-data-management.{env.EnvironmentName}.json", sharedConfigPath, "Configuration");
 						config.AddEnvironmentVariables("DG_GW_");
 						config.EnableSubstitutions("%{", "}%");
 					})

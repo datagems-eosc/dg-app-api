@@ -9,7 +9,7 @@ namespace DataGEMS.Gateway.App.Accounting
 	public enum KnownActions : short
 	{
 		None = 0,
-		Foo = 1,
+		Query = 1,
 		Bar = 2,
 	}
 
@@ -26,6 +26,11 @@ namespace DataGEMS.Gateway.App.Accounting
 		Additive = 0,
 		Subtractive = 1,
 		Reset = 2,
+	}
+
+	public enum KnownResources : short
+	{
+		Datasets = 0,
 	}
 
 	public class AccountingInfo

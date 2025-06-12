@@ -19,8 +19,13 @@ using DataGEMS.Gateway.Api.HealthCheck;
 using DataGEMS.Gateway.Api.Model;
 using DataGEMS.Gateway.App.Accounting;
 using Serilog;
+using Cite.Tools.Data.Censor.Extensions;
+using DataGEMS.Gateway.App.Query;
+using DataGEMS.Gateway.App.DataManagement;
+using DataGEMS.Gateway.App.AccessToken;
+using DataGEMS.Gateway.Api.AccessToken;
 
-//TODO: Validation
+//TODO: Validation. OpenAPI, Query, Account affiliated permissions
 namespace DataGEMS.Gateway.Api
 {
     public class Startup
@@ -37,6 +42,7 @@ namespace DataGEMS.Gateway.Api
 		public void ConfigureServices(IServiceCollection services)
 		{
 			services
+				.AddHttpClient() //HttpClient for outgoing http calls
 				.AddCacheServices(this._config.GetSection("Cache:Provider")) //distributed cache
 				.AddSingleton<JsonHandlingService>() //Json Handling
 				.AddErrorThesaurus(this._config.GetSection("ErrorThesaurus")) //Error Thesaurus
@@ -52,10 +58,17 @@ namespace DataGEMS.Gateway.Api
 				.AddAspNetCoreHostingEnvironmentResolver() //Hosting Environment
 				.AddLogTrackingServices(this._config.GetSection("Tracking:Correlation"), this._config.GetSection("Tracking:Entry")) //Log tracking services
 				.AddPermissionsAndPolicies(this._config.GetSection("Permissions")) //Permissions
-				.AddAccountingServices(this._config.GetSection("Accounting")); //Accounting
+				.AddAccountingServices(this._config.GetSection("Accounting")) //Accounting
+				.AddAccessTokenServices(); //Access token management services
 
 			services
+				.AddCensorsAndFactory(typeof(Cite.Tools.Data.Censor.ICensor), typeof(DataGEMS.Gateway.App.AssemblyHandle)) //Censors
+				.AddQueriesAndFactory(typeof(DataGEMS.Gateway.App.Query.IQuery), typeof(DataGEMS.Gateway.App.AssemblyHandle)) //Queries
 				.AddTransient<AccountBuilder>() //Account builder
+			;
+
+			services
+				.AddDataManagementServices(this._config.GetSection("DataManagementService")) //Data Management API
 			;
 
 			HealthCheckConfig healthCheckConfig = this._config.GetSection("HealthCheck").AsHealthCheckConfig();
@@ -104,6 +117,7 @@ namespace DataGEMS.Gateway.Api
 				.UseAuthentication() //Authentication
 				.UseAuthorization() //Authorization
 				.UseMiddleware(typeof(LogTrackingEntryMiddleware)) //Log Entry Middleware
+				.UseMiddleware(typeof(AccessTokenInterceptMiddleware)) //Bearer Authorization AccessToken interception
 				.UseEndpoints(endpoints => //Endpoints
 				{
 					endpoints.MapControllers();

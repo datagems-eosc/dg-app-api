@@ -31,8 +31,8 @@ namespace DataGEMS.Gateway.Api.Authorization
 				return Task.CompletedTask;
 			}
 
-			Guid? subject = this._extractor.SubjectGuid(context.User);
-			if (subject.HasValue && resource.UserIds.Any(x => x == subject.Value))
+			String subject = this._extractor.SubjectString(context.User);
+			if (!String.IsNullOrEmpty(subject) && resource.UserIds.Any(x => x == subject))
 			{
 				context.Succeed(requirement);
 			}

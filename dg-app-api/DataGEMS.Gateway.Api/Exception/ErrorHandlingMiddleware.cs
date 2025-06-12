@@ -67,7 +67,16 @@ namespace DataGEMS.Gateway.Api.Exception
                 if (code > 0) result = new { code, error = exception.Message };
                 else result = new { error = exception.Message };
             }
-            else if (exception is DGValidationException)
+			else if (exception is DGUnderpinningException)
+			{
+				logLevel = LogLevel.Warning;
+				statusCode = HttpStatusCode.ServiceUnavailable;
+
+				int code = ((DGForbiddenException)exception).Code;
+				if (code > 0) result = new { code, error = exception.Message };
+				else result = new { error = exception.Message };
+			}
+			else if (exception is DGValidationException)
             {
                 logLevel = LogLevel.Debug;
                 statusCode = HttpStatusCode.BadRequest;

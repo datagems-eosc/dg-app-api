@@ -101,7 +101,7 @@ namespace DataGEMS.Gateway.Api.Model
 				if (userId.HasValue)
 				{
 					List<string> userContextRoles = null;// await _authorizationContentResolver.ContextRolesOf(userId.Value);
-					model.DeferredPermissions = new List<string>(_permissionPolicyService.PermissionsOfAffiliated(userContextRoles));
+					model.DeferredPermissions = new List<string>(_permissionPolicyService.PermissionsOfDataset(userContextRoles));
 				}
 			}
 			if (fields.HasField(nameof(Account.Roles))) model.Roles = this._extractor.Roles(principal);
