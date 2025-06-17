@@ -2,10 +2,10 @@
 using Cite.Tools.Data.Builder;
 using Cite.Tools.Data.Query;
 using Cite.Tools.FieldSet;
-using Cite.Tools.Json;
 using Cite.Tools.Logging;
 using Cite.Tools.Logging.Extensions;
 using DataGEMS.Gateway.App.Authorization;
+using DataGEMS.Gateway.App.Common;
 using DataGEMS.Gateway.App.Query;
 using Microsoft.Extensions.Logging;
 
@@ -23,7 +23,6 @@ namespace DataGEMS.Gateway.App.Model.Builder
 			QueryFactory queryFactory,
 			BuilderFactory builderFactory,
 			IAuthorizationContentResolver authorizationContentResolver,
-			JsonHandlingService jsonHandlingService,
 			ILogger<CollectionBuilder> logger) : base(logger)
 		{
 			this._queryFactory = queryFactory;
@@ -41,6 +40,10 @@ namespace DataGEMS.Gateway.App.Model.Builder
 			IFieldSet datasetFields = fields.ExtractPrefixed(this.AsPrefix(nameof(Model.Collection.Datasets)));
 			Dictionary<Guid, List<Model.Dataset>> datasetMap = await this.CollectDatasets(datasetFields, datas);
 
+			IFieldSet permissionFields = fields.ExtractPrefixed(this.AsPrefix(nameof(Model.Collection.Permissions)));
+			Dictionary<Guid, HashSet<String>> collectionAffiliatedRoles = null;
+			if (!permissionFields.IsEmpty()) collectionAffiliatedRoles = await this._authorizationContentResolver.DatasetRolesForCollection(datas.Select(x => x.Id).Distinct().ToList());
+
 			List<Model.Collection> models = new List<Model.Collection>();
 			foreach(DataManagement.Model.Collection d in datas ?? Enumerable.Empty<DataManagement.Model.Collection>())
 			{
@@ -50,6 +53,11 @@ namespace DataGEMS.Gateway.App.Model.Builder
 				if (fields.HasField(nameof(Model.Collection.Name))) m.Name = d.Name;
 				if (fields.HasField(nameof(Model.Collection.DatasetCount))) m.DatasetCount = d.DatasetCount;
 				if (!datasetFields.IsEmpty() && datasetMap != null && datasetMap.ContainsKey(d.Id)) m.Datasets = datasetMap[d.Id];
+				if (!permissionFields.IsEmpty() && collectionAffiliatedRoles != null && collectionAffiliatedRoles.ContainsKey(d.Id))
+				{
+					ISet<String> affiliatedPermissions = this._authorizationContentResolver.PermissionsOfDatasetRoles(collectionAffiliatedRoles[d.Id]);
+					m.Permissions = permissionFields.Fields.ReduceToAssignedPermissions(affiliatedPermissions);
+				}
 
 				models.Add(m);
 			}

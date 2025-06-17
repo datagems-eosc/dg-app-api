@@ -8,5 +8,6 @@ namespace DataGEMS.Gateway.App.Model
 		public String Name { get; set; }
 		public List<Model.Dataset> Datasets { get; set; }
 		public int? DatasetCount { get; set; }
+		public List<String> Permissions { get; set; }
 	}
 }

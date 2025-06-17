@@ -27,7 +27,7 @@ using Cite.Tools.Data.Query.Extensions;
 using Cite.Tools.Data.Builder.Extensions;
 using Cite.Tools.Validation.Extensions;
 
-//TODO: OpenAPI, Datasaet.Permissions
+//TODO: OpenAPI
 namespace DataGEMS.Gateway.Api
 {
     public class Startup

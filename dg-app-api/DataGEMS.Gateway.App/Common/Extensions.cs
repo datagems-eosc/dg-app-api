@@ -49,5 +49,13 @@ namespace DataGEMS.Gateway.App.Common
 
 			return isRequestedNonEmpty && isCensoredEmpty;
 		}
+
+		public static List<String> ReduceToAssignedPermissions(this IEnumerable<String> requested, IEnumerable<String> assigned)
+		{
+			if (assigned == null || !assigned.Any() || requested == null || !requested.Any()) return Enumerable.Empty<String>().ToList();
+			HashSet<String> assignedSet = assigned.Select(x => x.ToLower()).ToHashSet();
+			List<String> matched = requested.Select(x => x.ToLower()).Where(x => assignedSet.Contains(x)).ToList();
+			return matched;
+		}
 	}
 }

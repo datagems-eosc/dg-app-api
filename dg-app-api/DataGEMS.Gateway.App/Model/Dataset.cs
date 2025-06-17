@@ -7,6 +7,6 @@ namespace DataGEMS.Gateway.App.Model
 		public String Code { get; set; }
 		public String Name { get; set; }
 		public List<Model.Collection> Collections { get; set; }
-		public String Permissions { get; set; }
+		public List<String> Permissions { get; set; }
 	}
 }
