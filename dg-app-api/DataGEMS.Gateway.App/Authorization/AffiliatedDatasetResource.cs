@@ -1,5 +1,4 @@
 ﻿
-
 namespace DataGEMS.Gateway.App.Authorization
 {
 	public class AffiliatedDatasetResource

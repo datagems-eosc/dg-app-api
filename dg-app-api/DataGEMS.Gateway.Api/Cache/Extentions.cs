@@ -1,6 +1,5 @@
 ﻿using Cite.Tools.Cache;
 using DataGEMS.Gateway.App.Exception;
-using System;
 
 namespace DataGEMS.Gateway.Api.Cache
 {

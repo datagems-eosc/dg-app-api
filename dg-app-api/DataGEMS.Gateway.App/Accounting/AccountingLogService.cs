@@ -4,7 +4,6 @@ using Cite.Tools.Logging;
 using Cite.Tools.Logging.Extensions;
 using Cite.WebTools.CurrentPrincipal;
 using Microsoft.Extensions.Logging;
-using System.Linq;
 
 namespace DataGEMS.Gateway.App.Accounting
 {

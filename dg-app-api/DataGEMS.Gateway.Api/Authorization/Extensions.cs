@@ -46,19 +46,27 @@ namespace DataGEMS.Gateway.Api.Authorization
             return services;
         }
 
-		public static IServiceCollection AddPermissionsAndPolicies(this IServiceCollection services, IConfigurationSection permissionsConfigurationSection)
-		{
-			services.ConfigurePOCO<PermissionPolicyConfig>(permissionsConfigurationSection);
-			//GOTCHA: this can be singleton because it reads the permissions from config
-			services.AddSingleton<IPermissionPolicyService, PermissionPolicyService>();
-			services.AddScoped<DataGEMS.Gateway.App.Authorization.IAuthorizationService, DataGEMS.Gateway.Api.Authorization.AuthorizationService>();
-			services.AddSingleton<Microsoft.AspNetCore.Authorization.IAuthorizationHandler, PermissionRoleAuthorizationHandler>();
-			services.AddSingleton<Microsoft.AspNetCore.Authorization.IAuthorizationHandler, AffiliatedDatasetAuthorizationHandler>();
-			services.AddSingleton<Microsoft.AspNetCore.Authorization.IAuthorizationHandler, PermissionClaimAuthorizationHandler>();
-			services.AddSingleton<Microsoft.AspNetCore.Authorization.IAuthorizationHandler, PermissionClientAuthorizationHandler>();
-			services.AddSingleton<Microsoft.AspNetCore.Authorization.IAuthorizationHandler, OwnedResourceAuthorizationHandler>();
-			services.AddSingleton<Microsoft.AspNetCore.Authorization.IAuthorizationHandler, PermissionAnonymousAuthorizationHandler>();
-			services.AddSingleton<Microsoft.AspNetCore.Authorization.IAuthorizationHandler, PermissionAuthenticatedAuthorizationHandler>();
+        public static IServiceCollection AddPermissionsAndPolicies(this IServiceCollection services, IConfigurationSection permissionsConfigurationSection)
+        {
+            services.ConfigurePOCO<PermissionPolicyConfig>(permissionsConfigurationSection);
+            //GOTCHA: this can be singleton because it reads the permissions from config
+            services.AddSingleton<IPermissionPolicyService, PermissionPolicyService>();
+            services.AddScoped<DataGEMS.Gateway.App.Authorization.IAuthorizationService, DataGEMS.Gateway.Api.Authorization.AuthorizationService>();
+            services.AddSingleton<Microsoft.AspNetCore.Authorization.IAuthorizationHandler, PermissionRoleAuthorizationHandler>();
+            services.AddSingleton<Microsoft.AspNetCore.Authorization.IAuthorizationHandler, AffiliatedDatasetAuthorizationHandler>();
+            services.AddSingleton<Microsoft.AspNetCore.Authorization.IAuthorizationHandler, PermissionClaimAuthorizationHandler>();
+            services.AddSingleton<Microsoft.AspNetCore.Authorization.IAuthorizationHandler, PermissionClientAuthorizationHandler>();
+            services.AddSingleton<Microsoft.AspNetCore.Authorization.IAuthorizationHandler, OwnedResourceAuthorizationHandler>();
+            services.AddSingleton<Microsoft.AspNetCore.Authorization.IAuthorizationHandler, PermissionAnonymousAuthorizationHandler>();
+            services.AddSingleton<Microsoft.AspNetCore.Authorization.IAuthorizationHandler, PermissionAuthenticatedAuthorizationHandler>();
+
+            return services;
+        }
+
+
+        public static IServiceCollection AddAuthorizationContentResolverServices(this IServiceCollection services)
+        {
+			services.AddScoped<IAuthorizationContentResolver, AuthorizationContentResolver>();
 
 			return services;
 		}

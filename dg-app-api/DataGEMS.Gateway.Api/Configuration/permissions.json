@@ -10,6 +10,24 @@
 				"Clients": [],
 				"AllowAnonymous": false,
 				"AllowAuthenticated": false
+			},
+			//DatasetCollection
+			"BrowseDatasetCollection": {
+				"Roles": [ "admin" ],
+				"DatasetRoles": [ "browse" ],
+				"Claims": [],
+				"Clients": [],
+				"AllowAnonymous": false,
+				"AllowAuthenticated": false
+			},
+			//Collection
+			"BrowseCollection": {
+				"Roles": [ "admin" ],
+				"DatasetRoles": [ "browse" ],
+				"Claims": [],
+				"Clients": [],
+				"AllowAnonymous": false,
+				"AllowAuthenticated": false
 			}
 		}
 	}

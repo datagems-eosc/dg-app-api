@@ -1,6 +1,5 @@
 using Cite.Tools.Configuration.Extensions;
 using Cite.Tools.Configuration.Substitution;
-using Microsoft.AspNetCore.Hosting;
 using Serilog;
 
 namespace DataGEMS.Gateway.Api

@@ -20,12 +20,14 @@ using DataGEMS.Gateway.Api.Model;
 using DataGEMS.Gateway.App.Accounting;
 using Serilog;
 using Cite.Tools.Data.Censor.Extensions;
-using DataGEMS.Gateway.App.Query;
 using DataGEMS.Gateway.App.DataManagement;
 using DataGEMS.Gateway.App.AccessToken;
 using DataGEMS.Gateway.Api.AccessToken;
+using Cite.Tools.Data.Query.Extensions;
+using Cite.Tools.Data.Builder.Extensions;
+using Cite.Tools.Validation.Extensions;
 
-//TODO: Validation. OpenAPI, Query, Account affiliated permissions
+//TODO: OpenAPI, Datasaet.Permissions
 namespace DataGEMS.Gateway.Api
 {
     public class Startup
@@ -58,18 +60,22 @@ namespace DataGEMS.Gateway.Api
 				.AddAspNetCoreHostingEnvironmentResolver() //Hosting Environment
 				.AddLogTrackingServices(this._config.GetSection("Tracking:Correlation"), this._config.GetSection("Tracking:Entry")) //Log tracking services
 				.AddPermissionsAndPolicies(this._config.GetSection("Permissions")) //Permissions
+				.AddAuthorizationContentResolverServices() //Authorization Content Resolver
 				.AddAccountingServices(this._config.GetSection("Accounting")) //Accounting
 				.AddAccessTokenServices(); //Access token management services
 
 			services
 				.AddCensorsAndFactory(typeof(Cite.Tools.Data.Censor.ICensor), typeof(DataGEMS.Gateway.App.AssemblyHandle)) //Censors
-				.AddQueriesAndFactory(typeof(DataGEMS.Gateway.App.Query.IQuery), typeof(DataGEMS.Gateway.App.AssemblyHandle)) //Queries
+				.AddQueriesAndFactory(typeof(Cite.Tools.Data.Query.IQuery), typeof(DataGEMS.Gateway.App.AssemblyHandle)) //Queries
+				.AddBuildersAndFactory(typeof(Cite.Tools.Data.Builder.IBuilder), typeof(DataGEMS.Gateway.App.AssemblyHandle)) //Builders
 				.AddTransient<AccountBuilder>() //Account builder
+				.AddValidatorsAndFactory(typeof(Cite.Tools.Validation.IValidator), typeof(DataGEMS.Gateway.App.AssemblyHandle), typeof(DataGEMS.Gateway.Api.AssemblyHandle)) //Validators
 			;
 
 			services
-				.AddDataManagementServices(this._config.GetSection("DataManagementService")) //Data Management API
+				.AddDataManagementServices(this._config.GetSection("DataManagementService:Http"), this._config.GetSection("DataManagementService:Local")) //Data Management API
 			;
+
 
 			HealthCheckConfig healthCheckConfig = this._config.GetSection("HealthCheck").AsHealthCheckConfig();
 			services.AddFolderHealthChecks(healthCheckConfig.Folder);

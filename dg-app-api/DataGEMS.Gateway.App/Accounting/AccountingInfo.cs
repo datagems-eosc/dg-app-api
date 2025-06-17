@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace DataGEMS.Gateway.App.Accounting
 {
 	public enum KnownActions : short
@@ -30,7 +25,8 @@ namespace DataGEMS.Gateway.App.Accounting
 
 	public enum KnownResources : short
 	{
-		Datasets = 0,
+		Dataset = 0,
+		Collection = 1,
 	}
 
 	public class AccountingInfo

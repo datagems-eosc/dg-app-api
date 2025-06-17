@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace DataGEMS.Gateway.App.Authorization
 {
 	public interface IAuthorizationContentResolver
@@ -11,6 +6,10 @@ namespace DataGEMS.Gateway.App.Authorization
 		Boolean HasAuthenticated();
 		String CurrentUser();
 
+		Task<Boolean> HasPermission(params String[] permissions);
+
 		Task<List<String>> DatasetRolesOf();
+		Task<List<String>> AffiliatedDatasetGroupCodes();
+		Task<List<Guid>> AffiliatedDatasetIds();
 	}
 }

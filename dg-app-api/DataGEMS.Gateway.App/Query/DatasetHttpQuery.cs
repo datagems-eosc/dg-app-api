@@ -1,30 +1,41 @@
-﻿using Cite.Tools.Json;
+﻿using Cite.Tools.Common.Extensions;
+using Cite.Tools.Data.Query;
+using Cite.Tools.Json;
 using Cite.Tools.Logging.Extensions;
 using DataGEMS.Gateway.App.AccessToken;
-using DataGEMS.Gateway.App.DataManagement.Model;
+using DataGEMS.Gateway.App.Common;
+using DataGEMS.Gateway.App.DataManagement;
 using DataGEMS.Gateway.App.ErrorCode;
 using DataGEMS.Gateway.App.Exception;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 
-namespace DataGEMS.Gateway.App.DataManagement
+namespace DataGEMS.Gateway.App.Query
 {
-    public class DataManagementService : IDataManagementService
-    {
+	public class DatasetHttpQuery : Cite.Tools.Data.Query.IQuery
+	{
+		private List<Guid> _ids { get; set; }
+		private List<Guid> _excludedIds { get; set; }
+		private List<Guid> _collectionIds { get; set; }
+		private String _like { get; set; }
+
+		public Paging Page { get; set; }
+		public Ordering Order { get; set; }
+
 		private readonly IAccessTokenService _accessTokenService;
 		private readonly IHttpClientFactory _httpClientFactory;
-		private readonly DataManagementConfig _config;
+		private readonly DataManagementHttpConfig _config;
+		private readonly ILogger<DatasetHttpQuery> _logger;
 		private readonly RequestTokenIntercepted _requestAccessToken;
-		private readonly ILogger<DataManagementService> _logger;
 		private readonly ErrorThesaurus _errors;
 		private readonly JsonHandlingService _jsonHandlingService;
 
-		public DataManagementService(
+		public DatasetHttpQuery(
 			IHttpClientFactory httpClientFactory,
 			IAccessTokenService accessTokenService,
-			DataManagementConfig config,
+			DataManagementHttpConfig config,
 			RequestTokenIntercepted requestAccessToken,
-			ILogger<DataManagementService> logger,
+			ILogger<DatasetHttpQuery> logger,
 			JsonHandlingService jsonHandlingService,
 			ErrorThesaurus errors)
 		{
@@ -37,11 +48,25 @@ namespace DataGEMS.Gateway.App.DataManagement
 			this._errors = errors;
 		}
 
-		public async Task<List<Dataset>> Collect()
+		public DatasetHttpQuery Ids(IEnumerable<Guid> ids) { this._ids = ids?.ToList(); return this; }
+		public DatasetHttpQuery Ids(Guid id) { this._ids = id.AsList(); return this; }
+		public DatasetHttpQuery ExcludedIds(IEnumerable<Guid> excludedIds) { this._excludedIds = excludedIds?.ToList(); return this; }
+		public DatasetHttpQuery ExcludedIds(Guid excludedId) { this._excludedIds = excludedId.AsList(); return this; }
+		public DatasetHttpQuery CollectionIds(IEnumerable<Guid> collectionIds) { this._collectionIds = collectionIds?.ToList(); return this; }
+		public DatasetHttpQuery CollectionIds(Guid collectionId) { this._collectionIds = collectionId.AsList(); return this; }
+		public DatasetHttpQuery Like(String like) { this._like = like; return this; }
+
+		protected bool IsFalseQuery()
+		{
+			return this._ids.IsNotNullButEmpty() || this._excludedIds.IsNotNullButEmpty() || this._collectionIds.IsNotNullButEmpty();
+		}
+
+		public async Task<List<DataManagement.Model.Dataset>> CollectAsync()
 		{
 			String token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
 			if (token == null) throw new DGUnderpinningException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
 
+			//TODO: Apply query
 			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"{this._config.BaseUrl}{this._config.DatasetQueryEndpoint}");
 			request.Headers.Add(HeaderNames.Accept, "application/json");
 			request.Headers.Add(HeaderNames.Authorization, $"Bearer {token}");
@@ -59,11 +84,12 @@ namespace DataGEMS.Gateway.App.DataManagement
 			}
 		}
 
-		public async Task<int> Count()
+		public async Task<int> CountAsync()
 		{
 			String token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
 			if (token == null) throw new DGUnderpinningException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
 
+			//TODO: Apply query
 			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"{this._config.BaseUrl}{this._config.DatasetQueryEndpoint}");
 			request.Headers.Add(HeaderNames.Accept, "application/json");
 			request.Headers.Add(HeaderNames.Authorization, $"Bearer {token}");
@@ -74,7 +100,7 @@ namespace DataGEMS.Gateway.App.DataManagement
 				int count = Convert.ToInt32(content);
 				return count;
 			}
-			catch(System.Exception ex)
+			catch (System.Exception ex)
 			{
 				this._logger.Error(ex, "problem converting response {content}", content);
 				throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message);

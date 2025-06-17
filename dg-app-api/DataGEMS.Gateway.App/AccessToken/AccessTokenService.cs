@@ -2,7 +2,6 @@
 using DataGEMS.Gateway.App.Authorization;
 using DataGEMS.Gateway.App.Common;
 using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json;

@@ -2,7 +2,6 @@
 using Cite.Tools.Common.Extensions;
 using Cite.Tools.FieldSet;
 using Cite.Tools.Logging;
-using Cite.WebTools.CurrentPrincipal;
 using DataGEMS.Gateway.App.Authorization;
 using DataGEMS.Gateway.App.Common.Auth;
 using System.Security.Claims;
@@ -54,25 +53,25 @@ namespace DataGEMS.Gateway.Api.Model
 	{
 		private readonly IPermissionPolicyService _permissionPolicyService;
 		private readonly ClaimExtractor _extractor;
-		//private readonly IAuthorizationContentResolver _authorizationContentResolver;
+		private readonly IAuthorizationContentResolver _authorizationContentResolver;
 
 		public AccountBuilder(
 			IPermissionPolicyService permissionPolicyService,
-			ClaimExtractor extractor)
-			//IAuthorizationContentResolver authorizationContentResolver)
+			ClaimExtractor extractor,
+			IAuthorizationContentResolver authorizationContentResolver)
 		{
 			this._permissionPolicyService = permissionPolicyService;
 			this._extractor = extractor;
-			//this._authorizationContentResolver = authorizationContentResolver;
+			this._authorizationContentResolver = authorizationContentResolver;
 		}
 
-		public Task<Account> Build(IFieldSet fields, ClaimsPrincipal principal)
+		public async Task<Account> Build(IFieldSet fields, ClaimsPrincipal principal)
 		{
 			Account model = new Account();
 
 			Boolean isAuthenticated = principal != null;
 			if(fields.HasField(nameof(Account.IsAuthenticated))) model.IsAuthenticated = isAuthenticated;
-			if(!isAuthenticated) return Task.FromResult(model);
+			if(!isAuthenticated) return model;
 
 			IFieldSet principalFields = fields.ExtractPrefixed(nameof(Account.Principal).AsIndexerPrefix());
 			if (!principalFields.IsEmpty()) model.Principal = new Account.PrincipalInfo();
@@ -100,15 +99,15 @@ namespace DataGEMS.Gateway.Api.Model
 				Guid? userId = _extractor.SubjectGuid(principal);
 				if (userId.HasValue)
 				{
-					List<string> userContextRoles = null;// await _authorizationContentResolver.ContextRolesOf(userId.Value);
-					model.DeferredPermissions = new List<string>(_permissionPolicyService.PermissionsOfDataset(userContextRoles));
+					List<string> datasetRoles = await _authorizationContentResolver.DatasetRolesOf();
+					model.DeferredPermissions = new List<string>(_permissionPolicyService.PermissionsOfDataset(datasetRoles));
 				}
 			}
 			if (fields.HasField(nameof(Account.Roles))) model.Roles = this._extractor.Roles(principal);
 			if (fields.HasField(nameof(Account.Datasets))) model.Datasets = this._extractor.Datasets(principal);
 			if (fields.HasField(nameof(Account.DatasetGrants))) model.DatasetGrants = this._extractor.DatasetGrants(principal);
 
-			return Task.FromResult(model);
+			return model;
 		}
 	}
 }

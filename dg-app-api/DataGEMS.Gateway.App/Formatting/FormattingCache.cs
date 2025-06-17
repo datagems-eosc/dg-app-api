@@ -5,12 +5,6 @@ using Cite.Tools.Logging.Extensions;
 using DataGEMS.Gateway.App.Event;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DataGEMS.Gateway.App.Formatting
 {
