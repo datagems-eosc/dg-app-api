@@ -1,11 +1,13 @@
 ﻿using Cite.Tools.Common.Extensions;
 using Cite.Tools.FieldSet;
+using Cite.Tools.Logging;
 using Cite.Tools.Logging.Extensions;
 using Cite.WebTools.CurrentPrincipal;
 using DataGEMS.Gateway.Api.Model;
 using DataGEMS.Gateway.Api.Validation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 using System.Security.Claims;
 
 namespace DataGEMS.Gateway.Api.Controllers
@@ -30,9 +32,17 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[HttpGet("me")]
 		[Authorize]
 		[ModelStateValidationFilter]
-		public async Task<Account> Me([ModelBinder(Name = "f")] IFieldSet fieldSet)
+		[SwaggerOperation(Summary = "Retrieve information for the logged in user")]
+		[SwaggerResponse(statusCode: 200, description: "The information available for the logged in user", type: typeof(Account))]
+		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
+		[SwaggerResponse(statusCode: 500, description: "Internal error")]
+		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
+		public async Task<Account> Me(
+			[ModelBinder(Name = "f")]
+			[SwaggerParameter(description: "The fields to include in the response model", Required = false)]
+			IFieldSet fieldSet)
 		{
-			this._logger.Debug("me");
+			this._logger.Debug(new MapLogEntry("me").And("fields", fieldSet));
 			if (fieldSet == null || fieldSet.IsEmpty()) fieldSet = new FieldSet(
 				nameof(Account.IsAuthenticated),
 				nameof(Account.Roles),

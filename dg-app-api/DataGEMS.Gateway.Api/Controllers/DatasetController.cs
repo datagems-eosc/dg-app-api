@@ -19,6 +19,7 @@ using DataGEMS.Gateway.App.Query;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace DataGEMS.Gateway.Api.Controllers
 {
@@ -55,7 +56,19 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[Authorize]
 		[ModelStateValidationFilter]
 		[ValidationFilter(typeof(DatasetLookup.QueryValidator), "lookup")]
-		public async Task<QueryResult<App.Model.Dataset>> Query([FromBody] DatasetLookup lookup)
+		[SwaggerOperation(Summary = "Query datasets")]
+		[SwaggerResponse(statusCode: 200, description: "The list of matching datasets along with the count", type: typeof(QueryResult<App.Model.Dataset>))]
+		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
+		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
+		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
+		[SwaggerResponse(statusCode: 500, description: "Internal error")]
+		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
+		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
+		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
+		public async Task<QueryResult<App.Model.Dataset>> Query(
+			[FromBody]
+			[SwaggerRequestBody(description: "The query predicates", Required = true)] 
+			DatasetLookup lookup)
 		{
 			this._logger.Debug(new MapLogEntry("querying").And("type", nameof(App.Model.Dataset)).And("lookup", lookup));
 
@@ -75,7 +88,22 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[HttpGet("{id}")]
 		[Authorize]
 		[ModelStateValidationFilter]
-		public async Task<App.Model.Dataset> Get([FromRoute] Guid id, [ModelBinder(Name = "f")] IFieldSet fieldSet)
+		[SwaggerOperation(Summary = "Lookup dataset by id")]
+		[SwaggerResponse(statusCode: 200, description: "The list of matching datasets along with the count", type: typeof(QueryResult<App.Model.Dataset>))]
+		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
+		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
+		[SwaggerResponse(statusCode: 404, description: "Could not locate item with the provided id")]
+		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
+		[SwaggerResponse(statusCode: 500, description: "Internal error")]
+		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
+		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
+		public async Task<App.Model.Dataset> Get(
+			[FromRoute]
+			[SwaggerParameter(description: "The id of the item to lookup", Required = true)] 
+			Guid id, 
+			[ModelBinder(Name = "f")]
+			[SwaggerParameter(description: "The fields to include in the response model", Required = true)] 
+			IFieldSet fieldSet)
 		{
 			this._logger.Debug(new MapLogEntry("get").And("type", nameof(App.Model.Dataset)).And("id", id).And("fields", fieldSet));
 

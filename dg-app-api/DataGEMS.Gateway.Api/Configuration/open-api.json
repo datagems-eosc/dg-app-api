@@ -1,0 +1,33 @@
+{
+	"OpenApi": {
+		"Environments": [ "Development", "SCAYLEDevelopment" ],
+		"Version": "v1",
+		"Title": "DataGEMS Gateway API",
+		"Description": "Gateway API exposing the DataGEMS underpinning functionality",
+		"Terms": {
+			"Url": "https://datagems.eu/terms"
+		},
+		"Contact": {
+			"Name": "DataGEMS helpdesk",
+			"Url": "https://datagems.eu/contact-us/"
+		},
+		"License": {
+			"Name": "EUPL-1.2 license",
+			"Url": "https://interoperable-europe.ec.europa.eu/sites/default/files/custom-page/attachment/2020-03/EUPL-1.2%20EN.txt"
+		},
+		"OAuth2": {
+			"AuthorizationUrl": "%{OpenApiOAuth2AuthorizationUrl}%",
+			"TokenUrl": "%{OpenApiOAuth2TokenUrl}%",
+			"Scopes": {
+				"openid": "OpenID Connect",
+				"profile": "User profile",
+				"email": "Email",
+				"datasets": "Datasets",
+				"dg-app-api": "DataGEMS Gateway API"
+			},
+			"ClientId": "swagger-client",
+			"ClientName": "Swagger UI - DataGEMS Gateway API - dg-app-api",
+			"UsePkce": false
+		}
+	}
+}

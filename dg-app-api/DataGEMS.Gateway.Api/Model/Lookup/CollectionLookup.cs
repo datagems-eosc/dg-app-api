@@ -5,14 +5,19 @@ using DataGEMS.Gateway.App.Common.Validation;
 using DataGEMS.Gateway.App.ErrorCode;
 using DataGEMS.Gateway.App.Query;
 using Microsoft.Extensions.Localization;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace DataGEMS.Gateway.Api.Model.Lookup
 {
 	public class CollectionLookup : Cite.Tools.Data.Query.Lookup
 	{
+		[SwaggerSchema(description: "Limit lookup to items with specific ids. If set, the list of ids must not be empty", Title = "Collection ids", Nullable = true)]
 		public List<Guid> Ids { get; set; }
+		[SwaggerSchema(description: "Exclude from the lookup items with specific ids. If set, the list of ids must not be empty", Title = "Excluded collection ids", Nullable = true)]
 		public List<Guid> ExcludedIds { get; set; }
+		[SwaggerSchema(description: "Limit lookup to items containing the specific dataset ids. If set, the list of ids must not be empty", Title = "Dataset ids", Nullable = true)]
 		public List<Guid> DatasetIds { get; set; }
+		[SwaggerSchema(description: "Limit lookup to items whose name matches the pattern", Title = "Name pattern", Nullable = true)]
 		public String Like { get; set; }
 
 		public CollectionLocalQuery Enrich(QueryFactory factory)

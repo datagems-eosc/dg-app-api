@@ -71,6 +71,10 @@ namespace DataGEMS.Gateway.Api
 							.AddJsonFileInPaths("log-tracking.json", sharedConfigPath, "Configuration")
 							.AddJsonFileInPaths("log-tracking.override.json", sharedConfigPath, "Configuration")
 							.AddJsonFileInPaths($"log-tracking.{env.EnvironmentName}.json", sharedConfigPath, "Configuration")
+							//open api
+							.AddJsonFileInPaths("open-api.json", sharedConfigPath, "Configuration")
+							.AddJsonFileInPaths("open-api.override.json", sharedConfigPath, "Configuration")
+							.AddJsonFileInPaths($"open-api.{env.EnvironmentName}.json", sharedConfigPath, "Configuration")
 							//permissions
 							.AddJsonFileInPaths("permissions.json", sharedConfigPath, "Configuration")
 							.AddJsonFileInPaths("permissions.override.json", sharedConfigPath, "Configuration")

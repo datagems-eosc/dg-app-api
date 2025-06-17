@@ -26,8 +26,8 @@ using DataGEMS.Gateway.Api.AccessToken;
 using Cite.Tools.Data.Query.Extensions;
 using Cite.Tools.Data.Builder.Extensions;
 using Cite.Tools.Validation.Extensions;
+using DataGEMS.Gateway.Api.OpenApi;
 
-//TODO: OpenAPI
 namespace DataGEMS.Gateway.Api
 {
     public class Startup
@@ -76,7 +76,6 @@ namespace DataGEMS.Gateway.Api
 				.AddDataManagementServices(this._config.GetSection("DataManagementService:Http"), this._config.GetSection("DataManagementService:Local")) //Data Management API
 			;
 
-
 			HealthCheckConfig healthCheckConfig = this._config.GetSection("HealthCheck").AsHealthCheckConfig();
 			services.AddFolderHealthChecks(healthCheckConfig.Folder);
 			services.AddMemoryHealthChecks(healthCheckConfig.Memory);
@@ -105,7 +104,10 @@ namespace DataGEMS.Gateway.Api
 				options.SerializerSettings.DateTimeZoneHandling = Newtonsoft.Json.DateTimeZoneHandling.Utc;
 				options.SerializerSettings.DateFormatHandling = Newtonsoft.Json.DateFormatHandling.IsoDateFormat;
 				options.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
-			});
+			})
+			.AddApiExplorer(); //needed because of Swashbuckle
+
+			services.AddOpenApiServices(this._config.GetSection("OpenApi"));
 		}
 
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -129,6 +131,7 @@ namespace DataGEMS.Gateway.Api
 					endpoints.MapControllers();
 					if (healthCheckConfig.Endpoint?.IsEnabled ?? false) endpoints.ConfigureHealthCheckEndpoint(healthCheckConfig.Endpoint);
 				})
+				.ConfigureUseSwagger(this._config.GetSection("OpenApi"), env.EnvironmentName)
 				.BootstrapFormattingCacheInvalidationServices(); //Formatting
 		}
 	}
