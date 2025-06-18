@@ -4,6 +4,7 @@ using Cite.Tools.Logging;
 using Cite.Tools.Logging.Extensions;
 using Cite.WebTools.CurrentPrincipal;
 using DataGEMS.Gateway.Api.Model;
+using DataGEMS.Gateway.Api.OpenApi;
 using DataGEMS.Gateway.Api.Validation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -40,6 +41,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		public async Task<Account> Me(
 			[ModelBinder(Name = "f")]
 			[SwaggerParameter(description: "The fields to include in the response model", Required = false)]
+			[LookupFieldSetQueryStringOpenApi]
 			IFieldSet fieldSet)
 		{
 			this._logger.Debug(new MapLogEntry("me").And("fields", fieldSet));

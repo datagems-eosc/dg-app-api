@@ -30,6 +30,7 @@ using DataGEMS.Gateway.Api.OpenApi;
 
 namespace DataGEMS.Gateway.Api
 {
+	//TODO: Add correlation id in http call headers
     public class Startup
 	{
 		public Startup(IConfiguration configuration, IWebHostEnvironment env)

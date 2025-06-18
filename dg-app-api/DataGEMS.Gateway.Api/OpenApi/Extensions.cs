@@ -55,6 +55,7 @@ namespace DataGEMS.Gateway.Api.OpenApi
 					options.SchemaFilter<LookupFieldSetSchemaFilter>();
 					options.SchemaFilter<EnumDescriptionFilter>();
 					options.OperationFilter<SecurityRequirementsOperationFilter>();
+					options.ParameterFilter<LookupFieldSetQueryStringSchemaFilter>();
 				})
 				.AddSwaggerGenNewtonsoftSupport();
 

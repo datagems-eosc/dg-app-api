@@ -7,6 +7,7 @@ using Cite.Tools.Logging.Extensions;
 using Cite.WebTools.Validation;
 using DataGEMS.Gateway.Api.Model;
 using DataGEMS.Gateway.Api.Model.Lookup;
+using DataGEMS.Gateway.Api.OpenApi;
 using DataGEMS.Gateway.Api.Validation;
 using DataGEMS.Gateway.App.Accounting;
 using DataGEMS.Gateway.App.Authorization;
@@ -102,7 +103,8 @@ namespace DataGEMS.Gateway.Api.Controllers
 			[SwaggerParameter(description: "The id of the item to lookup", Required = true)] 
 			Guid id, 
 			[ModelBinder(Name = "f")]
-			[SwaggerParameter(description: "The fields to include in the response model", Required = true)] 
+			[SwaggerParameter(description: "The fields to include in the response model", Required = true)]
+			[LookupFieldSetQueryStringOpenApi]
 			IFieldSet fieldSet)
 		{
 			this._logger.Debug(new MapLogEntry("get").And("type", nameof(App.Model.Dataset)).And("id", id).And("fields", fieldSet));
