@@ -1,11 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using DataGEMS.Gateway.App.Common.Data;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DataGEMS.Gateway.App.DataManagement.Data
 {
-	public class Dataset
+    public class Dataset
 	{
 		[Key]
 		[Required]

@@ -4,9 +4,9 @@
       "Paths": [ "%{LogsPath}%" ]
     },
     "Memory": {
-      "maxPrivateMemoryBytes": 10485760, //10MB = 10485760B
-      "maxProcessMemoryBytes": 10485760, //10MB = 10485760B
-      "maxVirtualMemoryBytes": 10485760 //10MB = 10485760B
+      "maxPrivateMemoryBytes": 104857600, //100MB = 104857600
+      "maxProcessMemoryBytes": 104857600, //100MB = 104857600
+      "maxVirtualMemoryBytes": null
     },
     "Endpoint": {
       "IsEnabled": true,

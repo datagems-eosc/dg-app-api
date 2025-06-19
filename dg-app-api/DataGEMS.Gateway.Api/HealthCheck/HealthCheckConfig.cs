@@ -13,9 +13,9 @@
 
 		public class MemoryConfig
 		{
-			public long MaxPrivateMemoryBytes { get; set; }
-			public long MaxProcessMemoryBytes { get; set; }
-			public long MaxVirtualMemoryBytes { get; set; }
+			public long? MaxPrivateMemoryBytes { get; set; }
+			public long? MaxProcessMemoryBytes { get; set; }
+			public long? MaxVirtualMemoryBytes { get; set; }
 		}
 
 		public class EndpointConfig

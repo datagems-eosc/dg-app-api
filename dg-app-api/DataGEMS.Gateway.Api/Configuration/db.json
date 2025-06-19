@@ -1,0 +1,7 @@
+{
+  "DB": {
+    "ConnectionStrings": {
+      "AppDbContext": "%{AppConnectionString}%"
+    }
+  }
+}

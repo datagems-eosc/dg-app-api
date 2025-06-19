@@ -9,24 +9,24 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace DataGEMS.Gateway.Api.Model.Lookup
 {
-	public class DatasetLookup : Cite.Tools.Data.Query.Lookup
+	public class UserLookup : Cite.Tools.Data.Query.Lookup
 	{
 		[SwaggerSchema(description:"Limit lookup to items with specific ids. If set, the list of ids must not be empty")]
 		public List<Guid> Ids { get; set; }
 		[SwaggerSchema(description: "Exclude from the lookup items with specific ids. If set, the list of ids must not be empty")]
 		public List<Guid> ExcludedIds { get; set; }
-		[SwaggerSchema(description: "Limit lookup to items belonging to the specific collection ids. If set, the list of ids must not be empty")]
-		public List<Guid> CollectionIds { get; set; }
-		[SwaggerSchema(description: "Limit lookup to items whose name matches the pattern")]
+		[SwaggerSchema(description: "Limit lookup to items with specific subject identifiers as produced from the idp. If set, the list of ids must not be empty")]
+		public List<String> IdpSubjectIds { get; set; }
+		[SwaggerSchema(description: "Limit lookup to items whose name or email matches the pattern")]
 		public String Like { get; set; }
 
-		public DatasetLocalQuery Enrich(QueryFactory factory)
+		public UserQuery Enrich(QueryFactory factory)
 		{
-			DatasetLocalQuery query = factory.Query<DatasetLocalQuery>();
+			UserQuery query = factory.Query<UserQuery>();
 
 			if (this.Ids != null) query.Ids(this.Ids);
 			if (this.ExcludedIds != null) query.ExcludedIds(this.ExcludedIds);
-			if (this.CollectionIds != null) query.CollectionIds(this.CollectionIds);
+			if (this.IdpSubjectIds != null) query.IdpSubjectIds(this.IdpSubjectIds);
 			if (!String.IsNullOrEmpty(this.Like)) query.Like(this.Like);
 
 			this.EnrichCommon(query);
@@ -34,7 +34,7 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 			return query;
 		}
 
-		public class QueryValidator : BaseValidator<DatasetLookup>
+		public class QueryValidator : BaseValidator<UserLookup>
 		{
 			public QueryValidator(
 				IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> localizer,
@@ -47,26 +47,26 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 
 			private readonly IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> _localizer;
 
-			protected override IEnumerable<ISpecification> Specifications(DatasetLookup item)
+			protected override IEnumerable<ISpecification> Specifications(UserLookup item)
 			{
 				return new ISpecification[]{
 					//ids must be null or not empty
 					this.Spec()
 						.Must(() => !item.Ids.IsNotNullButEmpty())
-						.FailOn(nameof(DatasetLookup.Ids)).FailWith(this._localizer["validation_setButEmpty", nameof(DatasetLookup.Ids)]),
+						.FailOn(nameof(UserLookup.Ids)).FailWith(this._localizer["validation_setButEmpty", nameof(UserLookup.Ids)]),
 					//excludedIds must be null or not empty
 					this.Spec()
 						.Must(() => !item.ExcludedIds.IsNotNullButEmpty())
-						.FailOn(nameof(DatasetLookup.ExcludedIds)).FailWith(this._localizer["validation_setButEmpty", nameof(DatasetLookup.ExcludedIds)]),
+						.FailOn(nameof(UserLookup.ExcludedIds)).FailWith(this._localizer["validation_setButEmpty", nameof(UserLookup.ExcludedIds)]),
 					//datasetIds must be null or not empty
 					this.Spec()
-						.Must(() => !item.CollectionIds.IsNotNullButEmpty())
-						.FailOn(nameof(DatasetLookup.CollectionIds)).FailWith(this._localizer["validation_setButEmpty", nameof(DatasetLookup.CollectionIds)]),
+						.Must(() => !item.IdpSubjectIds.IsNotNullButEmpty())
+						.FailOn(nameof(UserLookup.IdpSubjectIds)).FailWith(this._localizer["validation_setButEmpty", nameof(UserLookup.IdpSubjectIds)]),
 					//paging without ordering not supported
 					this.Spec()
 						.If(()=> item.Page != null && !item.Page.IsEmpty)
 						.Must(() => !item.Order.IsEmpty)
-						.FailOn(nameof(DatasetLookup.Page)).FailWith(this._localizer["validation_pagingWithoutOrdering"]),
+						.FailOn(nameof(UserLookup.Page)).FailWith(this._localizer["validation_pagingWithoutOrdering"]),
 				};
 			}
 		}

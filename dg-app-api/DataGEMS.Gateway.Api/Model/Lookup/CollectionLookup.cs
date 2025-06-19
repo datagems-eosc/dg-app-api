@@ -11,13 +11,13 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 {
 	public class CollectionLookup : Cite.Tools.Data.Query.Lookup
 	{
-		[SwaggerSchema(description: "Limit lookup to items with specific ids. If set, the list of ids must not be empty", Title = "Collection ids", Nullable = true)]
+		[SwaggerSchema(description: "Limit lookup to items with specific ids. If set, the list of ids must not be empty")]
 		public List<Guid> Ids { get; set; }
-		[SwaggerSchema(description: "Exclude from the lookup items with specific ids. If set, the list of ids must not be empty", Title = "Excluded collection ids", Nullable = true)]
+		[SwaggerSchema(description: "Exclude from the lookup items with specific ids. If set, the list of ids must not be empty")]
 		public List<Guid> ExcludedIds { get; set; }
-		[SwaggerSchema(description: "Limit lookup to items containing the specific dataset ids. If set, the list of ids must not be empty", Title = "Dataset ids", Nullable = true)]
+		[SwaggerSchema(description: "Limit lookup to items containing the specific dataset ids. If set, the list of ids must not be empty")]
 		public List<Guid> DatasetIds { get; set; }
-		[SwaggerSchema(description: "Limit lookup to items whose name matches the pattern", Title = "Name pattern", Nullable = true)]
+		[SwaggerSchema(description: "Limit lookup to items whose name matches the pattern")]
 		public String Like { get; set; }
 
 		public CollectionLocalQuery Enrich(QueryFactory factory)

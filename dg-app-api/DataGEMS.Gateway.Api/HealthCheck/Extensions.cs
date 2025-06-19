@@ -1,4 +1,6 @@
 ﻿
+using Microsoft.Extensions.DependencyInjection;
+
 namespace DataGEMS.Gateway.Api.HealthCheck
 {
 	public static class Extensions
@@ -8,6 +10,16 @@ namespace DataGEMS.Gateway.Api.HealthCheck
 			HealthCheckConfig healthCheckConfig = new HealthCheckConfig();
 			healthCheckSection.Bind(healthCheckConfig);
 			return healthCheckConfig;
+		}
+
+		public static IServiceCollection AddDbHealthChecks<TContext>(
+			this IServiceCollection services,
+			String[] tags = null) where TContext : Microsoft.EntityFrameworkCore.DbContext
+		{
+			services.AddHealthChecks()
+				.AddDbContextCheck<TContext>(name: "db", tags: tags);
+
+			return services;
 		}
 
 		public static IServiceCollection AddFolderHealthChecks(
@@ -31,10 +43,9 @@ namespace DataGEMS.Gateway.Api.HealthCheck
 		{
 			if (config == null) return services;
 
-			services.AddHealthChecks()
-				.AddPrivateMemoryHealthCheck(config.MaxPrivateMemoryBytes, name: "privateMemory", tags: tags)
-				.AddProcessAllocatedMemoryHealthCheck(Convert.ToInt32(config.MaxProcessMemoryBytes / 1024 / 1024), name: "processMemory", tags: tags)
-				.AddVirtualMemorySizeHealthCheck(config.MaxVirtualMemoryBytes, name: "virtualMemory", tags: tags);
+			if (config.MaxPrivateMemoryBytes.HasValue) services.AddHealthChecks().AddPrivateMemoryHealthCheck(config.MaxPrivateMemoryBytes.Value, name: "privateMemory", tags: tags);
+			if (config.MaxProcessMemoryBytes.HasValue) services.AddHealthChecks().AddProcessAllocatedMemoryHealthCheck(Convert.ToInt32(config.MaxProcessMemoryBytes.Value / 1024 / 1024), name: "processMemory", tags: tags);
+			if (config.MaxVirtualMemoryBytes.HasValue) services.AddHealthChecks().AddVirtualMemorySizeHealthCheck(config.MaxVirtualMemoryBytes.Value, name: "virtualMemory", tags: tags);
 
 			return services;
 		}
@@ -47,7 +58,7 @@ namespace DataGEMS.Gateway.Api.HealthCheck
 			Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions theOptions = new()
 			{
 				AllowCachingResponses = config.AllowCaching,
-				Predicate = hc => hc.Tags.Contains(config.IncludeTag),
+				Predicate = hc => !String.IsNullOrEmpty(config.IncludeTag) ? hc.Tags.Contains(config.IncludeTag) : true,
 				ResultStatusCodes =
 				{
 					[Microsoft.Extensions.Diagnostics.HealthChecks.HealthStatus.Healthy] = config.HealthyStatusCode,

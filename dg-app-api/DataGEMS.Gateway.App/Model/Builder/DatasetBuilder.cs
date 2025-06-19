@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 
 namespace DataGEMS.Gateway.App.Model.Builder
 {
-	public class DatasetBuilder : Builder<Model.Dataset, DataManagement.Model.Dataset>
+	public class DatasetBuilder : PrimitiveBuilder<Model.Dataset, DataManagement.Model.Dataset>
 	{
 		private readonly QueryFactory _queryFactory;
 		private readonly BuilderFactory _builderFactory;

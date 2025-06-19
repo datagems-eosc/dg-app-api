@@ -14,7 +14,7 @@ namespace DataGEMS.Gateway.Api.LogTracking
 			this._config = config;
 		}
 
-		public async Task Invoke(HttpContext context, ILogger<LogTrackingCorrelationMiddleware> logger)
+		public async Task Invoke(HttpContext context, ILogger<LogTrackingCorrelationMiddleware> logger, LogCorrelationScope logCorrelationScope)
 		{
 			String trackingContext;
 			if (context.Request.Headers.ContainsKey(this._config.HeaderName))
@@ -30,6 +30,8 @@ namespace DataGEMS.Gateway.Api.LogTracking
 				trackingContext = trackingContextHeaderValues[0];
 			}
 			else trackingContext = Guid.NewGuid().ToString();
+
+			logCorrelationScope.CorrelationId = trackingContext;
 
 			using (LogContext.PushProperty(this._config.LogAs, trackingContext))
 			{

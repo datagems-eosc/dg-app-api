@@ -120,6 +120,9 @@
   <data name="general_notFound" xml:space="preserve">
     <value>Item {0} of type {1} not found</value>
   </data>
+  <data name="validation_overPosting" xml:space="preserve">
+    <value>Too much info</value>
+  </data>
   <data name="validation_pagingWithoutOrdering" xml:space="preserve">
     <value>paging not supported without ordering</value>
   </data>

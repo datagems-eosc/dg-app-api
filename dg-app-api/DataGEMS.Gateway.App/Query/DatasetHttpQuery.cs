@@ -7,6 +7,7 @@ using DataGEMS.Gateway.App.Common;
 using DataGEMS.Gateway.App.DataManagement;
 using DataGEMS.Gateway.App.ErrorCode;
 using DataGEMS.Gateway.App.Exception;
+using DataGEMS.Gateway.App.LogTracking;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 
@@ -25,6 +26,8 @@ namespace DataGEMS.Gateway.App.Query
 		private readonly IAccessTokenService _accessTokenService;
 		private readonly IHttpClientFactory _httpClientFactory;
 		private readonly DataManagementHttpConfig _config;
+		private readonly LogTrackingCorrelationConfig _logTrackingCorrelationConfig;
+		private readonly LogCorrelationScope _logCorrelationScope;
 		private readonly ILogger<DatasetHttpQuery> _logger;
 		private readonly RequestTokenIntercepted _requestAccessToken;
 		private readonly ErrorThesaurus _errors;
@@ -34,6 +37,8 @@ namespace DataGEMS.Gateway.App.Query
 			IHttpClientFactory httpClientFactory,
 			IAccessTokenService accessTokenService,
 			DataManagementHttpConfig config,
+			LogTrackingCorrelationConfig logTrackingCorrelationConfig,
+			LogCorrelationScope logCorrelationScope,
 			RequestTokenIntercepted requestAccessToken,
 			ILogger<DatasetHttpQuery> logger,
 			JsonHandlingService jsonHandlingService,
@@ -42,6 +47,8 @@ namespace DataGEMS.Gateway.App.Query
 			this._httpClientFactory = httpClientFactory;
 			this._accessTokenService = accessTokenService;
 			this._config = config;
+			this._logTrackingCorrelationConfig = logTrackingCorrelationConfig;
+			this._logCorrelationScope = logCorrelationScope;
 			this._requestAccessToken = requestAccessToken;
 			this._logger = logger;
 			this._jsonHandlingService = jsonHandlingService;
@@ -70,6 +77,7 @@ namespace DataGEMS.Gateway.App.Query
 			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"{this._config.BaseUrl}{this._config.DatasetQueryEndpoint}");
 			request.Headers.Add(HeaderNames.Accept, "application/json");
 			request.Headers.Add(HeaderNames.Authorization, $"Bearer {token}");
+			request.Headers.Add(this._logTrackingCorrelationConfig.HeaderName, this._logCorrelationScope.CorrelationId);
 
 			String content = await this.SendRequest(request);
 			try
@@ -93,6 +101,7 @@ namespace DataGEMS.Gateway.App.Query
 			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"{this._config.BaseUrl}{this._config.DatasetQueryEndpoint}");
 			request.Headers.Add(HeaderNames.Accept, "application/json");
 			request.Headers.Add(HeaderNames.Authorization, $"Bearer {token}");
+			request.Headers.Add(this._logTrackingCorrelationConfig.HeaderName, this._logCorrelationScope.CorrelationId);
 
 			String content = await this.SendRequest(request);
 			try

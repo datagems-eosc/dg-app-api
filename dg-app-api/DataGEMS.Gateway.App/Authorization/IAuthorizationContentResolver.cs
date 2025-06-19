@@ -6,6 +6,9 @@ namespace DataGEMS.Gateway.App.Authorization
 		Boolean HasAuthenticated();
 		String CurrentUser();
 
+		Task<Guid?> CurrentUserId();
+		Task<String> SubjectIdOfUserId(Guid? userId);
+
 		Task<Boolean> HasPermission(params String[] permissions);
 		
 		ISet<String> PermissionsOfDatasetRoles(IEnumerable<String> datasetRoles);

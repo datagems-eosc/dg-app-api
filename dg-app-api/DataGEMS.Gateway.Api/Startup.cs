@@ -27,10 +27,10 @@ using Cite.Tools.Data.Query.Extensions;
 using Cite.Tools.Data.Builder.Extensions;
 using Cite.Tools.Validation.Extensions;
 using DataGEMS.Gateway.Api.OpenApi;
+using Microsoft.EntityFrameworkCore;
 
 namespace DataGEMS.Gateway.Api
 {
-	//TODO: Add correlation id in http call headers
     public class Startup
 	{
 		public Startup(IConfiguration configuration, IWebHostEnvironment env)
@@ -77,9 +77,14 @@ namespace DataGEMS.Gateway.Api
 				.AddDataManagementServices(this._config.GetSection("DataManagementService:Http"), this._config.GetSection("DataManagementService:Local")) //Data Management API
 			;
 
+			services
+				.AddDbContext<DataGEMS.Gateway.App.Data.AppDbContext>(options => options.UseNpgsql(this._config.GetValue<String>("DB:ConnectionStrings:AppDbContext")));
+
+
 			HealthCheckConfig healthCheckConfig = this._config.GetSection("HealthCheck").AsHealthCheckConfig();
 			services.AddFolderHealthChecks(healthCheckConfig.Folder);
 			services.AddMemoryHealthChecks(healthCheckConfig.Memory);
+			services.AddDbHealthChecks<DataGEMS.Gateway.App.Data.AppDbContext>();
 
 			//Logging
 			Cite.Tools.Logging.LoggingSerializerContractResolver.Instance.Configure((builder) =>
@@ -127,6 +132,7 @@ namespace DataGEMS.Gateway.Api
 				.UseAuthorization() //Authorization
 				.UseMiddleware(typeof(LogTrackingEntryMiddleware)) //Log Entry Middleware
 				.UseMiddleware(typeof(AccessTokenInterceptMiddleware)) //Bearer Authorization AccessToken interception
+				.UseMiddleware(typeof(UserSyncMiddleware)) //User sync to store and update request user
 				.UseEndpoints(endpoints => //Endpoints
 				{
 					endpoints.MapControllers();

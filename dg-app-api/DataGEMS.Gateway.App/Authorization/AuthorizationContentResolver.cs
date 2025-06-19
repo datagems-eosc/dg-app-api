@@ -40,6 +40,24 @@ namespace DataGEMS.Gateway.App.Authorization
 			return currentUser;
 		}
 
+		public async Task<Guid?> CurrentUserId()
+		{
+			String currentUser = this.CurrentUser();
+			if (String.IsNullOrEmpty(currentUser)) return null;
+			Guid userId = await this._queryFactory.Query<UserQuery>().IdpSubjectIds(currentUser).DisableTracking().FirstAsync(x=> x.Id);
+			if(userId == default(Guid)) return null;
+			return userId;
+		}
+
+		public async Task<String> SubjectIdOfUserId(Guid? userId)
+		{
+			if(!userId.HasValue) return null;
+			String subjectId = await this._queryFactory.Query<UserQuery>().Ids(userId.Value).DisableTracking().FirstAsync(x => x.IdpSubjectId);
+			if (String.IsNullOrEmpty(subjectId)) return null;
+			return subjectId;
+		}
+
+
 		public async Task<Boolean> HasPermission(params String[] permissions)
 		{
 			return await this._authorizationService.Authorize(permissions);

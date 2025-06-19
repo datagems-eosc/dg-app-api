@@ -90,7 +90,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[Authorize]
 		[ModelStateValidationFilter]
 		[SwaggerOperation(Summary = "Lookup dataset by id")]
-		[SwaggerResponse(statusCode: 200, description: "The list of matching datasets along with the count", type: typeof(QueryResult<App.Model.Dataset>))]
+		[SwaggerResponse(statusCode: 200, description: "The matching dataset", type: typeof(QueryResult<App.Model.Dataset>))]
 		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
 		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
 		[SwaggerResponse(statusCode: 404, description: "Could not locate item with the provided id")]

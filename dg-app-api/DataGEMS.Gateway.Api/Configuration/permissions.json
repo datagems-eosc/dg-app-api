@@ -2,6 +2,15 @@
 	"Permissions": {
 		"ExtendedClaims": [],
 		"Policies": {
+			//Collection
+			"BrowseCollection": {
+				"Roles": [ "admin" ],
+				"DatasetRoles": [ "browse" ],
+				"Claims": [],
+				"Clients": [],
+				"AllowAnonymous": false,
+				"AllowAuthenticated": false
+			},
 			//Dataset
 			"BrowseDataset": {
 				"Roles": [ "admin" ],
@@ -20,10 +29,28 @@
 				"AllowAnonymous": false,
 				"AllowAuthenticated": false
 			},
-			//Collection
-			"BrowseCollection": {
+			//User
+			"BrowseUser": {
 				"Roles": [ "admin" ],
-				"DatasetRoles": [ "browse" ],
+				"DatasetRoles": [],
+				"Claims": [],
+				"Clients": [],
+				"AllowAnonymous": false,
+				"AllowAuthenticated": false
+			},
+			//UserCollection
+			"BrowseUserCollection": {
+				"Roles": [ "admin" ],
+				"DatasetRoles": [],
+				"Claims": [],
+				"Clients": [],
+				"AllowAnonymous": false,
+				"AllowAuthenticated": false
+			},
+			//UserDatasetCollection
+			"BrowseUserDatasetCollection": {
+				"Roles": [ "admin" ],
+				"DatasetRoles": [],
 				"Claims": [],
 				"Clients": [],
 				"AllowAnonymous": false,

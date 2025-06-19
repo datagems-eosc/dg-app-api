@@ -27,6 +27,8 @@ namespace DataGEMS.Gateway.App.Accounting
 	{
 		Dataset = 0,
 		Collection = 1,
+		User = 2,
+		UserCollection = 3,
 	}
 
 	public class AccountingInfo

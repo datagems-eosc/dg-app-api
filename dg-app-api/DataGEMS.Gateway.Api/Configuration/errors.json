@@ -23,6 +23,10 @@
     "TokenExchange": {
       "Code": 105,
       "Message": "error exchanging tokens for underpinning service"
+    },
+    "UserSync": {
+      "Code": 106,
+      "Message": "authorized user out of sync with internal registry"
     }
   }
 }

@@ -2,17 +2,15 @@
 using Cite.Tools.Data.Censor;
 using Cite.Tools.Data.Query;
 using Cite.Tools.FieldSet;
-using Cite.Tools.Logging;
 using Cite.Tools.Logging.Extensions;
+using Cite.Tools.Logging;
 using Cite.WebTools.Validation;
-using DataGEMS.Gateway.Api.Model;
 using DataGEMS.Gateway.Api.Model.Lookup;
-using DataGEMS.Gateway.Api.OpenApi;
+using DataGEMS.Gateway.Api.Model;
 using DataGEMS.Gateway.Api.Validation;
 using DataGEMS.Gateway.App.Accounting;
 using DataGEMS.Gateway.App.Authorization;
 using DataGEMS.Gateway.App.Censor;
-using DataGEMS.Gateway.App.Common;
 using DataGEMS.Gateway.App.ErrorCode;
 using DataGEMS.Gateway.App.Exception;
 using DataGEMS.Gateway.App.Model.Builder;
@@ -21,25 +19,27 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 using Swashbuckle.AspNetCore.Annotations;
+using DataGEMS.Gateway.App.Common;
+using DataGEMS.Gateway.Api.OpenApi;
 
 namespace DataGEMS.Gateway.Api.Controllers
 {
-	[Route("api/collection")]
-	public class CollectionController : ControllerBase
+	[Route("api/user")]
+	public class UserController : ControllerBase
 	{
 		private readonly CensorFactory _censorFactory;
 		private readonly QueryFactory _queryFactory;
 		private readonly BuilderFactory _builderFactory;
-		private readonly ILogger<CollectionController> _logger;
+		private readonly ILogger<UserController> _logger;
 		private readonly IAccountingService _accountingService;
 		private readonly ErrorThesaurus _errors;
 		private readonly IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> _localizer;
 
-		public CollectionController(
+		public UserController(
 			CensorFactory censorFactory,
 			QueryFactory queryFactory,
 			BuilderFactory builderFactory,
-			ILogger<CollectionController> logger,
+			ILogger<UserController> logger,
 			IAccountingService accountingService,
 			IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> localizer,
 			ErrorThesaurus errors)
@@ -56,9 +56,9 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[HttpPost("query")]
 		[Authorize]
 		[ModelStateValidationFilter]
-		[ValidationFilter(typeof(CollectionLookup.QueryValidator), "lookup")]
-		[SwaggerOperation(Summary = "Query datasets")]
-		[SwaggerResponse(statusCode: 200, description: "The list of matching collections along with the count", type: typeof(QueryResult<App.Model.Collection>))]
+		[ValidationFilter(typeof(UserLookup.QueryValidator), "lookup")]
+		[SwaggerOperation(Summary = "Query users")]
+		[SwaggerResponse(statusCode: 200, description: "The list of matching users along with the count", type: typeof(QueryResult<App.Model.User>))]
 		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
 		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
 		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
@@ -66,31 +66,31 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
 		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
 		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
-		public async Task<QueryResult<App.Model.Collection>> Query(
+		public async Task<QueryResult<App.Model.User>> Query(
 			[FromBody]
-			[SwaggerRequestBody(description: "The query predicates", Required = true)] 
-			CollectionLookup lookup)
+			[SwaggerRequestBody(description: "The query predicates", Required = true)]
+			UserLookup lookup)
 		{
-			this._logger.Debug(new MapLogEntry("querying").And("type", nameof(App.Model.Collection)).And("lookup", lookup));
+			this._logger.Debug(new MapLogEntry("querying").And("type", nameof(App.Model.User)).And("lookup", lookup));
 
-			IFieldSet censoredFields = await this._censorFactory.Censor<CollectionCensor>().Censor(lookup.Project, CensorContext.AsCensor());
+			IFieldSet censoredFields = await this._censorFactory.Censor<UserCensor>().Censor(lookup.Project, CensorContext.AsCensor());
 			if (lookup.Project.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
 
-			CollectionLocalQuery query = lookup.Enrich(this._queryFactory).DisableTracking().Authorize(AuthorizationFlags.Any);
-			List<DataGEMS.Gateway.App.DataManagement.Model.Collection> datas = await query.CollectAsyncAsModels();
-			int count = (lookup.Metadata != null && lookup.Metadata.CountAll) ? await query.CountAsync() : datas.Count;
-			List<App.Model.Collection> models = await this._builderFactory.Builder<CollectionBuilder>().Authorize(AuthorizationFlags.Any).Build(censoredFields, datas);
+			UserQuery query = lookup.Enrich(this._queryFactory).DisableTracking().Authorize(AuthorizationFlags.Any);
+			List<App.Data.User> datas = await query.CollectAsync(lookup.Project);
+			List<App.Model.User> models = await this._builderFactory.Builder<UserBuilder>().Authorize(AuthorizationFlags.Any).Build(lookup.Project, datas);
+			int count = (lookup.Metadata != null && lookup.Metadata.CountAll) ? await query.CountAsync() : models.Count;
 
-			this._accountingService.AccountFor(KnownActions.Query, KnownResources.Collection.AsAccountable());
+			this._accountingService.AccountFor(KnownActions.Query, KnownResources.User.AsAccountable());
 
-			return new QueryResult<App.Model.Collection>(models, count);
+			return new QueryResult<App.Model.User>(models, count);
 		}
 
 		[HttpGet("{id}")]
 		[Authorize]
 		[ModelStateValidationFilter]
-		[SwaggerOperation(Summary = "Lookup dataset by id")]
-		[SwaggerResponse(statusCode: 200, description: "The matching collection", type: typeof(QueryResult<App.Model.Collection>))]
+		[SwaggerOperation(Summary = "Lookup user by id")]
+		[SwaggerResponse(statusCode: 200, description: "The matching user", type: typeof(QueryResult<App.Model.User>))]
 		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
 		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
 		[SwaggerResponse(statusCode: 404, description: "Could not locate item with the provided id")]
@@ -98,26 +98,26 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[SwaggerResponse(statusCode: 500, description: "Internal error")]
 		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
 		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
-		public async Task<App.Model.Collection> Get(
+		public async Task<App.Model.User> Get(
 			[FromRoute]
-			[SwaggerParameter(description: "The id of the item to lookup", Required = true)] 
-			Guid id, 
+			[SwaggerParameter(description: "The id of the item to lookup", Required = true)]
+			Guid id,
 			[ModelBinder(Name = "f")]
 			[SwaggerParameter(description: "The fields to include in the response model", Required = true)]
 			[LookupFieldSetQueryStringOpenApi]
 			IFieldSet fieldSet)
 		{
-			this._logger.Debug(new MapLogEntry("get").And("type", nameof(App.Model.Collection)).And("id", id).And("fields", fieldSet));
+			this._logger.Debug(new MapLogEntry("get").And("type", nameof(App.Model.User)).And("id", id).And("fields", fieldSet));
 
-			IFieldSet censoredFields = await this._censorFactory.Censor<CollectionCensor>().Censor(fieldSet, CensorContext.AsCensor());
+			IFieldSet censoredFields = await this._censorFactory.Censor<UserCensor>().Censor(fieldSet, CensorContext.AsCensor(), id);
 			if (fieldSet.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
 
-			CollectionLocalQuery query = this._queryFactory.Query<CollectionLocalQuery>().Ids(id).DisableTracking().Authorize(AuthorizationFlags.Any);
-			DataGEMS.Gateway.App.DataManagement.Model.Collection data = await query.FirstAsyncAsModel();
-			App.Model.Collection model = await this._builderFactory.Builder<CollectionBuilder>().Authorize(AuthorizationFlags.Any).Build(censoredFields, data);
-			if (model == null) throw new DGNotFoundException(this._localizer["general_notFound", id, nameof(App.Model.Collection)]);
+			UserQuery query = this._queryFactory.Query<UserQuery>().Ids(id).DisableTracking().Authorize(AuthorizationFlags.Any);
+			App.Data.User data = await query.FirstAsync(fieldSet);
+			App.Model.User model = await this._builderFactory.Builder<UserBuilder>().Authorize(AuthorizationFlags.Any).Build(censoredFields, data);
+			if (model == null) throw new DGNotFoundException(this._localizer["general_notFound", id, nameof(App.Model.User)]);
 
-			this._accountingService.AccountFor(KnownActions.Query, KnownResources.Collection.AsAccountable());
+			this._accountingService.AccountFor(KnownActions.Query, KnownResources.User.AsAccountable());
 
 			return model;
 		}

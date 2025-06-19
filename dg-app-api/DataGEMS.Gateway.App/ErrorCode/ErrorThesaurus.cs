@@ -9,5 +9,6 @@ namespace DataGEMS.Gateway.App.ErrorCode
 		public ErrorDescription UnsupportedAction { get; set; }
 		public ErrorDescription UnderpinningService { get; set; }
 		public ErrorDescription TokenExchange { get; set; }
+		public ErrorDescription UserSync { get; set; }
 	}
 }
