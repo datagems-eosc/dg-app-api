@@ -108,7 +108,7 @@ namespace DataGEMS.Gateway.App.Query
 				else if (item.Match(nameof(Model.User.IdpSubjectId))) projectionFields.Add(nameof(User.IdpSubjectId));
 				else if (item.Match(nameof(Model.User.CreatedAt))) projectionFields.Add(nameof(User.CreatedAt));
 				else if (item.Match(nameof(Model.User.UpdatedAt))) projectionFields.Add(nameof(User.UpdatedAt));
-				else if (item.Match(nameof(Model.User.Hash))) projectionFields.Add(nameof(User.UpdatedAt));
+				else if (item.Match(nameof(Model.User.ETag))) projectionFields.Add(nameof(User.UpdatedAt));
 			}
 			return projectionFields.ToList();
 		}

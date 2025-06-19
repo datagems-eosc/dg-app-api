@@ -28,6 +28,9 @@ using Cite.Tools.Data.Builder.Extensions;
 using Cite.Tools.Validation.Extensions;
 using DataGEMS.Gateway.Api.OpenApi;
 using Microsoft.EntityFrameworkCore;
+using DataGEMS.Gateway.App.Service.UserCollection;
+using DataGEMS.Gateway.Api.Transaction;
+using Cite.Tools.Data.Deleter.Extensions;
 
 namespace DataGEMS.Gateway.Api
 {
@@ -71,6 +74,9 @@ namespace DataGEMS.Gateway.Api
 				.AddBuildersAndFactory(typeof(Cite.Tools.Data.Builder.IBuilder), typeof(DataGEMS.Gateway.App.AssemblyHandle)) //Builders
 				.AddTransient<AccountBuilder>() //Account builder
 				.AddValidatorsAndFactory(typeof(Cite.Tools.Validation.IValidator), typeof(DataGEMS.Gateway.App.AssemblyHandle), typeof(DataGEMS.Gateway.Api.AssemblyHandle)) //Validators
+				.AddDeletersAndFactory(typeof(Cite.Tools.Data.Deleter.IDeleter), typeof(DataGEMS.Gateway.App.AssemblyHandle)) //Deleters
+				.AddDbContext<DataGEMS.Gateway.App.Data.AppDbContext>(options => options.UseNpgsql(this._config.GetValue<String>("DB:ConnectionStrings:AppDbContext"))) //DbContext
+				.AddScoped<AppTransactionFilter>() //Transaction Filter
 			;
 
 			services
@@ -78,7 +84,9 @@ namespace DataGEMS.Gateway.Api
 			;
 
 			services
-				.AddDbContext<DataGEMS.Gateway.App.Data.AppDbContext>(options => options.UseNpgsql(this._config.GetValue<String>("DB:ConnectionStrings:AppDbContext")));
+				.AddScoped<IUserCollectionService, UserCollectionService>()
+				.AddScoped<IUserDatasetCollectionService, UserDatasetCollectionService>()
+			;
 
 
 			HealthCheckConfig healthCheckConfig = this._config.GetSection("HealthCheck").AsHealthCheckConfig();

@@ -27,6 +27,14 @@
     "UserSync": {
       "Code": 106,
       "Message": "authorized user out of sync with internal registry"
+    },
+    "HashConflict": {
+      "Code": 107,
+      "Message": "there is an etag conflict for the item modifed with Id = {0} of Type = {1}. please reload to get the latest changes"
+    },
+    "ImmutableItem": {
+      "Code": 108,
+      "Message": "you are trying to modify an immutable item or property"
     }
   }
 }

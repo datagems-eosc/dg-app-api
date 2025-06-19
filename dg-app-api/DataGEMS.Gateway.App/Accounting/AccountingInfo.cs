@@ -5,7 +5,8 @@ namespace DataGEMS.Gateway.App.Accounting
 	{
 		None = 0,
 		Query = 1,
-		Bar = 2,
+		Persist = 2,
+		Delete = 3,
 	}
 
 	public enum KnownUnits : short

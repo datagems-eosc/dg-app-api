@@ -120,11 +120,17 @@
   <data name="general_notFound" xml:space="preserve">
     <value>Item {0} of type {1} not found</value>
   </data>
+  <data name="validation_maxLength" xml:space="preserve">
+    <value>{0} too long</value>
+  </data>
   <data name="validation_overPosting" xml:space="preserve">
     <value>Too much info</value>
   </data>
   <data name="validation_pagingWithoutOrdering" xml:space="preserve">
     <value>paging not supported without ordering</value>
+  </data>
+  <data name="validation_required" xml:space="preserve">
+    <value>{0} is required</value>
   </data>
   <data name="validation_setButEmpty" xml:space="preserve">
     <value>{0} must be not empty if set</value>

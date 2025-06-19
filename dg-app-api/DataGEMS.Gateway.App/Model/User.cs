@@ -10,6 +10,6 @@ namespace DataGEMS.Gateway.App.Model
 		public DateTime? CreatedAt { get; set; }
 		public DateTime? UpdatedAt { get; set; }
 		public List<UserCollection> UserCollections { get; set; }
-		public String Hash { get; set; }
+		public String ETag { get; set; }
 	}
 }

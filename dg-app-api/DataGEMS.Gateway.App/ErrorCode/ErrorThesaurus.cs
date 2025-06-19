@@ -10,5 +10,7 @@ namespace DataGEMS.Gateway.App.ErrorCode
 		public ErrorDescription UnderpinningService { get; set; }
 		public ErrorDescription TokenExchange { get; set; }
 		public ErrorDescription UserSync { get; set; }
+		public ErrorDescription ETagConflict { get; set; }
+		public ErrorDescription ImmutableItem { get; set; }
 	}
 }

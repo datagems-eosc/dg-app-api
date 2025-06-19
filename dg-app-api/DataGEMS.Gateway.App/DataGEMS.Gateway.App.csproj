@@ -13,6 +13,7 @@
     <PackageReference Include="Cite.Tools.Configuration" Version="8.0.0" />
     <PackageReference Include="Cite.Tools.Data.Builder" Version="8.0.0" />
     <PackageReference Include="Cite.Tools.Data.Censor" Version="8.0.0" />
+    <PackageReference Include="Cite.Tools.Data.Deleter" Version="8.0.0" />
     <PackageReference Include="Cite.Tools.Data.Query" Version="8.0.0" />
     <PackageReference Include="Cite.Tools.DI" Version="8.0.0" />
     <PackageReference Include="Cite.Tools.FieldSet" Version="8.0.0" />

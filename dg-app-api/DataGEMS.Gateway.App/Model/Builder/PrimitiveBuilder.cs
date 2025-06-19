@@ -52,11 +52,6 @@ namespace DataGEMS.Gateway.App.Model.Builder
 			return map;
 		}
 
-		protected String HashValue(DateTime value)
-		{
-			return value.ToEpoch().ToString();
-		}
-
 		protected String AsPrefix(String name)
 		{
 			return name.AsIndexerPrefix();

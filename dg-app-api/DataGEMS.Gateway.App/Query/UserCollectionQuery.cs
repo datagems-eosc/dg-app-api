@@ -124,7 +124,7 @@ namespace DataGEMS.Gateway.App.Query
 				else if (item.Match(nameof(Model.UserCollection.IsActive))) projectionFields.Add(nameof(UserCollection.IsActive));
 				else if (item.Match(nameof(Model.UserCollection.CreatedAt))) projectionFields.Add(nameof(UserCollection.CreatedAt));
 				else if (item.Match(nameof(Model.UserCollection.UpdatedAt))) projectionFields.Add(nameof(UserCollection.UpdatedAt));
-				else if (item.Match(nameof(Model.UserCollection.Hash))) projectionFields.Add(nameof(UserCollection.UpdatedAt));
+				else if (item.Match(nameof(Model.UserCollection.ETag))) projectionFields.Add(nameof(UserCollection.UpdatedAt));
 			}
 			return projectionFields.ToList();
 		}

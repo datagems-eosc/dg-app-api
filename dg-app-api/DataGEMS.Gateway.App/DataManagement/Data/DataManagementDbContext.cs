@@ -4,7 +4,7 @@ namespace DataGEMS.Gateway.App.DataManagement.Data
 {
 	public class DataManagementDbContext : DbContext
 	{
-		public DataManagementDbContext(DbContextOptions options) : base(options) { }
+		public DataManagementDbContext(DbContextOptions<DataManagementDbContext> options) : base(options) { }
 
 		public DbSet<Dataset> Datasets { get; set; }
 		public DbSet<Collection> Collections { get; set; }

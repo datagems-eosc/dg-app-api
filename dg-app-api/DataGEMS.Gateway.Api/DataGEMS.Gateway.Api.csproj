@@ -14,9 +14,11 @@
     <PackageReference Include="AspNetCore.HealthChecks.System" Version="8.0.1" />
     <PackageReference Include="Cite.Tools.Data.Builder.Extensions" Version="8.0.0" />
     <PackageReference Include="Cite.Tools.Data.Censor.Extensions" Version="8.0.0" />
+    <PackageReference Include="Cite.Tools.Data.Deleter.Extensions" Version="8.0.0" />
     <PackageReference Include="Cite.Tools.Data.Query.Extensions" Version="8.0.0" />
     <PackageReference Include="Cite.Tools.Validation.Extensions" Version="8.0.0" />
     <PackageReference Include="Cite.WebTools.Cors.Extensions" Version="8.0.0" />
+    <PackageReference Include="Cite.WebTools.Data.Transaction" Version="8.0.0" />
     <PackageReference Include="Cite.WebTools.FieldSet" Version="8.0.0" />
     <PackageReference Include="Cite.WebTools.HostingEnvironment" Version="8.0.0" />
     <PackageReference Include="Cite.WebTools.Localization.Extensions" Version="8.0.0" />
@@ -33,9 +35,7 @@
     <PackageReference Include="Serilog.Extensions.Logging" Version="8.0.0" />
     <PackageReference Include="Serilog.Formatting.Compact" Version="3.0.0" />
     <PackageReference Include="Serilog.Settings.Configuration" Version="8.0.4" />
-    <PackageReference Include="Serilog.Sinks.Async" Version="2.1.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
-    <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="9.0.1" />
     <PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" Version="9.0.1" />
     <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="9.0.1" />

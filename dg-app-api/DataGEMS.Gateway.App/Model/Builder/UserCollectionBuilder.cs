@@ -6,6 +6,7 @@ using Cite.Tools.Logging;
 using DataGEMS.Gateway.App.Authorization;
 using Microsoft.Extensions.Logging;
 using DataGEMS.Gateway.App.Query;
+using DataGEMS.Gateway.App.Common;
 
 namespace DataGEMS.Gateway.App.Model.Builder
 {
@@ -45,7 +46,7 @@ namespace DataGEMS.Gateway.App.Model.Builder
 			foreach (Data.UserCollection d in datas ?? new List<Data.UserCollection>())
 			{
 				UserCollection m = new UserCollection();
-				if (fields.HasField(nameof(UserCollection.Hash))) m.Hash = this.HashValue(d.UpdatedAt);
+				if (fields.HasField(nameof(UserCollection.ETag))) m.ETag = d.UpdatedAt.ToETag();
 				if (fields.HasField(nameof(UserCollection.Id))) m.Id = d.Id;
 				if (fields.HasField(nameof(UserCollection.Name))) m.Name = d.Name;
 				if (fields.HasField(nameof(UserCollection.CreatedAt))) m.CreatedAt = d.CreatedAt;

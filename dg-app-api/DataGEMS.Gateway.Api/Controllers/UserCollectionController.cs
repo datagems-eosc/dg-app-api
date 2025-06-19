@@ -21,6 +21,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 using Swashbuckle.AspNetCore.Annotations;
 using DataGEMS.Gateway.App.Common;
+using DataGEMS.Gateway.App.Model;
+using DataGEMS.Gateway.App.Service.UserCollection;
+using DataGEMS.Gateway.Api.Transaction;
 
 namespace DataGEMS.Gateway.Api.Controllers
 {
@@ -33,6 +36,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		private readonly ILogger<UserCollectionController> _logger;
 		private readonly IAccountingService _accountingService;
 		private readonly IAuthorizationContentResolver _authorizationContentResolver;
+		private readonly IUserCollectionService _userCollectionService;
 		private readonly ErrorThesaurus _errors;
 		private readonly IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> _localizer;
 
@@ -43,6 +47,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			ILogger<UserCollectionController> logger,
 			IAccountingService accountingService,
 			IAuthorizationContentResolver authorizationContentResolver,
+			IUserCollectionService userCollectionService,
 			IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> localizer,
 			ErrorThesaurus errors)
 		{
@@ -52,6 +57,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			this._logger = logger;
 			this._accountingService = accountingService;
 			this._authorizationContentResolver = authorizationContentResolver;
+			this._userCollectionService = userCollectionService;
 			this._localizer = localizer;
 			this._errors = errors;
 		}
@@ -162,6 +168,123 @@ namespace DataGEMS.Gateway.Api.Controllers
 			this._accountingService.AccountFor(KnownActions.Query, KnownResources.UserCollection.AsAccountable());
 
 			return model;
+		}
+
+		[HttpPost("me/persist")]
+		[Authorize]
+		[ModelStateValidationFilter]
+		[ValidationFilter(typeof(UserCollectionPersist.PersistValidator), "model")]
+		[ServiceFilter(typeof(AppTransactionFilter))]
+		[SwaggerOperation(Summary = "Persist user owned collection")]
+		[SwaggerResponse(statusCode: 200, description: "The persisted user owned collection", type: typeof(App.Model.UserCollection))]
+		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
+		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
+		[SwaggerResponse(statusCode: 404, description: "Could not locate item with the provided id")]
+		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
+		[SwaggerResponse(statusCode: 500, description: "Internal error")]
+		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
+		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
+		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
+		public async Task<UserCollection> Persist(
+			[FromBody]
+			[SwaggerRequestBody(description: "The model to persist", Required = true)]
+			UserCollectionPersist model, 
+			[ModelBinder(Name = "f")]
+			[SwaggerParameter(description: "The fields to include in the response model", Required = true)]
+			[LookupFieldSetQueryStringOpenApi]
+			IFieldSet fieldSet)
+		{
+			this._logger.Debug(new MapLogEntry("persisting").And("type", nameof(App.Model.UserCollectionPersist)).And("fields", fieldSet));
+
+			Guid? userId = await this._authorizationContentResolver.CurrentUserId();
+			if (!userId.HasValue) throw new DGApplicationException(this._errors.UserSync.Code, this._errors.UserSync.Message);
+
+			IFieldSet censoredFields = await this._censorFactory.Censor<UserCollectionCensor>().Censor(fieldSet, CensorContext.AsCensor(), userId);
+			if (fieldSet.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+
+			UserCollection persisted = await this._userCollectionService.PersistAsync(model, censoredFields);
+
+			this._accountingService.AccountFor(KnownActions.Persist, KnownResources.UserCollection.AsAccountable());
+
+			return persisted;
+		}
+
+		[HttpPost("me/persist/deep")]
+		[Authorize]
+		[ModelStateValidationFilter]
+		[ValidationFilter(typeof(UserCollectionPersistDeep.PersistValidator), "model")]
+		[ServiceFilter(typeof(AppTransactionFilter))]
+		[SwaggerOperation(Summary = "Persist user owned collection along with details provided")]
+		[SwaggerResponse(statusCode: 200, description: "The persisted user owned collection", type: typeof(App.Model.UserCollection))]
+		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
+		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
+		[SwaggerResponse(statusCode: 404, description: "Could not locate item with the provided id")]
+		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
+		[SwaggerResponse(statusCode: 500, description: "Internal error")]
+		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
+		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
+		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
+		public async Task<UserCollection> PersistDeep(
+			[FromBody]
+			[SwaggerRequestBody(description: "The model to persist", Required = true)]
+			UserCollectionPersistDeep model,
+			[ModelBinder(Name = "f")]
+			[SwaggerParameter(description: "The fields to include in the response model", Required = true)]
+			[LookupFieldSetQueryStringOpenApi]
+			IFieldSet fieldSet)
+		{
+			this._logger.Debug(new MapLogEntry("persisting").And("type", nameof(App.Model.UserCollectionPersist)).And("fields", fieldSet));
+
+			Guid? userId = await this._authorizationContentResolver.CurrentUserId();
+			if (!userId.HasValue) throw new DGApplicationException(this._errors.UserSync.Code, this._errors.UserSync.Message);
+
+			IFieldSet censoredFields = await this._censorFactory.Censor<UserCollectionCensor>().Censor(fieldSet, CensorContext.AsCensor(), userId);
+			if (fieldSet.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+
+			UserCollection persisted = await this._userCollectionService.PersistAsync(model, censoredFields);
+
+			this._accountingService.AccountFor(KnownActions.Persist, KnownResources.UserCollection.AsAccountable());
+
+			return persisted;
+		}
+
+		[HttpPost("me/patch/dataset")]
+		[Authorize]
+		[ModelStateValidationFilter]
+		[ValidationFilter(typeof(UserCollectionDatasetPatch.PatchValidator), "model")]
+		[ServiceFilter(typeof(AppTransactionFilter))]
+		[SwaggerOperation(Summary = "Patch user owned collection with updated datasets")]
+		[SwaggerResponse(statusCode: 200, description: "The persisted user owned collection", type: typeof(App.Model.UserCollection))]
+		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
+		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
+		[SwaggerResponse(statusCode: 404, description: "Could not locate item with the provided id")]
+		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
+		[SwaggerResponse(statusCode: 500, description: "Internal error")]
+		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
+		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
+		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
+		public async Task<UserCollection> PatchDatasets(
+			[FromBody]
+			[SwaggerRequestBody(description: "The model to persist", Required = true)]
+			UserCollectionDatasetPatch model,
+			[ModelBinder(Name = "f")]
+			[SwaggerParameter(description: "The fields to include in the response model", Required = true)]
+			[LookupFieldSetQueryStringOpenApi]
+			IFieldSet fieldSet)
+		{
+			this._logger.Debug(new MapLogEntry("patching").And("type", nameof(App.Model.UserCollectionDatasetPatch)).And("fields", fieldSet));
+
+			Guid? userId = await this._authorizationContentResolver.CurrentUserId();
+			if (!userId.HasValue) throw new DGApplicationException(this._errors.UserSync.Code, this._errors.UserSync.Message);
+
+			IFieldSet censoredFields = await this._censorFactory.Censor<UserCollectionCensor>().Censor(fieldSet, CensorContext.AsCensor(), userId);
+			if (fieldSet.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+
+			UserCollection persisted = await this._userCollectionService.PatchAsync(model, censoredFields);
+
+			this._accountingService.AccountFor(KnownActions.Persist, KnownResources.UserCollection.AsAccountable());
+
+			return persisted;
 		}
 
 		[HttpPost("dataset/query")]
@@ -284,6 +407,114 @@ namespace DataGEMS.Gateway.Api.Controllers
 			this._accountingService.AccountFor(KnownActions.Query, KnownResources.UserCollection.AsAccountable());
 
 			return model;
+		}
+
+		[HttpPost("dataset/me/{userCollectionId}/{datasetId}")]
+		[Authorize]
+		[ModelStateValidationFilter]
+		[ServiceFilter(typeof(AppTransactionFilter))]
+		[SwaggerOperation(Summary = "Add dataset in owned user collection")]
+		[SwaggerResponse(statusCode: 200, description: "The dataset was added and returns the updated user collection", type: typeof(App.Model.UserCollection))]
+		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
+		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
+		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
+		[SwaggerResponse(statusCode: 500, description: "Internal error")]
+		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
+		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
+		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
+		public async Task<App.Model.UserCollection> AddDatasetInUserCollection(
+			[FromRoute]
+			[SwaggerParameter(description: "The user collection id to add the provided dataset", Required = true)]
+			Guid userCollectionId,
+			[FromRoute]
+			[SwaggerParameter(description: "The dataset id to add the provided user collection", Required = true)]
+			Guid datasetId,
+			[ModelBinder(Name = "f")]
+			[SwaggerParameter(description: "The fields to include in the response model", Required = true)]
+			[LookupFieldSetQueryStringOpenApi]
+			IFieldSet fieldSet)
+		{
+			this._logger.Debug(new MapLogEntry("adding").And("userCollectionId", userCollectionId).And("datasetId", datasetId).And("fields", fieldSet));
+
+			Guid? userId = await this._authorizationContentResolver.CurrentUserId();
+			if (!userId.HasValue) throw new DGApplicationException(this._errors.UserSync.Code, this._errors.UserSync.Message);
+			Boolean ownedCollectionFound = await this._queryFactory.Query<UserCollectionQuery>().Authorize(AuthorizationFlags.Any).Ids(userCollectionId).UserIds(userId.Value).AnyAsync();
+			if (!ownedCollectionFound) throw new DGNotFoundException(this._localizer["general_notFound", userCollectionId, nameof(App.Model.UserCollection)]);
+
+			IFieldSet censoredFields = await this._censorFactory.Censor<UserDatasetCollectionCensor>().Censor(fieldSet, CensorContext.AsCensor(), userId);
+			if (fieldSet.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+
+			UserCollection persisted = await this._userCollectionService.AddAsync(userCollectionId, datasetId, censoredFields);
+
+			this._accountingService.AccountFor(KnownActions.Persist, KnownResources.UserCollection.AsAccountable());
+
+			return persisted;
+		}
+
+		[HttpDelete("dataset/me/{userCollectionId}/{datasetId}")]
+		[Authorize]
+		[ModelStateValidationFilter]
+		[ServiceFilter(typeof(AppTransactionFilter))]
+		[SwaggerOperation(Summary = "Remove dataset from owned user collection")]
+		[SwaggerResponse(statusCode: 200, description: "The dataset was removed and returns the updated user collection", type: typeof(App.Model.UserCollection))]
+		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
+		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
+		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
+		[SwaggerResponse(statusCode: 500, description: "Internal error")]
+		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
+		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
+		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
+		public async Task<App.Model.UserCollection> RemoveDatasetFromUserCollection(
+			[FromRoute]
+			[SwaggerParameter(description: "The user collection id from which to remove the provided dataset", Required = true)]
+			Guid userCollectionId,
+			[FromRoute]
+			[SwaggerParameter(description: "The dataset id to remove from the provided user collection", Required = true)]
+			Guid datasetId,
+			[ModelBinder(Name = "f")]
+			[SwaggerParameter(description: "The fields to include in the response model", Required = true)]
+			[LookupFieldSetQueryStringOpenApi]
+			IFieldSet fieldSet)
+		{
+			this._logger.Debug(new MapLogEntry("adding").And("userCollectionId", userCollectionId).And("datasetId", datasetId).And("fields", fieldSet));
+
+			Guid? userId = await this._authorizationContentResolver.CurrentUserId();
+			if (!userId.HasValue) throw new DGApplicationException(this._errors.UserSync.Code, this._errors.UserSync.Message);
+			Boolean ownedCollectionFound = await this._queryFactory.Query<UserCollectionQuery>().Authorize(AuthorizationFlags.Any).Ids(userCollectionId).UserIds(userId.Value).AnyAsync();
+			if (!ownedCollectionFound) throw new DGNotFoundException(this._localizer["general_notFound", userCollectionId, nameof(App.Model.UserCollection)]);
+
+			IFieldSet censoredFields = await this._censorFactory.Censor<UserDatasetCollectionCensor>().Censor(fieldSet, CensorContext.AsCensor(), userId);
+			if (fieldSet.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+
+			UserCollection persisted = await this._userCollectionService.RemoveAsync(userCollectionId, datasetId, censoredFields);
+
+			this._accountingService.AccountFor(KnownActions.Persist, KnownResources.UserCollection.AsAccountable());
+
+			return persisted;
+		}
+
+		[HttpDelete("{id}")]
+		[Authorize]
+		[ModelStateValidationFilter]
+		[ServiceFilter(typeof(AppTransactionFilter))]
+		[SwaggerOperation(Summary = "Deletes the user collection by id")]
+		[SwaggerResponse(statusCode: 200, description: "Use collection deleted")]
+		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
+		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
+		[SwaggerResponse(statusCode: 404, description: "Could not locate item with the provided id")]
+		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
+		[SwaggerResponse(statusCode: 500, description: "Internal error")]
+		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
+		public async Task Delete(
+			[FromRoute]
+			[SwaggerParameter(description: "The id of the item to delete", Required = true)]
+			Guid id)
+		{
+			this._logger.Debug(new MapLogEntry("delete").And("type", nameof(App.Model.UserCollection)).And("id", id));
+
+			await this._userCollectionService.DeleteAsync(id);
+
+			this._accountingService.AccountFor(KnownActions.Delete, KnownResources.UserCollection.AsAccountable());
 		}
 	}
 }

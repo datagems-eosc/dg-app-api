@@ -1,5 +1,6 @@
 ﻿using Cite.Tools.Common.Extensions;
 using Cite.Tools.FieldSet;
+using Cite.Tools.Time;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -7,6 +8,11 @@ namespace DataGEMS.Gateway.App.Common
 {
 	public static class Extensions
 	{
+		public static String ToETag(this DateTime updatedAt)
+		{
+			return updatedAt.ToEpoch().ToString();
+		}
+
 		public static String ToSha256(this String input)
 		{
 			if (String.IsNullOrEmpty(input)) return String.Empty;

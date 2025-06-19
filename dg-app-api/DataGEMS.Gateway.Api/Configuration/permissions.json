@@ -47,8 +47,40 @@
 				"AllowAnonymous": false,
 				"AllowAuthenticated": false
 			},
+			"EditUserCollection": {
+				"Roles": [ "admin" ],
+				"DatasetRoles": [],
+				"Claims": [],
+				"Clients": [],
+				"AllowAnonymous": false,
+				"AllowAuthenticated": false
+			},
+			"DeleteUserCollection": {
+				"Roles": [ "admin" ],
+				"DatasetRoles": [],
+				"Claims": [],
+				"Clients": [],
+				"AllowAnonymous": false,
+				"AllowAuthenticated": false
+			},
 			//UserDatasetCollection
 			"BrowseUserDatasetCollection": {
+				"Roles": [ "admin" ],
+				"DatasetRoles": [],
+				"Claims": [],
+				"Clients": [],
+				"AllowAnonymous": false,
+				"AllowAuthenticated": false
+			},
+			"EditUserDatasetCollection": {
+				"Roles": [ "admin" ],
+				"DatasetRoles": [],
+				"Claims": [],
+				"Clients": [],
+				"AllowAnonymous": false,
+				"AllowAuthenticated": false
+			},
+			"DeleteUserDatasetCollection": {
 				"Roles": [ "admin" ],
 				"DatasetRoles": [],
 				"Claims": [],

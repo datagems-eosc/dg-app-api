@@ -11,6 +11,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using DataGEMS.Gateway.App.Query;
+using DataGEMS.Gateway.App.Common;
 
 namespace DataGEMS.Gateway.App.Model.Builder
 {
@@ -47,7 +48,7 @@ namespace DataGEMS.Gateway.App.Model.Builder
 			foreach (Data.User d in datas ?? new List<Data.User>())
 			{
 				User m = new User();
-				if (fields.HasField(nameof(User.Hash))) m.Hash = this.HashValue(d.UpdatedAt);
+				if (fields.HasField(nameof(User.ETag))) m.ETag = d.UpdatedAt.ToETag();
 				if (fields.HasField(nameof(User.Id))) m.Id = d.Id;
 				if (fields.HasField(nameof(User.Name))) m.Name = d.Name;
 				if (fields.HasField(nameof(User.Email))) m.Email = d.Email;
