@@ -1,7 +1,7 @@
 {
   "HealthCheck": {
     "Folder": {
-      "Paths": [ "%{LogsPath}%" ]
+      "Paths": null
     },
     "Memory": {
       "maxPrivateMemoryBytes": 104857600, //100MB = 104857600
