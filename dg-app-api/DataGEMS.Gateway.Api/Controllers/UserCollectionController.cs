@@ -83,7 +83,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			this._logger.Debug(new MapLogEntry("querying").And("type", nameof(App.Model.UserCollection)).And("lookup", lookup));
 
 			IFieldSet censoredFields = await this._censorFactory.Censor<UserCollectionCensor>().Censor(lookup.Project, CensorContext.AsCensor());
-			/*if (lookup.Project.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);*/
+			if (lookup.Project.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
 
 			UserCollectionQuery query = lookup.Enrich(this._queryFactory).DisableTracking().Authorize(AuthorizationFlags.Any);
 			List<App.Data.UserCollection> datas = await query.CollectAsync(lookup.Project);
@@ -308,7 +308,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			this._logger.Debug(new MapLogEntry("querying").And("type", nameof(App.Model.UserDatasetCollection)).And("lookup", lookup));
 
 			IFieldSet censoredFields = await this._censorFactory.Censor<UserDatasetCollectionCensor>().Censor(lookup.Project, CensorContext.AsCensor());
-			/*if (lookup.Project.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);*/
+			if (lookup.Project.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
 
 			UserDatasetCollectionQuery query = lookup.Enrich(this._queryFactory).DisableTracking().Authorize(AuthorizationFlags.Any);
 			List<App.Data.UserDatasetCollection> datas = await query.CollectAsync(lookup.Project);
@@ -442,7 +442,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			if (!ownedCollectionFound) throw new DGNotFoundException(this._localizer["general_notFound", userCollectionId, nameof(App.Model.UserCollection)]);
 
 			IFieldSet censoredFields = await this._censorFactory.Censor<UserDatasetCollectionCensor>().Censor(fieldSet, CensorContext.AsCensor(), userId);
-			/*if (fieldSet.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);*/
+			if (fieldSet.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
 
 			UserCollection persisted = await this._userCollectionService.AddAsync(userCollectionId, datasetId, censoredFields);
 
@@ -484,7 +484,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			if (!ownedCollectionFound) throw new DGNotFoundException(this._localizer["general_notFound", userCollectionId, nameof(App.Model.UserCollection)]);
 
 			IFieldSet censoredFields = await this._censorFactory.Censor<UserDatasetCollectionCensor>().Censor(fieldSet, CensorContext.AsCensor(), userId);
-			/*if (fieldSet.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);*/
+			if (fieldSet.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
 
 			UserCollection persisted = await this._userCollectionService.RemoveAsync(userCollectionId, datasetId, censoredFields);
 
