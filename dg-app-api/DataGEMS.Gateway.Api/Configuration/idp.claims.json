@@ -19,7 +19,7 @@
 				"Roles": [
 					{
 						"Type": "realm_access",
-						"Path": "dmp_accounting_webapp.roles",
+						"Path": "roles",
 						"Prefix": "GLOBAL_"
 					},
 					{

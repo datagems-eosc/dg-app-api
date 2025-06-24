@@ -4,7 +4,7 @@
 		"Policies": {
 			//Collection
 			"BrowseCollection": {
-				"Roles": [ "admin" ],
+				"Roles": [ "GLOBAL_dg_admin" ],
 				"DatasetRoles": [ "browse" ],
 				"Claims": [],
 				"Clients": [],
@@ -13,7 +13,7 @@
 			},
 			//Dataset
 			"BrowseDataset": {
-				"Roles": [ "admin" ],
+				"Roles": [ "GLOBAL_dg_admin" ],
 				"DatasetRoles": [ "browse" ],
 				"Claims": [],
 				"Clients": [],
@@ -22,7 +22,7 @@
 			},
 			//DatasetCollection
 			"BrowseDatasetCollection": {
-				"Roles": [ "admin" ],
+				"Roles": [ "GLOBAL_dg_admin" ],
 				"DatasetRoles": [ "browse" ],
 				"Claims": [],
 				"Clients": [],
@@ -31,7 +31,7 @@
 			},
 			//User
 			"BrowseUser": {
-				"Roles": [ "admin" ],
+				"Roles": [ "GLOBAL_dg_admin" ],
 				"DatasetRoles": [],
 				"Claims": [],
 				"Clients": [],
@@ -40,7 +40,7 @@
 			},
 			//UserCollection
 			"BrowseUserCollection": {
-				"Roles": [ "admin" ],
+				"Roles": [ "GLOBAL_dg_admin" ],
 				"DatasetRoles": [],
 				"Claims": [],
 				"Clients": [],
@@ -48,7 +48,7 @@
 				"AllowAuthenticated": false
 			},
 			"EditUserCollection": {
-				"Roles": [ "admin" ],
+				"Roles": [ "GLOBAL_dg_admin" ],
 				"DatasetRoles": [],
 				"Claims": [],
 				"Clients": [],
@@ -56,7 +56,7 @@
 				"AllowAuthenticated": false
 			},
 			"DeleteUserCollection": {
-				"Roles": [ "admin" ],
+				"Roles": [ "GLOBAL_dg_admin" ],
 				"DatasetRoles": [],
 				"Claims": [],
 				"Clients": [],
@@ -65,7 +65,7 @@
 			},
 			//UserDatasetCollection
 			"BrowseUserDatasetCollection": {
-				"Roles": [ "admin" ],
+				"Roles": [ "GLOBAL_dg_admin" ],
 				"DatasetRoles": [],
 				"Claims": [],
 				"Clients": [],
@@ -73,7 +73,7 @@
 				"AllowAuthenticated": false
 			},
 			"EditUserDatasetCollection": {
-				"Roles": [ "admin" ],
+				"Roles": [ "GLOBAL_dg_admin" ],
 				"DatasetRoles": [],
 				"Claims": [],
 				"Clients": [],
@@ -81,7 +81,7 @@
 				"AllowAuthenticated": false
 			},
 			"DeleteUserDatasetCollection": {
-				"Roles": [ "admin" ],
+				"Roles": [ "GLOBAL_dg_admin" ],
 				"DatasetRoles": [],
 				"Claims": [],
 				"Clients": [],

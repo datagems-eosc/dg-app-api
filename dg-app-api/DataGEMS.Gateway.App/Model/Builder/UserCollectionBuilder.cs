@@ -53,6 +53,8 @@ namespace DataGEMS.Gateway.App.Model.Builder
 				if (fields.HasField(nameof(UserCollection.UpdatedAt))) m.UpdatedAt = d.UpdatedAt;
 				if (!userDatasetCollectionFields.IsEmpty() && userDatasetCollectionMap != null && userDatasetCollectionMap.ContainsKey(d.Id)) m.UserDatasetCollections = userDatasetCollectionMap[d.Id];
 				if (!userFields.IsEmpty() && userMap != null && userMap.ContainsKey(d.UserId)) m.User = userMap[d.UserId];
+
+				models.Add(m);
 			}
 			return models;
 		}
