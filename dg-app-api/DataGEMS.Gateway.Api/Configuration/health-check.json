@@ -4,8 +4,8 @@
       "Paths": null
     },
     "Memory": {
-      "maxPrivateMemoryBytes": 104857600, //100MB = 104857600
-      "maxProcessMemoryBytes": 104857600, //100MB = 104857600
+      "maxPrivateMemoryBytes": "%{HealthCheckMaxPrivateMemoryBytes}%",
+      "maxProcessMemoryBytes": "%{HealthCheckMaxProcessMemoryBytes}%",
       "maxVirtualMemoryBytes": null
     },
     "Endpoint": {
