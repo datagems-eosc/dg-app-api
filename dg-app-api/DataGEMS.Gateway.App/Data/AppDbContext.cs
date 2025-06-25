@@ -9,12 +9,14 @@ namespace DataGEMS.Gateway.App.Data
 		public DbSet<User> Users { get; set; }
 		public DbSet<UserCollection> UserCollections { get; set; }
 		public DbSet<UserDatasetCollection> UserDatasetCollections { get; set; }
+		public DbSet<VersionInfo> VersionInfos { get; set; }
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
 			new UserEntityConfiguration().Configure(modelBuilder.Entity<User>());
 			new UserCollectionEntityConfiguration().Configure(modelBuilder.Entity<UserCollection>());
 			new UserDatasetCollectionEntityConfiguration().Configure(modelBuilder.Entity<UserDatasetCollection>());
+			new VersionInfoEntityConfiguration().Configure(modelBuilder.Entity<VersionInfo>());
 		}
 	}
 }
