@@ -20,6 +20,36 @@ namespace DataGEMS.Gateway.App.DataManagement.Data
 		[MaxLength(250)]
 		public String Name { get; set; }
 
+		public String Description { get; set; }
+
+		public String License { get; set; }
+
+		[MaxLength(300)]
+		public String Url { get; set; }
+
+		[MaxLength(50)]
+		public String Version { get; set; }
+
+		public String Headline { get; set; }
+
+		public String Keywords { get; set; }
+
+		public String FieldOfScience { get; set; }
+
+		public String Language { get; set; }
+
+		public String Country { get; set; }
+
+		[NotMapped]
+		public DateOnly? DatePublished
+		{
+			get { return this.DatePublishedRaw.HasValue ? DateOnly.FromDateTime(this.DatePublishedRaw.Value) : null; }
+			set { this.DatePublishedRaw = value.HasValue ? value.Value.ToDateTime(TimeOnly.MinValue) : null; }
+		}
+		public DateTime? DatePublishedRaw { get; set; }
+
+		public String Profile { get; set; }
+
 		[InverseProperty(nameof(DatasetCollection.Dataset))]
 		public List<DatasetCollection> Collections { get; set; }
 	}
@@ -34,6 +64,17 @@ namespace DataGEMS.Gateway.App.DataManagement.Data
 			builder.Property(x => x.Id).HasColumnName("id");
 			builder.Property(x => x.Code).HasColumnName("code");
 			builder.Property(x => x.Name).HasColumnName("name");
+			builder.Property(x => x.Description).HasColumnName("description");
+			builder.Property(x => x.License).HasColumnName("license");
+			builder.Property(x => x.Url).HasColumnName("url");
+			builder.Property(x => x.Version).HasColumnName("version");
+			builder.Property(x => x.Headline).HasColumnName("headline");
+			builder.Property(x => x.Keywords).HasColumnName("keywords");
+			builder.Property(x => x.FieldOfScience).HasColumnName("field_of_science");
+			builder.Property(x => x.Language).HasColumnName("language");
+			builder.Property(x => x.Country).HasColumnName("country");
+			builder.Property(x => x.DatePublishedRaw).HasColumnName("date_published");
+			builder.Property(x => x.Profile).HasColumnName("profile");
 		}
 	}
 }

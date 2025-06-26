@@ -51,6 +51,18 @@ namespace DataGEMS.Gateway.App.Model.Builder
 				if (fields.HasField(nameof(Model.Dataset.Id))) m.Id = d.Id;
 				if (fields.HasField(nameof(Model.Dataset.Code))) m.Code = d.Code;
 				if (fields.HasField(nameof(Model.Dataset.Name))) m.Name = d.Name;
+				if (fields.HasField(nameof(Model.Dataset.Description))) m.Description = d.Description;
+				if (fields.HasField(nameof(Model.Dataset.License))) m.License = d.License;
+				if (fields.HasField(nameof(Model.Dataset.Url))) m.Url = d.Url;
+				if (fields.HasField(nameof(Model.Dataset.Version))) m.Version = d.Version;
+				if (fields.HasField(nameof(Model.Dataset.Headline))) m.Headline = d.Headline;
+				if (fields.HasField(nameof(Model.Dataset.Keywords))) m.Keywords = d.Keywords;
+				if (fields.HasField(nameof(Model.Dataset.FieldOfScience))) m.FieldOfScience = d.FieldOfScience;
+				if (fields.HasField(nameof(Model.Dataset.Language))) m.Language = d.Language;
+				if (fields.HasField(nameof(Model.Dataset.Country))) m.Country = d.Country;
+				if (fields.HasField(nameof(Model.Dataset.DatePublished))) m.DatePublished = d.DatePublished;
+				if (fields.HasField(nameof(Model.Dataset.ProfileRaw))) m.ProfileRaw = d.ProfileRaw;
+
 				if (!collectionFields.IsEmpty() && collectionMap != null && collectionMap.ContainsKey(d.Id)) m.Collections = collectionMap[d.Id];
 				if (!permissionFields.IsEmpty() && datasetAffiliatedRoles != null && datasetAffiliatedRoles.ContainsKey(d.Id))
 				{
