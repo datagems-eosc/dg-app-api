@@ -1,5 +1,6 @@
 ﻿using Cite.Tools.Common.Extensions;
 using DataGEMS.Gateway.App.Authorization;
+using DataGEMS.Gateway.App.Common;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataGEMS.Gateway.App.Query
@@ -116,6 +117,17 @@ namespace DataGEMS.Gateway.App.Query
 				if (item.Match(nameof(DataManagement.Model.Dataset.Id))) projectionFields.Add(nameof(DataManagement.Data.Dataset.Id));
 				else if (item.Match(nameof(DataManagement.Model.Dataset.Code))) projectionFields.Add(nameof(DataManagement.Data.Dataset.Code));
 				else if (item.Match(nameof(DataManagement.Model.Dataset.Name))) projectionFields.Add(nameof(DataManagement.Data.Dataset.Name));
+				else if (item.Match(nameof(DataManagement.Model.Dataset.Description))) projectionFields.Add(nameof(DataManagement.Data.Dataset.Description));
+				else if (item.Match(nameof(DataManagement.Model.Dataset.License))) projectionFields.Add(nameof(DataManagement.Data.Dataset.License));
+				else if (item.Match(nameof(DataManagement.Model.Dataset.Url))) projectionFields.Add(nameof(DataManagement.Data.Dataset.Url));
+				else if (item.Match(nameof(DataManagement.Model.Dataset.Version))) projectionFields.Add(nameof(DataManagement.Data.Dataset.Version));
+				else if (item.Match(nameof(DataManagement.Model.Dataset.Headline))) projectionFields.Add(nameof(DataManagement.Data.Dataset.Headline));
+				else if (item.Match(nameof(DataManagement.Model.Dataset.Keywords))) projectionFields.Add(nameof(DataManagement.Data.Dataset.Keywords));
+				else if (item.Match(nameof(DataManagement.Model.Dataset.FieldOfScience))) projectionFields.Add(nameof(DataManagement.Data.Dataset.FieldOfScience));
+				else if (item.Match(nameof(DataManagement.Model.Dataset.Language))) projectionFields.Add(nameof(DataManagement.Data.Dataset.Language));
+				else if (item.Match(nameof(DataManagement.Model.Dataset.Country))) projectionFields.Add(nameof(DataManagement.Data.Dataset.Country));
+				else if (item.Match(nameof(DataManagement.Model.Dataset.DatePublished))) projectionFields.Add(nameof(DataManagement.Data.Dataset.DatePublished));
+				else if (item.Match(nameof(DataManagement.Model.Dataset.ProfileRaw))) projectionFields.Add(nameof(DataManagement.Data.Dataset.Profile));
 			}
 			return projectionFields.ToList();
 		}
@@ -141,7 +153,18 @@ namespace DataGEMS.Gateway.App.Query
 			{
 				Id = data.Id,
 				Code = data.Code,
-				Name = data.Name
+				Name = data.Name,
+				Description = data.Description,
+				License = data.License,
+				Url = data.Url,
+				Version = data.Version,
+				Headline = data.Headline,
+				Keywords = data.Keywords.ParseCsv(),
+				FieldOfScience = data.FieldOfScience.ParseCsv(),
+				Language = data.Language.ParseCsv(),
+				Country = data.Country.ParseCsv(),
+				DatePublished = data.DatePublished,
+				ProfileRaw = data.Profile
 			};
 		}
 	}

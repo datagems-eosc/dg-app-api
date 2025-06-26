@@ -8,6 +8,13 @@ namespace DataGEMS.Gateway.App.Common
 {
 	public static class Extensions
 	{
+		public static List<String> ParseCsv(this String value)
+		{
+			if(String.IsNullOrEmpty(value)) return null;
+			String[] values = value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+			return values.ToList();
+		}
+
 		public static String ToETag(this DateTime updatedAt)
 		{
 			return updatedAt.ToEpoch().ToString();
