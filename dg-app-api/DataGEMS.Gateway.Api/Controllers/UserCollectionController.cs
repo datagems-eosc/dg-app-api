@@ -86,8 +86,8 @@ namespace DataGEMS.Gateway.Api.Controllers
 			if (lookup.Project.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
 
 			UserCollectionQuery query = lookup.Enrich(this._queryFactory).DisableTracking().Authorize(AuthorizationFlags.Any);
-			List<App.Data.UserCollection> datas = await query.CollectAsync(lookup.Project);
-			List<App.Model.UserCollection> models = await this._builderFactory.Builder<UserCollectionBuilder>().Authorize(AuthorizationFlags.Any).Build(lookup.Project, datas);
+			List<App.Data.UserCollection> datas = await query.CollectAsync(censoredFields);
+			List<App.Model.UserCollection> models = await this._builderFactory.Builder<UserCollectionBuilder>().Authorize(AuthorizationFlags.Any).Build(censoredFields, datas);
 			int count = (lookup.Metadata != null && lookup.Metadata.CountAll) ? await query.CountAsync() : models.Count;
 
 			this._accountingService.AccountFor(KnownActions.Query, KnownResources.UserCollection.AsAccountable());
