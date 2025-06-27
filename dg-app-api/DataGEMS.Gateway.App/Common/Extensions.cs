@@ -60,7 +60,12 @@ namespace DataGEMS.Gateway.App.Common
 			Boolean isRequestedNonEmpty = requested != null && !requested.IsEmpty();
 			Boolean isCensoredEmpty = censored == null || censored.IsEmpty();
 
-			return isRequestedNonEmpty && isCensoredEmpty;
+			Boolean hasRequestedTopLevel = requested.Fields.Any(x => !x.Contains("."));
+			Boolean hasCensoredTopLevel = censored.Fields.Any(x => !x.Contains("."));
+
+			Boolean isTopLevelFiltered = hasRequestedTopLevel && !hasCensoredTopLevel;
+
+			return (isRequestedNonEmpty && isCensoredEmpty) || isTopLevelFiltered;
 		}
 
 		public static List<String> ReduceToAssignedPermissions(this IEnumerable<String> requested, IEnumerable<String> assigned)
