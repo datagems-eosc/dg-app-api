@@ -122,8 +122,8 @@ namespace DataGEMS.Gateway.Api.Controllers
 			if (lookup.Project.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
 
 			UserCollectionQuery query = lookup.Enrich(this._queryFactory).DisableTracking().Authorize(AuthorizationFlags.Any).UserIds(userId.Value);
-			List<App.Data.UserCollection> datas = await query.CollectAsync(lookup.Project);
-			List<App.Model.UserCollection> models = await this._builderFactory.Builder<UserCollectionBuilder>().Authorize(AuthorizationFlags.Any).Build(lookup.Project, datas);
+			List<App.Data.UserCollection> datas = await query.CollectAsync(censoredFields);
+			List<App.Model.UserCollection> models = await this._builderFactory.Builder<UserCollectionBuilder>().Authorize(AuthorizationFlags.Any).Build(censoredFields, datas);
 			int count = (lookup.Metadata != null && lookup.Metadata.CountAll) ? await query.CountAsync() : models.Count;
 
 			this._accountingService.AccountFor(KnownActions.Query, KnownResources.UserCollection.AsAccountable());
@@ -161,7 +161,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			if (fieldSet.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
 
 			UserCollectionQuery query = this._queryFactory.Query<UserCollectionQuery>().Ids(id).DisableTracking().Authorize(AuthorizationFlags.Any);
-			App.Data.UserCollection data = await query.FirstAsync(fieldSet);
+			App.Data.UserCollection data = await query.FirstAsync(censoredFields);
 			App.Model.UserCollection model = await this._builderFactory.Builder<UserCollectionBuilder>().Authorize(AuthorizationFlags.Any).Build(censoredFields, data);
 			if (model == null) throw new DGNotFoundException(this._localizer["general_notFound", id, nameof(App.Model.UserCollection)]);
 
@@ -311,8 +311,8 @@ namespace DataGEMS.Gateway.Api.Controllers
 			if (lookup.Project.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
 
 			UserDatasetCollectionQuery query = lookup.Enrich(this._queryFactory).DisableTracking().Authorize(AuthorizationFlags.Any);
-			List<App.Data.UserDatasetCollection> datas = await query.CollectAsync(lookup.Project);
-			List<App.Model.UserDatasetCollection> models = await this._builderFactory.Builder<UserDatasetCollectionBuilder>().Authorize(AuthorizationFlags.Any).Build(lookup.Project, datas);
+			List<App.Data.UserDatasetCollection> datas = await query.CollectAsync(censoredFields);
+			List<App.Model.UserDatasetCollection> models = await this._builderFactory.Builder<UserDatasetCollectionBuilder>().Authorize(AuthorizationFlags.Any).Build(censoredFields, datas);
 			int count = (lookup.Metadata != null && lookup.Metadata.CountAll) ? await query.CountAsync() : models.Count;
 
 			this._accountingService.AccountFor(KnownActions.Query, KnownResources.UserCollection.AsAccountable());
@@ -353,8 +353,8 @@ namespace DataGEMS.Gateway.Api.Controllers
 					this._queryFactory.Query<UserCollectionQuery>()
 					.Authorize(AuthorizationFlags.Any)
 					.UserIds(userId.Value));
-			List<App.Data.UserDatasetCollection> datas = await query.CollectAsync(lookup.Project);
-			List<App.Model.UserDatasetCollection> models = await this._builderFactory.Builder<UserDatasetCollectionBuilder>().Authorize(AuthorizationFlags.Any).Build(lookup.Project, datas);
+			List<App.Data.UserDatasetCollection> datas = await query.CollectAsync(censoredFields);
+			List<App.Model.UserDatasetCollection> models = await this._builderFactory.Builder<UserDatasetCollectionBuilder>().Authorize(AuthorizationFlags.Any).Build(censoredFields, datas);
 			int count = (lookup.Metadata != null && lookup.Metadata.CountAll) ? await query.CountAsync() : models.Count;
 
 			this._accountingService.AccountFor(KnownActions.Query, KnownResources.UserCollection.AsAccountable());
@@ -400,7 +400,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			if (fieldSet.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
 
 			UserDatasetCollectionQuery query = this._queryFactory.Query<UserDatasetCollectionQuery>().Ids(id).DisableTracking().Authorize(AuthorizationFlags.Any);
-			App.Data.UserDatasetCollection data = await query.FirstAsync(fieldSet);
+			App.Data.UserDatasetCollection data = await query.FirstAsync(censoredFields);
 			App.Model.UserDatasetCollection model = await this._builderFactory.Builder<UserDatasetCollectionBuilder>().Authorize(AuthorizationFlags.Any).Build(censoredFields, data);
 			if (model == null) throw new DGNotFoundException(this._localizer["general_notFound", id, nameof(App.Model.UserDatasetCollection)]);
 
