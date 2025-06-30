@@ -1,9 +1,15 @@
-﻿using DataGEMS.Gateway.App.Common;
+﻿using DataGEMS.Gateway.App.Common.Validation;
+using DataGEMS.Gateway.App.Common;
+using Cite.Tools.Common.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Cite.Tools.Validation;
+using DataGEMS.Gateway.App.ErrorCode;
+using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
 
 namespace DataGEMS.Gateway.App.Model
 {
@@ -18,5 +24,53 @@ namespace DataGEMS.Gateway.App.Model
 		public DateTime? CreatedAt { get; set; }
 		public DateTime? UpdatedAt { get; set; }
 		public String ETag { get; set; }
+	}
+
+	public class ConversationPersist
+	{
+		public Guid? Id { get; set; }
+		public String Name { get; set; }
+		public String ETag { set; get; }
+
+		public class PersistValidator : BaseValidator<ConversationPersist>
+		{
+			private static int NameMaxLength = typeof(Data.Conversation).MaxLengthOf(nameof(Data.Conversation.Name));
+
+			public PersistValidator(
+				IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> localizer,
+				ValidatorFactory validatorFactory,
+				ILogger<PersistValidator> logger,
+				ErrorThesaurus errors) : base(validatorFactory, logger, errors)
+			{
+				this._localizer = localizer;
+			}
+
+			private readonly IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> _localizer;
+
+			protected override IEnumerable<ISpecification> Specifications(ConversationPersist item)
+			{
+				return new ISpecification[] {
+					//creating new item. Hash must not be set
+					this.Spec()
+						.If(() => !this.IsValidGuid(item.Id))
+						.Must(() => !this.IsValidHash(item.ETag))
+						.FailOn(nameof(ConversationPersist.ETag)).FailWith(this._localizer["validation_overPosting"]),
+					//update existing item. Hash must be set
+					this.Spec()
+						.If(() => this.IsValidGuid(item.Id))
+						.Must(() => this.IsValidHash(item.ETag))
+						.FailOn(nameof(ConversationPersist.ETag)).FailWith(this._localizer["validation_required", nameof(ConversationPersist.ETag)]),
+					//name must always be set
+					this.Spec()
+						.Must(() => !this.IsEmpty(item.Name))
+						.FailOn(nameof(ConversationPersist.Name)).FailWith(this._localizer["validation_required", nameof(ConversationPersist.Name)]),
+					//name max length
+					this.Spec()
+						.If(() => !this.IsEmpty(item.Name))
+						.Must(() => this.LessEqual(item.Name, PersistValidator.NameMaxLength))
+						.FailOn(nameof(ConversationPersist.Name)).FailWith(this._localizer["validation_maxLength", nameof(ConversationPersist.Name)]),
+				};
+			}
+		}
 	}
 }

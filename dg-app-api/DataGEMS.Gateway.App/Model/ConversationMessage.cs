@@ -14,6 +14,6 @@ namespace DataGEMS.Gateway.App.Model
 		public Kind? Kind { get; set; }
 		public String Data { get; set; }
 		public DateTime? CreatedAt { get; set; }
-		public String ETag { get; set; }
+		/*public String ETag { get; set; }*/
 	}
 }
