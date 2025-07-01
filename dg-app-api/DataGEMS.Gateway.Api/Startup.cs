@@ -32,6 +32,7 @@ using DataGEMS.Gateway.App.Service.UserCollection;
 using DataGEMS.Gateway.Api.Transaction;
 using Cite.Tools.Data.Deleter.Extensions;
 using DataGEMS.Gateway.App.Service.Version;
+using DataGEMS.Gateway.App.Service.Conversation;
 
 namespace DataGEMS.Gateway.Api
 {
@@ -88,6 +89,8 @@ namespace DataGEMS.Gateway.Api
 				.AddScoped<IVersionInfoService, VersionInfoService>()
 				.AddScoped<IUserCollectionService, UserCollectionService>()
 				.AddScoped<IUserDatasetCollectionService, UserDatasetCollectionService>()
+				.AddScoped<IConversationService, ConversationService>()
+				.AddScoped<IConversationDatasetService, ConversationDatasetService>()
 			;
 
 

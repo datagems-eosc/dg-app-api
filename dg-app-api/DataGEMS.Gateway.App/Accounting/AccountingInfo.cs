@@ -30,6 +30,8 @@ namespace DataGEMS.Gateway.App.Accounting
 		Collection = 1,
 		User = 2,
 		UserCollection = 3,
+		Conversation = 4,
+		ConversationDataset = 5,
 	}
 
 	public class AccountingInfo

@@ -298,5 +298,156 @@ namespace DataGEMS.Gateway.App.Event
 		}
 
 		#endregion
+
+
+
+
+		#region Conversation Deleted
+
+		private EventHandler<OnEventArgs> _conversationDeleted;
+		public event EventHandler<OnEventArgs> ConversationDeleted
+		{
+			add { this._conversationDeleted += value; }
+			remove { this._conversationDeleted -= value; }
+		}
+
+		public void EmitConversationDeleted(Guid id)
+		{
+			this.EmitConversationDeleted(this, new List<Guid>() { id });
+		}
+
+		public void EmitConversationDeleted(IEnumerable<Guid> ids)
+		{
+			this.EmitConversationDeleted(this, ids);
+		}
+
+		public void EmitConversationDeleted(IEnumerable<OnEventArgs> events)
+		{
+			this.EmitConversationDeleted(this, events);
+		}
+
+		public void EmitConversationDeleted(Object sender, IEnumerable<Guid> ids)
+		{
+			this._conversationDeleted?.Invoke(sender, new OnEventArgs(ids));
+		}
+
+		public void EmitConversationDeleted(Object sender, IEnumerable<OnEventArgs> events)
+		{
+			if (events == null) return;
+			foreach (OnEventArgs ev in events) this._conversationDeleted?.Invoke(sender, ev);
+		}
+
+		#endregion
+
+		#region Conversation Touched
+
+		private EventHandler<OnEventArgs> _conversationTouched;
+		public event EventHandler<OnEventArgs> ConversationTouched
+		{
+			add { this._conversationTouched += value; }
+			remove { this._conversationTouched -= value; }
+		}
+
+		public void EmitConversationTouched(Guid id)
+		{
+			this.EmitConversationTouched(this, new List<Guid>() { id });
+		}
+
+		public void EmitConversationTouched(IEnumerable<Guid> ids)
+		{
+			this.EmitConversationTouched(this, ids);
+		}
+
+		public void EmitConversationTouched(IEnumerable<OnEventArgs> events)
+		{
+			this.EmitConversationTouched(this, events);
+		}
+
+		public void EmitConversationTouched(Object sender, IEnumerable<Guid> ids)
+		{
+			this._conversationTouched?.Invoke(sender, new OnEventArgs(ids));
+		}
+
+		public void EmitConversationTouched(Object sender, IEnumerable<OnEventArgs> events)
+		{
+			if (events == null) return;
+			foreach (OnEventArgs ev in events) this._conversationTouched?.Invoke(sender, ev);
+		}
+
+		#endregion
+
+		#region ConversationDataset Deleted
+
+		private EventHandler<OnEventArgs> _conversationDatasetDeleted;
+		public event EventHandler<OnEventArgs> ConversationDatasetDeleted
+		{
+			add { this._conversationDatasetDeleted += value; }
+			remove { this._conversationDatasetDeleted -= value; }
+		}
+
+		public void EmitConversationDatasetDeleted(Guid id)
+		{
+			this.EmitConversationDatasetDeleted(this, new List<Guid>() { id });
+		}
+
+		public void EmitConversationDatasetDeleted(IEnumerable<Guid> ids)
+		{
+			this.EmitConversationDatasetDeleted(this, ids);
+		}
+
+		public void EmitConversationDatasetDeleted(IEnumerable<OnEventArgs> events)
+		{
+			this.EmitConversationDatasetDeleted(this, events);
+		}
+
+		public void EmitConversationDatasetDeleted(Object sender, IEnumerable<Guid> ids)
+		{
+			this._conversationDeleted?.Invoke(sender, new OnEventArgs(ids));
+		}
+
+		public void EmitConversationDatasetDeleted(Object sender, IEnumerable<OnEventArgs> events)
+		{
+			if (events == null) return;
+			foreach (OnEventArgs ev in events) this._conversationDeleted?.Invoke(sender, ev);
+		}
+
+		#endregion
+
+		#region ConversationDataset Touched
+
+		private EventHandler<OnEventArgs> _conversationDatasetTouched;
+		public event EventHandler<OnEventArgs> ConversationDatasetTouched
+		{
+			add { this._conversationDatasetTouched += value; }
+			remove { this._conversationDatasetTouched -= value; }
+		}
+
+		public void EmitConversationDatasetTouched(Guid id)
+		{
+			this.EmitConversationDatasetTouched(this, new List<Guid>() { id });
+		}
+
+		public void EmitConversationDatasetTouched(IEnumerable<Guid> ids)
+		{
+			this.EmitConversationDatasetTouched(this, ids);
+		}
+
+		public void EmitConversationDatasetTouched(IEnumerable<OnEventArgs> events)
+		{
+			this.EmitConversationDatasetTouched(this, events);
+		}
+
+		public void EmitConversationDatasetTouched(Object sender, IEnumerable<Guid> ids)
+		{
+			this._conversationDatasetTouched?.Invoke(sender, new OnEventArgs(ids));
+		}
+
+		public void EmitConversationDatasetTouched(Object sender, IEnumerable<OnEventArgs> events)
+		{
+			if (events == null) return;
+			foreach (OnEventArgs ev in events) this._conversationDatasetTouched?.Invoke(sender, ev);
+		}
+
+		#endregion
 	}
 }

@@ -115,7 +115,7 @@ namespace DataGEMS.Gateway.App.Model.Builder
 
 			Dictionary<Guid, List<ConversationMessage>> itemMap = null;
 			IFieldSet clone = new FieldSet(fields.Fields).Ensure(this.AsIndexer(nameof(ConversationMessage.Conversation), nameof(Conversation.Id)));
-			ConversationMessageQuery query = this._queryFactory.Query<ConversationMessageQuery>().DisableTracking().IsActive(Common.IsActive.Active).ConversationIds(datas.Select(x => x.Id).Distinct()).Authorize(this._authorize);
+			ConversationMessageQuery query = this._queryFactory.Query<ConversationMessageQuery>().DisableTracking().ConversationIds(datas.Select(x => x.Id).Distinct()).Authorize(this._authorize);		// .IsActive(Common.IsActive.Active) REMOVED FROM HERE
 			itemMap = await this._builderFactory.Builder<ConversationMessageBuilder>().Authorize(this._authorize).AsMasterKey(query, clone, x => x.Conversation.Id.Value);
 
 			if (!fields.HasField(this.AsIndexer(nameof(ConversationMessage.Conversation), nameof(Conversation.Id)))) itemMap.SelectMany(x => x.Value).Where(x => x != null && x.Conversation != null).ToList().ForEach(x => x.Conversation.Id = null);

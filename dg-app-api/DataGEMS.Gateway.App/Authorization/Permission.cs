@@ -19,5 +19,18 @@ namespace DataGEMS.Gateway.App.Authorization
 		public const String BrowseUserDatasetCollection = "BrowseUserDatasetCollection";
 		public const String EditUserDatasetCollection = "EditUserDatasetCollection";
 		public const String DeleteUserDatasetCollection = "DeleteUserDatasetCollection";
+
+		//Conversation
+		public const String BrowseConversation = "BrowseConversation";
+		public const String EditConversation = "EditConversation";
+		public const String DeleteConversation = "DeleteConversation";
+		//ConversationDataset
+		public const String BrowseConversationDataset = "BrowseConversationDataset";
+		public const String EditConversationDataset = "EditConversationDataset";
+		public const String DeleteConversationDataset = "DeleteConversationDataset";
+		//ConversationMessage
+		public const String BrowseConversationMessage = "BrowseConversationMessage";
+		public const String EditConversationMessage = "EditConversationMessage";
+		public const String DeleteConversationMessage = "DeleteConversationMessage";
 	}
 }
