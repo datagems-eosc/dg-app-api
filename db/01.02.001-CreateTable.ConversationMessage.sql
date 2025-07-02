@@ -4,7 +4,7 @@ CREATE TABLE public.conversation_message
     conversation_id uuid NOT NULL,
     kind smallint NOT NULL,
     data text,
-    created_at time with time zone NOT NULL,
+    created_at timestamp with time zone NOT NULL,
     PRIMARY KEY (id),
     FOREIGN KEY (conversation_id)
         REFERENCES public.conversation (id) MATCH SIMPLE

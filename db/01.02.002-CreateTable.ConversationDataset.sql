@@ -5,7 +5,7 @@ CREATE TABLE public.conversation_dataset
     dataset_id uuid NOT NULL,
     is_active smallint NOT NULL,
     created_at timestamp with time zone NOT NULL,
-    updated_at time with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
     PRIMARY KEY (id),
     FOREIGN KEY (conversation_id)
         REFERENCES public.conversation (id) MATCH SIMPLE
