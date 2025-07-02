@@ -56,7 +56,7 @@ namespace DataGEMS.Gateway.App.Censor
 				censored = censored.Merge(fields.ExtractNonPrefixed());
 			}
 
-			censored = censored.MergeAsPrefixed(await this._censorFactory.Censor<UserCollectionCensor>().Censor(fields.ExtractPrefixed(nameof(Model.UserDatasetCollection.UserCollection).AsIndexerPrefix()), context), nameof(Model.UserDatasetCollection.UserCollection));
+			censored = censored.MergeAsPrefixed(await this._censorFactory.Censor<UserCollectionCensor>().Censor(fields.ExtractPrefixed(nameof(Model.UserDatasetCollection.UserCollection).AsIndexerPrefix()), context, userId), nameof(Model.UserDatasetCollection.UserCollection));
 			censored = censored.MergeAsPrefixed(await this._censorFactory.Censor<DatasetCensor>().Censor(fields.ExtractPrefixed(nameof(Model.UserDatasetCollection.Dataset).AsIndexerPrefix()), context), nameof(Model.UserDatasetCollection.Dataset));
 
 			return censored;

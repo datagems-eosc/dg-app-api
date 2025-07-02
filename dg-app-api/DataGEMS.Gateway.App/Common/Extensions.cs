@@ -60,8 +60,8 @@ namespace DataGEMS.Gateway.App.Common
 			Boolean isRequestedNonEmpty = requested != null && !requested.IsEmpty();
 			Boolean isCensoredEmpty = censored == null || censored.IsEmpty();
 
-			Boolean hasRequestedTopLevel = requested.Fields.Any(x => !x.Contains(qualifier));
-			Boolean hasCensoredTopLevel = censored.Fields.Any(x => !x.Contains(qualifier));
+			Boolean hasRequestedTopLevel = !requested.IsEmpty() && requested.Fields.Any(x => !x.Contains(qualifier));
+			Boolean hasCensoredTopLevel = !censored.IsEmpty() && censored.Fields.Any(x => !x.Contains(qualifier));
 
 			Boolean isTopLevelFiltered = hasRequestedTopLevel && !hasCensoredTopLevel;
 
