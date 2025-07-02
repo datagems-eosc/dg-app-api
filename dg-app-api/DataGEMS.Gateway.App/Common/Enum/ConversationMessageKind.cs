@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DataGEMS.Gateway.App.Common
 {
-	public enum Kind : short
+	public enum ConversationMessageKind : short
 	{
 		[Description("User query")]
 		UserQuery = 0,

@@ -10,11 +10,6 @@ using DataGEMS.Gateway.App.Event;
 using DataGEMS.Gateway.App.Exception;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using DataGEMS.Gateway.App.Common;
 using DataGEMS.Gateway.App.Query;
 

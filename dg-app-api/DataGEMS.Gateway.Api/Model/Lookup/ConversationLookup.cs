@@ -76,8 +76,6 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 						.FailOn(nameof(ConversationLookup.Page)).FailWith(this._localizer["validation_pagingWithoutOrdering"]),
 				};
 			}
-
-			
 		}
 
 		public class QueryMeValidator : BaseValidator<ConversationLookup>

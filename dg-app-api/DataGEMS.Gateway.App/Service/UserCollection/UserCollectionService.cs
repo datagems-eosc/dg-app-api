@@ -29,7 +29,6 @@ namespace DataGEMS.Gateway.App.Service.UserCollection
 		private readonly ErrorThesaurus _errors;
 		private readonly EventBroker _eventBroker;
 
-
 		public UserCollectionService(
 			ILogger<UserCollectionService> logger,
 			Data.AppDbContext dbContext,
@@ -138,7 +137,7 @@ namespace DataGEMS.Gateway.App.Service.UserCollection
 				};
 			}
 
-			if(isUpdate &&
+			if (isUpdate &&
 				String.Equals(data.Name, model.Name)) return data;
 
 			data.Name = model.Name;

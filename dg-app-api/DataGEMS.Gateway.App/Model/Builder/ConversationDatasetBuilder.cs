@@ -4,13 +4,7 @@ using Cite.Tools.FieldSet;
 using Cite.Tools.Logging.Extensions;
 using Cite.Tools.Logging;
 using DataGEMS.Gateway.App.Authorization;
-using DataGEMS.Gateway.App.Data;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using DataGEMS.Gateway.App.Common;
 using DataGEMS.Gateway.App.Query;
 
@@ -41,7 +35,6 @@ namespace DataGEMS.Gateway.App.Model.Builder
 		{
 			this._logger.Debug(new MapLogEntry("building").And("type", nameof(App.Model.ConversationDataset)).And("fields", fields).And("dataCount", datas?.Count()));
 			if (fields == null || fields.IsEmpty()) return Enumerable.Empty<ConversationDataset>().ToList();
-
 
 			IFieldSet conversationFields = fields.ExtractPrefixed(this.AsPrefix(nameof(ConversationDataset.Conversation)));
 			Dictionary<Guid, Conversation> conversationMap = await this.CollectConversations(conversationFields, datas);

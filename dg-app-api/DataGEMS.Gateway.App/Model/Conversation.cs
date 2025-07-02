@@ -1,11 +1,6 @@
 ﻿using DataGEMS.Gateway.App.Common.Validation;
 using DataGEMS.Gateway.App.Common;
 using Cite.Tools.Common.Extensions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Cite.Tools.Validation;
 using DataGEMS.Gateway.App.ErrorCode;
 using Microsoft.Extensions.Localization;

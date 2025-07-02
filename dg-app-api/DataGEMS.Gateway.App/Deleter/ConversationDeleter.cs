@@ -8,11 +8,6 @@ using DataGEMS.Gateway.App.Event;
 using DataGEMS.Gateway.App.Query;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DataGEMS.Gateway.App.Deleter
 {
@@ -67,12 +62,13 @@ namespace DataGEMS.Gateway.App.Deleter
 				.IsActive(IsActive.Active)
 				.Authorize(Authorization.AuthorizationFlags.None)
 				.CollectAsync();
-
 			await this._deleterFactory.Deleter<ConversationDatasetDeleter>().Delete(conversationDatasets);
 
-
-			// TODO ... for messages also....
-
+			List<Data.ConversationMessage> conversationMessages = await this._queryFactory.Query<ConversationMessageQuery>()
+				.ConversationIds(ids)
+				.Authorize(Authorization.AuthorizationFlags.None)
+				.CollectAsync();
+			await this._deleterFactory.Deleter<ConversationMessageDeleter>().Delete(conversationMessages);
 
 			DateTime now = DateTime.UtcNow;
 			foreach (Data.Conversation item in datas)

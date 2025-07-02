@@ -4,11 +4,6 @@ using DataGEMS.Gateway.App.Authorization;
 using DataGEMS.Gateway.App.Common;
 using DataGEMS.Gateway.App.Data;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DataGEMS.Gateway.App.Query
 {

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DataGEMS.Gateway.App.Data;
+﻿using DataGEMS.Gateway.App.Data;
 using Cite.Tools.Data.Query;
 using DataGEMS.Gateway.App.Authorization;
 using DataGEMS.Gateway.App.Common;

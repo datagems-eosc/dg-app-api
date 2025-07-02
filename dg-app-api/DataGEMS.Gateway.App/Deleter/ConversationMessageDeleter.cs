@@ -11,20 +11,20 @@ using Microsoft.Extensions.Logging;
 
 namespace DataGEMS.Gateway.App.Deleter
 {
-	public class ConversationDatasetDeleter : IDeleter
+	public class ConversationMessageDeleter : IDeleter
 	{
 		private readonly QueryFactory _queryFactory = null;
 		private readonly Data.AppDbContext _dbContext;
-		private readonly ILogger<ConversationDatasetDeleter> _logger;
+		private readonly ILogger<ConversationMessageDeleter> _logger;
 		private readonly EventBroker _eventBroker;
 		private readonly ErrorThesaurus _errors;
 		private readonly IStringLocalizer<Resources.MySharedResources> _localizer;
 
-		public ConversationDatasetDeleter(
+		public ConversationMessageDeleter(
 			Data.AppDbContext dbContext,
 			QueryFactory queryFactory,
 			EventBroker eventBroker,
-			ILogger<ConversationDatasetDeleter> logger,
+			ILogger<ConversationMessageDeleter> logger,
 			ErrorThesaurus errors,
 			IStringLocalizer<Resources.MySharedResources> localizer)
 		{
@@ -38,31 +38,24 @@ namespace DataGEMS.Gateway.App.Deleter
 
 		public async Task DeleteAndSave(IEnumerable<Guid> ids)
 		{
-			List<Data.ConversationDataset> datas = await this._queryFactory.Query<ConversationDatasetQuery>().Ids(ids).Authorize(Authorization.AuthorizationFlags.None).CollectAsync();
+			List<Data.ConversationMessage> datas = await this._queryFactory.Query<ConversationMessageQuery>().Ids(ids).Authorize(Authorization.AuthorizationFlags.None).CollectAsync();
 			await this.DeleteAndSave(datas);
 		}
 
-		public async Task DeleteAndSave(IEnumerable<Data.ConversationDataset> datas)
+		public async Task DeleteAndSave(IEnumerable<Data.ConversationMessage> datas)
 		{
 			await this.Delete(datas);
 			await this._dbContext.SaveChangesAsync();
 		}
 
-		public Task Delete(IEnumerable<Data.ConversationDataset> datas)
+		public Task Delete(IEnumerable<Data.ConversationMessage> datas)
 		{
-			this._logger.Debug(new MapLogEntry("deleting").And("type", nameof(App.Model.ConversationDataset)).And("count", datas?.Count()));
+			this._logger.Debug(new MapLogEntry("deleting").And("type", nameof(App.Model.ConversationMessage)).And("count", datas?.Count()));
 			if (datas == null || !datas.Any()) return Task.CompletedTask;
 
-			DateTime now = DateTime.UtcNow;
+			this._dbContext.RemoveRange(datas);
 
-			foreach (Data.ConversationDataset item in datas)
-			{
-				item.IsActive = IsActive.Inactive;
-				item.UpdatedAt = now;
-				this._dbContext.Update(item);
-			}
-
-			this._eventBroker.EmitConversationDatasetDeleted(datas.Select(x => x.Id).ToList());
+			this._eventBroker.EmitConversationMessageDeleted(datas.Select(x => x.Id).ToList());
 			return Task.CompletedTask;
 		}
 	}

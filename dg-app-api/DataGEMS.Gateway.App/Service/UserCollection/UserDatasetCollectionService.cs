@@ -1,7 +1,6 @@
 ﻿using Cite.Tools.Auth.Claims;
 using Cite.Tools.Data.Builder;
 using Cite.Tools.FieldSet;
-using Cite.Tools.Json;
 using Cite.Tools.Logging.Extensions;
 using Cite.Tools.Logging;
 using Cite.WebTools.CurrentPrincipal;
@@ -13,7 +12,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using DataGEMS.Gateway.App.Exception;
 using Cite.Tools.Data.Deleter;
-using Cite.Tools.Common.Extensions;
 
 namespace DataGEMS.Gateway.App.Service.UserCollection
 {
@@ -79,7 +77,7 @@ namespace DataGEMS.Gateway.App.Service.UserCollection
 			{
 				String subjectId = await this._authorizationContentResolver.SubjectIdOfUserId(userId);
 				Boolean allow = await this._authorizationService.AuthorizeOrOwner(!String.IsNullOrEmpty(subjectId) ? new OwnedResource(subjectId) : null, permission);
-				if(!allow && force) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+				if (!allow && force) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
 				if (allow) allowUserIds.Add(userId);
 			}
 			List<Guid> allowed = datas.Where(x => allowUserIds.Contains(x.UserId)).Select(x => x.Id).ToList();
@@ -100,10 +98,10 @@ namespace DataGEMS.Gateway.App.Service.UserCollection
 
 			Guid? currentUser = this._extractor.SubjectGuid(this._currentPrincipalResolverService.CurrentPrincipal());
 			List<Guid> userCollectionIds = models.Where(x => x.UserCollectionId.HasValue).Select(x => x.UserCollectionId.Value).Distinct().ToList();
-			if(userCollectionIds.Count == 0) return new List<Model.UserDatasetCollection>();
+			if (userCollectionIds.Count == 0) return new List<Model.UserDatasetCollection>();
 			List<Guid> userIds = this._dbContext.UserCollections.Where(x => userCollectionIds.Contains(x.Id)).Select(x => x.UserId).Distinct().ToList();
 			if (userIds.Count == 0) return new List<Model.UserDatasetCollection>();
-			foreach(Guid userId in userIds)
+			foreach (Guid userId in userIds)
 			{
 				String subjectId = await this._authorizationContentResolver.SubjectIdOfUserId(userId);
 				await this._authorizationService.AuthorizeOrOwnerForce(!String.IsNullOrEmpty(subjectId) ? new OwnedResource(subjectId) : null, Permission.EditUserDatasetCollection);

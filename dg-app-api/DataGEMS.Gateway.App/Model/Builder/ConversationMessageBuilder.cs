@@ -5,12 +5,6 @@ using Cite.Tools.Logging.Extensions;
 using Cite.Tools.Logging;
 using DataGEMS.Gateway.App.Authorization;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DataGEMS.Gateway.App.Common;
 using DataGEMS.Gateway.App.Query;
 
 namespace DataGEMS.Gateway.App.Model.Builder
@@ -52,7 +46,6 @@ namespace DataGEMS.Gateway.App.Model.Builder
 				if (fields.HasField(nameof(ConversationMessage.Kind))) m.Kind = d.Kind;
 				if (fields.HasField(nameof(ConversationMessage.Data))) m.Data = d.Data;
 				if (fields.HasField(nameof(ConversationMessage.CreatedAt))) m.CreatedAt = d.CreatedAt;
-
 				if (!conversationFields.IsEmpty() && conversationMap != null && conversationMap.ContainsKey(d.ConversationId)) m.Conversation = conversationMap[d.ConversationId];
 
 				models.Add(m);

@@ -155,7 +155,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			this._logger.Debug(new MapLogEntry("get").And("type", nameof(App.Model.UserCollection)).And("id", id).And("fields", fieldSet));
 
 			Guid userId = await this._queryFactory.Query<UserCollectionQuery>().Authorize(AuthorizationFlags.None).Ids(id).FirstAsync(x => x.UserId);
-			if(userId == default(Guid)) throw new DGNotFoundException(this._localizer["general_notFound", id, nameof(App.Model.UserCollection)]);
+			if (userId == default(Guid)) throw new DGNotFoundException(this._localizer["general_notFound", id, nameof(App.Model.UserCollection)]);
 
 			IFieldSet censoredFields = await this._censorFactory.Censor<UserCollectionCensor>().Censor(fieldSet, CensorContext.AsCensor(), userId);
 			if (fieldSet.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);

@@ -4,11 +4,6 @@ using DataGEMS.Gateway.App.Authorization;
 using DataGEMS.Gateway.App.Common;
 using DataGEMS.Gateway.App.Data;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DataGEMS.Gateway.App.Query
 {
@@ -17,8 +12,7 @@ namespace DataGEMS.Gateway.App.Query
 		private List<Guid> _ids { get; set; }
 		private List<Guid> _excludedIds { get; set; }
 		private List<Guid> _conversationIds { get; set; }
-		private String _like { get; set; }
-		private List<Kind> _kind { get; set; }
+		private List<ConversationMessageKind> _kind { get; set; }
 		private ConversationQuery _conversationQuery { get; set; }
 		private AuthorizationFlags _authorize { get; set; } = AuthorizationFlags.None;
 
@@ -40,8 +34,6 @@ namespace DataGEMS.Gateway.App.Query
 		public ConversationMessageQuery ConversationIds(IEnumerable<Guid> conversationIds) { this._conversationIds = this.ToList(conversationIds); return this; }
 		public ConversationMessageQuery ConversationIds(Guid conversationId) { this._conversationIds = this.ToList(conversationId.AsArray()); return this; }
 		public ConversationMessageQuery ConversationSubQuery(ConversationQuery subquery) { this._conversationQuery = subquery; return this; }
-		/*public ConversationMessageQuery IsActive(IEnumerable<IsActive> isActive) { this._isActive = this.ToList(isActive); return this; }
-		public ConversationMessageQuery IsActive(IsActive isActive) { this._isActive = this.ToList(isActive.AsArray()); return this; }*/
 		public ConversationMessageQuery EnableTracking() { base.NoTracking = false; return this; }
 		public ConversationMessageQuery DisableTracking() { base.NoTracking = true; return this; }
 		public ConversationMessageQuery AsDistinct() { base.Distinct = true; return this; }
@@ -50,7 +42,7 @@ namespace DataGEMS.Gateway.App.Query
 
 		protected override bool IsFalseQuery()
 		{
-			return this.IsEmpty(this._ids) || this.IsEmpty(this._conversationIds) ||
+			return this.IsEmpty(this._ids) || this.IsEmpty(this._conversationIds) || this.IsEmpty(this._kind) ||
 				this.IsEmpty(this._excludedIds) || this.IsFalseQuery(this._conversationQuery);
 		}
 
@@ -88,7 +80,6 @@ namespace DataGEMS.Gateway.App.Query
 			if (this._conversationIds != null) query = query.Where(x => this._conversationIds.Contains(x.ConversationId));
 			if (this._kind != null) query = query.Where(x => this._kind.Contains(x.Kind));
 			if (this._excludedIds != null) query = query.Where(x => !this._excludedIds.Contains(x.Id));
-			if (!String.IsNullOrEmpty(this._like)) query = query.Where(x => EF.Functions.ILike(x.Data, this._like));
 			if (this._conversationQuery != null)
 			{
 				IQueryable<Guid> subQuery = await this.BindSubQueryAsync(this._conversationQuery, this._dbContext.Conversations, y => y.Id);
@@ -104,7 +95,10 @@ namespace DataGEMS.Gateway.App.Query
 			if (this.IsOrdered(query)) orderedQuery = query as IOrderedQueryable<ConversationMessage>;
 
 			if (item.Match(nameof(Model.ConversationMessage.Id))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.Id);
-			else if (item.Match(nameof(Model.ConversationMessage.Data))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.Data);
+			else if (item.Match(nameof(Model.ConversationDataset.Conversation), nameof(Model.Conversation.Id))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.Conversation.Id);
+			else if (item.Match(nameof(Model.ConversationDataset.Conversation), nameof(Model.Conversation.Name))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.Conversation.Name);
+			else if (item.Match(nameof(Model.ConversationDataset.Conversation), nameof(Model.Conversation.User.Id))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.Conversation.User.Id);
+			else if (item.Match(nameof(Model.ConversationDataset.Conversation), nameof(Model.Conversation.User.Name))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.Conversation.User.Name);
 			else if (item.Match(nameof(Model.ConversationMessage.Kind))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.Kind);
 			else if (item.Match(nameof(Model.ConversationMessage.CreatedAt))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.CreatedAt);
 			else return null;
@@ -118,10 +112,10 @@ namespace DataGEMS.Gateway.App.Query
 			foreach (FieldResolver item in items)
 			{
 				if (item.Match(nameof(Model.ConversationMessage.Id))) projectionFields.Add(nameof(ConversationMessage.Id));
-				else if (item.Match(nameof(Model.ConversationMessage.Data))) projectionFields.Add(nameof(ConversationMessage.Data));
-				else if (item.Match(nameof(Model.ConversationMessage.CreatedAt))) projectionFields.Add(nameof(ConversationMessage.CreatedAt));
 				else if (item.Match(nameof(Model.ConversationMessage.Kind))) projectionFields.Add(nameof(ConversationMessage.Kind));
 				else if (item.Prefix(nameof(Model.ConversationMessage.Conversation))) projectionFields.Add(nameof(ConversationMessage.ConversationId));
+				else if (item.Match(nameof(Model.ConversationMessage.Data))) projectionFields.Add(nameof(ConversationMessage.Data));
+				else if (item.Match(nameof(Model.ConversationMessage.CreatedAt))) projectionFields.Add(nameof(ConversationMessage.CreatedAt));
 			}
 			return projectionFields.ToList();
 		}

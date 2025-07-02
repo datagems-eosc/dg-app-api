@@ -17,7 +17,6 @@ using DataGEMS.Gateway.App.Model.Builder;
 using DataGEMS.Gateway.App.Query;
 using DataGEMS.Gateway.App.Service.Conversation;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 using Swashbuckle.AspNetCore.Annotations;
@@ -29,7 +28,6 @@ using DataGEMS.Gateway.App.Model;
 namespace DataGEMS.Gateway.Api.Controllers
 {
 	[Route("api/conversation")]
-	[ApiController]
 	public class ConversationController : ControllerBase
 	{
 		private readonly CensorFactory _censorFactory;
@@ -191,7 +189,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			[FromBody]
 			[SwaggerRequestBody(description: "The model to persist", Required = true)]
 			ConversationPersist model,
-			[FromQuery(Name = "f")]
+			[ModelBinder(Name = "f")]
 			[SwaggerParameter(description: "The fields to include in the response model", Required = true)]
 			[LookupFieldSetQueryStringOpenApi]
 			IFieldSet fieldSet)
@@ -239,7 +237,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			List<App.Model.ConversationDataset> models = await this._builderFactory.Builder<ConversationDatasetBuilder>().Authorize(AuthorizationFlags.Any).Build(censoredFields, datas);
 			int count = (lookup.Metadata != null && lookup.Metadata.CountAll) ? await query.CountAsync() : models.Count;
 
-			this._accountingService.AccountFor(KnownActions.Query, KnownResources.ConversationDataset.AsAccountable());
+			this._accountingService.AccountFor(KnownActions.Query, KnownResources.Conversation.AsAccountable());
 
 			return new QueryResult<App.Model.ConversationDataset>(models, count);
 		}
@@ -281,7 +279,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			List<App.Model.ConversationDataset> models = await this._builderFactory.Builder<ConversationDatasetBuilder>().Authorize(AuthorizationFlags.Any).Build(censoredFields, datas);
 			int count = (lookup.Metadata != null && lookup.Metadata.CountAll) ? await query.CountAsync() : models.Count;
 
-			this._accountingService.AccountFor(KnownActions.Query, KnownResources.ConversationDataset.AsAccountable());
+			this._accountingService.AccountFor(KnownActions.Query, KnownResources.Conversation.AsAccountable());
 
 			return new QueryResult<App.Model.ConversationDataset>(models, count);
 		}
@@ -328,13 +326,10 @@ namespace DataGEMS.Gateway.Api.Controllers
 			App.Model.ConversationDataset model = await this._builderFactory.Builder<ConversationDatasetBuilder>().Authorize(AuthorizationFlags.Any).Build(censoredFields, data);
 			if (model == null) throw new DGNotFoundException(this._localizer["general_notFound", id, nameof(App.Model.ConversationDataset)]);
 
-			this._accountingService.AccountFor(KnownActions.Query, KnownResources.ConversationDataset.AsAccountable());
+			this._accountingService.AccountFor(KnownActions.Query, KnownResources.Conversation.AsAccountable());
 
 			return model;
 		}
-
-
-
 
 		[HttpPost("dataset/me/{conversationId}/{datasetId}")]
 		[Authorize]
@@ -378,8 +373,6 @@ namespace DataGEMS.Gateway.Api.Controllers
 			return persisted;
 		}
 
-
-
 		[HttpDelete("dataset/me/{conversationId}/{datasetId}")]
 		[Authorize]
 		[ModelStateValidationFilter]
@@ -421,10 +414,6 @@ namespace DataGEMS.Gateway.Api.Controllers
 
 			return persisted;
 		}
-
-
-
-
 
 		[HttpDelete("{id}")]
 		[Authorize]

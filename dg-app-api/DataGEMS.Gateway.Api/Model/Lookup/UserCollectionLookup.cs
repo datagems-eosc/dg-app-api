@@ -11,7 +11,7 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 {
 	public class UserCollectionLookup : Cite.Tools.Data.Query.Lookup
 	{
-		[SwaggerSchema(description:"Limit lookup to items with specific ids. If set, the list of ids must not be empty")]
+		[SwaggerSchema(description: "Limit lookup to items with specific ids. If set, the list of ids must not be empty")]
 		public List<Guid> Ids { get; set; }
 		[SwaggerSchema(description: "Limit lookup to items belonging to specific user ids. If set, the list of ids must not be empty")]
 		public List<Guid> UserIds { get; set; }

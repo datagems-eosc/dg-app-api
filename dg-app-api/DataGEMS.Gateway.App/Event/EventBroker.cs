@@ -299,9 +299,6 @@ namespace DataGEMS.Gateway.App.Event
 
 		#endregion
 
-
-
-
 		#region Conversation Deleted
 
 		private EventHandler<OnEventArgs> _conversationDeleted;
@@ -402,13 +399,13 @@ namespace DataGEMS.Gateway.App.Event
 
 		public void EmitConversationDatasetDeleted(Object sender, IEnumerable<Guid> ids)
 		{
-			this._conversationDeleted?.Invoke(sender, new OnEventArgs(ids));
+			this._conversationDatasetDeleted?.Invoke(sender, new OnEventArgs(ids));
 		}
 
 		public void EmitConversationDatasetDeleted(Object sender, IEnumerable<OnEventArgs> events)
 		{
 			if (events == null) return;
-			foreach (OnEventArgs ev in events) this._conversationDeleted?.Invoke(sender, ev);
+			foreach (OnEventArgs ev in events) this._conversationDatasetDeleted?.Invoke(sender, ev);
 		}
 
 		#endregion
@@ -446,6 +443,80 @@ namespace DataGEMS.Gateway.App.Event
 		{
 			if (events == null) return;
 			foreach (OnEventArgs ev in events) this._conversationDatasetTouched?.Invoke(sender, ev);
+		}
+
+		#endregion
+
+		#region ConversationMessage Deleted
+
+		private EventHandler<OnEventArgs> _conversationMessageDeleted;
+		public event EventHandler<OnEventArgs> ConversationMessageDeleted
+		{
+			add { this._conversationMessageDeleted += value; }
+			remove { this._conversationMessageDeleted -= value; }
+		}
+
+		public void EmitConversationMessageDeleted(Guid id)
+		{
+			this.EmitConversationMessageDeleted(this, new List<Guid>() { id });
+		}
+
+		public void EmitConversationMessageDeleted(IEnumerable<Guid> ids)
+		{
+			this.EmitConversationMessageDeleted(this, ids);
+		}
+
+		public void EmitConversationMessageDeleted(IEnumerable<OnEventArgs> events)
+		{
+			this.EmitConversationMessageDeleted(this, events);
+		}
+
+		public void EmitConversationMessageDeleted(Object sender, IEnumerable<Guid> ids)
+		{
+			this._conversationMessageDeleted?.Invoke(sender, new OnEventArgs(ids));
+		}
+
+		public void EmitConversationMessageDeleted(Object sender, IEnumerable<OnEventArgs> events)
+		{
+			if (events == null) return;
+			foreach (OnEventArgs ev in events) this._conversationMessageDeleted?.Invoke(sender, ev);
+		}
+
+		#endregion
+
+		#region ConversationMessage Touched
+
+		private EventHandler<OnEventArgs> _conversationMessageTouched;
+		public event EventHandler<OnEventArgs> ConversationMessageTouched
+		{
+			add { this._conversationMessageTouched += value; }
+			remove { this._conversationMessageTouched -= value; }
+		}
+
+		public void EmitConversationMessageTouched(Guid id)
+		{
+			this.EmitConversationMessageTouched(this, new List<Guid>() { id });
+		}
+
+		public void EmitConversationMessageTouched(IEnumerable<Guid> ids)
+		{
+			this.EmitConversationMessageTouched(this, ids);
+		}
+
+		public void EmitConversationMessageTouched(IEnumerable<OnEventArgs> events)
+		{
+			this.EmitConversationMessageTouched(this, events);
+		}
+
+		public void EmitConversationMessageTouched(Object sender, IEnumerable<Guid> ids)
+		{
+			this._conversationMessageTouched?.Invoke(sender, new OnEventArgs(ids));
+		}
+
+		public void EmitConversationMessageTouched(Object sender, IEnumerable<OnEventArgs> events)
+		{
+			if (events == null) return;
+			foreach (OnEventArgs ev in events) this._conversationMessageTouched?.Invoke(sender, ev);
 		}
 
 		#endregion

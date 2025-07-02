@@ -55,13 +55,13 @@ namespace DataGEMS.Gateway.App.Common
 			return merged;
 		}
 
-		public static bool CensoredAsUnauthorized(this IFieldSet requested, IFieldSet censored)
+		public static bool CensoredAsUnauthorized(this IFieldSet requested, IFieldSet censored, String qualifier = ".")
 		{
 			Boolean isRequestedNonEmpty = requested != null && !requested.IsEmpty();
 			Boolean isCensoredEmpty = censored == null || censored.IsEmpty();
 
-			Boolean hasRequestedTopLevel = requested.Fields.Any(x => !x.Contains("."));
-			Boolean hasCensoredTopLevel = censored.Fields.Any(x => !x.Contains("."));
+			Boolean hasRequestedTopLevel = requested.Fields.Any(x => !x.Contains(qualifier));
+			Boolean hasCensoredTopLevel = censored.Fields.Any(x => !x.Contains(qualifier));
 
 			Boolean isTopLevelFiltered = hasRequestedTopLevel && !hasCensoredTopLevel;
 

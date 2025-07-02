@@ -11,7 +11,6 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 {
 	public class ConversationDatasetLookup : Cite.Tools.Data.Query.Lookup
 	{
-
 		[SwaggerSchema(description: "Limit lookup to items with specific ids. If set, the list of ids must not be empty")]
 		public List<Guid> Ids { get; set; }
 		[SwaggerSchema(description: "Exclude from the lookup items with specific ids. If set, the list of ids must not be empty")]

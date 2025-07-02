@@ -5,11 +5,6 @@ using Cite.Tools.Logging.Extensions;
 using Cite.Tools.Logging;
 using DataGEMS.Gateway.App.Authorization;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using DataGEMS.Gateway.App.Common;
 using DataGEMS.Gateway.App.Query;
 
@@ -41,19 +36,14 @@ namespace DataGEMS.Gateway.App.Model.Builder
 			this._logger.Debug(new MapLogEntry("building").And("type", nameof(App.Model.Conversation)).And("fields", fields).And("dataCount", datas?.Count()));
 			if (fields == null || fields.IsEmpty()) return Enumerable.Empty<Conversation>().ToList();
 
-
-
-
-			IFieldSet ConversationDatasetFields = fields.ExtractPrefixed(this.AsPrefix(nameof(Conversation.ConversationDatasets)));
-			Dictionary<Guid, List<ConversationDataset>> conversationDatasetMap = await this.CollectConversationDatasets(ConversationDatasetFields, datas);
+			IFieldSet conversationDatasetFields = fields.ExtractPrefixed(this.AsPrefix(nameof(Conversation.ConversationDatasets)));
+			Dictionary<Guid, List<ConversationDataset>> conversationDatasetMap = await this.CollectConversationDatasets(conversationDatasetFields, datas);
 
 			IFieldSet userFields = fields.ExtractPrefixed(this.AsPrefix(nameof(Conversation.User)));
 			Dictionary<Guid, User> userMap = await this.CollectUsers(userFields, datas);
 
-			IFieldSet ConversationMessageFields = fields.ExtractPrefixed(this.AsPrefix(nameof(Conversation.ConversationMessages)));
-			Dictionary<Guid, List<ConversationMessage>> conversationMessageMap = await this.CollectConversationMessages(ConversationMessageFields, datas);
-
-
+			IFieldSet conversationMessageFields = fields.ExtractPrefixed(this.AsPrefix(nameof(Conversation.ConversationMessages)));
+			Dictionary<Guid, List<ConversationMessage>> conversationMessageMap = await this.CollectConversationMessages(conversationMessageFields, datas);
 
 			List<Conversation> models = new List<Conversation>();
 			foreach (Data.Conversation d in datas ?? new List<Data.Conversation>())
@@ -62,13 +52,12 @@ namespace DataGEMS.Gateway.App.Model.Builder
 				if (fields.HasField(nameof(Conversation.ETag))) m.ETag = d.UpdatedAt.ToETag();
 				if (fields.HasField(nameof(Conversation.Id))) m.Id = d.Id;
 				if (fields.HasField(nameof(Conversation.Name))) m.Name = d.Name;
+				if (fields.HasField(nameof(Conversation.IsActive))) m.IsActive = d.IsActive;
 				if (fields.HasField(nameof(Conversation.CreatedAt))) m.CreatedAt = d.CreatedAt;
 				if (fields.HasField(nameof(Conversation.UpdatedAt))) m.UpdatedAt = d.UpdatedAt;
-
-
-				if (!ConversationDatasetFields.IsEmpty() && conversationDatasetMap != null && conversationDatasetMap.ContainsKey(d.Id)) m.ConversationDatasets = conversationDatasetMap[d.Id];
+				if (!conversationDatasetFields.IsEmpty() && conversationDatasetMap != null && conversationDatasetMap.ContainsKey(d.Id)) m.ConversationDatasets = conversationDatasetMap[d.Id];
 				if (!userFields.IsEmpty() && userMap != null && userMap.ContainsKey(d.UserId)) m.User = userMap[d.UserId];
-				if (!ConversationMessageFields.IsEmpty() && conversationMessageMap != null && conversationMessageMap.ContainsKey(d.Id)) m.ConversationMessages = conversationMessageMap[d.Id];
+				if (!conversationMessageFields.IsEmpty() && conversationMessageMap != null && conversationMessageMap.ContainsKey(d.Id)) m.ConversationMessages = conversationMessageMap[d.Id];
 
 				models.Add(m);
 			}
@@ -115,7 +104,7 @@ namespace DataGEMS.Gateway.App.Model.Builder
 
 			Dictionary<Guid, List<ConversationMessage>> itemMap = null;
 			IFieldSet clone = new FieldSet(fields.Fields).Ensure(this.AsIndexer(nameof(ConversationMessage.Conversation), nameof(Conversation.Id)));
-			ConversationMessageQuery query = this._queryFactory.Query<ConversationMessageQuery>().DisableTracking().ConversationIds(datas.Select(x => x.Id).Distinct()).Authorize(this._authorize);		// .IsActive(Common.IsActive.Active) REMOVED FROM HERE
+			ConversationMessageQuery query = this._queryFactory.Query<ConversationMessageQuery>().DisableTracking().ConversationIds(datas.Select(x => x.Id).Distinct()).Authorize(this._authorize);
 			itemMap = await this._builderFactory.Builder<ConversationMessageBuilder>().Authorize(this._authorize).AsMasterKey(query, clone, x => x.Conversation.Id.Value);
 
 			if (!fields.HasField(this.AsIndexer(nameof(ConversationMessage.Conversation), nameof(Conversation.Id)))) itemMap.SelectMany(x => x.Value).Where(x => x != null && x.Conversation != null).ToList().ForEach(x => x.Conversation.Id = null);

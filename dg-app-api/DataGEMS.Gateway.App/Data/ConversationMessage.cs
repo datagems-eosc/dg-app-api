@@ -1,13 +1,8 @@
 ﻿using DataGEMS.Gateway.App.Common;
 using DataGEMS.Gateway.App.Common.Data;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataGEMS.Gateway.App.Data
@@ -22,11 +17,9 @@ namespace DataGEMS.Gateway.App.Data
 		public Guid ConversationId { get; set; }
 
 		[Required]
-		public Kind Kind { get; set; }
-
+		public ConversationMessageKind Kind { get; set; }
 
 		public String Data { get; set; }
-
 
 		[Required]
 		public DateTime CreatedAt { get; set; }
