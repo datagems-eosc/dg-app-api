@@ -25,7 +25,7 @@ namespace DataGEMS.Gateway.App.Model
 		public Guid? DatasetId { get; set; }
 		public String ETag { get; set; }
 
-		public class PersistValidator : BaseValidator<ConversationDatasetPersist>
+		public class PersistValidator : BaseValidator<ConversationDatasetPersist>			// <---- Do we use this anywhere????
 		{
 			public PersistValidator(
 				IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> localizer,
@@ -58,6 +58,44 @@ namespace DataGEMS.Gateway.App.Model
 					//dataset must always be set
 					this.Spec()
 						.Must(() => !this.IsValidGuid(item.DatasetId))
+						.FailOn(nameof(ConversationDatasetPersist.DatasetId)).FailWith(this._localizer["validation_required", nameof(ConversationDatasetPersist.DatasetId)]),
+				};
+			}
+		}
+
+		public class PersistSubDeepValidator : BaseValidator<ConversationDatasetPersist>
+		{
+			public PersistSubDeepValidator(
+				IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> localizer,
+				ValidatorFactory validatorFactory,
+				ILogger<PersistSubDeepValidator> logger,
+				ErrorThesaurus errors) : base(validatorFactory, logger, errors)
+			{
+				this._localizer = localizer;
+			}
+
+			private readonly IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> _localizer;
+
+			protected override IEnumerable<ISpecification> Specifications(ConversationDatasetPersist item)
+			{
+				return new ISpecification[]{
+					//creating new item. Hash must not be set
+					this.Spec()
+						.If(() => !this.IsValidGuid(item.Id))
+						.Must(() => !this.IsValidHash(item.ETag))
+						.FailOn(nameof(ConversationDatasetPersist.ETag)).FailWith(this._localizer["validation_overPosting"]),
+					//update existing item. Hash must be set
+					this.Spec()
+						.If(() => this.IsValidGuid(item.Id))
+						.Must(() => this.IsValidHash(item.ETag))
+						.FailOn(nameof(ConversationDatasetPersist.ETag)).FailWith(this._localizer["validation_required", nameof(ConversationDatasetPersist.ETag)]),
+					//conversation must not be set
+					this.Spec()
+						.Must(() => !this.IsValidGuid(item.ConversationId))
+						.FailOn(nameof(ConversationDatasetPersist.ConversationId)).FailWith(this._localizer["validation_overPosting"]),
+					//dataset must always be set
+					this.Spec()
+						.Must(() => this.IsValidGuid(item.DatasetId))														// ! removed from () => !this.IsValidGuid(item.DatasetId)
 						.FailOn(nameof(ConversationDatasetPersist.DatasetId)).FailWith(this._localizer["validation_required", nameof(ConversationDatasetPersist.DatasetId)]),
 				};
 			}

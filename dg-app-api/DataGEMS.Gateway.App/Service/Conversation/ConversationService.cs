@@ -88,6 +88,32 @@ namespace DataGEMS.Gateway.App.Service.Conversation
 			return persisted;
 		}
 
+		public async Task<Model.Conversation> PersistAsync(Model.ConversationPersistDeep model, IFieldSet fields = null)
+		{
+			this._logger.Debug(new MapLogEntry("persisting").And("type", nameof(App.Model.ConversationPersistDeep)).And("model", model).And("fields", fields));
+
+			await this.AuthorizeEditForce(model.Id);
+
+			Data.Conversation data = await this.PatchAndSave(new Model.ConversationPersist()
+			{
+				Id = model.Id,
+				Name = model.Name,
+				ETag = model.ETag,
+			});
+
+			model.ConversationDatasets?.ForEach(x => x.ConversationId = data.Id);
+			await this.PatchAsync(new Model.ConversationDatasetPatch()
+			{
+				Id = data.Id,
+				ETag = data.UpdatedAt.ToETag(),
+				ConversationDatasets = model.ConversationDatasets
+			});
+
+			Model.Conversation persisted = await this._builderFactory.Builder<Model.Builder.ConversationBuilder>().Authorize(AuthorizationFlags.Any).Build(FieldSet.Build(fields, nameof(Model.Conversation.Id), nameof(Model.Conversation.ETag)), data);
+			return persisted;
+		}
+
+
 		private async Task<Data.Conversation> PatchAndSave(Model.ConversationPersist model)
 		{
 			Boolean isUpdate = model.Id.HasValue && model.Id.Value != Guid.Empty;
@@ -126,6 +152,36 @@ namespace DataGEMS.Gateway.App.Service.Conversation
 			this._eventBroker.EmitConversationTouched(data.Id);
 
 			return data;
+		}
+
+
+		public async Task<Model.Conversation> PatchAsync(Model.ConversationDatasetPatch model, IFieldSet fields = null)
+		{
+			this._logger.Debug(new MapLogEntry("persisting").And("type", nameof(App.Model.ConversationDatasetPatch)).And("model", model).And("fields", fields));
+
+			Data.Conversation data = await this._dbContext.Conversations.FindAsync(model.Id.Value);
+			if (data == null) throw new DGNotFoundException(this._localizer["general_notFound", model.Id.Value, nameof(Model.Conversation)]);
+			if (!String.Equals(model.ETag, data.UpdatedAt.ToETag())) throw new DGValidationException(this._errors.ETagConflict.Code, string.Format(this._errors.ETagConflict.Message, data.Id, nameof(Data.Conversation)));
+
+			await this.AuthorizeEditForce(model.Id);
+
+			List<Guid> existingItems = await this._queryFactory.Query<Query.ConversationDatasetQuery>().ConversationIds(model.Id.Value).IsActive(IsActive.Active).Authorize(AuthorizationFlags.Any).CollectAsync(x => x.Id);
+
+			List<Guid> existingEditableItems = await this._conversationDatasetService.ApplyEditAccess(existingItems);
+			HashSet<Guid> incomingUpdatingIds = model.ConversationDatasets == null ? Enumerable.Empty<Guid>().ToHashSet() : model.ConversationDatasets.Where(x => x.Id.HasValue).Select(x => x.Id.Value).ToHashSet();
+			if (!incomingUpdatingIds.IsSubsetOf(existingEditableItems)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+
+			List<Guid> existingDeletableItems = await this._conversationDatasetService.ApplyDeleteAccess(existingItems);
+			HashSet<Guid> incomingDeletingIds = existingEditableItems.Except(incomingUpdatingIds).ToHashSet();
+			if (!incomingDeletingIds.IsSubsetOf(existingDeletableItems)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+
+			model.ConversationDatasets = model.ConversationDatasets?.Select(x => { x.ConversationId = data.Id; return x; })?.ToList();
+
+			await this._conversationDatasetService.DeleteAsync(incomingDeletingIds);
+			await this._conversationDatasetService.PersistAsync(model.ConversationDatasets, null);
+
+			Model.Conversation persisted = await this._builderFactory.Builder<Model.Builder.ConversationBuilder>().Authorize(AuthorizationFlags.Any).Build(FieldSet.Build(fields, nameof(Model.Conversation.Id), nameof(Model.Conversation.ETag)), data);
+			return persisted;
 		}
 
 		public async Task<Model.Conversation> AddAsync(Guid conversationId, Guid datasetId, IFieldSet fields = null)

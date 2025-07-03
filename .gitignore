@@ -6,3 +6,4 @@ dg-app-api/DataGEMS.Gateway.App/obj/
 dg-app-api/DataGEMS.Gateway.Resources/bin/
 dg-app-api/DataGEMS.Gateway.Resources/obj/
 dg-app-api/DataGEMS.Gateway.Api/Configuration/env.Development.json
+dg-app-api/DataGEMS.Gateway.Api/DataGEMS.Gateway.Api.csproj.user
