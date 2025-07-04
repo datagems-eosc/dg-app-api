@@ -441,7 +441,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			Boolean ownedConverastionFound = await this._queryFactory.Query<ConversationQuery>().Authorize(AuthorizationFlags.Any).Ids(conversationId).UserIds(userId.Value).AnyAsync();
 			if (!ownedConverastionFound) throw new DGNotFoundException(this._localizer["general_notFound", conversationId, nameof(App.Model.Conversation)]);
 
-			IFieldSet censoredFields = await this._censorFactory.Censor<ConversationDatasetCensor>().Censor(fieldSet, CensorContext.AsCensor(), userId);
+			IFieldSet censoredFields = await this._censorFactory.Censor<ConversationCensor>().Censor(fieldSet, CensorContext.AsCensor(), userId);
 			if (fieldSet.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
 
 			Conversation persisted = await this._conversationService.AddAsync(conversationId, datasetId, censoredFields);
@@ -483,7 +483,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			Boolean conversationFound = await this._queryFactory.Query<ConversationQuery>().Authorize(AuthorizationFlags.Any).Ids(conversationId).UserIds(userId.Value).AnyAsync();
 			if (!conversationFound) throw new DGNotFoundException(this._localizer["general_notFound", conversationId, nameof(App.Model.Conversation)]);
 
-			IFieldSet censoredFields = await this._censorFactory.Censor<ConversationDatasetCensor>().Censor(fieldSet, CensorContext.AsCensor(), userId);
+			IFieldSet censoredFields = await this._censorFactory.Censor<ConversationCensor>().Censor(fieldSet, CensorContext.AsCensor(), userId);
 			if (fieldSet.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
 
 			Conversation persisted = await this._conversationService.RemoveAsync(conversationId, datasetId, censoredFields);
