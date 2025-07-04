@@ -83,8 +83,9 @@ namespace DataGEMS.Gateway.Api.OpenApi
 			{
 				var swaggerJsonPath = string.IsNullOrEmpty(openApiConfig?.BasePath) ? "/swagger/v1/swagger.json" : $"{openApiConfig.BasePath}/swagger/v1/swagger.json";
 				options.SwaggerEndpoint(swaggerJsonPath, openApiConfig.Title);
-				options.RoutePrefix = string.IsNullOrEmpty(openApiConfig?.BasePath) ? "swagger" : openApiConfig?.BasePath.TrimStart('/') + "/swagger";
+				options.RoutePrefix = string.IsNullOrEmpty(openApiConfig?.BasePath) ? "swagger" : openApiConfig?.BasePath.TrimStart('/').TrimEnd('/') + "/swagger";
 
+				if(!String.IsNullOrEmpty(openApiConfig?.BasePath)) options.OAuth2RedirectUrl($"/{openApiConfig?.BasePath.TrimStart('/').TrimEnd('/')}/swagger/oauth2-redirect.html");
 				options.OAuthClientId(openApiConfig.OAuth2.ClientId);
 				options.OAuthAppName(openApiConfig.OAuth2.ClientName);
 				if (openApiConfig.OAuth2.UsePkce) options.OAuthUsePkce();
