@@ -1,6 +1,6 @@
 {
 	"OpenApi": {
-		"Environments": [ "Development", "SCAYLEDevelopment" ],
+		"Environments": [ "Development", "Staging" ],
 		"Version": "v1",
 		"Title": "DataGEMS Gateway API",
 		"Description": "Gateway API exposing the DataGEMS underpinning functionality",
