@@ -69,10 +69,22 @@ namespace DataGEMS.Gateway.Api.OpenApi
 			Boolean isEnvironmentConfigured = openApiConfig.Environments?.Contains(environmentName) ?? false;
 			if (!isEnvironmentConfigured) return app;
 
-			app.UseSwagger();
+			app.UseSwagger(options =>
+			{
+				if (!string.IsNullOrEmpty(openApiConfig?.BasePath))
+				{
+					options.PreSerializeFilters.Add((swaggerDoc, httpReq) =>
+					{
+						swaggerDoc.Servers = new List<OpenApiServer> { new OpenApiServer { Url = $"{httpReq.Scheme}://{httpReq.Host.Value}{openApiConfig.BasePath}" } };
+					});
+				}
+			});
 			app.UseSwaggerUI(options =>
 			{
-				options.SwaggerEndpoint("v1/swagger.json", openApiConfig.Title);
+				var swaggerJsonPath = string.IsNullOrEmpty(openApiConfig?.BasePath) ? "/swagger/v1/swagger.json" : $"{openApiConfig.BasePath}/swagger/v1/swagger.json";
+				options.SwaggerEndpoint(swaggerJsonPath, openApiConfig.Title);
+				options.RoutePrefix = string.IsNullOrEmpty(openApiConfig?.BasePath) ? "swagger" : openApiConfig?.BasePath.TrimStart('/') + "/swagger";
+
 				options.OAuthClientId(openApiConfig.OAuth2.ClientId);
 				options.OAuthAppName(openApiConfig.OAuth2.ClientName);
 				if (openApiConfig.OAuth2.UsePkce) options.OAuthUsePkce();
