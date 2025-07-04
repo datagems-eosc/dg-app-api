@@ -31,5 +31,11 @@ ALTER TABLE IF EXISTS public.dm_dataset
 ALTER TABLE IF EXISTS public.dm_dataset
     ADD COLUMN profile text;
 	
-INSERT INTO version_info(key, version, released_at, deployed_at, description)
-VALUES ('DataGEMS.Gateway.db', '01.01.000', '"2025-06-26 00:00:00.00000+00"', now(), 'dm_dataset.AddColumn.ProfileFields');
+
+UPDATE version_info
+SET 
+  version = '01.01.000',
+  released_at = '2025-06-26 00:00:00.00000+00', 
+  deployed_at = now(),
+  description = 'dm_dataset.AddColumn.ProfileFields'
+WHERE key = 'DataGEMS.Gateway.db'

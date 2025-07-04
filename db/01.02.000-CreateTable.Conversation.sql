@@ -12,8 +12,13 @@ CREATE TABLE IF NOT EXISTS public.conversation
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
         NOT VALID
-)
-	
-INSERT INTO version_info(key, version, released_at, deployed_at, description)
-VALUES ('DataGEMS.Gateway.db', '01.02.000', '"2025-06-26 00:00:00.00000+00"', now(), 'CreateTable.Conversation');
+);
 
+
+UPDATE version_info 
+SET 
+  version = '01.02.000',
+  released_at = '2025-06-26 00:00:00.00000+00', 
+  deployed_at = now(),
+  description = 'CreateTable.Conversation'
+WHERE key = 'DataGEMS.Gateway.db'
