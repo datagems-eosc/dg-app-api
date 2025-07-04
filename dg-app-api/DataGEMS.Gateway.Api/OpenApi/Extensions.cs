@@ -48,6 +48,7 @@ namespace DataGEMS.Gateway.Api.OpenApi
 							}
 						}
 					});
+					if(!string.IsNullOrEmpty(openApiConfig.BasePath)) options.AddServer(new OpenApiServer { Url = openApiConfig.BasePath });
 					options.EnableAnnotations();
 					options.SchemaFilter<LookupPageSchemaFilter>();
 					options.SchemaFilter<LookupOrderSchemaFilter>();
@@ -69,23 +70,11 @@ namespace DataGEMS.Gateway.Api.OpenApi
 			Boolean isEnvironmentConfigured = openApiConfig.Environments?.Contains(environmentName) ?? false;
 			if (!isEnvironmentConfigured) return app;
 
-			app.UseSwagger(options =>
-			{
-				if (!string.IsNullOrEmpty(openApiConfig?.BasePath))
-				{
-					options.PreSerializeFilters.Add((swaggerDoc, httpReq) =>
-					{
-						swaggerDoc.Servers = new List<OpenApiServer> { new OpenApiServer { Url = $"{httpReq.Scheme}://{httpReq.Host.Value}{openApiConfig.BasePath}" } };
-					});
-				}
-			});
+			app.UseSwagger();
 			app.UseSwaggerUI(options =>
 			{
-				var swaggerJsonPath = string.IsNullOrEmpty(openApiConfig?.BasePath) ? "/swagger/v1/swagger.json" : $"{openApiConfig.BasePath}/swagger/v1/swagger.json";
-				options.SwaggerEndpoint(swaggerJsonPath, openApiConfig.Title);
-				options.RoutePrefix = string.IsNullOrEmpty(openApiConfig?.BasePath) ? "swagger" : openApiConfig?.BasePath.TrimStart('/').TrimEnd('/') + "/swagger";
-
-				if(!String.IsNullOrEmpty(openApiConfig?.BasePath)) options.OAuth2RedirectUrl($"/{openApiConfig?.BasePath.TrimStart('/').TrimEnd('/')}/swagger/oauth2-redirect.html");
+				options.SwaggerEndpoint("/swagger/v1/swagger.json", openApiConfig.Title);
+				options.OAuth2RedirectUrl("/swagger/oauth2-redirect.html");
 				options.OAuthClientId(openApiConfig.OAuth2.ClientId);
 				options.OAuthAppName(openApiConfig.OAuth2.ClientName);
 				if (openApiConfig.OAuth2.UsePkce) options.OAuthUsePkce();
