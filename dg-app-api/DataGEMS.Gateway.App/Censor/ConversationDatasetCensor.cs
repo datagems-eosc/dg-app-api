@@ -9,7 +9,6 @@ using DataGEMS.Gateway.App.Authorization;
 using DataGEMS.Gateway.App.Common;
 using Microsoft.Extensions.Logging;
 
-
 namespace DataGEMS.Gateway.App.Censor
 {
 	public class ConversationDatasetCensor : ICensor

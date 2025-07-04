@@ -113,7 +113,6 @@ namespace DataGEMS.Gateway.App.Service.Conversation
 			return persisted;
 		}
 
-
 		private async Task<Data.Conversation> PatchAndSave(Model.ConversationPersist model)
 		{
 			Boolean isUpdate = model.Id.HasValue && model.Id.Value != Guid.Empty;
@@ -153,7 +152,6 @@ namespace DataGEMS.Gateway.App.Service.Conversation
 
 			return data;
 		}
-
 
 		public async Task<Model.Conversation> PatchAsync(Model.ConversationDatasetPatch model, IFieldSet fields = null)
 		{

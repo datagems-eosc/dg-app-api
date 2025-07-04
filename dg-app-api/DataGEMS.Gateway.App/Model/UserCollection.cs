@@ -163,5 +163,4 @@ namespace DataGEMS.Gateway.App.Model
 			}
 		}
 	}
-
 }

@@ -25,7 +25,7 @@ namespace DataGEMS.Gateway.App.Model
 		public Guid? DatasetId { get; set; }
 		public String ETag { get; set; }
 
-		public class PersistValidator : BaseValidator<ConversationDatasetPersist>			// <---- Do we use this anywhere????
+		public class PersistValidator : BaseValidator<ConversationDatasetPersist>
 		{
 			public PersistValidator(
 				IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> localizer,
@@ -95,7 +95,7 @@ namespace DataGEMS.Gateway.App.Model
 						.FailOn(nameof(ConversationDatasetPersist.ConversationId)).FailWith(this._localizer["validation_overPosting"]),
 					//dataset must always be set
 					this.Spec()
-						.Must(() => this.IsValidGuid(item.DatasetId))														// ! removed from () => !this.IsValidGuid(item.DatasetId)
+						.Must(() => this.IsValidGuid(item.DatasetId))
 						.FailOn(nameof(ConversationDatasetPersist.DatasetId)).FailWith(this._localizer["validation_required", nameof(ConversationDatasetPersist.DatasetId)]),
 				};
 			}

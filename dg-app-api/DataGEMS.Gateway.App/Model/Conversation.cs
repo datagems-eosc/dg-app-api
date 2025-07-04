@@ -124,7 +124,6 @@ namespace DataGEMS.Gateway.App.Model
 		}
 	}
 
-
 	public class ConversationDatasetPatch
 	{
 		public Guid? Id { get; set; }

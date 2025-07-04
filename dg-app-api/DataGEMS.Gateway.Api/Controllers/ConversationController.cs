@@ -209,7 +209,6 @@ namespace DataGEMS.Gateway.Api.Controllers
 			return persisted;
 		}
 
-
 		[HttpPost("me/persist/deep")]
 		[Authorize]
 		[ModelStateValidationFilter]
@@ -249,7 +248,6 @@ namespace DataGEMS.Gateway.Api.Controllers
 			return persisted;
 		}
 
-
 		[HttpPost("me/patch/dataset")]
 		[Authorize]
 		[ModelStateValidationFilter]
@@ -288,7 +286,6 @@ namespace DataGEMS.Gateway.Api.Controllers
 
 			return persisted;
 		}
-
 
 		[HttpPost("dataset/query")]
 		[Authorize]

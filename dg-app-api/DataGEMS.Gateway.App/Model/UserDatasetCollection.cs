@@ -25,12 +25,12 @@ namespace DataGEMS.Gateway.App.Model
 		public Guid? DatasetId { get; set; }
 		public String ETag { get; set; }
 
-		public class PersistValidator : BaseValidator<UserDatasetCollectionPersist>		// <---- Do we use this anywhere????
+		public class PersistValidator : BaseValidator<UserDatasetCollectionPersist>
 		{
 			public PersistValidator(
 				IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> localizer,
 				ValidatorFactory validatorFactory,
-				ILogger<PersistSubDeepValidator> logger,								// <--- PersistSubDeepValidator???
+				ILogger<PersistValidator> logger,
 				ErrorThesaurus errors) : base(validatorFactory, logger, errors)
 			{
 				this._localizer = localizer;
@@ -95,7 +95,7 @@ namespace DataGEMS.Gateway.App.Model
 						.FailOn(nameof(UserDatasetCollectionPersist.UserCollectionId)).FailWith(this._localizer["validation_overPosting"]),
 					//dataset must always be set
 					this.Spec()
-						.Must(() => this.IsValidGuid(item.DatasetId))							// ! removed from () => !this.IsValidGuid(item.DatasetId)
+						.Must(() => this.IsValidGuid(item.DatasetId))
 						.FailOn(nameof(UserDatasetCollectionPersist.DatasetId)).FailWith(this._localizer["validation_required", nameof(UserDatasetCollectionPersist.DatasetId)]),
 				};
 			}
