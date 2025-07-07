@@ -1,0 +1,63 @@
+{
+  "CrossDatasetDiscoveryService": {
+    "Http": {
+      "Scope": "cross-dataset-discovery-api datasets",
+      "BaseUrl": "https://datagems-dev.scayle.es/search-api/search/"
+    },
+    "DefaultResultCount": 5,
+    "SourceIdMapping": [
+      {
+        "SourceId": "UC1.1 Dataset for Assessing Mathematics Learning in Higher Education",
+        "DatasetId": "8930240b-a0e8-46e7-ace8-aab2b42fcc01"
+      },
+      {
+        "SourceId": "UC1.2 MathE Database",
+        "DatasetId": "a2f676e9-b35a-4f9f-a77e-83ee81f262da"
+      },
+      {
+        "SourceId": "UC1.3 Integration/Integration Techniques Questions MathE Database",
+        "DatasetId": "a36dde9d-7f95-40ff-8a9b-f687d0a72318"
+      },
+      {
+        "SourceId": "UC1.4 Pedagogic Resources MathE Database",
+        "DatasetId": "9b25bc46-8bd3-4f7f-94b4-52dbc38c130f"
+      },
+      {
+        "SourceId": "UC2.1 ESCO",
+        "DatasetId": "b551f361-3f61-4ccf-a001-7c28d065c30d"
+      },
+      {
+        "SourceId": "UC3.1 Era5land",
+        "DatasetId": "7c4d20a0-33e8-471e-8a3f-a7a54aa09f68"
+      },
+      {
+        "SourceId": "UC3.2 MeteoStations Climate",
+        "DatasetId": "729f8932-8300-4ac5-a71e-b41904ca7433"
+      },
+      {
+        "SourceId": "UC3.3 MeteoStations Online",
+        "DatasetId": "7c3ce488-8914-4944-a2b0-837bbd2a7edc"
+      },
+      {
+        "SourceId": "UC3.4 Geodata",
+        "DatasetId": "9af7373e-9593-414e-ba31-bc4b573a392b"
+      },
+      {
+        "SourceId": "UC4.1 EncycNet",
+        "DatasetId": "07382b91-5bc5-42f9-8391-33adc2460c19"
+      },
+      {
+        "SourceId": "UC4.2 19th century knowledge project",
+        "DatasetId": "d84d1a2e-127d-4393-91d0-afb7e4fd9c68"
+      },
+      {
+        "SourceId": "UC4.3 Encyclopédie, ou Dictionnaire raisonné des sciences, des arts et des métiers",
+        "DatasetId": "d5c34990-9acf-4349-91d4-924f58565922"
+      },
+      {
+        "SourceId": "UC4.4 Wikipedia",
+        "DatasetId": "1f6fba0c-9aea-4345-b5a3-457c924f9e0c"
+      }
+    ]
+  }
+}

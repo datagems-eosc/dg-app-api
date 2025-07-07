@@ -33,6 +33,7 @@ using DataGEMS.Gateway.Api.Transaction;
 using Cite.Tools.Data.Deleter.Extensions;
 using DataGEMS.Gateway.App.Service.Version;
 using DataGEMS.Gateway.App.Service.Conversation;
+using DataGEMS.Gateway.App.Service.Discovery;
 
 namespace DataGEMS.Gateway.Api
 {
@@ -83,6 +84,7 @@ namespace DataGEMS.Gateway.Api
 
 			services
 				.AddDataManagementServices(this._config.GetSection("DataManagementService:Http"), this._config.GetSection("DataManagementService:Local")) //Data Management API
+				.AddCrossDatasetDiscoveryServices(this._config.GetSection("CrossDatasetDiscoveryService")) //Cross Dataset Discovery API
 			;
 
 			services

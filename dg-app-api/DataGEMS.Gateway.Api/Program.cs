@@ -83,6 +83,10 @@ namespace DataGEMS.Gateway.Api
 							.AddJsonFileInPaths("permissions.json", sharedConfigPath, "Configuration")
 							.AddJsonFileInPaths("permissions.override.json", sharedConfigPath, "Configuration")
 							.AddJsonFileInPaths($"permissions.{env.EnvironmentName}.json", sharedConfigPath, "Configuration")
+							//service cross dataset discovery
+							.AddJsonFileInPaths("service-cross-dataset-discovery.json", sharedConfigPath, "Configuration")
+							.AddJsonFileInPaths("service-cross-dataset-discovery.override.json", sharedConfigPath, "Configuration")
+							.AddJsonFileInPaths($"service-cross-dataset-discovery.{env.EnvironmentName}.json", sharedConfigPath, "Configuration")
 							//service data management
 							.AddJsonFileInPaths("service-data-management.json", sharedConfigPath, "Configuration")
 							.AddJsonFileInPaths("service-data-management.override.json", sharedConfigPath, "Configuration")

@@ -1,5 +1,4 @@
-﻿
-namespace DataGEMS.Gateway.App.DataManagement
+﻿namespace DataGEMS.Gateway.App.DataManagement
 {
 	public class DataManagementHttpConfig
 	{
@@ -9,3 +8,4 @@ namespace DataGEMS.Gateway.App.DataManagement
 		public String DatasetCountEndpoint { get; set; }
 	}
 }
+
