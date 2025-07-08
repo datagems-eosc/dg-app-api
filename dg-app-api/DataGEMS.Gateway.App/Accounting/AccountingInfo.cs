@@ -7,6 +7,7 @@ namespace DataGEMS.Gateway.App.Accounting
 		Query = 1,
 		Persist = 2,
 		Delete = 3,
+		Invoke = 4,
 	}
 
 	public enum KnownUnits : short
@@ -30,7 +31,8 @@ namespace DataGEMS.Gateway.App.Accounting
 		Collection = 1,
 		User = 2,
 		UserCollection = 3,
-		Conversation = 4
+		Conversation = 4,
+		CrossDatasetDiscovery = 5,
 	}
 
 	public class AccountingInfo

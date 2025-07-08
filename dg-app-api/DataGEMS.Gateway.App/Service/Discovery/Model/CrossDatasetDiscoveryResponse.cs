@@ -1,8 +1,4 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace DataGEMS.Gateway.App.Service.Discovery.Model
 {
@@ -24,9 +20,9 @@ namespace DataGEMS.Gateway.App.Service.Discovery.Model
         public string UseCase { get; set; }
 
         [JsonProperty("source")]
-        public Guid Source { get; set; }    // DatasetId
+		public Guid Source { get; set; } //DatasetId
 
-        [JsonProperty("source_id")]
+		[JsonProperty("source_id")]
         public string SourceId { get; set; }
 
         [JsonProperty("chunk_id")]
@@ -36,6 +32,6 @@ namespace DataGEMS.Gateway.App.Service.Discovery.Model
         public string Language { get; set; }
 
         [JsonProperty("distance")]
-        public double Distance { get; set; }
+        public Decimal Distance { get; set; }
     }
 }

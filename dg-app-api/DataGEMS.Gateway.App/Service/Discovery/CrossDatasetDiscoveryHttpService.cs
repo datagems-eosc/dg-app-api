@@ -4,25 +4,15 @@ using Cite.Tools.Json;
 using Cite.Tools.Logging.Extensions;
 using DataGEMS.Gateway.App.AccessToken;
 using DataGEMS.Gateway.App.Authorization;
-using DataGEMS.Gateway.App.Data;
-using DataGEMS.Gateway.App.DataManagement;
 using DataGEMS.Gateway.App.ErrorCode;
 using DataGEMS.Gateway.App.Exception;
 using DataGEMS.Gateway.App.LogTracking;
 using DataGEMS.Gateway.App.Model;
-using DataGEMS.Gateway.App.Query;
 using DataGEMS.Gateway.App.Service.Discovery.Model;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
-using System.Threading.Tasks;
-
 
 namespace DataGEMS.Gateway.App.Service.Discovery
 {
@@ -38,7 +28,6 @@ namespace DataGEMS.Gateway.App.Service.Discovery
 		private readonly ErrorThesaurus _errors;
 		private readonly JsonHandlingService _jsonHandlingService;
 		private readonly BuilderFactory _builderFactory;
-
 
 		public CrossDatasetDiscoveryHttpService(
 			IHttpClientFactory httpClientFactory,
@@ -99,16 +88,17 @@ namespace DataGEMS.Gateway.App.Service.Discovery
 
 		private async Task<string> SendRequest(HttpRequestMessage request)
 		{
-			HttpResponseMessage response = await this._httpClientFactory.CreateClient().SendAsync(request);
+			HttpResponseMessage response = null;
 			try
 			{
+				response = await this._httpClientFactory.CreateClient().SendAsync(request);
 				response.EnsureSuccessStatusCode();
 				String content = await response.Content.ReadAsStringAsync();
 				return content;
 			}
 			catch (System.Exception ex)
 			{
-				this._logger.Error(ex, $"could not complete request. response was {response.StatusCode}");
+				this._logger.Error(ex, $"could not complete request. response was {response?.StatusCode}");
 				throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message);
 			}
 		}

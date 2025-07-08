@@ -34,7 +34,7 @@ namespace DataGEMS.Gateway.App.Model.Builder
 
 		public override async Task<List<Model.Collection>> Build(IFieldSet fields, IEnumerable<DataManagement.Model.Collection> datas)
 		{
-			this._logger.Debug(new MapLogEntry("building").And("type", nameof(Model.Collection)).And("fields", fields).And("data", datas?.Count()));
+			this._logger.Debug(new MapLogEntry("building").And("type", nameof(Model.Collection)).And("fields", fields).And("dataCount", datas?.Count()));
 			if (fields == null || fields.IsEmpty()) return Enumerable.Empty<Model.Collection>().ToList();
 
 			IFieldSet datasetFields = fields.ExtractPrefixed(this.AsPrefix(nameof(Model.Collection.Datasets)));

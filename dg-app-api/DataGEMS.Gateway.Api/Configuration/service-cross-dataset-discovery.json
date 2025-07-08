@@ -1,9 +1,7 @@
 {
   "CrossDatasetDiscoveryService": {
-    "Http": {
-      "Scope": "cross-dataset-discovery-api datasets",
-      "BaseUrl": "https://datagems-dev.scayle.es/cross-dataset-discovery-api/search/"
-    },
+    "Scope": "cross-dataset-discovery-api datasets",
+    "BaseUrl": "https://datagems-dev.scayle.es/cross-dataset-discovery/search/",
     "DefaultResultCount": 5
   }
 }

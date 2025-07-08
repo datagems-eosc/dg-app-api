@@ -72,7 +72,7 @@ namespace DataGEMS.Gateway.Api.Exception
 				logLevel = LogLevel.Warning;
 				statusCode = HttpStatusCode.ServiceUnavailable;
 
-				int code = ((DGForbiddenException)exception).Code;
+				int code = ((DGUnderpinningException)exception).Code;
 				if (code > 0) result = new { code, error = exception.Message };
 				else result = new { error = exception.Message };
 			}
