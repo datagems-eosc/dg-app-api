@@ -86,6 +86,15 @@
 				"AllowAnonymous": false,
 				"AllowAuthenticated": false
 			},
+			//CrossDatasetDiscovery
+			"CanExecuteCrossDatasetDiscovery": {
+				"Roles": [ "GLOBAL_dg_admin" ],
+				"DatasetRoles": [],
+				"Claims": [],
+				"Clients": [],
+				"AllowAnonymous": false,
+				"AllowAuthenticated": false
+			},
 			//Dataset
 			"BrowseDataset": {
 				"Roles": [ "GLOBAL_dg_admin" ],

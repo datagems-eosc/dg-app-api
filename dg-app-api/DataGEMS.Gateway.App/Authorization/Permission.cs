@@ -17,6 +17,8 @@ namespace DataGEMS.Gateway.App.Authorization
 		public const String BrowseConversationMessage = "BrowseConversationMessage";
 		public const String EditConversationMessage = "EditConversationMessage";
 		public const String DeleteConversationMessage = "DeleteConversationMessage";
+		//CrossDatasetDiscovery
+		public const String CanExecuteCrossDatasetDiscovery = "CanExecuteCrossDatasetDiscovery";
 		//Dataset
 		public const String BrowseDataset = "BrowseDataset";
 		//DatasetCollection

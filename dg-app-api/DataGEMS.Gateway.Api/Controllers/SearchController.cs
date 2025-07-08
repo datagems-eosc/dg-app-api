@@ -9,6 +9,10 @@ using DataGEMS.Gateway.Api.Model;
 using DataGEMS.Gateway.Api.Validation;
 using Microsoft.AspNetCore.Authorization;
 using Cite.WebTools.Validation;
+using Cite.Tools.Logging;
+using DataGEMS.Gateway.App.Censor;
+using DataGEMS.Gateway.App.Exception;
+using Cite.Tools.Data.Censor;
 
 namespace DataGEMS.Gateway.Api.Controllers
 {
@@ -16,6 +20,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 	[ApiController]
 	public class SearchController : ControllerBase
 	{
+		private readonly CensorFactory _censorFactory;
 		private readonly ICrossDatasetDiscoveryService _crossDatasetDiscoveryService;
 
 		public SearchController(ICrossDatasetDiscoveryService crossDatasetDiscoveryService)
