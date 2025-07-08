@@ -24,7 +24,7 @@ namespace DataGEMS.Gateway.App.Service.Discovery.Model
         public string UseCase { get; set; }
 
         [JsonProperty("source")]
-        public string Source { get; set; }
+        public Guid Source { get; set; }    // DatasetId
 
         [JsonProperty("source_id")]
         public string SourceId { get; set; }

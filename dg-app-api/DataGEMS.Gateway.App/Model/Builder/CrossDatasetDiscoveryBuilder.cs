@@ -42,85 +42,37 @@ namespace DataGEMS.Gateway.App.Model.Builder
 
 		public override async Task<List<CrossDatasetDiscovery>> Build(IFieldSet fields, IEnumerable<Service.Discovery.Model.CrossDatasetDiscoveryResult> datas)
 		{
-			// TODO: logger
-			/*this._logger.Debug(new MapLogEntry("building").And("type", nameof(App.Model.UserCollection)).And("fields", fields).And("dataCount", datas?.Count()));
-			if (fields == null || fields.IsEmpty()) return Enumerable.Empty<UserCollection>().ToList();*/
-
-			Dictionary<String, Guid> sourceIdToDatasetIdMap = this.MapSourceIdToDatasetId(datas);
+			this._logger.Debug(new MapLogEntry("building").And("type", nameof(Service.Discovery.Model.CrossDatasetDiscoveryResult)).And("fields", fields).And("dataCount", datas?.Count()));
+			if (fields == null || fields.IsEmpty()) return Enumerable.Empty<CrossDatasetDiscovery>().ToList();
 
 			IFieldSet datasetFields = fields.ExtractPrefixed(this.AsPrefix(nameof(CrossDatasetDiscovery.Dataset)));
-			Dictionary<Guid, Dataset> datasetMap = await this.CollectDatasets(fields, sourceIdToDatasetIdMap.Values);
+			Dictionary<Guid, Dataset> datasetMap = await this.CollectDatasets(datasetFields, datas);
 
-			// Mapping source id to datasets fropm DB
-			/*datasetMap = await SourceIdToDatasetMap(datas, fields);
-
-			List<CrossDatasetDiscovery> models = datas.Select(r => new CrossDatasetDiscovery
+			List<CrossDatasetDiscovery> models = new List<CrossDatasetDiscovery>();
+			foreach (Service.Discovery.Model.CrossDatasetDiscoveryResult d in datas ?? new List<Service.Discovery.Model.CrossDatasetDiscoveryResult>())
 			{
-				Content = r.Content,
-				UseCase = r.UseCase,
-				Dataset = datasetMap.TryGetValue(r.SourceId, out var dataset) ? dataset : null,
-				ChunkId = r.ChunkId,
-				Language = r.Language,
-				Distance = r.Distance
-			}).ToList();
+				CrossDatasetDiscovery m = new CrossDatasetDiscovery();
+				if (fields.HasField(nameof(CrossDatasetDiscovery.Content))) m.Content = d.Content;
+				if (fields.HasField(nameof(CrossDatasetDiscovery.UseCase))) m.UseCase = d.UseCase;
+				if (!datasetFields.IsEmpty() && datasetMap != null && datasetMap.ContainsKey(d.Source))	m.Dataset = datasetMap[d.Source];
+				if (fields.HasField(nameof(CrossDatasetDiscovery.SourceId))) m.SourceId = d.SourceId;
+				if (fields.HasField(nameof(CrossDatasetDiscovery.ChunkId))) m.ChunkId = d.ChunkId;
+				if (fields.HasField(nameof(CrossDatasetDiscovery.Language))) m.Language = d.Language;
+				if (fields.HasField(nameof(CrossDatasetDiscovery.Distance))) m.Distance = d.Distance;
 
-			return models;*/
-			return new List<CrossDatasetDiscovery>();
-		}
-			
-		private Dictionary<String, Guid> MapSourceIdToDatasetId(IEnumerable<DataGEMS.Gateway.App.Service.Discovery.Model.CrossDatasetDiscoveryResult> items)
-		{
-			HashSet<String> includedSourceIds = items.Where(x => !String.IsNullOrEmpty(x.SourceId)).Select(x => x.SourceId).Distinct().ToHashSet();
- 			Dictionary<String, Guid> sourceIdMapping = this._httpConfig.SourceIdMapping.Where(x=> includedSourceIds.Contains(x.SourceId)).ToDictionary(x => x.SourceId, x => x.DatasetId);
-			return sourceIdMapping;
-		}
-
-
-		/*private async Task<Dictionary<string, Dataset>> SourceIdToDatasetMap(IEnumerable<CrossDatasetDiscoveryResult> raw, IFieldSet fieldset)
-		{
-			if (raw == null || !raw.Any()) return [];
-
-			// Collect all SourceIds
-			HashSet<string> sourceIds = raw
-				.Select(r => r.SourceId)
-				.Where(id => !string.IsNullOrWhiteSpace(id))
-				.ToHashSet();
-
-			// sourceIds intersection SourceIdMapping from config
-			List<SourceIdMap> matchedMappings = _httpConfig.SourceIdMapping
-				.Where(m => sourceIds.Contains(m.SourceId))
-				.ToList();
-
-			if (!matchedMappings.Any()) return [];
-
-			// Collect all datasetIds and collect all datasets
-			IEnumerable<Guid> datasetIds = matchedMappings.Select(m => m.DatasetId).Distinct();
-			
-			// Collect the datasets
-			Dictionary<Guid, Dataset> datasetMap = await this.CollectDatasets(fieldset, datasetIds);
-
-			// Connect sourceIds to Datasets
-			Dictionary<string, Dataset> result = new();
-			foreach (SourceIdMap mapping in matchedMappings)
-			{
-				if (datasetMap.TryGetValue(mapping.DatasetId, out Dataset dataset))
-				{
-					result[mapping.SourceId] = dataset;
-				}
+				models.Add(m);
 			}
+			return models;
+		}
 
-			return result;
-		}*/
 
-
-		private async Task<Dictionary<Guid, Dataset>> CollectDatasets(IFieldSet fields, IEnumerable<Guid> datasetIds)
+		private async Task<Dictionary<Guid, Dataset>> CollectDatasets(IFieldSet fields, IEnumerable<Service.Discovery.Model.CrossDatasetDiscoveryResult> datas)
 		{
-			if (fields.IsEmpty() || !datasetIds.Any()) return null;
-
-			this._logger.Debug(new MapLogEntry("building related").And("type", nameof(App.Model.Dataset)).And("fields", fields).And("datasetCount", datasetIds?.Count()));
+			if (fields.IsEmpty() || !datas.Any()) return null;
+			this._logger.Debug(new MapLogEntry("building related").And("type", nameof(App.Model.Dataset)).And("fields", fields).And("dataCount", datas?.Count()));
 
 			Dictionary<Guid, Dataset> itemMap = null;
-			if (!fields.HasOtherField(this.AsIndexer(nameof(Dataset.Id)))) itemMap = this.AsEmpty(datasetIds.Distinct(), id => new Dataset { Id = id }, x => x.Id.Value);
+			if (!fields.HasOtherField(this.AsIndexer(nameof(Dataset.Id)))) itemMap = this.AsEmpty(datas.Select(x => x.Source).Distinct(), x => new Dataset() { Id = x }, x => x.Id.Value);
 			else
 			{
 				IFieldSet clone = new FieldSet(fields.Fields).Ensure(nameof(Dataset.Id));
@@ -128,7 +80,8 @@ namespace DataGEMS.Gateway.App.Model.Builder
 				List<DataManagement.Model.Dataset> models = await this._queryFactory
 					.Query<DatasetLocalQuery>()
 					.DisableTracking()
-					.Ids(datasetIds.Distinct())
+					.Ids(datas.Select(x => x.Source)
+					.Distinct())
 					.Authorize(this._authorize)
 					.CollectAsyncAsModels();
 

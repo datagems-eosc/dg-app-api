@@ -11,12 +11,5 @@ namespace DataGEMS.Gateway.App.Service.Discovery
 		public String Scope { get; set; }
 		public String BaseUrl { get; set; }
 		public int DefaultResultCount { get; set; }
-		public List<SourceIdMap> SourceIdMapping { get; set; }
-	}
-
-	public class SourceIdMap
-	{
-		public String SourceId { get; set; }
-		public Guid DatasetId { get; set; }
 	}
 }
