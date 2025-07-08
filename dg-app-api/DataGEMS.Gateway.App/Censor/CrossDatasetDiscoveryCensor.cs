@@ -8,11 +8,6 @@ using Cite.WebTools.CurrentPrincipal;
 using DataGEMS.Gateway.App.Authorization;
 using DataGEMS.Gateway.App.Common;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DataGEMS.Gateway.App.Censor
 {
@@ -41,20 +36,18 @@ namespace DataGEMS.Gateway.App.Censor
 			this._claimExtractor = claimExtractor;
 		}
 
-		public async Task<IFieldSet> Censor(IFieldSet fields, CensorContext context, Guid? userId = null)
+		public async Task<IFieldSet> Censor(IFieldSet fields, CensorContext context)
 		{
-			this._logger.Debug(new MapLogEntry("censoring").And("type", nameof(Model.CrossDatasetDiscovery)).And("fields", fields).And("context", context).And("userId", userId));
+			this._logger.Debug(new MapLogEntry("censoring").And("type", nameof(Model.CrossDatasetDiscovery)).And("fields", fields).And("context", context));
 			if (fields == null || fields.IsEmpty()) return null;
-
-			String subjectId = await this._authorizationContentResolver.SubjectIdOfUserId(userId);
 
 			IFieldSet censored = new FieldSet();
 			Boolean authZPass = false;
 			switch (context?.Behavior)
 			{
-				case CensorBehavior.Censor: { authZPass = await this._authService.AuthorizeOrOwner(!String.IsNullOrEmpty(subjectId) ? new OwnedResource(subjectId) : null, Permission.CanExecuteCrossDatasetDiscovery); break; }
+				case CensorBehavior.Censor: { authZPass = await this._authService.Authorize(Permission.CanExecuteCrossDatasetDiscovery); break; }
 				case CensorBehavior.Throw:
-				default: { authZPass = await this._authService.AuthorizeOrOwnerForce(!String.IsNullOrEmpty(subjectId) ? new OwnedResource(subjectId) : null, Permission.CanExecuteCrossDatasetDiscovery); break; }
+				default: { authZPass = await this._authService.AuthorizeForce(Permission.CanExecuteCrossDatasetDiscovery); break; }
 			}
 			if (authZPass)
 			{

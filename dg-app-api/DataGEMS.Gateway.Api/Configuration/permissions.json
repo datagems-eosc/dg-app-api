@@ -88,7 +88,7 @@
 			},
 			//CrossDatasetDiscovery
 			"CanExecuteCrossDatasetDiscovery": {
-				"Roles": [ "GLOBAL_dg_admin" ],
+				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_user" ],
 				"DatasetRoles": [],
 				"Claims": [],
 				"Clients": [],

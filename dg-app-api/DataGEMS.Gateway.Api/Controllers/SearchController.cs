@@ -13,7 +13,6 @@ using DataGEMS.Gateway.App.Accounting;
 using Cite.Tools.FieldSet;
 using DataGEMS.Gateway.App.Censor;
 using DataGEMS.Gateway.App.Common;
-using DataGEMS.Gateway.App.Data;
 using DataGEMS.Gateway.App.Exception;
 using DataGEMS.Gateway.App.ErrorCode;
 
