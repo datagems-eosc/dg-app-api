@@ -96,6 +96,5 @@ namespace DataGEMS.Gateway.App.Model.Builder
 
 			return itemMap;
 		}
-
 	}
 }

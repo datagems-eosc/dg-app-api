@@ -118,16 +118,17 @@ namespace DataGEMS.Gateway.App.Query
 
 		private async Task<String> SendRequest(HttpRequestMessage request)
 		{
-			HttpResponseMessage response = await _httpClientFactory.CreateClient().SendAsync(request);
+			HttpResponseMessage response = null;
 			try
 			{
+				response = await this._httpClientFactory.CreateClient().SendAsync(request);
 				response.EnsureSuccessStatusCode();
 				String content = await response.Content.ReadAsStringAsync();
 				return content;
 			}
 			catch (System.Exception ex)
 			{
-				this._logger.Error(ex, $"could not complete request. response was {response.StatusCode}");
+				this._logger.Error(ex, $"could not complete request. response was {response?.StatusCode}");
 				throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message);
 			}
 		}
