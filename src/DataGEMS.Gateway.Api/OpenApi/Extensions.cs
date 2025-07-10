@@ -73,7 +73,7 @@ namespace DataGEMS.Gateway.Api.OpenApi
 			app.UseSwagger();
 			app.UseSwaggerUI(options =>
 			{
-				options.SwaggerEndpoint("/swagger/v1/swagger.json", openApiConfig.Title);
+				options.SwaggerEndpoint(openApiConfig.Endpoint, openApiConfig.Title);
 				options.OAuth2RedirectUrl("/swagger/oauth2-redirect.html");
 				options.OAuthClientId(openApiConfig.OAuth2.ClientId);
 				options.OAuthAppName(openApiConfig.OAuth2.ClientName);

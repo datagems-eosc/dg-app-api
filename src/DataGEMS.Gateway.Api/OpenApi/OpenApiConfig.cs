@@ -10,6 +10,7 @@
         public ContactInfo Contact { get; set; }
         public LicenseInfo License { get; set; }
         public String BasePath { get; set; }
+		public String Endpoint { get; set; }
 		public OAuth2Info OAuth2 { get; set; }
 
         public class TermsInfo

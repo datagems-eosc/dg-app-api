@@ -16,6 +16,7 @@
 			"Url": "https://interoperable-europe.ec.europa.eu/sites/default/files/custom-page/attachment/2020-03/EUPL-1.2%20EN.txt"
 		},
 		"BasePath": "%{OpenApiBasePath}%",
+		"Endpoint": "%{OpenApiEndpoint}%",
 		"OAuth2": {
 			"AuthorizationUrl": "%{OpenApiOAuth2AuthorizationUrl}%",
 			"TokenUrl": "%{OpenApiOAuth2TokenUrl}%",
