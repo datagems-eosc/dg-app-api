@@ -16,20 +16,11 @@ namespace DataGEMS.Gateway.App.Service.Discovery.Model
         [JsonProperty("content")]
         public string Content { get; set; }
 
-        [JsonProperty("use_case")]
-        public string UseCase { get; set; }
+		[JsonProperty("dataset_id")]
+		public Guid DatasetId { get; set; }
 
-        [JsonProperty("source")]
-		public Guid Source { get; set; } //DatasetId
-
-		[JsonProperty("source_id")]
-        public string SourceId { get; set; }
-
-        [JsonProperty("chunk_id")]
-        public string ChunkId { get; set; }
-
-        [JsonProperty("language")]
-        public string Language { get; set; }
+		[JsonProperty("object_id")]
+        public string ObjectId { get; set; }
 
         [JsonProperty("distance")]
         public Decimal Distance { get; set; }

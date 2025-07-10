@@ -41,12 +41,9 @@ namespace DataGEMS.Gateway.App.Model.Builder
 			{
 				CrossDatasetDiscovery m = new CrossDatasetDiscovery();
 				if (fields.HasField(nameof(CrossDatasetDiscovery.Content))) m.Content = d.Content;
-				if (fields.HasField(nameof(CrossDatasetDiscovery.UseCase))) m.UseCase = d.UseCase;
-				if (fields.HasField(nameof(CrossDatasetDiscovery.SourceId))) m.SourceId = d.SourceId;
-				if (fields.HasField(nameof(CrossDatasetDiscovery.ChunkId))) m.ChunkId = d.ChunkId;
-				if (fields.HasField(nameof(CrossDatasetDiscovery.Language))) m.Language = d.Language;
+				if (fields.HasField(nameof(CrossDatasetDiscovery.ObjectId))) m.ObjectId = d.ObjectId;
 				if (fields.HasField(nameof(CrossDatasetDiscovery.Distance))) m.Distance = d.Distance;
-				if (!datasetFields.IsEmpty() && datasetMap != null && datasetMap.ContainsKey(d.Source)) m.Dataset = datasetMap[d.Source];
+				if (!datasetFields.IsEmpty() && datasetMap != null && datasetMap.ContainsKey(d.DatasetId)) m.Dataset = datasetMap[d.DatasetId];
 
 				models.Add(m);
 			}
@@ -60,11 +57,11 @@ namespace DataGEMS.Gateway.App.Model.Builder
 			this._logger.Debug(new MapLogEntry("building related").And("type", nameof(App.Model.Dataset)).And("fields", fields).And("dataCount", datas?.Count()));
 
 			Dictionary<Guid, Dataset> itemMap = null;
-			if (!fields.HasOtherField(this.AsIndexer(nameof(Dataset.Id)))) itemMap = this.AsEmpty(datas.Select(x => x.Source).Distinct(), x => new Dataset() { Id = x }, x => x.Id.Value);
+			if (!fields.HasOtherField(this.AsIndexer(nameof(Dataset.Id)))) itemMap = this.AsEmpty(datas.Select(x => x.DatasetId).Distinct(), x => new Dataset() { Id = x }, x => x.Id.Value);
 			else
 			{
 				IFieldSet clone = new FieldSet(fields.Fields).Ensure(nameof(Dataset.Id));
-				List<DataManagement.Model.Dataset> models = await this._queryFactory.Query<DatasetLocalQuery>().DisableTracking().Ids(datas.Select(x => x.Source).Distinct()).Authorize(this._authorize).CollectAsyncAsModels();
+				List<DataManagement.Model.Dataset> models = await this._queryFactory.Query<DatasetLocalQuery>().DisableTracking().Ids(datas.Select(x => x.DatasetId).Distinct()).Authorize(this._authorize).CollectAsyncAsModels();
 				itemMap = await this._builderFactory.Builder<DatasetBuilder>().Authorize(this._authorize).AsForeignKey(models, clone, x => x.Id.Value);
 			}
 			if (!fields.HasField(nameof(Dataset.Id))) itemMap.Values.Where(x => x != null).ToList().ForEach(x => x.Id = null);
