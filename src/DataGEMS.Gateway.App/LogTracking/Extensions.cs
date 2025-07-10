@@ -9,12 +9,12 @@ namespace DataGEMS.Gateway.App.LogTracking
 		public static IServiceCollection AddLogTrackingServices(
 			this IServiceCollection services,
 			IConfigurationSection logTrackingCorrelationConfigurationSection,
-			IConfigurationSection logTrackingEntryConfigurationSection)
+			IConfigurationSection logTrackingPrincipalConfigurationSection)
 		{
 			services.ConfigurePOCO<LogTrackingCorrelationConfig>(logTrackingCorrelationConfigurationSection);
 			services.AddScoped<LogCorrelationScope>();
 
-			services.ConfigurePOCO<LogTrackingEntryConfig>(logTrackingEntryConfigurationSection);
+			services.ConfigurePOCO<LogTrackingPrincipalConfig>(logTrackingPrincipalConfigurationSection);
 
 			return services;
 		}

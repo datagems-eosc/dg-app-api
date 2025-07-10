@@ -1,7 +1,6 @@
 ﻿using Cite.Tools.Json;
 using DataGEMS.Gateway.App.ErrorCode;
 using Cite.WebTools.CurrentPrincipal.Extensions;
-using Cite.WebTools.InvokerContext.Extensions;
 using DataGEMS.Gateway.App.Event;
 using DataGEMS.Gateway.App.Formatting;
 using Cite.WebTools.Cors.Extensions;
@@ -57,7 +56,6 @@ namespace DataGEMS.Gateway.Api
 				.AddErrorThesaurus(this._config.GetSection("ErrorThesaurus")) //Error Thesaurus
 				.AddLocalization(options => options.ResourcesPath = this._config.GetSection("Localization:Path").Get<String>()) //Localization
 				.AddCurrentPrincipalResolver() //Current principal Resolver
-				.AddInvokerContextResolver() //Invoker Context Resolver
 				.AddEventBroker() //Event Broker
 				.AddFormattingServices(this._config.GetSection("Formatting:Options"), this._config.GetSection("Formatting:Cache")) //Formatting
 				.AddClaimExtractorServices(this._config.GetSection("Idp:Claims")) //Claim Extractor
@@ -65,7 +63,7 @@ namespace DataGEMS.Gateway.Api
 				.AddCorsPolicy(this._config.GetSection("CorsPolicy")) //CORS
 				.AddForwardedHeadersServices(this._config.GetSection("ForwardedHeaders")) //Forwarded Headers
 				.AddAspNetCoreHostingEnvironmentResolver() //Hosting Environment
-				.AddLogTrackingServices(this._config.GetSection("Tracking:Correlation"), this._config.GetSection("Tracking:Entry")) //Log tracking services
+				.AddLogTrackingServices(this._config.GetSection("Tracking:Correlation"), this._config.GetSection("Tracking:Principal")) //Log tracking services
 				.AddPermissionsAndPolicies(this._config.GetSection("Permissions")) //Permissions
 				.AddAuthorizationContentResolverServices() //Authorization Content Resolver
 				.AddAccountingServices(this._config.GetSection("Accounting")) //Accounting
@@ -145,7 +143,7 @@ namespace DataGEMS.Gateway.Api
 				.UseRouting() //Routing
 				.UseAuthentication() //Authentication
 				.UseAuthorization() //Authorization
-				.UseMiddleware(typeof(LogTrackingEntryMiddleware)) //Log Entry Middleware
+				.UseMiddleware(typeof(LogTrackingPrincipalMiddleware)) //Log Entry Middleware
 				.UseMiddleware(typeof(AccessTokenInterceptMiddleware)) //Bearer Authorization AccessToken interception
 				.UseMiddleware(typeof(UserSyncMiddleware)) //User sync to store and update request user
 				.UseEndpoints(endpoints => //Endpoints

@@ -21,7 +21,6 @@
     <PackageReference Include="Cite.Tools.Logging" Version="8.0.0" />
     <PackageReference Include="Cite.Tools.Validation" Version="8.0.0" />
     <PackageReference Include="Cite.WebTools.CurrentPrincipal" Version="8.0.0" />
-    <PackageReference Include="Cite.WebTools.InvokerContext" Version="8.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.17" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.11" />
   </ItemGroup>
