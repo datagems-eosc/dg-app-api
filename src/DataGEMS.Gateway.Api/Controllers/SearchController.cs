@@ -53,7 +53,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[ModelStateValidationFilter]
 		[ValidationFilter(typeof(CrossDatasetDiscoveryLookup.CrossDatasetDiscoveryLookupValidator), "lookup")]
 		[SwaggerOperation(Summary = "Cross-dataset search")]
-		[SwaggerResponse(statusCode: 200, description: "Matching results", type: typeof(List<App.Model.CrossDatasetDiscovery>))]
+		[SwaggerResponse(statusCode: 200, description: "Matching results", type: typeof(SearchResult<List<App.Model.CrossDatasetDiscovery>>))]
 		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
 		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
 		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
