@@ -13,8 +13,8 @@ namespace DataGEMS.Gateway.App.Model
 		public Guid? Id { get; set; }
 		public String Name { get; set; }
 		public User User { get; set; }
-		public List<ConversationDataset> ConversationDatasets { get; set; }
-		public List<ConversationMessage> ConversationMessages { get; set; }
+		public List<ConversationDataset> Datasets { get; set; }
+		public List<ConversationMessage> Messages { get; set; }
 		public IsActive? IsActive { get; set; }
 		public DateTime? CreatedAt { get; set; }
 		public DateTime? UpdatedAt { get; set; }

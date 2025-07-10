@@ -55,7 +55,7 @@ namespace DataGEMS.Gateway.App.Deleter
 
 			this._dbContext.RemoveRange(datas);
 
-			this._eventBroker.EmitConversationMessageDeleted(datas.Select(x => x.Id).ToList());
+			this._eventBroker.EmitConversationMessageDeleted(datas.Select(x => x.ConversationId).Distinct().ToList());
 			return Task.CompletedTask;
 		}
 	}

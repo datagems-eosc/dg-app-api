@@ -128,8 +128,8 @@ namespace DataGEMS.Gateway.App.Query
 				if (item.Match(nameof(Model.Conversation.Id))) projectionFields.Add(nameof(Conversation.Id));
 				else if (item.Match(nameof(Model.Conversation.Name))) projectionFields.Add(nameof(Conversation.Name));
 				else if (item.Prefix(nameof(Model.Conversation.User))) projectionFields.Add(nameof(Conversation.UserId));
-				else if (item.Prefix(nameof(Model.Conversation.ConversationDatasets))) projectionFields.Add(nameof(Conversation.Id));
-				else if (item.Prefix(nameof(Model.Conversation.ConversationMessages))) projectionFields.Add(nameof(Conversation.Id));
+				else if (item.Prefix(nameof(Model.Conversation.Datasets))) projectionFields.Add(nameof(Conversation.Id));
+				else if (item.Prefix(nameof(Model.Conversation.Messages))) projectionFields.Add(nameof(Conversation.Id));
 				else if (item.Match(nameof(Model.Conversation.IsActive))) projectionFields.Add(nameof(Conversation.IsActive));
 				else if (item.Match(nameof(Model.Conversation.CreatedAt))) projectionFields.Add(nameof(Conversation.CreatedAt));
 				else if (item.Match(nameof(Model.Conversation.UpdatedAt))) projectionFields.Add(nameof(Conversation.UpdatedAt));

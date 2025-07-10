@@ -6,6 +6,7 @@ using Cite.Tools.Logging;
 using DataGEMS.Gateway.App.Authorization;
 using Microsoft.Extensions.Logging;
 using DataGEMS.Gateway.App.Query;
+using Cite.Tools.Json;
 
 namespace DataGEMS.Gateway.App.Model.Builder
 {
@@ -14,6 +15,7 @@ namespace DataGEMS.Gateway.App.Model.Builder
 		private readonly QueryFactory _queryFactory;
 		private readonly BuilderFactory _builderFactory;
 		private readonly IAuthorizationContentResolver _authorizationContentResolver;
+		private readonly JsonHandlingService _jsonHandlingService;
 
 		private AuthorizationFlags _authorize { get; set; } = AuthorizationFlags.None;
 
@@ -21,10 +23,12 @@ namespace DataGEMS.Gateway.App.Model.Builder
 			QueryFactory queryFactory,
 			BuilderFactory builderFactory,
 			IAuthorizationContentResolver authorizationContentResolver,
+			JsonHandlingService jsonHandlingService,
 			ILogger<ConversationMessageBuilder> logger) : base(logger)
 		{
 			this._queryFactory = queryFactory;
 			this._builderFactory = builderFactory;
+			this._jsonHandlingService = jsonHandlingService;
 			this._authorizationContentResolver = authorizationContentResolver;
 		}
 
@@ -44,7 +48,7 @@ namespace DataGEMS.Gateway.App.Model.Builder
 				ConversationMessage m = new ConversationMessage();
 				if (fields.HasField(nameof(ConversationMessage.Id))) m.Id = d.Id;
 				if (fields.HasField(nameof(ConversationMessage.Kind))) m.Kind = d.Kind;
-				if (fields.HasField(nameof(ConversationMessage.Data))) m.Data = d.Data;
+				if (fields.HasField(nameof(ConversationMessage.Data))) m.Data = this._jsonHandlingService.FromJsonSafe<Common.Conversation.ConversationEntry>(d.Data);
 				if (fields.HasField(nameof(ConversationMessage.CreatedAt))) m.CreatedAt = d.CreatedAt;
 				if (!conversationFields.IsEmpty() && conversationMap != null && conversationMap.ContainsKey(d.ConversationId)) m.Conversation = conversationMap[d.ConversationId];
 

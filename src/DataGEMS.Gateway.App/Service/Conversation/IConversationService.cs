@@ -10,5 +10,6 @@ namespace DataGEMS.Gateway.App.Service.Conversation
 		Task<App.Model.Conversation> AddAsync(Guid conversationId, Guid datasetId, IFieldSet fields = null);
 		Task<App.Model.Conversation> RemoveAsync(Guid conversationId, Guid datasetId, IFieldSet fields = null);
 		Task DeleteAsync(Guid id);
+		Task AppendToConversation(Guid conversationId, params Common.Conversation.ConversationEntry[] entries);
 	}
 }

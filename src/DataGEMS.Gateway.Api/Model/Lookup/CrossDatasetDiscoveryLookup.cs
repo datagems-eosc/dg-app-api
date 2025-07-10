@@ -12,6 +12,10 @@ namespace DataGEMS.Gateway.Api.Model
 		public String Query { get; set; }
 		[SwaggerSchema(description: "The number of results to retrieve for the query")]
 		public int? ResultCount { get; set; }
+		[SwaggerSchema(description: "The conversation id to include the user query")]
+		public Guid? ConversationId { get; set; }
+		[SwaggerSchema(description: "Option to auto create new conversation if no conversation id provided. Leaving it empty is equivalent to false. Should not be true if Conversation id is provided")]
+		public Boolean? AutoCreateConversation { get; set; }
 
 		public Cite.Tools.FieldSet.FieldSet Project { get; set; }
 
@@ -42,6 +46,12 @@ namespace DataGEMS.Gateway.Api.Model
 						.Must(() => item.ResultCount.Value > 0)
 						.FailOn(nameof(CrossDatasetDiscoveryLookup.ResultCount))
 						.FailWith(this._localizer["validation_invalidValue", nameof(CrossDatasetDiscoveryLookup.ResultCount)]),
+					// If conversation specified, autocreate cannot be true
+					this.Spec()
+						.If(() => item.ConversationId.HasValue)
+						.Must(() => !item.AutoCreateConversation.HasValue || (item.AutoCreateConversation.HasValue && !item.AutoCreateConversation.Value))
+						.FailOn(nameof(CrossDatasetDiscoveryLookup.AutoCreateConversation))
+						.FailWith(this._localizer["validation_invalidValue", nameof(CrossDatasetDiscoveryLookup.AutoCreateConversation)]),
 				};
 			}
 		}

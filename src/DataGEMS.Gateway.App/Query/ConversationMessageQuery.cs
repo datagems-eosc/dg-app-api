@@ -33,6 +33,8 @@ namespace DataGEMS.Gateway.App.Query
 		public ConversationMessageQuery ExcludedIds(Guid excludedId) { this._excludedIds = this.ToList(excludedId.AsArray()); return this; }
 		public ConversationMessageQuery ConversationIds(IEnumerable<Guid> conversationIds) { this._conversationIds = this.ToList(conversationIds); return this; }
 		public ConversationMessageQuery ConversationIds(Guid conversationId) { this._conversationIds = this.ToList(conversationId.AsArray()); return this; }
+		public ConversationMessageQuery Kinds(IEnumerable<ConversationMessageKind> kinds) { this._kind = this.ToList(kinds); return this; }
+		public ConversationMessageQuery Kinds(ConversationMessageKind kind) { this._kind = this.ToList(kind.AsArray()); return this; }
 		public ConversationMessageQuery ConversationSubQuery(ConversationQuery subquery) { this._conversationQuery = subquery; return this; }
 		public ConversationMessageQuery EnableTracking() { base.NoTracking = false; return this; }
 		public ConversationMessageQuery DisableTracking() { base.NoTracking = true; return this; }

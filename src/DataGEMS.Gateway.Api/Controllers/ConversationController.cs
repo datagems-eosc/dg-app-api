@@ -493,6 +493,81 @@ namespace DataGEMS.Gateway.Api.Controllers
 			return persisted;
 		}
 
+		[HttpPost("message/query")]
+		[Authorize]
+		[ModelStateValidationFilter]
+		[ValidationFilter(typeof(ConversationMessageLookup.QueryValidator), "lookup")]
+		[SwaggerOperation(Summary = "Query conversation messages")]
+		[SwaggerResponse(statusCode: 200, description: "The list of matching conversation messages along with the count", type: typeof(QueryResult<App.Model.ConversationMessage>))]
+		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
+		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
+		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
+		[SwaggerResponse(statusCode: 500, description: "Internal error")]
+		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
+		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
+		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
+		public async Task<QueryResult<App.Model.ConversationMessage>> QueryMessage(
+			[FromBody]
+			[SwaggerRequestBody(description: "The query predicates", Required = true)]
+			ConversationMessageLookup lookup)
+		{
+			this._logger.Debug(new MapLogEntry("querying").And("type", nameof(App.Model.ConversationMessage)).And("lookup", lookup));
+
+			IFieldSet censoredFields = await this._censorFactory.Censor<ConversationMessageCensor>().Censor(lookup.Project, CensorContext.AsCensor());
+			if (lookup.Project.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+
+			ConversationMessageQuery query = lookup.Enrich(this._queryFactory).DisableTracking().Authorize(AuthorizationFlags.Any);
+			List<App.Data.ConversationMessage> datas = await query.CollectAsync(censoredFields);
+			List<App.Model.ConversationMessage> models = await this._builderFactory.Builder<ConversationMessageBuilder>().Authorize(AuthorizationFlags.Any).Build(censoredFields, datas);
+			int count = (lookup.Metadata != null && lookup.Metadata.CountAll) ? await query.CountAsync() : models.Count;
+
+			this._accountingService.AccountFor(KnownActions.Query, KnownResources.Conversation.AsAccountable());
+
+			return new QueryResult<App.Model.ConversationMessage>(models, count);
+		}
+
+		[HttpPost("message/me/query")]
+		[Authorize]
+		[ModelStateValidationFilter]
+		[ValidationFilter(typeof(ConversationMessageLookup.QueryValidator), "lookup")]
+		[SwaggerOperation(Summary = "Query user owned conversation messages")]
+		[SwaggerResponse(statusCode: 200, description: "The list of matching user owned collection messages along with the count", type: typeof(QueryResult<App.Model.ConversationMessage>))]
+		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
+		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
+		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
+		[SwaggerResponse(statusCode: 500, description: "Internal error")]
+		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
+		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
+		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
+		public async Task<QueryResult<App.Model.ConversationMessage>> MeQueryMessage(
+			[FromBody]
+			[SwaggerRequestBody(description: "The query predicates", Required = true)]
+			ConversationMessageLookup lookup)
+		{
+			this._logger.Debug(new MapLogEntry("querying").And("type", nameof(App.Model.ConversationMessage)).And("lookup", lookup));
+
+			Guid? userId = await this._authorizationContentResolver.CurrentUserId();
+			if (!userId.HasValue) throw new DGApplicationException(this._errors.UserSync.Code, this._errors.UserSync.Message);
+
+			IFieldSet censoredFields = await this._censorFactory.Censor<ConversationMessageCensor>().Censor(lookup.Project, CensorContext.AsCensor(), userId);
+			if (lookup.Project.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+
+			ConversationMessageQuery query = lookup.Enrich(this._queryFactory)
+				.DisableTracking()
+				.Authorize(AuthorizationFlags.Any)
+				.ConversationSubQuery(
+					this._queryFactory.Query<ConversationQuery>()
+					.Authorize(AuthorizationFlags.Any)
+					.UserIds(userId.Value));
+			List<App.Data.ConversationMessage> datas = await query.CollectAsync(censoredFields);
+			List<App.Model.ConversationMessage> models = await this._builderFactory.Builder<ConversationMessageBuilder>().Authorize(AuthorizationFlags.Any).Build(censoredFields, datas);
+			int count = (lookup.Metadata != null && lookup.Metadata.CountAll) ? await query.CountAsync() : models.Count;
+
+			this._accountingService.AccountFor(KnownActions.Query, KnownResources.Conversation.AsAccountable());
+
+			return new QueryResult<App.Model.ConversationMessage>(models, count);
+		}
+
 		[HttpDelete("{id}")]
 		[Authorize]
 		[ModelStateValidationFilter]

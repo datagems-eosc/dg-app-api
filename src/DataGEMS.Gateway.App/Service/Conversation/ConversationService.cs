@@ -12,6 +12,7 @@ using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using DataGEMS.Gateway.App.Common;
 using DataGEMS.Gateway.App.Query;
+using Cite.Tools.Json;
 
 namespace DataGEMS.Gateway.App.Service.Conversation
 {
@@ -28,6 +29,7 @@ namespace DataGEMS.Gateway.App.Service.Conversation
 		private readonly ILogger<ConversationService> _logger;
 		private readonly ErrorThesaurus _errors;
 		private readonly EventBroker _eventBroker;
+		private readonly JsonHandlingService _jsonHandlingService;
 
 		public ConversationService(
 			ILogger<ConversationService> logger,
@@ -39,6 +41,7 @@ namespace DataGEMS.Gateway.App.Service.Conversation
 			IAuthorizationService authorizationService,
 			IAuthorizationContentResolver authorizationContentResolver,
 			IStringLocalizer<Resources.MySharedResources> localizer,
+			JsonHandlingService jsonHandlingService,
 			ErrorThesaurus errors,
 			EventBroker eventBroker)
 		{
@@ -50,9 +53,15 @@ namespace DataGEMS.Gateway.App.Service.Conversation
 			this._conversationDatasetService = conversationDatasetService;
 			this._authorizationService = authorizationService;
 			this._authorizationContentResolver = authorizationContentResolver;
+			this._jsonHandlingService = jsonHandlingService;
 			this._localizer = localizer;
 			this._errors = errors;
 			this._eventBroker = eventBroker;
+		}
+
+		private async Task AuthorizeEditMessageForce(Guid? conversationId)
+		{
+			await this.AuthorizeForce(conversationId, Permission.EditConversationMessage);
 		}
 
 		private async Task AuthorizeEditForce(Guid? conversationId)
@@ -218,6 +227,32 @@ namespace DataGEMS.Gateway.App.Service.Conversation
 			Model.Conversation persisted = await this._builderFactory.Builder<Model.Builder.ConversationBuilder>().Authorize(AuthorizationFlags.Any).Build(fieldsToUse, data);
 
 			return persisted;
+		}
+
+		public async Task AppendToConversation(Guid conversationId, params Common.Conversation.ConversationEntry[] entries)
+		{
+			this._logger.Debug(new MapLogEntry("appending").And("type", nameof(App.Data.ConversationMessage)).And("conversationId", conversationId).And("entries", entries));
+
+			Data.Conversation data = await this._dbContext.Conversations.FindAsync(conversationId);
+			if (data == null) throw new DGNotFoundException(this._localizer["general_notFound", conversationId, nameof(Model.Conversation)]);
+
+			await this.AuthorizeEditMessageForce(conversationId);
+
+			foreach(Common.Conversation.ConversationEntry entry in entries)
+			{
+				this._dbContext.Add(new Data.ConversationMessage()
+				{
+					Id = Guid.NewGuid(),
+					ConversationId = conversationId,
+					CreatedAt = DateTime.UtcNow,
+					Kind = entry.Kind,
+					Data = this._jsonHandlingService.ToJsonSafe(entry)
+				});
+			}
+
+			await this._dbContext.SaveChangesAsync();
+
+			this._eventBroker.EmitConversationMessageTouched(data.Id);
 		}
 
 		public async Task DeleteAsync(Guid id)

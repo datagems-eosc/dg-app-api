@@ -36,13 +36,13 @@ namespace DataGEMS.Gateway.App.Model.Builder
 			this._logger.Debug(new MapLogEntry("building").And("type", nameof(App.Model.Conversation)).And("fields", fields).And("dataCount", datas?.Count()));
 			if (fields == null || fields.IsEmpty()) return Enumerable.Empty<Conversation>().ToList();
 
-			IFieldSet conversationDatasetFields = fields.ExtractPrefixed(this.AsPrefix(nameof(Conversation.ConversationDatasets)));
+			IFieldSet conversationDatasetFields = fields.ExtractPrefixed(this.AsPrefix(nameof(Conversation.Datasets)));
 			Dictionary<Guid, List<ConversationDataset>> conversationDatasetMap = await this.CollectConversationDatasets(conversationDatasetFields, datas);
 
 			IFieldSet userFields = fields.ExtractPrefixed(this.AsPrefix(nameof(Conversation.User)));
 			Dictionary<Guid, User> userMap = await this.CollectUsers(userFields, datas);
 
-			IFieldSet conversationMessageFields = fields.ExtractPrefixed(this.AsPrefix(nameof(Conversation.ConversationMessages)));
+			IFieldSet conversationMessageFields = fields.ExtractPrefixed(this.AsPrefix(nameof(Conversation.Messages)));
 			Dictionary<Guid, List<ConversationMessage>> conversationMessageMap = await this.CollectConversationMessages(conversationMessageFields, datas);
 
 			List<Conversation> models = new List<Conversation>();
@@ -55,9 +55,9 @@ namespace DataGEMS.Gateway.App.Model.Builder
 				if (fields.HasField(nameof(Conversation.IsActive))) m.IsActive = d.IsActive;
 				if (fields.HasField(nameof(Conversation.CreatedAt))) m.CreatedAt = d.CreatedAt;
 				if (fields.HasField(nameof(Conversation.UpdatedAt))) m.UpdatedAt = d.UpdatedAt;
-				if (!conversationDatasetFields.IsEmpty() && conversationDatasetMap != null && conversationDatasetMap.ContainsKey(d.Id)) m.ConversationDatasets = conversationDatasetMap[d.Id];
+				if (!conversationDatasetFields.IsEmpty() && conversationDatasetMap != null && conversationDatasetMap.ContainsKey(d.Id)) m.Datasets = conversationDatasetMap[d.Id];
 				if (!userFields.IsEmpty() && userMap != null && userMap.ContainsKey(d.UserId)) m.User = userMap[d.UserId];
-				if (!conversationMessageFields.IsEmpty() && conversationMessageMap != null && conversationMessageMap.ContainsKey(d.Id)) m.ConversationMessages = conversationMessageMap[d.Id];
+				if (!conversationMessageFields.IsEmpty() && conversationMessageMap != null && conversationMessageMap.ContainsKey(d.Id)) m.Messages = conversationMessageMap[d.Id];
 
 				models.Add(m);
 			}

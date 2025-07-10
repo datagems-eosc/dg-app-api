@@ -15,6 +15,9 @@ using DataGEMS.Gateway.App.Censor;
 using DataGEMS.Gateway.App.Common;
 using DataGEMS.Gateway.App.Exception;
 using DataGEMS.Gateway.App.ErrorCode;
+using DataGEMS.Gateway.App.Service.Conversation;
+using Cite.Tools.Json;
+using Microsoft.OpenApi.Services;
 
 namespace DataGEMS.Gateway.Api.Controllers
 {
@@ -27,17 +30,20 @@ namespace DataGEMS.Gateway.Api.Controllers
 		private readonly ILogger<SearchController> _logger;
 		private readonly IAccountingService _accountingService;
 		private readonly ErrorThesaurus _errors;
+		private readonly IConversationService _conversationService;
 
 		public SearchController(
 			CensorFactory censorFactory,
 			ICrossDatasetDiscoveryService crossDatasetDiscoveryService,
 			IAccountingService accountingService,
 			ILogger<SearchController> logger,
+			IConversationService conversationService,
 			ErrorThesaurus errors)
 		{
 			this._censorFactory = censorFactory;
 			this._crossDatasetDiscoveryService = crossDatasetDiscoveryService;
 			this._accountingService = accountingService;
+			this._conversationService = conversationService;
 			this._logger = logger;
 			this._errors = errors;
 		}
@@ -55,7 +61,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
 		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
 		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
-		public async Task<List<App.Model.CrossDatasetDiscovery>> CrossDatasetDiscoveryAsync(
+		public async Task<SearchResult<List<App.Model.CrossDatasetDiscovery>>> CrossDatasetDiscoveryAsync(
 			[FromBody]
 			[SwaggerRequestBody(description: "The discovery query", Required = true)]
 			CrossDatasetDiscoveryLookup lookup)
@@ -75,7 +81,36 @@ namespace DataGEMS.Gateway.Api.Controllers
 
 			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.CrossDatasetDiscovery.AsAccountable());
 
-			return results;
+			Guid? conversationId = await this.UpdateConversation(
+				lookup.ConversationId,
+				lookup.AutoCreateConversation,
+				new App.Common.Conversation.CrossDatasetQueryConversationEntry()
+				{
+					Version = DiscoverInfo.ModelVersion,
+					Payload = request
+				},
+				new App.Common.Conversation.CrossDatasetResponseConversationEntry()
+				{
+					Version = CrossDatasetDiscovery.ModelVersion,
+					Payload = results
+				});
+
+			return new SearchResult<List<CrossDatasetDiscovery>>(conversationId, results);
+		}
+
+		private async Task<Guid?> UpdateConversation(Guid? conversationId, Boolean? autoCreateConversation, params App.Common.Conversation.ConversationEntry[] entries)
+		{
+			if (!conversationId.HasValue && (!autoCreateConversation.HasValue || (autoCreateConversation.HasValue && !autoCreateConversation.Value))) return null;
+
+			if (!conversationId.HasValue)
+			{
+				Conversation model = await this._conversationService.PersistAsync(new ConversationPersist() { Name = DateTime.UtcNow.ToString("yyyy-MM-dd h:mm tt") }, new FieldSet(nameof(Conversation.Id)));
+				if (model.Id.HasValue) conversationId = model.Id.Value;
+			}
+			if (!conversationId.HasValue) return null;
+
+			await this._conversationService.AppendToConversation(conversationId.Value, entries);
+			return conversationId.Value;
 		}
 	}
 }

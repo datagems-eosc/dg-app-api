@@ -1,17 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
+﻿
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DataGEMS.Gateway.App.Common
 {
 	public enum ConversationMessageKind : short
 	{
-		[Description("User query")]
-		UserQuery = 0,
-		[Description("Response")]
-		Response = 1
+		[Description("CrossDataset Query")]
+		CrossDatasetQuery = 0,
+		[Description("CrossDataset Response")]
+		CrossDatasetResponse = 1,
+		[Description("InDataGeo Query")]
+		InDataGeoQuery = 2,
+		[Description("InDataGeo Response")]
+		InDataGeoResponse = 3,
+		[Description("InDataTextToSql Query")]
+		InDataTextToSqlQuery = 4,
+		[Description("InDataTextToSql Response")]
+		InDataTextToSqlResponse = 5,
 	}
 }
