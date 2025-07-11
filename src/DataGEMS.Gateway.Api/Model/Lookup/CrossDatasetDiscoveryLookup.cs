@@ -1,4 +1,5 @@
 ﻿using Cite.Tools.Validation;
+using DataGEMS.Gateway.Api.Model.Lookup;
 using DataGEMS.Gateway.App.Common.Validation;
 using DataGEMS.Gateway.App.ErrorCode;
 using Microsoft.Extensions.Localization;
@@ -12,11 +13,8 @@ namespace DataGEMS.Gateway.Api.Model
 		public String Query { get; set; }
 		[SwaggerSchema(description: "The number of results to retrieve for the query")]
 		public int? ResultCount { get; set; }
-		[SwaggerSchema(description: "The conversation id to include the user query")]
-		public Guid? ConversationId { get; set; }
-		[SwaggerSchema(description: "Option to auto create new conversation if no conversation id provided. Leaving it empty is equivalent to false. Should not be true if Conversation id is provided")]
-		public Boolean? AutoCreateConversation { get; set; }
-
+		[SwaggerSchema(description: "The conversation handling options")]
+		public ConversationOptions ConversationOptions { get; set; }
 		public Cite.Tools.FieldSet.FieldSet Project { get; set; }
 
 		public class CrossDatasetDiscoveryLookupValidator : BaseValidator<CrossDatasetDiscoveryLookup>
@@ -46,12 +44,12 @@ namespace DataGEMS.Gateway.Api.Model
 						.Must(() => item.ResultCount.Value > 0)
 						.FailOn(nameof(CrossDatasetDiscoveryLookup.ResultCount))
 						.FailWith(this._localizer["validation_invalidValue", nameof(CrossDatasetDiscoveryLookup.ResultCount)]),
-					// If conversation specified, autocreate cannot be true
-					this.Spec()
-						.If(() => item.ConversationId.HasValue)
-						.Must(() => !item.AutoCreateConversation.HasValue || (item.AutoCreateConversation.HasValue && !item.AutoCreateConversation.Value))
-						.FailOn(nameof(CrossDatasetDiscoveryLookup.AutoCreateConversation))
-						.FailWith(this._localizer["validation_invalidValue", nameof(CrossDatasetDiscoveryLookup.AutoCreateConversation)]),
+					//conversation options must be valid if set
+					this.RefSpec()
+						.If(() => item.ConversationOptions != null)
+						.On(nameof(CrossDatasetDiscoveryLookup.ConversationOptions))
+						.Over(item.ConversationOptions)
+						.Using(()=>_validatorFactory[typeof(ConversationOptions.ConversationOptionsValidator)]),
 				};
 			}
 		}

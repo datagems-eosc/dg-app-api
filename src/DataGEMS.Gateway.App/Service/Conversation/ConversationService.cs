@@ -13,6 +13,7 @@ using Microsoft.Extensions.Logging;
 using DataGEMS.Gateway.App.Common;
 using DataGEMS.Gateway.App.Query;
 using Cite.Tools.Json;
+using Cite.Tools.Common.Extensions;
 
 namespace DataGEMS.Gateway.App.Service.Conversation
 {
@@ -253,6 +254,44 @@ namespace DataGEMS.Gateway.App.Service.Conversation
 			await this._dbContext.SaveChangesAsync();
 
 			this._eventBroker.EmitConversationMessageTouched(data.Id);
+		}
+
+		public async Task SetConversationDatasets(Guid conversationId, IEnumerable<Guid> datasetIds)
+		{
+			if (datasetIds == null) return;
+
+			Data.Conversation data = await this._dbContext.Conversations.FindAsync(conversationId);
+			if (data == null) throw new DGNotFoundException(this._localizer["general_notFound", conversationId, nameof(Model.Conversation)]);
+
+			List<Data.ConversationDataset> existingItems = await this._queryFactory.Query<Query.ConversationDatasetQuery>().ConversationIds(conversationId).IsActive(IsActive.Active).Authorize(AuthorizationFlags.Any).CollectAsync();
+			Dictionary<Guid, List<Model.ConversationDatasetPersist>> existingItemMap = existingItems
+				.Select(x => new Model.ConversationDatasetPersist() 
+				{ 
+					Id = x.Id, 
+					DatasetId = x.DatasetId, 
+					ConversationId = x.ConversationId, 
+					ETag = x.UpdatedAt.ToETag() 
+				})
+				.ToDictionaryOfList(x => x.DatasetId.Value);
+
+			List<Model.ConversationDatasetPersist> datasetPersistModels = datasetIds.SelectMany(x =>
+			{
+				if (existingItemMap.ContainsKey(x)) return existingItemMap[x];
+				else return new Model.ConversationDatasetPersist()
+				{
+					Id = null,
+					ConversationId = conversationId,
+					DatasetId = x,
+					ETag = null,
+				}.AsList();
+			}).ToList();
+
+			await this.PatchAsync(new Model.ConversationDatasetPatch()
+			{
+				Id = conversationId,
+				ETag = data.UpdatedAt.ToETag(),
+				ConversationDatasets = datasetPersistModels
+			});
 		}
 
 		public async Task DeleteAsync(Guid id)

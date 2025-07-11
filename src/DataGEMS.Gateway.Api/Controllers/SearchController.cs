@@ -16,8 +16,6 @@ using DataGEMS.Gateway.App.Common;
 using DataGEMS.Gateway.App.Exception;
 using DataGEMS.Gateway.App.ErrorCode;
 using DataGEMS.Gateway.App.Service.Conversation;
-using Cite.Tools.Json;
-using Microsoft.OpenApi.Services;
 
 namespace DataGEMS.Gateway.Api.Controllers
 {
@@ -82,8 +80,9 @@ namespace DataGEMS.Gateway.Api.Controllers
 			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.CrossDatasetDiscovery.AsAccountable());
 
 			Guid? conversationId = await this.UpdateConversation(
-				lookup.ConversationId,
-				lookup.AutoCreateConversation,
+				lookup.ConversationOptions?.ConversationId,
+				lookup.ConversationOptions?.AutoCreateConversation,
+				null,
 				new App.Common.Conversation.CrossDatasetQueryConversationEntry()
 				{
 					Version = DiscoverInfo.ModelVersion,
@@ -98,7 +97,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			return new SearchResult<List<CrossDatasetDiscovery>>(conversationId, results);
 		}
 
-		private async Task<Guid?> UpdateConversation(Guid? conversationId, Boolean? autoCreateConversation, params App.Common.Conversation.ConversationEntry[] entries)
+		private async Task<Guid?> UpdateConversation(Guid? conversationId, Boolean? autoCreateConversation, IEnumerable<Guid> datasetIds, params App.Common.Conversation.ConversationEntry[] entries)
 		{
 			if (!conversationId.HasValue && (!autoCreateConversation.HasValue || (autoCreateConversation.HasValue && !autoCreateConversation.Value))) return null;
 
@@ -110,6 +109,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			if (!conversationId.HasValue) return null;
 
 			await this._conversationService.AppendToConversation(conversationId.Value, entries);
+			await this._conversationService.SetConversationDatasets(conversationId.Value, datasetIds);
 			return conversationId.Value;
 		}
 	}
