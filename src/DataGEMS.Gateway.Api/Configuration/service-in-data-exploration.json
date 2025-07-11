@@ -1,0 +1,11 @@
+{
+  "InDataExplorationService": {
+    "Http": {
+      "Scope": "in-data-exploration datasets",
+      //The base url will be updated to an internal cluster dns during deployment
+      "BaseUrl": "https://datagems-dev.scayle.es/in-data-exploration/",
+      "GeoQueryEndpoint": "geospatial-query",
+      "TextToSqlEndpoint": "text-to-sql"
+    }
+  }
+}
