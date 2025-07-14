@@ -93,13 +93,7 @@ namespace DataGEMS.Gateway.App.Service.InDataExploration
 			ExplorationTextToSqlRequest httpRequestModel = new ExplorationTextToSqlRequest
 			{
 				Question = request.Question,
-				Parameters = new SqlQueryParameters
-				{
-					Results = new SqlQueryResults
-					{
-						Points = request.Parameters?.Results?.Points
-					}
-				}
+				Parameters = request.Parameters
 			};
 
 			HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, $"{this._config.BaseUrl}{this._config.TextToSqlEndpoint}")

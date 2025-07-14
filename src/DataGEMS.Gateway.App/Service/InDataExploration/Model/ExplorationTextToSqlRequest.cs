@@ -13,10 +13,10 @@ namespace DataGEMS.Gateway.App.Service.InDataExploration.Model
 		public string Question { get; set; }
 
 		[JsonProperty("parameters")]
-		public SqlQueryParameters Parameters { get; set; }
+		public Dictionary<string, object> Parameters { get; set; }
 	}
 
-	public class SqlQueryParameters
+	/*public class SqlQueryParameters
 	{
 		[JsonProperty("results")]
 		public SqlQueryResults Results { get; set; }
@@ -26,5 +26,5 @@ namespace DataGEMS.Gateway.App.Service.InDataExploration.Model
 	{
 		[JsonProperty("points")]
 		public List<List<decimal>> Points { get; set; }
-	}
+	}*/
 }

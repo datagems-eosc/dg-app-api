@@ -179,7 +179,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			ExploreTextToSqlInfo request = new ExploreTextToSqlInfo()
 			{
 				Question = lookup.Query,
-				/*Parameters = lookup.Parameters*/	//TODO: How do we convert lookup parameters to ExploreTextToSql parameters
+				Parameters = lookup.Parameters
 			};
 
 			List<App.Model.InDataTextToSqlExploration> results = await this._inDataExplorationService.ExploreTextToSqlAsync(request, censoredFields);

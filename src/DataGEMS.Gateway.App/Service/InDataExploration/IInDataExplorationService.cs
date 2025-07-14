@@ -26,10 +26,10 @@ namespace DataGEMS.Gateway.App.Service.InDataExploration
 		// GOTCHA: Any changes to this model should cause the version to change
 		public static string ModelVersion = "V1";
 		public string Question { get; set; }
-		public SqlQueryParametersInfo Parameters { get; set; }
+		public Dictionary<string, object> Parameters { get; set; }
 	}
 
-	public class SqlQueryParametersInfo
+	/*public class SqlQueryParametersInfo
 	{
 		public SqlQueryResultsInfo Results { get; set; }
 	}
@@ -37,5 +37,5 @@ namespace DataGEMS.Gateway.App.Service.InDataExploration
 	public class SqlQueryResultsInfo
 	{
 		public List<List<decimal>> Points { get; set; }
-	}
+	}*/
 }
