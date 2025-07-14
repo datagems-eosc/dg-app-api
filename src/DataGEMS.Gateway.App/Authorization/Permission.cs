@@ -23,6 +23,8 @@ namespace DataGEMS.Gateway.App.Authorization
 		public const String BrowseDataset = "BrowseDataset";
 		//DatasetCollection
 		public const String BrowseDatasetCollection = "BrowseDatasetCollection";
+		//InDataExploration
+		public const String CanExplore = "CanExplore";
 		//User
 		public const String BrowseUser = "BrowseUser";
 		//UserCollection

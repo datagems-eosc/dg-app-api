@@ -33,6 +33,8 @@ namespace DataGEMS.Gateway.App.Accounting
 		UserCollection = 3,
 		Conversation = 4,
 		CrossDatasetDiscovery = 5,
+		InDataExplorationGeoQuery = 6,
+		InDataExplorationTextToSql = 7,
 	}
 
 	public class AccountingInfo

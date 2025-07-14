@@ -113,6 +113,15 @@
 				"AllowAnonymous": false,
 				"AllowAuthenticated": false
 			},
+			//InDataExploration
+			"CanExplore": {
+				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_user" ],
+				"DatasetRoles": [],
+				"Claims": [],
+				"Clients": [],
+				"AllowAnonymous": false,
+				"AllowAuthenticated": false
+			},
 			//User
 			"BrowseUser": {
 				"Roles": [ "GLOBAL_dg_admin" ],
