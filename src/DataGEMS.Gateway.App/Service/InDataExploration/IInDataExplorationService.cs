@@ -28,14 +28,4 @@ namespace DataGEMS.Gateway.App.Service.InDataExploration
 		public string Question { get; set; }
 		public Dictionary<string, object> Parameters { get; set; }
 	}
-
-	/*public class SqlQueryParametersInfo
-	{
-		public SqlQueryResultsInfo Results { get; set; }
-	}
-
-	public class SqlQueryResultsInfo
-	{
-		public List<List<decimal>> Points { get; set; }
-	}*/
 }

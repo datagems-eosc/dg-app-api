@@ -43,32 +43,27 @@ namespace DataGEMS.Gateway.App.Model.Builder
 			{
 				InDataGeoQueryExploration m = new InDataGeoQueryExploration();
 				if (fields.HasField(nameof(InDataGeoQueryExploration.Place))) m.Place = d.Place;
-				if (fields.HasField(nameof(InDataGeoQueryExploration.Oql))) m.Oql = d.Oql;
-				if (fields.HasField(nameof(InDataGeoQueryExploration.MostRelevantWikidata)) && d.MostRelevantWikidata != null)
-				{
-					m.MostRelevantWikidata = new WikidataInfo
-					{
-						Id = d.MostRelevantWikidata.Id,
-						Label = d.MostRelevantWikidata.Label,
-						Description = d.MostRelevantWikidata.Description
-					};
-				}
+				if (fields.HasField(nameof(InDataGeoQueryExploration.MostRelevantWikidata))) m.MostRelevantWikidata = d.MostRelevantWikidata;
+				if (fields.HasField(nameof(InDataGeoQueryExploration.Oql)) && d.Oql != null) m.Oql = new OqlInfo{Reasoning = d.Oql.Reasoning, OqlText = d.Oql.OqlText};
 				if (fields.HasField(nameof(InDataGeoQueryExploration.Results)) && d.Results != null)
-				{
 					m.Results = new GeoQueryResults
 					{
-						Points = d.Results.Points,
-						BBox = d.Results.BBox,
-						Centroid = d.Results.Centroid,
-						Multipolygons = d.Results.Multipolygons
+						Points = d.Results.Points?.Select(p => new Point { Lon = p.Lon, Lat = p.Lat }).ToList(),
+						GeoJsonData = d.Results.GeoJsonData != null ? new Dictionary<string, object>(d.Results.GeoJsonData) : null,
+						Bounds = d.Results.Bounds != null ? new Bounds
+						{
+							MinLat = d.Results.Bounds.MinLat,
+							MinLon = d.Results.Bounds.MinLon,
+							MaxLat = d.Results.Bounds.MaxLat,
+							MaxLon = d.Results.Bounds.MaxLon
+						} : null,
+						Center = d.Results.Center != null ?	new List<decimal>(d.Results.Center) : null
 					};
-				}
 
 				models.Add(m);
 			}
 			return models;
 
 		}
-
 	}
 }

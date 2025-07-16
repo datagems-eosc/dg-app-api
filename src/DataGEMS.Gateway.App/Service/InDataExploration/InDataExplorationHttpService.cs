@@ -59,18 +59,15 @@ namespace DataGEMS.Gateway.App.Service.InDataExploration
 			String token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
 			if (token == null) throw new DGUnderpinningException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
 
-			ExplorationGeoQueryRequest httpRequestModel = new ExplorationGeoQueryRequest
-			{
-				Question = request.Question
-			};
 
-			HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, $"{this._config.BaseUrl}{this._config.GeoQueryEndpoint}")
-			{
-				Content = new StringContent(this._jsonHandlingService.ToJson(httpRequestModel), Encoding.UTF8, "application/json")
-			};
+			string encodedQuestion = Uri.EscapeDataString(request.Question);
+			string url = $"{this._config.BaseUrl}{this._config.GeoQueryEndpoint}?question={encodedQuestion}";
+
+			HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Get, url);
 			httpRequest.Headers.Add(HeaderNames.Accept, "application/json");
 			httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 			httpRequest.Headers.Add(this._logTrackingCorrelationConfig.HeaderName, this._logCorrelationScope.CorrelationId);
+
 
 			String content = await this.SendRequest(httpRequest);
 			try

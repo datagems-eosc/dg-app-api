@@ -46,8 +46,7 @@ namespace DataGEMS.Gateway.App.Model.Builder
 				if (fields.HasField(nameof(m.Message))) m.Message = d.Message;
 				if (fields.HasField(nameof(m.Params)) && d.Params != null)
 				{
-					m.Params = new Params{Results = d.Params.Results != null ? new Results{Points = d.Params.Results.Points?
-						.Select(p => p.ToList()).ToList()} : null};
+					m.Params = new Params{Results = d.Params.Results != null ? new Results{Points = d.Params.Results.Points?.Select(p => p.ToList()).ToList()} : null};
 				}
 				if (fields.HasField(nameof(m.Question))) m.Question = d.Question;
 				if (fields.HasField(nameof(m.ModelName))) m.ModelName = d.ModelName;
