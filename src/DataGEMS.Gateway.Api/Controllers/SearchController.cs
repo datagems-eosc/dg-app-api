@@ -137,7 +137,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			Guid? conversationId = await this.UpdateConversation(
 				lookup.ConversationOptions?.ConversationId,
 				lookup.ConversationOptions?.AutoCreateConversation,
-				null,   //TODO: query's list of datasets????
+				null,
 				new App.Common.Conversation.InDataGeoQueryConversationEntry()
 				{
 					Version = ExploreGeoQueryInfo.ModelVersion,

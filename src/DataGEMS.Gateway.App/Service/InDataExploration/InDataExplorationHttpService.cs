@@ -73,7 +73,7 @@ namespace DataGEMS.Gateway.App.Service.InDataExploration
 			try
 			{
 				Model.ExplorationGeoQueryResponse rawResponse = this._jsonHandlingService.FromJson<Model.ExplorationGeoQueryResponse>(content);
-				return await this._builderFactory.Builder<App.Model.Builder.InDataExplorationGeoQueryBuilder>().Authorize(AuthorizationFlags.Any).Build(fieldSet, new List<Model.ExplorationGeoQueryResponse> { rawResponse }); //TODO: 1 or many objects
+				return await this._builderFactory.Builder<App.Model.Builder.InDataExplorationGeoQueryBuilder>().Authorize(AuthorizationFlags.Any).Build(fieldSet, new List<Model.ExplorationGeoQueryResponse> { rawResponse });
 			}
 			catch (System.Exception ex)
 			{
@@ -105,7 +105,7 @@ namespace DataGEMS.Gateway.App.Service.InDataExploration
 			try
 			{
 				Model.ExplorationTextToSqlResponse rawResponse = this._jsonHandlingService.FromJson<Model.ExplorationTextToSqlResponse>(content);
-				return await this._builderFactory.Builder<App.Model.Builder.InDataExplorationTextToSqlBuilder>().Authorize(AuthorizationFlags.Any).Build(fieldSet, new List<Model.ExplorationTextToSqlResponse> { rawResponse });	//TODO: 1 or many objects
+				return await this._builderFactory.Builder<App.Model.Builder.InDataExplorationTextToSqlBuilder>().Authorize(AuthorizationFlags.Any).Build(fieldSet, new List<Model.ExplorationTextToSqlResponse> { rawResponse });
 			}
 			catch (System.Exception ex)
 			{

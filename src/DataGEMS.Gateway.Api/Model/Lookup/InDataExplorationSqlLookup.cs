@@ -40,12 +40,12 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 			protected override IEnumerable<ISpecification> Specifications(InDataExplorationSqlLookup item)
 			{
 				return new ISpecification[] {
-					// Question must always be set
+					// Query must always be set
 					this.Spec()
 						.Must(() => !this.IsEmpty(item.Query))
 						.FailOn(nameof(InDataExplorationSqlLookup.Query))
 						.FailWith(this._localizer["validation_required", nameof(InDataExplorationSqlLookup.Query)])
-					//TODO: What about properties???
+					//TODO: What about Parameters???
 				};
 			}
 		}

@@ -11,7 +11,8 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 	{
 		[SwaggerSchema(description: "A string containing the user query in natural language. Cannot be empty.")]	//TODO: Do we need to change the description???
 		public String Query { get; set; }
-		//TODO: Do we need a dataset list????
+		[SwaggerSchema(description: "A list of dataset IDs to optionally filter the search (currently unused).")]   //TODO: Do we need to change the description???
+		public List<Guid> Dataset { get; set; }
 		[SwaggerSchema(description: "The conversation handling options")]
 		public ConversationOptions ConversationOptions { get; set; }
 		public Cite.Tools.FieldSet.FieldSet Project { get; set; }
@@ -37,6 +38,7 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 						.Must(() => !this.IsEmpty(item.Query))
 						.FailOn(nameof(InDataExplorationGeoLookup.Query))
 						.FailWith(this._localizer["validation_required", nameof(InDataExplorationGeoLookup.Query)]),
+					//TODO: What about Datasets
 				};
 			}
 		}

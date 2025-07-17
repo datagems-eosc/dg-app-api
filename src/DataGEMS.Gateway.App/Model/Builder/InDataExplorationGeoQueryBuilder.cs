@@ -43,7 +43,10 @@ namespace DataGEMS.Gateway.App.Model.Builder
 			{
 				InDataGeoQueryExploration m = new InDataGeoQueryExploration();
 				if (fields.HasField(nameof(InDataGeoQueryExploration.Place))) m.Place = d.Place;
-				if (fields.HasField(nameof(InDataGeoQueryExploration.MostRelevantWikidata))) m.MostRelevantWikidata = d.MostRelevantWikidata;
+				if (fields.HasField(nameof(InDataGeoQueryExploration.MostRelevantWikidata)))
+				{
+					m.MostRelevantWikidata = d.MostRelevantWikidata != null ? new Dictionary<string, object>(d.MostRelevantWikidata) : null;
+				}
 				if (fields.HasField(nameof(InDataGeoQueryExploration.Oql)) && d.Oql != null) m.Oql = new OqlInfo{Reasoning = d.Oql.Reasoning, OqlText = d.Oql.OqlText};
 				if (fields.HasField(nameof(InDataGeoQueryExploration.Results)) && d.Results != null)
 					m.Results = new GeoQueryResults

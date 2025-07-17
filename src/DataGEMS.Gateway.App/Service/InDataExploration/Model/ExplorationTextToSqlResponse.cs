@@ -58,13 +58,7 @@ namespace DataGEMS.Gateway.App.Service.InDataExploration.Model
 	public class InputParam
 	{
 		[JsonProperty("coordinates")]
-		public List<CoordinateTuple> Coordinates { get; set; }
-	}
-
-	public class CoordinateTuple
-	{
-		[JsonProperty("tuple")]
-		public List<decimal> Tuple { get; set; }
+		public List<List<decimal>> Coordinates { get; set; }
 	}
 
 	public class OutputParams

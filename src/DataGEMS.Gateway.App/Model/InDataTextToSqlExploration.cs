@@ -8,13 +8,6 @@ using System.Threading.Tasks;
 
 namespace DataGEMS.Gateway.App.Model
 {
-	/*public class InDataTextToSqlExploration
-	{
-		// GOTCHA: Any changes to this model should cause the version to change
-		public static String ModelVersion = "V1";
-		public String Sql { get; set; }
-	}*/
-
 	public class InDataTextToSqlExploration
 	{
 		// GOTCHA: Any changes to this model should cause the version to change
@@ -45,12 +38,7 @@ namespace DataGEMS.Gateway.App.Model
 
 	public class InputParam
 	{
-		public List<CoordinateTuple> Coordinates { get; set; }
-	}
-
-	public class CoordinateTuple
-	{
-		public List<decimal> Tuple { get; set; }
+		public List<List<decimal>> Coordinates { get; set; }
 	}
 
 	public class OutputParams

@@ -53,8 +53,7 @@ namespace DataGEMS.Gateway.App.Model.Builder
 				if (fields.HasField(nameof(m.SqlPattern))) m.SqlPattern = d.SqlPattern;
 				if (fields.HasField(nameof(m.InputParams)) && d.InputParams != null)
 				{
-					m.InputParams = d.InputParams
-						.Select(ip => new InputParam{Coordinates = ip.Coordinates?.Select(c => new CoordinateTuple{Tuple = c.Tuple?.ToList()}).ToList()}).ToList();
+					m.InputParams = d.InputParams.Select(ip => new InputParam { Coordinates = ip.Coordinates?.Select(c => c.ToList()).ToList() }).ToList();
 				}
 				if (fields.HasField(nameof(m.OutputParams)) && d.OutputParams != null)
 				{
