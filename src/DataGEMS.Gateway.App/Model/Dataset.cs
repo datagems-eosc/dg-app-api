@@ -8,6 +8,8 @@ namespace DataGEMS.Gateway.App.Model
 		public String Name { get; set; }
 		public String Description { get; set; }
 		public String License { get; set; }
+		public String MimeType { get; set; }
+		public long? Size { get; set; }
 		public String Url { get; set; }
 		public String Version { get; set; }
 		public String Headline { get; set; }

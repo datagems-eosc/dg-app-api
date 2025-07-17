@@ -53,6 +53,8 @@ namespace DataGEMS.Gateway.App.Model.Builder
 				if (fields.HasField(nameof(Model.Dataset.Name))) m.Name = d.Name;
 				if (fields.HasField(nameof(Model.Dataset.Description))) m.Description = d.Description;
 				if (fields.HasField(nameof(Model.Dataset.License))) m.License = d.License;
+				if (fields.HasField(nameof(Model.Dataset.MimeType))) m.MimeType = d.MimeType;
+				if (fields.HasField(nameof(Model.Dataset.Size))) m.Size = d.Size;
 				if (fields.HasField(nameof(Model.Dataset.Url))) m.Url = d.Url;
 				if (fields.HasField(nameof(Model.Dataset.Version))) m.Version = d.Version;
 				if (fields.HasField(nameof(Model.Dataset.Headline))) m.Headline = d.Headline;

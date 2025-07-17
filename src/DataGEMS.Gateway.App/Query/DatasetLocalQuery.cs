@@ -11,6 +11,11 @@ namespace DataGEMS.Gateway.App.Query
 		private List<Guid> _excludedIds { get; set; }
 		private List<Guid> _collectionIds { get; set; }
 		private String _like { get; set; }
+		private String _license { get; set; }
+		private List<String> _fieldsOfScience { get; set; }
+		private RangeOf<DateOnly?> _publishedRange { get; set; }
+		private RangeOf<long?> _sizeRange { get; set; }
+		private String _mimeType { get; set; }
 		private AuthorizationFlags _authorize { get; set; } = AuthorizationFlags.None;
 
 		public DatasetLocalQuery(
@@ -31,6 +36,12 @@ namespace DataGEMS.Gateway.App.Query
 		public DatasetLocalQuery CollectionIds(IEnumerable<Guid> collectionIds) { this._collectionIds = collectionIds?.ToList(); return this; }
 		public DatasetLocalQuery CollectionIds(Guid collectionId) { this._collectionIds = collectionId.AsList(); return this; }
 		public DatasetLocalQuery Like(String like) { this._like = like; return this; }
+		public DatasetLocalQuery License(String license) { this._license = license; return this; }
+		public DatasetLocalQuery FieldsOfScience(IEnumerable<String> fieldsOfScience) { this._fieldsOfScience = fieldsOfScience?.ToList(); return this; }
+		public DatasetLocalQuery FieldsOfScience(String fieldsOfScience) { this._fieldsOfScience = fieldsOfScience.AsList(); return this; }
+		public DatasetLocalQuery PublishedRange(RangeOf<DateOnly?> publishedRange) { this._publishedRange = publishedRange; return this; }
+		public DatasetLocalQuery SizeRange(RangeOf<long?> sizeRange) { this._sizeRange = sizeRange; return this; }
+		public DatasetLocalQuery MimeType(String mimeType) { this._mimeType = mimeType; return this; }
 		public DatasetLocalQuery Authorize(AuthorizationFlags flags) { this._authorize = flags; return this; }
 		public DatasetLocalQuery EnableTracking() { base.NoTracking = false; return this; }
 		public DatasetLocalQuery DisableTracking() { base.NoTracking = true; return this; }
@@ -39,7 +50,7 @@ namespace DataGEMS.Gateway.App.Query
 
 		protected override bool IsFalseQuery()
 		{
-			return this.IsEmpty(this._ids) || this.IsEmpty(this._excludedIds) || this.IsEmpty(this._collectionIds);
+			return this.IsEmpty(this._ids) || this.IsEmpty(this._excludedIds) || this.IsEmpty(this._collectionIds) || this.IsEmpty(this._fieldsOfScience);
 		}
 
 		public async Task<DataManagement.Data.Dataset> Find(Guid id, Boolean tracked = true)
@@ -91,6 +102,35 @@ namespace DataGEMS.Gateway.App.Query
 			if (this._ids != null) query = query.Where(x => this._ids.Contains(x.Id));
 			if (this._excludedIds != null) query = query.Where(x => !this._excludedIds.Contains(x.Id));
 			if (!String.IsNullOrEmpty(this._like)) query = query.Where(x => EF.Functions.ILike(x.Name, this._like));
+			if (!String.IsNullOrEmpty(this._license)) query = query.Where(x => EF.Functions.ILike(x.License, this._license));
+			if (!String.IsNullOrEmpty(this._mimeType)) query = query.Where(x => EF.Functions.ILike(x.MimeType, this._mimeType));
+			if (this._fieldsOfScience != null) query = query.Where(x => this._fieldsOfScience.Contains(x.FieldOfScience));
+			if (this._publishedRange != null)
+			{
+				if (this._publishedRange.Start.HasValue) 
+				{
+					DateTime rangeStart = this._publishedRange.Start.Value.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
+					query = query.Where(x => x.DatePublishedRaw != null && rangeStart <= x.DatePublishedRaw);
+				}
+				if (this._publishedRange.End.HasValue)
+				{
+					DateTime rangeEnd = this._publishedRange.End.Value.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
+					query = query.Where(x => x.DatePublishedRaw != null && rangeEnd >= x.DatePublishedRaw);
+				}
+			}
+			if (this._sizeRange != null)
+			{
+				if (this._sizeRange.Start.HasValue)
+				{
+					long rangeStart = this._sizeRange.Start.Value;
+					query = query.Where(x => x.Size != null && rangeStart <= x.Size);
+				}
+				if (this._sizeRange.End.HasValue)
+				{
+					long rangeEnd = this._sizeRange.End.Value;
+					query = query.Where(x => x.Size != null && rangeEnd >= x.Size);
+				}
+			}
 			if (this._collectionIds != null) query = query.Where(x => x.Collections.Any(y => this._collectionIds.Contains(y.CollectionId)));
 
 			return Task.FromResult(query);
@@ -126,7 +166,9 @@ namespace DataGEMS.Gateway.App.Query
 				else if (item.Match(nameof(DataManagement.Model.Dataset.FieldOfScience))) projectionFields.Add(nameof(DataManagement.Data.Dataset.FieldOfScience));
 				else if (item.Match(nameof(DataManagement.Model.Dataset.Language))) projectionFields.Add(nameof(DataManagement.Data.Dataset.Language));
 				else if (item.Match(nameof(DataManagement.Model.Dataset.Country))) projectionFields.Add(nameof(DataManagement.Data.Dataset.Country));
-				else if (item.Match(nameof(DataManagement.Model.Dataset.DatePublished))) projectionFields.Add(nameof(DataManagement.Data.Dataset.DatePublished));
+				else if (item.Match(nameof(DataManagement.Model.Dataset.DatePublished))) projectionFields.Add(nameof(DataManagement.Data.Dataset.DatePublishedRaw));
+				else if (item.Match(nameof(DataManagement.Model.Dataset.Size))) projectionFields.Add(nameof(DataManagement.Data.Dataset.Size));
+				else if (item.Match(nameof(DataManagement.Model.Dataset.MimeType))) projectionFields.Add(nameof(DataManagement.Data.Dataset.MimeType));
 				else if (item.Match(nameof(DataManagement.Model.Dataset.ProfileRaw))) projectionFields.Add(nameof(DataManagement.Data.Dataset.Profile));
 			}
 			return projectionFields.ToList();
@@ -156,6 +198,8 @@ namespace DataGEMS.Gateway.App.Query
 				Name = data.Name,
 				Description = data.Description,
 				License = data.License,
+				MimeType = data.MimeType,
+				Size = data.Size,
 				Url = data.Url,
 				Version = data.Version,
 				Headline = data.Headline,

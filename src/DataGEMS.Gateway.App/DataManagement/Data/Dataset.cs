@@ -30,6 +30,11 @@ namespace DataGEMS.Gateway.App.DataManagement.Data
 		[MaxLength(50)]
 		public String Version { get; set; }
 
+		[MaxLength(50)]
+		public String MimeType { get; set; }
+
+		public long? Size { get; set; }
+
 		public String Headline { get; set; }
 
 		public String Keywords { get; set; }
@@ -66,6 +71,8 @@ namespace DataGEMS.Gateway.App.DataManagement.Data
 			builder.Property(x => x.Name).HasColumnName("name");
 			builder.Property(x => x.Description).HasColumnName("description");
 			builder.Property(x => x.License).HasColumnName("license");
+			builder.Property(x => x.MimeType).HasColumnName("mime_type");
+			builder.Property(x => x.Size).HasColumnName("size");
 			builder.Property(x => x.Url).HasColumnName("url");
 			builder.Property(x => x.Version).HasColumnName("version");
 			builder.Property(x => x.Headline).HasColumnName("headline");
