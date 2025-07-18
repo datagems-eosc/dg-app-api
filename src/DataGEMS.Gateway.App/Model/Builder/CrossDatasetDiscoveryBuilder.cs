@@ -36,20 +36,58 @@ namespace DataGEMS.Gateway.App.Model.Builder
 			IFieldSet datasetFields = fields.ExtractPrefixed(this.AsPrefix(nameof(CrossDatasetDiscovery.Dataset)));
 			Dictionary<Guid, Dataset> datasetMap = await this.CollectDatasets(datasetFields, datas);
 
+			IFieldSet hitsFields = fields.ExtractPrefixed(this.AsPrefix(nameof(CrossDatasetDiscovery.Hits)));
+
+			Dictionary<Guid, OrderableResult> byDataset = this.GroupResultsByDataset(datas);
+
 			List<CrossDatasetDiscovery> models = new List<CrossDatasetDiscovery>();
-			foreach (Service.Discovery.Model.CrossDatasetDiscoveryResult d in datas ?? new List<Service.Discovery.Model.CrossDatasetDiscoveryResult>())
+			foreach (KeyValuePair<Guid, OrderableResult> dpair in byDataset.OrderBy(x=> x.Value.ResultOrdinal))
 			{
 				CrossDatasetDiscovery m = new CrossDatasetDiscovery();
-				if (fields.HasField(nameof(CrossDatasetDiscovery.Content))) m.Content = d.Content;
-				if (fields.HasField(nameof(CrossDatasetDiscovery.ObjectId))) m.ObjectId = d.ObjectId;
-				if (fields.HasField(nameof(CrossDatasetDiscovery.Distance))) m.Distance = d.Distance;
-				if (!datasetFields.IsEmpty() && datasetMap != null && datasetMap.ContainsKey(d.DatasetId)) m.Dataset = datasetMap[d.DatasetId];
+
+				if (!datasetFields.IsEmpty() && datasetMap != null && datasetMap.ContainsKey(dpair.Key)) m.Dataset = datasetMap[dpair.Key];
+				if (fields.HasField(nameof(CrossDatasetDiscovery.MaxSimilarity)) && dpair.Value.Count > 0) m.MaxSimilarity = dpair.Value.Max(x => x.Similarity);
+
+				if (!hitsFields.IsEmpty() && dpair.Value.Count > 0)
+				{
+					m.Hits = new List<CrossDatasetDiscovery.DatasetHits>();
+					foreach (Service.Discovery.Model.CrossDatasetDiscoveryResult d in dpair.Value)
+					{
+						CrossDatasetDiscovery.DatasetHits h = new CrossDatasetDiscovery.DatasetHits();
+						if (hitsFields.HasField(nameof(CrossDatasetDiscovery.DatasetHits.Content))) h.Content = d.Content;
+						if (hitsFields.HasField(nameof(CrossDatasetDiscovery.DatasetHits.ObjectId))) h.ObjectId = d.ObjectId;
+						if (hitsFields.HasField(nameof(CrossDatasetDiscovery.DatasetHits.Similarity))) h.Similarity = d.Similarity;
+						m.Hits.Add(h);
+					}
+				}
 
 				models.Add(m);
 			}
+
 			return models;
 		}
 
+		private Dictionary<Guid, OrderableResult> GroupResultsByDataset(IEnumerable<Service.Discovery.Model.CrossDatasetDiscoveryResult> datas)
+		{
+			Dictionary<Guid, OrderableResult> byDataset = new Dictionary<Guid, OrderableResult>();
+			int counter = 0;
+			foreach (Service.Discovery.Model.CrossDatasetDiscoveryResult item in datas ?? Enumerable.Empty<Service.Discovery.Model.CrossDatasetDiscoveryResult>())
+			{
+				if (!byDataset.ContainsKey(item.DatasetId))
+				{
+					byDataset.Add(item.DatasetId, new OrderableResult() { ResultOrdinal = counter });
+					counter += 1;
+				}
+
+				byDataset[item.DatasetId].Add(item);
+			}
+			return byDataset;
+		}
+
+		private class OrderableResult : List<Service.Discovery.Model.CrossDatasetDiscoveryResult>
+		{
+			public int ResultOrdinal { get; set; }
+		}
 
 		private async Task<Dictionary<Guid, Dataset>> CollectDatasets(IFieldSet fields, IEnumerable<Service.Discovery.Model.CrossDatasetDiscoveryResult> datas)
 		{

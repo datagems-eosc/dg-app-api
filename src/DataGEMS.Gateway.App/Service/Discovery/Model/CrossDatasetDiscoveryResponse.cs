@@ -22,7 +22,7 @@ namespace DataGEMS.Gateway.App.Service.Discovery.Model
 		[JsonProperty("object_id")]
         public string ObjectId { get; set; }
 
-        [JsonProperty("distance")]
-        public Decimal Distance { get; set; }
+        [JsonProperty("similarity")]
+        public Decimal Similarity { get; set; }
     }
 }

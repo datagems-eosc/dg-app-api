@@ -52,6 +52,7 @@ namespace DataGEMS.Gateway.App.Censor
 			if (authZPass)
 			{
 				censored = censored.Merge(fields.ExtractNonPrefixed());
+				censored = censored.MergeAsPrefixed(fields.ExtractPrefixed(nameof(Model.CrossDatasetDiscovery.Hits).AsIndexerPrefix()), nameof(Model.CrossDatasetDiscovery.Hits));
 			}
 
 			censored = censored.MergeAsPrefixed(await this._censorFactory.Censor<DatasetCensor>().Censor(fields.ExtractPrefixed(nameof(Model.CrossDatasetDiscovery.Dataset).AsIndexerPrefix()), context), nameof(Model.CrossDatasetDiscovery.Dataset));
