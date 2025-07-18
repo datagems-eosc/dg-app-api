@@ -12,6 +12,7 @@ using DataGEMS.Gateway.App.Common;
 using DataGEMS.Gateway.App.Exception;
 using DataGEMS.Gateway.App.Query;
 using Cite.Tools.Data.Deleter;
+using Microsoft.EntityFrameworkCore;
 
 namespace DataGEMS.Gateway.App.Service.UserCollection
 {
@@ -28,6 +29,7 @@ namespace DataGEMS.Gateway.App.Service.UserCollection
 		private readonly ILogger<UserCollectionService> _logger;
 		private readonly ErrorThesaurus _errors;
 		private readonly EventBroker _eventBroker;
+		private readonly UserCollectionConfig _config;
 
 		public UserCollectionService(
 			ILogger<UserCollectionService> logger,
@@ -35,6 +37,7 @@ namespace DataGEMS.Gateway.App.Service.UserCollection
 			BuilderFactory builderFactory,
 			DeleterFactory deleterFactory,
 			QueryFactory queryFactory,
+			UserCollectionConfig config,
 			IUserDatasetCollectionService userDatasetCollectionService,
 			IAuthorizationService authorizationService,
 			IAuthorizationContentResolver authorizationContentResolver,
@@ -52,6 +55,7 @@ namespace DataGEMS.Gateway.App.Service.UserCollection
 			this._authorizationContentResolver = authorizationContentResolver;
 			this._localizer = localizer;
 			this._errors = errors;
+			this._config = config;
 			this._eventBroker = eventBroker;
 		}
 
@@ -133,6 +137,7 @@ namespace DataGEMS.Gateway.App.Service.UserCollection
 					Id = Guid.NewGuid(),
 					IsActive = IsActive.Active,
 					UserId = userId.Value,
+					Kind = UserCollectionKind.User,
 					CreatedAt = DateTime.UtcNow
 				};
 			}
@@ -225,6 +230,34 @@ namespace DataGEMS.Gateway.App.Service.UserCollection
 			await this.AuthorizDeleteForce(id);
 
 			await this._deleterFactory.Deleter<Deleter.UserCollectionDeleter>().DeleteAndSave([id]);
+		}
+
+		public async Task BootstrapFavorites()
+		{
+			if (!this._config.Favorites?.BootstrapFavorites ?? false) return;
+
+			Guid? userId = await this._authorizationContentResolver.CurrentUserId();
+			if (!userId.HasValue) return;
+
+			Boolean collectionExists = await this._dbContext.UserCollections.AnyAsync(x => x.Kind == UserCollectionKind.Favorites && x.UserId == userId.Value && x.IsActive == IsActive.Active);
+			if (collectionExists) return;
+
+			Data.UserCollection data = new Data.UserCollection
+			{
+				Id = Guid.NewGuid(),
+				Name = this._config.Favorites?.CollectionName ?? "Favorites",
+				UserId = userId.Value,
+				IsActive = IsActive.Active,
+				Kind = UserCollectionKind.Favorites,
+				CreatedAt = DateTime.UtcNow,
+				UpdatedAt = DateTime.UtcNow,
+			};
+
+			this._dbContext.Add(data);
+
+			await this._dbContext.SaveChangesAsync();
+
+			this._eventBroker.EmitUserCollectionTouched(data.Id);
 		}
 	}
 }

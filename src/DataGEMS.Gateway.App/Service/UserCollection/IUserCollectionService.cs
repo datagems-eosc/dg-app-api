@@ -10,5 +10,6 @@ namespace DataGEMS.Gateway.App.Service.UserCollection
 		Task<App.Model.UserCollection> AddAsync(Guid userCollectionId, Guid datasetId, IFieldSet fields = null);
 		Task<App.Model.UserCollection> RemoveAsync(Guid userCollectionId, Guid datasetId, IFieldSet fields = null);
 		Task DeleteAsync(Guid id);
+		Task BootstrapFavorites();
 	}
 }

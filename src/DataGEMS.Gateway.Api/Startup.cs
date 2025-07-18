@@ -89,8 +89,7 @@ namespace DataGEMS.Gateway.Api
 
 			services
 				.AddScoped<IVersionInfoService, VersionInfoService>()
-				.AddScoped<IUserCollectionService, UserCollectionService>()
-				.AddScoped<IUserDatasetCollectionService, UserDatasetCollectionService>()
+				.AddUserCollectionServices(this._config.GetSection("UserCollection"))
 				.AddScoped<IConversationService, ConversationService>()
 				.AddScoped<IConversationDatasetService, ConversationDatasetService>()
 			;

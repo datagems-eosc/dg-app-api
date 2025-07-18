@@ -24,6 +24,9 @@ namespace DataGEMS.Gateway.App.Data
 		public IsActive IsActive { get; set; }
 
 		[Required]
+		public UserCollectionKind Kind { get; set; }
+
+		[Required]
 		public DateTime CreatedAt { get; set; }
 
 		[Required]
@@ -47,6 +50,7 @@ namespace DataGEMS.Gateway.App.Data
 			builder.Property(x => x.Name).HasColumnName("name");
 			builder.Property(x => x.UserId).HasColumnName("user_id");
 			builder.Property(x => x.IsActive).HasColumnName("is_active");
+			builder.Property(x => x.Kind).HasColumnName("kind");
 			builder.Property(x => x.CreatedAt).HasColumnName("created_at");
 			builder.Property(x => x.UpdatedAt).HasColumnName("updated_at");
 		}

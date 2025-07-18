@@ -14,6 +14,7 @@ namespace DataGEMS.Gateway.App.Query
 		private List<Guid> _userIds { get; set; }
 		private String _like { get; set; }
 		private List<IsActive> _isActive { get; set; }
+		private List<UserCollectionKind> _kind { get; set; }
 		private UserDatasetCollectionQuery _userDatasetCollectionQuery { get; set; }
 		private AuthorizationFlags _authorize { get; set; } = AuthorizationFlags.None;
 
@@ -37,6 +38,8 @@ namespace DataGEMS.Gateway.App.Query
 		public UserCollectionQuery Like(String like) { this._like = like; return this; }
 		public UserCollectionQuery IsActive(IEnumerable<IsActive> isActive) { this._isActive = this.ToList(isActive); return this; }
 		public UserCollectionQuery IsActive(IsActive isActive) { this._isActive = this.ToList(isActive.AsArray()); return this; }
+		public UserCollectionQuery Kind(IEnumerable<UserCollectionKind> kind) { this._kind = this.ToList(kind); return this; }
+		public UserCollectionQuery Kind(UserCollectionKind kind) { this._kind = this.ToList(kind.AsArray()); return this; }
 		public UserCollectionQuery UserDatasetCollectionSubQuery(UserDatasetCollectionQuery subquery) { this._userDatasetCollectionQuery = subquery; return this; }
 		public UserCollectionQuery EnableTracking() { base.NoTracking = false; return this; }
 		public UserCollectionQuery DisableTracking() { base.NoTracking = true; return this; }
@@ -47,7 +50,7 @@ namespace DataGEMS.Gateway.App.Query
 		protected override bool IsFalseQuery()
 		{
 			return this.IsEmpty(this._ids) || this.IsEmpty(this._excludedIds) || this.IsEmpty(this._userIds) || 
-				this.IsEmpty(this._isActive) || this.IsFalseQuery(this._userDatasetCollectionQuery);
+				this.IsEmpty(this._isActive) || this.IsEmpty(this._kind) || this.IsFalseQuery(this._userDatasetCollectionQuery);
 		}
 
 		public async Task<UserCollection> Find(Guid id, Boolean tracked = true)
@@ -83,6 +86,7 @@ namespace DataGEMS.Gateway.App.Query
 			if (this._ids != null) query = query.Where(x => this._ids.Contains(x.Id));
 			if (this._userIds != null) query = query.Where(x => this._userIds.Contains(x.UserId));
 			if (this._isActive != null) query = query.Where(x => this._isActive.Contains(x.IsActive));
+			if (this._kind != null) query = query.Where(x => this._kind.Contains(x.Kind));
 			if (this._excludedIds != null) query = query.Where(x => !this._excludedIds.Contains(x.Id));
 			if (!String.IsNullOrEmpty(this._like)) query = query.Where(x => EF.Functions.ILike(x.Name, this._like));
 			if (this._userDatasetCollectionQuery != null)
@@ -102,6 +106,7 @@ namespace DataGEMS.Gateway.App.Query
 			if (item.Match(nameof(Model.UserCollection.Id))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.Id);
 			else if (item.Match(nameof(Model.UserCollection.Name))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.Name);
 			else if (item.Match(nameof(Model.UserCollection.IsActive))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.IsActive);
+			else if (item.Match(nameof(Model.UserCollection.Kind))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.Kind);
 			else if (item.Match(nameof(Model.UserCollection.User), nameof(Model.UserCollection.User.Id))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.UserId);
 			else if (item.Match(nameof(Model.UserCollection.User), nameof(Model.UserCollection.User.Name))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.User.Name);
 			else if (item.Match(nameof(Model.UserCollection.User), nameof(Model.UserCollection.User.Email))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.User.Email);
@@ -122,6 +127,7 @@ namespace DataGEMS.Gateway.App.Query
 				else if (item.Prefix(nameof(Model.UserCollection.User))) projectionFields.Add(nameof(UserCollection.UserId));
 				else if (item.Prefix(nameof(Model.UserCollection.UserDatasetCollections))) projectionFields.Add(nameof(UserCollection.Id));
 				else if (item.Match(nameof(Model.UserCollection.IsActive))) projectionFields.Add(nameof(UserCollection.IsActive));
+				else if (item.Match(nameof(Model.UserCollection.Kind))) projectionFields.Add(nameof(UserCollection.Kind));
 				else if (item.Match(nameof(Model.UserCollection.CreatedAt))) projectionFields.Add(nameof(UserCollection.CreatedAt));
 				else if (item.Match(nameof(Model.UserCollection.UpdatedAt))) projectionFields.Add(nameof(UserCollection.UpdatedAt));
 				else if (item.Match(nameof(Model.UserCollection.ETag))) projectionFields.Add(nameof(UserCollection.UpdatedAt));

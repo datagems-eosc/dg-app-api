@@ -15,6 +15,7 @@ namespace DataGEMS.Gateway.App.Model
 		public User User { get; set; }
 		public List<UserDatasetCollection> UserDatasetCollections { get; set; }
 		public IsActive? IsActive { get; set; }
+		public UserCollectionKind? Kind { get; set; }
 		public DateTime? CreatedAt { get; set; }
 		public DateTime? UpdatedAt { get; set; }
 		public String ETag { get; set; }

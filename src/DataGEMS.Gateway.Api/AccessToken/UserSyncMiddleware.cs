@@ -1,6 +1,7 @@
 ﻿using Cite.Tools.Auth.Claims;
 using Cite.WebTools.CurrentPrincipal;
 using DataGEMS.Gateway.App.Data;
+using DataGEMS.Gateway.App.Service.UserCollection;
 
 namespace DataGEMS.Gateway.Api.AccessToken
 {
@@ -13,7 +14,7 @@ namespace DataGEMS.Gateway.Api.AccessToken
 			this._next = next;
 		}
 
-		public async Task Invoke(HttpContext context, ILogger<UserSyncMiddleware> logger, AppDbContext dbContext, ICurrentPrincipalResolverService currentPrincipalResolverService, ClaimExtractor extractor)
+		public async Task Invoke(HttpContext context, ILogger<UserSyncMiddleware> logger, AppDbContext dbContext, ICurrentPrincipalResolverService currentPrincipalResolverService, ClaimExtractor extractor, IUserCollectionService userCollectionService)
 		{
 			String idpSubjectId = extractor.SubjectString(currentPrincipalResolverService.CurrentPrincipal());
 			if(String.IsNullOrEmpty(idpSubjectId))
@@ -41,6 +42,8 @@ namespace DataGEMS.Gateway.Api.AccessToken
 				user.UpdatedAt = DateTime.UtcNow;
 				await dbContext.SaveChangesAsync();
 			}
+
+			await userCollectionService.BootstrapFavorites();
 
 			await _next(context);
 		}

@@ -19,6 +19,8 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 		public List<Guid> ExcludedIds { get; set; }
 		[SwaggerSchema(description: "Limit lookup to items that are active, or inactive or both. If set, the list of flags must not be empty")]
 		public List<IsActive> IsActive { get; set; }
+		[SwaggerSchema(description: "Limit lookup to items based on the collection kind. If set, the list of flags must not be empty")]
+		public List<UserCollectionKind> Kind { get; set; }
 		[SwaggerSchema(description: "Limit lookup to items whose name or email matches the pattern")]
 		public String Like { get; set; }
 
@@ -30,6 +32,7 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 			if (this.UserIds != null) query.UserIds(this.UserIds);
 			if (this.ExcludedIds != null) query.ExcludedIds(this.ExcludedIds);
 			if (this.IsActive != null) query.IsActive(this.IsActive);
+			if (this.Kind != null) query.Kind(this.Kind);
 			if (!String.IsNullOrEmpty(this.Like)) query.Like(this.Like);
 
 			this.EnrichCommon(query);
@@ -65,10 +68,14 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 					this.Spec()
 						.Must(() => !item.ExcludedIds.IsNotNullButEmpty())
 						.FailOn(nameof(UserCollectionLookup.ExcludedIds)).FailWith(this._localizer["validation_setButEmpty", nameof(UserCollectionLookup.ExcludedIds)]),
-					//datasetIds must be null or not empty
+					//isactive must be null or not empty
 					this.Spec()
 						.Must(() => !item.IsActive.IsNotNullButEmpty())
 						.FailOn(nameof(UserCollectionLookup.IsActive)).FailWith(this._localizer["validation_setButEmpty", nameof(UserCollectionLookup.IsActive)]),
+					//kiind must be null or not empty
+					this.Spec()
+						.Must(() => !item.Kind.IsNotNullButEmpty())
+						.FailOn(nameof(UserCollectionLookup.Kind)).FailWith(this._localizer["validation_setButEmpty", nameof(UserCollectionLookup.Kind)]),
 					//paging without ordering not supported
 					this.Spec()
 						.If(()=> item.Page != null && !item.Page.IsEmpty)
@@ -106,10 +113,14 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 					this.Spec()
 						.Must(() => !item.ExcludedIds.IsNotNullButEmpty())
 						.FailOn(nameof(UserCollectionLookup.ExcludedIds)).FailWith(this._localizer["validation_setButEmpty", nameof(UserCollectionLookup.ExcludedIds)]),
-					//datasetIds must be null or not empty
+					//isactive must be null or not empty
 					this.Spec()
 						.Must(() => !item.IsActive.IsNotNullButEmpty())
 						.FailOn(nameof(UserCollectionLookup.IsActive)).FailWith(this._localizer["validation_setButEmpty", nameof(UserCollectionLookup.IsActive)]),
+					//kind must be null or not empty
+					this.Spec()
+						.Must(() => !item.Kind.IsNotNullButEmpty())
+						.FailOn(nameof(UserCollectionLookup.Kind)).FailWith(this._localizer["validation_setButEmpty", nameof(UserCollectionLookup.Kind)]),
 					//paging without ordering not supported
 					this.Spec()
 						.If(()=> item.Page != null && !item.Page.IsEmpty)

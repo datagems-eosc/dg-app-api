@@ -49,6 +49,8 @@ namespace DataGEMS.Gateway.App.Model.Builder
 				if (fields.HasField(nameof(UserCollection.ETag))) m.ETag = d.UpdatedAt.ToETag();
 				if (fields.HasField(nameof(UserCollection.Id))) m.Id = d.Id;
 				if (fields.HasField(nameof(UserCollection.Name))) m.Name = d.Name;
+				if (fields.HasField(nameof(UserCollection.IsActive))) m.IsActive = d.IsActive;
+				if (fields.HasField(nameof(UserCollection.Kind))) m.Kind = d.Kind;
 				if (fields.HasField(nameof(UserCollection.CreatedAt))) m.CreatedAt = d.CreatedAt;
 				if (fields.HasField(nameof(UserCollection.UpdatedAt))) m.UpdatedAt = d.UpdatedAt;
 				if (!userDatasetCollectionFields.IsEmpty() && userDatasetCollectionMap != null && userDatasetCollectionMap.ContainsKey(d.Id)) m.UserDatasetCollections = userDatasetCollectionMap[d.Id];

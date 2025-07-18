@@ -94,7 +94,11 @@ namespace DataGEMS.Gateway.Api
 							//service in data exploration
 							.AddJsonFileInPaths("service-in-data-exploration.json", sharedConfigPath, "Configuration")
 							.AddJsonFileInPaths("service-in-data-exploration.override.json", sharedConfigPath, "Configuration")
-							.AddJsonFileInPaths($"service-in-data-exploration.{env.EnvironmentName}.json", sharedConfigPath, "Configuration");
+							.AddJsonFileInPaths($"service-in-data-exploration.{env.EnvironmentName}.json", sharedConfigPath, "Configuration")
+							//user collection
+							.AddJsonFileInPaths("user-collection.json", sharedConfigPath, "Configuration")
+							.AddJsonFileInPaths("user-collection.override.json", sharedConfigPath, "Configuration")
+							.AddJsonFileInPaths($"user-collection.{env.EnvironmentName}.json", sharedConfigPath, "Configuration");
 						config.AddEnvironmentVariables("DG_GW_");
 						config.EnableSubstitutions("%{", "}%");
 					})
