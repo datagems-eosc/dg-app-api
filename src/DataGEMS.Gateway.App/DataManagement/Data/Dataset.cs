@@ -30,7 +30,7 @@ namespace DataGEMS.Gateway.App.DataManagement.Data
 		[MaxLength(50)]
 		public String Version { get; set; }
 
-		[MaxLength(50)]
+		[MaxLength(250)]
 		public String MimeType { get; set; }
 
 		public long? Size { get; set; }
