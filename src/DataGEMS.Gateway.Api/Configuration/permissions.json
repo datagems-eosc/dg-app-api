@@ -180,6 +180,15 @@
 				"Clients": [],
 				"AllowAnonymous": false,
 				"AllowAuthenticated": false
+			},
+			//Vocabulary
+			"BrowseFieldsOfScienceVocabulary": {
+				"Roles": [],
+				"DatasetRoles": [ "browse" ],
+				"Claims": [],
+				"Clients": [],
+				"AllowAnonymous": false,
+				"AllowAuthenticated": true
 			}
 		}
 	}

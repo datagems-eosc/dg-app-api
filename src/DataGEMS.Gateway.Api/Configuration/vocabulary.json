@@ -1,0 +1,261 @@
+{
+  "FieldsOfScience": {
+    "Hierarchy": [
+      {
+        "Ordinal": 0,
+        "Code": "1",
+        "Name": "NATURAL SCIENCES",
+        "Children": [
+          {
+            "Ordinal": 0,
+            "Code": "1.1",
+            "Name": "MATHEMATICS"
+          },
+          {
+            "Ordinal": 1,
+            "Code": "1.2",
+            "Name": "COMPUTER AND INFORMATION SCIENCES"
+          },
+          {
+            "Ordinal": 2,
+            "Code": "1.3",
+            "Name": "PHYSICAL SCIENCES"
+          },
+          {
+            "Ordinal": 3,
+            "Code": "1.4",
+            "Name": "CHEMICAL SCIENCES"
+          },
+          {
+            "Ordinal": 4,
+            "Code": "1.5",
+            "Name": "EARTH AND RELATED ENVIRONMENTAL SCIENCES"
+          },
+          {
+            "Ordinal": 5,
+            "Code": "1.6",
+            "Name": "BIOLOGICAL SCIENCES"
+          },
+          {
+            "Ordinal": 6,
+            "Code": "1.7",
+            "Name": "OTHER NATURAL SCIENCES"
+          }
+        ]
+      },
+      {
+        "Ordinal": 1,
+        "Code": "2",
+        "Name": "ENGINEERING AND TECHNOLOGY",
+        "Children": [
+          {
+            "Ordinal": 0,
+            "Code": "2.1",
+            "Name": "CIVIL ENGINEERING"
+          },
+          {
+            "Ordinal": 1,
+            "Code": "2.2",
+            "Name": "ELECTRICAL ENGINEERING, ELECTRONIC ENGINEERING, INFORMATION ENGINEERING"
+          },
+          {
+            "Ordinal": 2,
+            "Code": "2.3",
+            "Name": "MECHANICAL ENGINEERING"
+          },
+          {
+            "Ordinal": 3,
+            "Code": "2.4",
+            "Name": "CHEMICAL ENGINEERING"
+          },
+          {
+            "Ordinal": 4,
+            "Code": "2.5",
+            "Name": "MATERIALS ENGINEERING"
+          },
+          {
+            "Ordinal": 5,
+            "Code": "2.6",
+            "Name": "MEDICAL ENGINEERING"
+          },
+          {
+            "Ordinal": 6,
+            "Code": "2.7",
+            "Name": "ENVIRONMENTAL ENGINEERING"
+          },
+          {
+            "Ordinal": 7,
+            "Code": "2.8",
+            "Name": "ENVIRONMENTAL BIOTECHNOLOGY"
+          },
+          {
+            "Ordinal": 8,
+            "Code": "2.9",
+            "Name": "INDUSTRIAL BIOTECHNOLOGY"
+          },
+          {
+            "Ordinal": 9,
+            "Code": "2.10",
+            "Name": "NANO-TECHNOLOGY"
+          },
+          {
+            "Ordinal": 10,
+            "Code": "2.11",
+            "Name": "OTHER ENGINEERING AND TECHNOLOGIES"
+          }
+        ]
+      },
+      {
+        "Ordinal": 2,
+        "Code": "3",
+        "Name": "MEDICAL AND HEALTH SCIENCES",
+        "Children": [
+          {
+            "Ordinal": 0,
+            "Code": "3.1",
+            "Name": "BASIC MEDICINE"
+          },
+          {
+            "Ordinal": 1,
+            "Code": "3.2",
+            "Name": "CLINICAL MEDICINE"
+          },
+          {
+            "Ordinal": 2,
+            "Code": "3.3",
+            "Name": "HEALTH SCIENCES"
+          },
+          {
+            "Ordinal": 3,
+            "Code": "3.4",
+            "Name": "HEALTH BIOTECHNOLOGY"
+          },
+          {
+            "Ordinal": 4,
+            "Code": "3.5",
+            "Name": "MATERIALS ENGINEERING"
+          }
+        ]
+      },
+      {
+        "Ordinal": 3,
+        "Code": "4",
+        "Name": "AGRICULTURAL SCIENCES",
+        "Children": [
+          {
+            "Ordinal": 0,
+            "Code": "4.1",
+            "Name": "AGRICULTURE, FORESTRY, AND FISHERIES"
+          },
+          {
+            "Ordinal": 1,
+            "Code": "4.2",
+            "Name": "ANIMAL AND DAIRY SCIENCE"
+          },
+          {
+            "Ordinal": 2,
+            "Code": "4.3",
+            "Name": "VETERINARY SCIENCE"
+          },
+          {
+            "Ordinal": 3,
+            "Code": "4.4",
+            "Name": "AGRICULTURAL BIOTECHNOLOGY"
+          },
+          {
+            "Ordinal": 4,
+            "Code": "4.5",
+            "Name": "OTHER AGRICULTURAL SCIENCES"
+          }
+        ]
+      },
+      {
+        "Ordinal": 4,
+        "Code": "5",
+        "Name": "SOCIAL SCIENCES",
+        "Children": [
+          {
+            "Ordinal": 0,
+            "Code": "5.1",
+            "Name": "PSYCHOLOGY"
+          },
+          {
+            "Ordinal": 1,
+            "Code": "5.2",
+            "Name": "ECONOMICS AND BUSINESS"
+          },
+          {
+            "Ordinal": 2,
+            "Code": "5.3",
+            "Name": "EDUCATIONAL SCIENCES"
+          },
+          {
+            "Ordinal": 3,
+            "Code": "5.4",
+            "Name": "SOCIOLOGY"
+          },
+          {
+            "Ordinal": 4,
+            "Code": "5.5",
+            "Name": "LAW"
+          },
+          {
+            "Ordinal": 5,
+            "Code": "5.6",
+            "Name": "POLITICAL SCIENCE"
+          },
+          {
+            "Ordinal": 6,
+            "Code": "5.7",
+            "Name": "SOCIAL AND ECONOMIC GEOGRAPHY"
+          },
+          {
+            "Ordinal": 7,
+            "Code": "5.8",
+            "Name": "MEDIA AND COMMUNICATIONS"
+          },
+          {
+            "Ordinal": 8,
+            "Code": "5.9",
+            "Name": "OTHER SOCIAL SCIENCES"
+          }
+        ]
+      },
+      {
+        "Ordinal": 5,
+        "Code": "6",
+        "Name": "HUMANITIES",
+        "Children": [
+          {
+            "Ordinal": 0,
+            "Code": "6.1",
+            "Name": "HISTORY AND ARCHAEOLOGY"
+          },
+          {
+            "Ordinal": 1,
+            "Code": "6.2",
+            "Name": "LANGUAGES AND LITERATURE"
+          },
+          {
+            "Ordinal": 2,
+            "Code": "6.3",
+            "Name": "PHILOSOPHY, ETHICS AND RELIGION"
+          },
+          {
+            "Ordinal": 3,
+            "Code": "6.4",
+            "Name": "ART (ARTS, HISTORY OF ARTS, PERFORMING ARTS, MUSIC)"
+          },
+          {
+            "Ordinal": 4,
+            "Code": "6.5",
+            "Name": "OTHER HUMANITIES"
+          }
+        ]
+      }
+    ]
+  },
+  "HttpCache": {
+    "FieldsOfScienceCacheSeconds": 3600
+  }
+}

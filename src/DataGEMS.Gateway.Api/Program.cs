@@ -98,7 +98,11 @@ namespace DataGEMS.Gateway.Api
 							//user collection
 							.AddJsonFileInPaths("user-collection.json", sharedConfigPath, "Configuration")
 							.AddJsonFileInPaths("user-collection.override.json", sharedConfigPath, "Configuration")
-							.AddJsonFileInPaths($"user-collection.{env.EnvironmentName}.json", sharedConfigPath, "Configuration");
+							.AddJsonFileInPaths($"user-collection.{env.EnvironmentName}.json", sharedConfigPath, "Configuration")
+							//vocabulary
+							.AddJsonFileInPaths("vocabulary.json", sharedConfigPath, "Configuration")
+							.AddJsonFileInPaths("vocabulary.override.json", sharedConfigPath, "Configuration")
+							.AddJsonFileInPaths($"vocabulary.{env.EnvironmentName}.json", sharedConfigPath, "Configuration");
 						config.AddEnvironmentVariables("DG_GW_");
 						config.EnableSubstitutions("%{", "}%");
 					})
