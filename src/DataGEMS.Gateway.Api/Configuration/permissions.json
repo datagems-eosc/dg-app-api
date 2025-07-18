@@ -184,7 +184,7 @@
 			//Vocabulary
 			"BrowseFieldsOfScienceVocabulary": {
 				"Roles": [],
-				"DatasetRoles": [ "browse" ],
+				"DatasetRoles": [],
 				"Claims": [],
 				"Clients": [],
 				"AllowAnonymous": false,
