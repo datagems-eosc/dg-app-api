@@ -12,6 +12,7 @@ namespace DataGEMS.Gateway.App.Service.InDataExploration
 	{
 		Task<List<App.Model.InDataGeoQueryExploration>> ExploreGeoQueryAsync(Service.InDataExploration.ExploreGeoQueryInfo request, IFieldSet fieldSet);
 		Task<List<App.Model.InDataTextToSqlExploration>> ExploreTextToSqlAsync(Service.InDataExploration.ExploreTextToSqlInfo request, IFieldSet fieldSet);
+		Task<List<App.Model.InDataSimpleExploreExploration>> ExploreSimpleExploreAsync(Service.InDataExploration.ExploreSimpleExploreInfo question, IFieldSet fieldSet);
 	}
 
 	public class ExploreGeoQueryInfo
@@ -24,8 +25,15 @@ namespace DataGEMS.Gateway.App.Service.InDataExploration
 	public class ExploreTextToSqlInfo
 	{
 		// GOTCHA: Any changes to this model should cause the version to change
-		public static string ModelVersion = "V1";
-		public string Question { get; set; }
+		public static String ModelVersion = "V1";
+		public String Question { get; set; }
 		public Dictionary<string, object> Parameters { get; set; }
+	}
+
+	public class ExploreSimpleExploreInfo
+	{
+		// GOTCHA: Any changes to this model should cause the version to change
+		public static String ModelVersion = "V1";
+		public String Question { get; set; }
 	}
 }

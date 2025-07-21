@@ -12,5 +12,6 @@ namespace DataGEMS.Gateway.App.Service.InDataExploration
 		public String BaseUrl { get; set; }
 		public String GeoQueryEndpoint { get; set; }
 		public String TextToSqlEndpoint { get; set; }
+		public String SimpleExploreEndpoint { get; set; }
 	}
 }

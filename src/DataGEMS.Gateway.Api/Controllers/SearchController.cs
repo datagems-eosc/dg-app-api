@@ -207,6 +207,59 @@ namespace DataGEMS.Gateway.Api.Controllers
 		}
 
 
+		[HttpPost("in-data/explore")]
+		[Authorize]
+		[ModelStateValidationFilter]
+		[ValidationFilter(typeof(InDataExplorationSimpleExploreLookup.InDataExplorationSimpleExploreLookupValidator), "lookup")]
+		[SwaggerOperation(Summary = "Explore")]
+		[SwaggerResponse(statusCode: 200, description: "Matching results", type: typeof(SearchResult<List<App.Model.InDataSimpleExploreExploration>>))]
+		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
+		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
+		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
+		[SwaggerResponse(statusCode: 500, description: "Internal error")]
+		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
+		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
+		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
+		public async Task<SearchResult<List<App.Model.InDataSimpleExploreExploration>>> SimpleExploreAsync(
+			[FromBody]
+			[SwaggerRequestBody(description: "The exploration query", Required = true)]
+			InDataExplorationSimpleExploreLookup lookup)
+		{
+			this._logger.Debug(new MapLogEntry("explore query exploring").And("type", nameof(App.Model.InDataSimpleExploreExploration)).And("lookup", lookup));
+
+			IFieldSet censoredFields = await this._censorFactory.Censor<InDataExplorationSimpleExploreCensor>().Censor(lookup.Project, CensorContext.AsCensor());
+			if (lookup.Project.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+
+			ExploreSimpleExploreInfo request = new ExploreSimpleExploreInfo()
+			{
+				Question = lookup.Query
+			};
+
+			List<App.Model.InDataSimpleExploreExploration> results = await this._inDataExplorationService.ExploreSimpleExploreAsync(request, censoredFields);
+
+			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.InDataExplorationSimpleExplore.AsAccountable());
+
+
+			Guid? conversationId = null;
+			/*Guid? conversationId = await this.UpdateConversation(			//TODO....
+				lookup.ConversationOptions?.ConversationId,
+				lookup.ConversationOptions?.AutoCreateConversation,
+				null,
+				new App.Common.Conversation.InDataGeoQueryConversationEntry()
+				{
+					Version = ExploreGeoQueryInfo.ModelVersion,
+					Payload = request
+				},
+				new App.Common.Conversation.InDataGeoResponseConversationEntry()
+				{
+					Version = App.Model.InDataGeoQueryExploration.ModelVersion,
+					Payload = results
+				});*/
+
+			return new SearchResult<List<App.Model.InDataSimpleExploreExploration>>(conversationId, results);
+		}
+
+
 		private async Task<Guid?> UpdateConversation(Guid? conversationId, Boolean? autoCreateConversation, IEnumerable<Guid> datasetIds, params App.Common.Conversation.ConversationEntry[] entries)
 		{
 			if (!conversationId.HasValue && (!autoCreateConversation.HasValue || (autoCreateConversation.HasValue && !autoCreateConversation.Value))) return null;

@@ -36,6 +36,7 @@ namespace DataGEMS.Gateway.App.Accounting
 		InDataExplorationGeoQuery = 6,
 		InDataExplorationTextToSql = 7,
 		Vocabulary = 8,
+		InDataExplorationSimpleExplore = 9,
 	}
 
 	public class AccountingInfo

@@ -114,6 +114,34 @@ namespace DataGEMS.Gateway.App.Service.InDataExploration
 			}
 		}
 
+		public async Task<List<InDataSimpleExploreExploration>> ExploreSimpleExploreAsync(ExploreSimpleExploreInfo request, IFieldSet fieldSet)
+		{
+			String token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
+			if (token == null)	throw new DGUnderpinningException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
+
+			// Prepare URL
+			string encodedQuestion = Uri.EscapeDataString(request.Question);
+			string url = $"{this._config.BaseUrl}{this._config.SimpleExploreEndpoint}?question={encodedQuestion}";
+
+			HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Get, url);
+			httpRequest.Headers.Add(HeaderNames.Accept, "application/json");
+			httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+			httpRequest.Headers.Add(this._logTrackingCorrelationConfig.HeaderName, this._logCorrelationScope.CorrelationId);
+
+			string content = await this.SendRequest(httpRequest);
+
+			try
+			{
+				Model.ExplorationSimpleExploreResponse rawResponse = this._jsonHandlingService.FromJson<Model.ExplorationSimpleExploreResponse>(content);
+				return await this._builderFactory.Builder<App.Model.Builder.InDataExplorationSimpleExploreBuilder>().Authorize(AuthorizationFlags.Any).Build(fieldSet, new List<Model.ExplorationSimpleExploreResponse> { rawResponse });
+			}
+			catch (System.Exception ex)
+			{
+				this._logger.LogError(ex, "Failed to parse response: {content}", content);
+				throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message);
+			}
+		}
+
 		private async Task<string> SendRequest(HttpRequestMessage request)
 		{
 			HttpResponseMessage response = null;
