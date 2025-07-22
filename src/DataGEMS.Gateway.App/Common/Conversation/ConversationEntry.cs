@@ -8,12 +8,8 @@ namespace DataGEMS.Gateway.App.Common.Conversation
 	[SubTypeConverterAnchor(nameof(ConversationEntry.Kind), typeof(ConversationMessageKind))]
 	[SubTypeConverterMap(ConversationMessageKind.CrossDatasetQuery, typeof(CrossDatasetQueryConversationEntry))]
 	[SubTypeConverterMap(ConversationMessageKind.CrossDatasetResponse, typeof(CrossDatasetResponseConversationEntry))]
-	[SubTypeConverterMap(ConversationMessageKind.InDataGeoQuery, typeof(InDataGeoQueryConversationEntry))]
-	[SubTypeConverterMap(ConversationMessageKind.InDataGeoResponse, typeof(InDataGeoResponseConversationEntry))]
-	[SubTypeConverterMap(ConversationMessageKind.InDataTextToSqlQuery, typeof(InDataTextToSqlQueryConversationEntry))]
-	[SubTypeConverterMap(ConversationMessageKind.InDataTextToSqlResponse, typeof(InDataTextToSqlResponseConversationEntry))]
-	[SubTypeConverterMap(ConversationMessageKind.InDataSimpleExploreQuery, typeof(InDataSimpleExploreQueryConversationEntry))]
-	[SubTypeConverterMap(ConversationMessageKind.InDataSimpleExploreResponse, typeof(InDataSimpleExploreResponseConversationEntry))]
+	[SubTypeConverterMap(ConversationMessageKind.InDataExploreQuery, typeof(InDataExploreQueryConversationEntry))]
+	[SubTypeConverterMap(ConversationMessageKind.InDataExploreResponse, typeof(InDataSimpleExploreResponseConversationEntry))]
 	public abstract class ConversationEntry
 	{
 		public abstract ConversationMessageKind Kind { get; }

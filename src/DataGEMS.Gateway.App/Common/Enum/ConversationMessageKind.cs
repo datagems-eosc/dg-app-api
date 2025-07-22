@@ -9,17 +9,9 @@ namespace DataGEMS.Gateway.App.Common
 		CrossDatasetQuery = 0,
 		[Description("CrossDataset Response")]
 		CrossDatasetResponse = 1,
-		[Description("InDataGeo Query")]
-		InDataGeoQuery = 2,
-		[Description("InDataGeo Response")]
-		InDataGeoResponse = 3,
-		[Description("InDataTextToSql Query")]
-		InDataTextToSqlQuery = 4,
-		[Description("InDataTextToSql Response")]
-		InDataTextToSqlResponse = 5,
-		[Description("InDataSimpleExplore Query")]
-		InDataSimpleExploreQuery = 6,
-		[Description("InDataSimpleExplore Response")]
-		InDataSimpleExploreResponse = 7,
+		[Description("InDataExplore Query")]
+		InDataExploreQuery = 2,
+		[Description("InDataExplore Response")]
+		InDataExploreResponse = 3,
 	}
 }

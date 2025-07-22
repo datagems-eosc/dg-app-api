@@ -102,12 +102,12 @@ namespace DataGEMS.Gateway.Api.Controllers
 			return new SearchResult<List<CrossDatasetDiscovery>>(conversationId, results);
 		}
 
-		[HttpPost("in-data/geo-query")]
+		[HttpPost("in-data-explore")]
 		[Authorize]
 		[ModelStateValidationFilter]
-		[ValidationFilter(typeof(InDataExplorationGeoLookup.InDataExplorationGeoLookupValidator), "lookup")]
-		[SwaggerOperation(Summary = "geospatial-query search")]
-		[SwaggerResponse(statusCode: 200, description: "Matching results", type: typeof(SearchResult<List<App.Model.InDataGeoQueryExploration>>))]
+		[ValidationFilter(typeof(InDataExplorationLookup.InDataExplorationLookupValidator), "lookup")]
+		[SwaggerOperation(Summary = "Explore in selected data")]
+		[SwaggerResponse(statusCode: 200, description: "Matching results", type: typeof(SearchResult<List<App.Model.InDataExplore>>))]
 		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
 		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
 		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
@@ -115,147 +115,43 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
 		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
 		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
-		public async Task<SearchResult<List<App.Model.InDataGeoQueryExploration>>> GeospatialQueryAsync(
+		public async Task<SearchResult<App.Model.InDataExplore>> SimpleExploreAsync(
 			[FromBody]
 			[SwaggerRequestBody(description: "The exploration query", Required = true)]
-			InDataExplorationGeoLookup lookup)
+			InDataExplorationLookup lookup)
 		{
-			this._logger.Debug(new MapLogEntry("geospatial query exploring").And("type", nameof(App.Model.InDataGeoQueryExploration)).And("lookup", lookup));
+			this._logger.Debug(new MapLogEntry("explore query exploring").And("type", nameof(App.Model.InDataExplore)).And("lookup", lookup));
 
-			IFieldSet censoredFields = await this._censorFactory.Censor<InDataExplorationGeoCensor>().Censor(lookup.Project, CensorContext.AsCensor());
+			IFieldSet censoredFields = await this._censorFactory.Censor<InDataExplorationCensor>().Censor(lookup.Project, CensorContext.AsCensor());
 			if (lookup.Project.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
 
-			ExploreGeoQueryInfo request = new ExploreGeoQueryInfo()
-			{
-				Question = lookup.Query
-			};
-
-			List<App.Model.InDataGeoQueryExploration> results = await this._inDataExplorationService.ExploreGeoQueryAsync(request, censoredFields);
-
-			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.InDataExplorationGeoQuery.AsAccountable());
-
-			Guid? conversationId = await this.UpdateConversation(
-				lookup.ConversationOptions?.ConversationId,
-				lookup.ConversationOptions?.AutoCreateConversation,
-				null,
-				new App.Common.Conversation.InDataGeoQueryConversationEntry()
-				{
-					Version = ExploreGeoQueryInfo.ModelVersion,
-					Payload = request
-				},
-				new App.Common.Conversation.InDataGeoResponseConversationEntry()
-				{
-					Version = App.Model.InDataGeoQueryExploration.ModelVersion,
-					Payload = results
-				});
-
-			return new SearchResult<List<App.Model.InDataGeoQueryExploration>>(conversationId, results);
-		}
-
-
-		[HttpPost("in-data/text-to-sql")]
-		[Authorize]
-		[ModelStateValidationFilter]
-		[ValidationFilter(typeof(InDataExplorationSqlLookup.InDataExplorationTextToSqlLookupValidator), "lookup")]
-		[SwaggerOperation(Summary = "Text to SQL exploration")]
-		[SwaggerResponse(statusCode: 200, description: "Matching results", type: typeof(SearchResult<List<App.Model.InDataTextToSqlExploration>>))]
-		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
-		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
-		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
-		[SwaggerResponse(statusCode: 500, description: "Internal error")]
-		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
-		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
-		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
-		public async Task<SearchResult<List<App.Model.InDataTextToSqlExploration>>> TextToSqlAsync(
-			[FromBody]
-			[SwaggerRequestBody(description: "The exploration query", Required = true)]
-			InDataExplorationSqlLookup lookup)
-		{
-			this._logger.Debug(new MapLogEntry("text-to-sql exploring").And("type", nameof(App.Model.InDataTextToSqlExploration)).And("lookup", lookup));
-
-			IFieldSet censoredFields = await this._censorFactory.Censor<InDataExplorationSqlCensor>().Censor(lookup.Project, CensorContext.AsCensor());
-			if (lookup.Project.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
-
-			ExploreTextToSqlInfo request = new ExploreTextToSqlInfo()
+			ExploreInfo request = new ExploreInfo()
 			{
 				Question = lookup.Query,
-				Parameters = lookup.Parameters
+				DatasetIds = lookup.DatasetIds,
 			};
 
-			List<App.Model.InDataTextToSqlExploration> results = await this._inDataExplorationService.ExploreTextToSqlAsync(request, censoredFields);
+			App.Model.InDataExplore results = await this._inDataExplorationService.ExploreAsync(request, censoredFields);
 
-			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.InDataExplorationTextToSql.AsAccountable());
-
+			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.InDataExploration.AsAccountable());
 
 
 			Guid? conversationId = await this.UpdateConversation(
 				lookup.ConversationOptions?.ConversationId,
 				lookup.ConversationOptions?.AutoCreateConversation,
 				null,
-				new App.Common.Conversation.InDataTextToSqlQueryConversationEntry()
+				new App.Common.Conversation.InDataExploreQueryConversationEntry()
 				{
-					Version = ExploreTextToSqlInfo.ModelVersion,
-					Payload = request
-				},
-				new App.Common.Conversation.InDataTextToSqlResponseConversationEntry()
-				{
-					Version = App.Model.InDataTextToSqlExploration.ModelVersion,
-					Payload = results
-				});
-
-			return new SearchResult<List<App.Model.InDataTextToSqlExploration>>(conversationId, results);
-		}
-
-
-		[HttpPost("in-data/explore")]
-		[Authorize]
-		[ModelStateValidationFilter]
-		[ValidationFilter(typeof(InDataExplorationSimpleExploreLookup.InDataExplorationSimpleExploreLookupValidator), "lookup")]
-		[SwaggerOperation(Summary = "Explore")]
-		[SwaggerResponse(statusCode: 200, description: "Matching results", type: typeof(SearchResult<List<App.Model.InDataSimpleExploreExploration>>))]
-		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
-		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
-		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
-		[SwaggerResponse(statusCode: 500, description: "Internal error")]
-		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
-		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
-		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
-		public async Task<SearchResult<List<App.Model.InDataSimpleExploreExploration>>> SimpleExploreAsync(
-			[FromBody]
-			[SwaggerRequestBody(description: "The exploration query", Required = true)]
-			InDataExplorationSimpleExploreLookup lookup)
-		{
-			this._logger.Debug(new MapLogEntry("explore query exploring").And("type", nameof(App.Model.InDataSimpleExploreExploration)).And("lookup", lookup));
-
-			IFieldSet censoredFields = await this._censorFactory.Censor<InDataExplorationSimpleExploreCensor>().Censor(lookup.Project, CensorContext.AsCensor());
-			if (lookup.Project.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
-
-			ExploreSimpleExploreInfo request = new ExploreSimpleExploreInfo()
-			{
-				Question = lookup.Query
-			};
-
-			List<App.Model.InDataSimpleExploreExploration> results = await this._inDataExplorationService.ExploreSimpleExploreAsync(request, censoredFields);
-
-			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.InDataExplorationSimpleExplore.AsAccountable());
-
-
-			Guid? conversationId = await this.UpdateConversation(
-				lookup.ConversationOptions?.ConversationId,
-				lookup.ConversationOptions?.AutoCreateConversation,
-				null,
-				new App.Common.Conversation.InDataSimpleExploreQueryConversationEntry()
-				{
-					Version = ExploreSimpleExploreInfo.ModelVersion,
+					Version = ExploreInfo.ModelVersion,
 					Payload = request
 				},
 				new App.Common.Conversation.InDataSimpleExploreResponseConversationEntry()
 				{
-					Version = App.Model.InDataSimpleExploreExploration.ModelVersion,
+					Version = App.Model.InDataExplore.ModelVersion,
 					Payload = results
 				});
 
-			return new SearchResult<List<App.Model.InDataSimpleExploreExploration>>(conversationId, results);
+			return new SearchResult<App.Model.InDataExplore>(conversationId, results);
 		}
 
 

@@ -95,6 +95,15 @@
 				"AllowAnonymous": false,
 				"AllowAuthenticated": false
 			},
+			//InDataExploration
+			"CanExecuteInDataExploration": {
+				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_user" ],
+				"DatasetRoles": [],
+				"Claims": [],
+				"Clients": [],
+				"AllowAnonymous": false,
+				"AllowAuthenticated": false
+			},
 			//Dataset
 			"BrowseDataset": {
 				"Roles": [ "GLOBAL_dg_admin" ],
@@ -108,15 +117,6 @@
 			"BrowseDatasetCollection": {
 				"Roles": [ "GLOBAL_dg_admin" ],
 				"DatasetRoles": [ "browse" ],
-				"Claims": [],
-				"Clients": [],
-				"AllowAnonymous": false,
-				"AllowAuthenticated": false
-			},
-			//InDataExploration
-			"CanExplore": {
-				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_user" ],
-				"DatasetRoles": [],
 				"Claims": [],
 				"Clients": [],
 				"AllowAnonymous": false,

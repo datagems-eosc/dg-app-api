@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-
 namespace DataGEMS.Gateway.App.Service.InDataExploration
 {
 	public static class Extensions

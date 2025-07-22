@@ -64,14 +64,13 @@ namespace DataGEMS.Gateway.App.Service.Discovery
 				ResultCount = request.ResultCount ?? this._config.DefaultResultCount
 			};
 
-			HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, $"{this._config.BaseUrl}")
+			HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, $"{this._config.BaseUrl}{this._config.SearchEndpoint}")
 			{
 				Content = new StringContent(this._jsonHandlingService.ToJson(httpRequestModel), Encoding.UTF8, "application/json")
 			};
 			httpRequest.Headers.Add(HeaderNames.Accept, "application/json");
 			httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 			httpRequest.Headers.Add(this._logTrackingCorrelationConfig.HeaderName, this._logCorrelationScope.CorrelationId);
-
 
 			String content = await this.SendRequest(httpRequest);
 			try

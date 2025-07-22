@@ -19,12 +19,12 @@ namespace DataGEMS.Gateway.App.Authorization
 		public const String DeleteConversationMessage = "DeleteConversationMessage";
 		//CrossDatasetDiscovery
 		public const String CanExecuteCrossDatasetDiscovery = "CanExecuteCrossDatasetDiscovery";
+		//InDataExploration
+		public const String CanExecuteInDataExploration = "CanExecuteInDataExploration";
 		//Dataset
 		public const String BrowseDataset = "BrowseDataset";
 		//DatasetCollection
 		public const String BrowseDatasetCollection = "BrowseDatasetCollection";
-		//InDataExploration
-		public const String CanExplore = "CanExplore";
 		//User
 		public const String BrowseUser = "BrowseUser";
 		//UserCollection
