@@ -17,5 +17,9 @@ namespace DataGEMS.Gateway.App.Common
 		InDataTextToSqlQuery = 4,
 		[Description("InDataTextToSql Response")]
 		InDataTextToSqlResponse = 5,
+		[Description("InDataSimpleExplore Query")]
+		InDataSimpleExploreQuery = 6,
+		[Description("InDataSimpleExplore Response")]
+		InDataSimpleExploreResponse = 7,
 	}
 }

@@ -1,9 +1,4 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DataGEMS.Gateway.App.Service.InDataExploration.Model
 {
@@ -16,7 +11,7 @@ namespace DataGEMS.Gateway.App.Service.InDataExploration.Model
 		public String SqlPattern { get; set; }
 
 		[JsonProperty("input_params")]
-		public List<SimpleQueryInputParam> InputParams { get; set; }
+		public List<SimpleExploreInputParam> InputParams { get; set; }
 
 		[JsonProperty("reasoning")]
 		public String Reasoning { get; set; }
@@ -25,10 +20,10 @@ namespace DataGEMS.Gateway.App.Service.InDataExploration.Model
 		public String SqlQuery { get; set; }
 
 		[JsonProperty("sql_results")]
-		public SimpleQuerySqlResults SqlResults { get; set; }
+		public SimpleExploreSqlResults SqlResults { get; set; }
 	}
 
-	public class SimpleQueryInputParam
+	public class SimpleExploreInputParam
 	{
 		[JsonProperty("lon")]
 		public decimal Lon { get; set; }
@@ -37,7 +32,7 @@ namespace DataGEMS.Gateway.App.Service.InDataExploration.Model
 		public decimal Lat { get; set; }
 	}
 
-	public class SimpleQuerySqlResults
+	public class SimpleExploreSqlResults
 	{
 		[JsonProperty("status")]
 		public String Status { get; set; }

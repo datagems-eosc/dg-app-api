@@ -47,13 +47,13 @@ namespace DataGEMS.Gateway.App.Model.Builder
 				if (fields.HasField(nameof(InDataSimpleExploreExploration.SqlPattern))) m.SqlPattern = d.SqlPattern;
 				if (fields.HasField(nameof(InDataSimpleExploreExploration.InputParams)) && d.InputParams != null)
 				{
-					m.InputParams = d.InputParams.Select(p => new SimpleQueryInputParam{Lon = p.Lon, Lat = p.Lat}).ToList();
+					m.InputParams = d.InputParams.Select(p => new SimpleExploreInputParam{Lon = p.Lon, Lat = p.Lat}).ToList();
 				}
 				if (fields.HasField(nameof(InDataSimpleExploreExploration.Reasoning))) m.Reasoning = d.Reasoning;
 				if (fields.HasField(nameof(InDataSimpleExploreExploration.SqlQuery))) m.SqlQuery = d.SqlQuery;
 				if (fields.HasField(nameof(InDataSimpleExploreExploration.SqlResults)) && d.SqlResults != null)
 				{
-					m.SqlResults = new SimpleQuerySqlResults
+					m.SqlResults = new SimpleExploreSqlResults
 					{
 						Status = d.SqlResults.Status,
 						Data = d.SqlResults.Data != null ? new List<Dictionary<string, object>>(d.SqlResults.Data) : null

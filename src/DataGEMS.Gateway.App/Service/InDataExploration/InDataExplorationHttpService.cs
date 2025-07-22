@@ -119,7 +119,7 @@ namespace DataGEMS.Gateway.App.Service.InDataExploration
 			String token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
 			if (token == null)	throw new DGUnderpinningException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
 
-			// Prepare URL
+
 			string encodedQuestion = Uri.EscapeDataString(request.Question);
 			string url = $"{this._config.BaseUrl}{this._config.SimpleExploreEndpoint}?question={encodedQuestion}";
 

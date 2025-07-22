@@ -12,7 +12,7 @@ namespace DataGEMS.Gateway.App.Service.InDataExploration
 	{
 		Task<List<App.Model.InDataGeoQueryExploration>> ExploreGeoQueryAsync(Service.InDataExploration.ExploreGeoQueryInfo request, IFieldSet fieldSet);
 		Task<List<App.Model.InDataTextToSqlExploration>> ExploreTextToSqlAsync(Service.InDataExploration.ExploreTextToSqlInfo request, IFieldSet fieldSet);
-		Task<List<App.Model.InDataSimpleExploreExploration>> ExploreSimpleExploreAsync(Service.InDataExploration.ExploreSimpleExploreInfo question, IFieldSet fieldSet);
+		Task<List<App.Model.InDataSimpleExploreExploration>> ExploreSimpleExploreAsync(Service.InDataExploration.ExploreSimpleExploreInfo request, IFieldSet fieldSet);
 	}
 
 	public class ExploreGeoQueryInfo

@@ -240,21 +240,20 @@ namespace DataGEMS.Gateway.Api.Controllers
 			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.InDataExplorationSimpleExplore.AsAccountable());
 
 
-			Guid? conversationId = null;
-			/*Guid? conversationId = await this.UpdateConversation(			//TODO....
+			Guid? conversationId = await this.UpdateConversation(
 				lookup.ConversationOptions?.ConversationId,
 				lookup.ConversationOptions?.AutoCreateConversation,
 				null,
-				new App.Common.Conversation.InDataGeoQueryConversationEntry()
+				new App.Common.Conversation.InDataSimpleExploreQueryConversationEntry()
 				{
-					Version = ExploreGeoQueryInfo.ModelVersion,
+					Version = ExploreSimpleExploreInfo.ModelVersion,
 					Payload = request
 				},
-				new App.Common.Conversation.InDataGeoResponseConversationEntry()
+				new App.Common.Conversation.InDataSimpleExploreResponseConversationEntry()
 				{
-					Version = App.Model.InDataGeoQueryExploration.ModelVersion,
+					Version = App.Model.InDataSimpleExploreExploration.ModelVersion,
 					Payload = results
-				});*/
+				});
 
 			return new SearchResult<List<App.Model.InDataSimpleExploreExploration>>(conversationId, results);
 		}

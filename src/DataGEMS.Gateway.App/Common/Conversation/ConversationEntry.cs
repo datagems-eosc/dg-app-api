@@ -12,6 +12,8 @@ namespace DataGEMS.Gateway.App.Common.Conversation
 	[SubTypeConverterMap(ConversationMessageKind.InDataGeoResponse, typeof(InDataGeoResponseConversationEntry))]
 	[SubTypeConverterMap(ConversationMessageKind.InDataTextToSqlQuery, typeof(InDataTextToSqlQueryConversationEntry))]
 	[SubTypeConverterMap(ConversationMessageKind.InDataTextToSqlResponse, typeof(InDataTextToSqlResponseConversationEntry))]
+	[SubTypeConverterMap(ConversationMessageKind.InDataSimpleExploreQuery, typeof(InDataSimpleExploreQueryConversationEntry))]
+	[SubTypeConverterMap(ConversationMessageKind.InDataSimpleExploreResponse, typeof(InDataSimpleExploreResponseConversationEntry))]
 	public abstract class ConversationEntry
 	{
 		public abstract ConversationMessageKind Kind { get; }

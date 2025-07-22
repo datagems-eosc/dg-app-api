@@ -13,20 +13,20 @@ namespace DataGEMS.Gateway.App.Model
 
 		public String Question { get; set; }
 		public String SqlPattern { get; set; }
-		public List<SimpleQueryInputParam> InputParams { get; set; }
+		public List<SimpleExploreInputParam> InputParams { get; set; }
 		public String Reasoning { get; set; }
 		public String SqlQuery { get; set; }
-		public SimpleQuerySqlResults SqlResults { get; set; }
+		public SimpleExploreSqlResults SqlResults { get; set; }
 	}
 
-	public class SimpleQueryInputParam
+	public class SimpleExploreInputParam
 	{
 		public decimal Lon { get; set; }
 
 		public decimal Lat { get; set; }
 	}
 
-	public class SimpleQuerySqlResults
+	public class SimpleExploreSqlResults
 	{
 		public String Status { get; set; }
 
