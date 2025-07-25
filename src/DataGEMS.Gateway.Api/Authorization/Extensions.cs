@@ -36,6 +36,7 @@ namespace DataGEMS.Gateway.Api.Authorization
                 jwtOptions.RequireHttpsMetadata = idpClientConfig.RequireHttps;
                 jwtOptions.TokenValidationParameters = new TokenValidationParameters
                 {
+                    ClockSkew = TimeSpan.Zero,
                     ValidateIssuer = idpClientConfig.ValidateIssuer,
                     ValidateAudience = idpClientConfig.ValidateAudience,
                     ValidateIssuerSigningKey = idpClientConfig.ValidateIssuerSigningKey

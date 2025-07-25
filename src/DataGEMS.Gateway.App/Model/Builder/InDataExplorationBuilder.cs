@@ -59,10 +59,9 @@ namespace DataGEMS.Gateway.App.Model.Builder
 		private InDataExploreResultEntry BuildResultEntry(Service.InDataExploration.Model.InDataExplorationResponse item)
 		{
 			Boolean isSuccess = item?.SqlResults?.Status.Equals("success", StringComparison.OrdinalIgnoreCase) ?? false;
-			if (!isSuccess) return new InDataExploreResultNoneEntry();
-			if(item.SqlResults.Data == null || item.SqlResults.Data.Count == 0) return new InDataExploreResultNoneEntry();
+			if (!isSuccess || item.SqlResults.Data == null || item.SqlResults.Data.Count == 0) return new InDataExploreResultNoneEntry() { Message = item?.SqlResults?.Message };
 
-			InDataExploreResultTableEntry table = new InDataExploreResultTableEntry() { Table = new InDataExploreResultTableEntry.TableInfo() };
+			InDataExploreResultTableEntry table = new InDataExploreResultTableEntry() { Message = item.SqlResults.Message, Table = new InDataExploreResultTableEntry.TableInfo() };
 
 			int columnCounter = 0;
 			table.Table.Columns = item.SqlResults.Data.SelectMany(x => x.Keys).Distinct().Select(x => new InDataExploreResultTableEntry.TableInfo.Column() { ColumnNumber = columnCounter++, Name = x }).ToList();

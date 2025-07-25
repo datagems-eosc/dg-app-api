@@ -37,6 +37,9 @@ namespace DataGEMS.Gateway.App.Service.InDataExploration.Model
 			[JsonProperty("status")]
 			public String Status { get; set; }
 
+			[JsonProperty("message")]
+			public String Message { get; set; }
+
 			[JsonProperty("data")]
 			public List<Dictionary<string, object>> Data { get; set; }
 		}

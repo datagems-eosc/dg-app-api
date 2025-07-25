@@ -28,6 +28,7 @@ namespace DataGEMS.Gateway.App.Service.Conversation
 		private readonly IAuthorizationService _authorizationService;
 		private readonly IAuthorizationContentResolver _authorizationContentResolver;
 		private readonly ILogger<ConversationService> _logger;
+		private readonly ConversationConfig _config;
 		private readonly ErrorThesaurus _errors;
 		private readonly EventBroker _eventBroker;
 		private readonly JsonHandlingService _jsonHandlingService;
@@ -38,6 +39,7 @@ namespace DataGEMS.Gateway.App.Service.Conversation
 			BuilderFactory builderFactory,
 			DeleterFactory deleterFactory,
 			QueryFactory queryFactory,
+			ConversationConfig config,
 			IConversationDatasetService conversationDatasetService,
 			IAuthorizationService authorizationService,
 			IAuthorizationContentResolver authorizationContentResolver,
@@ -51,6 +53,7 @@ namespace DataGEMS.Gateway.App.Service.Conversation
 			this._builderFactory = builderFactory;
 			this._deleterFactory = deleterFactory;
 			this._queryFactory = queryFactory;
+			this._config = config;
 			this._conversationDatasetService = conversationDatasetService;
 			this._authorizationService = authorizationService;
 			this._authorizationContentResolver = authorizationContentResolver;
@@ -292,6 +295,24 @@ namespace DataGEMS.Gateway.App.Service.Conversation
 				ETag = data.UpdatedAt.ToETag(),
 				ConversationDatasets = datasetPersistModels
 			});
+		}
+
+		private static int NameMaxLength = typeof(Data.Conversation).MaxLengthOf(nameof(Data.Conversation.Name));
+		public Task<String> GenerateConversationName(Guid? conversationId, String currentQuery)
+		{
+			String name = null;
+			switch (this._config.TopicKind)
+			{
+				case ConversationConfig.ConversationTopicKind.CurrentQuery: { name = currentQuery; break; }
+				case ConversationConfig.ConversationTopicKind.Date:
+				default: { name = DateTime.UtcNow.ToString("yyyy-MM-dd h:mm tt"); break; }
+			}
+
+			if (String.IsNullOrEmpty(name)) return Task.FromResult(name);
+
+			if (name.Length > ConversationService.NameMaxLength) name = $"{name.Substring(0, ConversationService.NameMaxLength - 3)}...";
+
+			return Task.FromResult(name);
 		}
 
 		public async Task DeleteAsync(Guid id)

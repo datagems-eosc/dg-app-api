@@ -94,6 +94,7 @@ namespace DataGEMS.Gateway.App.Model
 		}
 
 		public abstract InDataExploreResultKind Kind { get; }
+		public String Message { get; set; }
 	}
 
 	public class InDataExploreResultNoneEntry : InDataExploreResultEntry

@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <_ContentIncludedByDefault Remove="Configuration\conversation.json" />
     <_ContentIncludedByDefault Remove="Configuration\log-tracking.json" />
   </ItemGroup>
 

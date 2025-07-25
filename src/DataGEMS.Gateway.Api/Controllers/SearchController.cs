@@ -87,6 +87,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			Guid? conversationId = await this.UpdateConversation(
 				lookup.ConversationOptions?.ConversationId,
 				lookup.ConversationOptions?.AutoCreateConversation,
+				lookup.Query,
 				null,
 				new App.Common.Conversation.CrossDatasetQueryConversationEntry()
 				{
@@ -139,6 +140,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			Guid? conversationId = await this.UpdateConversation(
 				lookup.ConversationOptions?.ConversationId,
 				lookup.ConversationOptions?.AutoCreateConversation,
+				lookup.Query,
 				null,
 				new App.Common.Conversation.InDataExploreQueryConversationEntry()
 				{
@@ -155,13 +157,14 @@ namespace DataGEMS.Gateway.Api.Controllers
 		}
 
 
-		private async Task<Guid?> UpdateConversation(Guid? conversationId, Boolean? autoCreateConversation, IEnumerable<Guid> datasetIds, params App.Common.Conversation.ConversationEntry[] entries)
+		private async Task<Guid?> UpdateConversation(Guid? conversationId, Boolean? autoCreateConversation, String currentQuery, IEnumerable<Guid> datasetIds, params App.Common.Conversation.ConversationEntry[] entries)
 		{
 			if (!conversationId.HasValue && (!autoCreateConversation.HasValue || (autoCreateConversation.HasValue && !autoCreateConversation.Value))) return null;
 
 			if (!conversationId.HasValue)
 			{
-				Conversation model = await this._conversationService.PersistAsync(new ConversationPersist() { Name = DateTime.UtcNow.ToString("yyyy-MM-dd h:mm tt") }, new FieldSet(nameof(Conversation.Id)));
+				String conversationName = await this._conversationService.GenerateConversationName(conversationId, currentQuery);
+				Conversation model = await this._conversationService.PersistAsync(new ConversationPersist() { Name = conversationName }, new FieldSet(nameof(Conversation.Id)));
 				if (model.Id.HasValue) conversationId = model.Id.Value;
 			}
 			if (!conversationId.HasValue) return null;

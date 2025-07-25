@@ -27,6 +27,10 @@ namespace DataGEMS.Gateway.Api
 							.AddJsonFileInPaths("cache.json", sharedConfigPath, "Configuration")
 							.AddJsonFileInPaths("cache.override.json", sharedConfigPath, "Configuration")
 							.AddJsonFileInPaths($"cache.{env.EnvironmentName}.json", sharedConfigPath, "Configuration")
+							//conversation
+							.AddJsonFileInPaths("conversation.json", sharedConfigPath, "Configuration")
+							.AddJsonFileInPaths("conversation.override.json", sharedConfigPath, "Configuration")
+							.AddJsonFileInPaths($"conversation.{env.EnvironmentName}.json", sharedConfigPath, "Configuration")
 							//cors
 							.AddJsonFileInPaths("cors.json", sharedConfigPath, "Configuration")
 							.AddJsonFileInPaths("cors.override.json", sharedConfigPath, "Configuration")
