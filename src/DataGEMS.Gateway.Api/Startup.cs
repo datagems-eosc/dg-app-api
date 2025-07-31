@@ -35,6 +35,7 @@ using DataGEMS.Gateway.App.Service.Conversation;
 using DataGEMS.Gateway.App.Service.Discovery;
 using DataGEMS.Gateway.App.Service.InDataExploration;
 using DataGEMS.Gateway.App.Service.Vocabulary;
+using DataGEMS.Gateway.App.Service.Airflow;
 
 namespace DataGEMS.Gateway.Api
 {
@@ -94,6 +95,7 @@ namespace DataGEMS.Gateway.Api
 				.AddConversationServices(this._config.GetSection("Conversation"))
 				.AddScoped<IConversationDatasetService, ConversationDatasetService>()
 				.AddVocabularyServices(this._config.GetSection("Vocabulary:FieldsOfScience"))
+				.AddScoped<IAirflowService, AirflowService>()
 			;
 
 
