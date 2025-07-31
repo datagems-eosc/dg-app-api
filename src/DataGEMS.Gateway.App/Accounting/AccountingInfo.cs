@@ -35,6 +35,7 @@ namespace DataGEMS.Gateway.App.Accounting
 		CrossDatasetDiscovery = 5,
 		Vocabulary = 6,
 		InDataExploration = 7,
+		Workflow = 8,
 	}
 
 	public class AccountingInfo

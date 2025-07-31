@@ -189,6 +189,15 @@
 				"Clients": [],
 				"AllowAnonymous": false,
 				"AllowAuthenticated": true
+			},
+			//WorkflowDefinition
+			"BrowseWorkflowDefinition": {
+				"Roles": [ "GLOBAL_dg_admin" ],
+				"DatasetRoles": [],
+				"Claims": [],
+				"Clients": [],
+				"AllowAnonymous": false,
+				"AllowAuthenticated": false
 			}
 		}
 	}

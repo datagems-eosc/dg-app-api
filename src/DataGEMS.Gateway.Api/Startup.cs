@@ -86,7 +86,8 @@ namespace DataGEMS.Gateway.Api
 			services
 				.AddDataManagementServices(this._config.GetSection("DataManagementService:Http"), this._config.GetSection("DataManagementService:Local")) //Data Management API
 				.AddCrossDatasetDiscoveryServices(this._config.GetSection("CrossDatasetDiscoveryService")) //Cross Dataset Discovery API
-				.AddInDataExplorationServices(this._config.GetSection("InDataExplorationService"))	//In Data Exploration API
+				.AddInDataExplorationServices(this._config.GetSection("InDataExplorationService"))  //In Data Exploration API
+				.AddAirflowServices(this._config.GetSection("AirflowService")) //Airflow
 			;
 
 			services
@@ -95,7 +96,6 @@ namespace DataGEMS.Gateway.Api
 				.AddConversationServices(this._config.GetSection("Conversation"))
 				.AddScoped<IConversationDatasetService, ConversationDatasetService>()
 				.AddVocabularyServices(this._config.GetSection("Vocabulary:FieldsOfScience"))
-				.AddScoped<IAirflowService, AirflowService>()
 			;
 
 

@@ -1,0 +1,10 @@
+{
+	"AirflowService": {
+		"BaseUrl": "%{AirflowBaseUrl}%",
+		"TokenEndpoint": "auth/token",
+		"DagListEndpoint": "api/v2/dags",
+		"DagByIdEndpoint": "api/v2/dags/{id}",
+		"Username": "%{AirflowUsername}%",
+		"Password": "%{AirflowPassword}%"
+	}
+}

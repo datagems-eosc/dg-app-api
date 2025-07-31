@@ -37,5 +37,7 @@ namespace DataGEMS.Gateway.App.Authorization
 		public const String DeleteUserDatasetCollection = "DeleteUserDatasetCollection";
 		//Vocabulary
 		public const String BrowseFieldsOfScienceVocabulary = "BrowseFieldsOfScienceVocabulary";
+		//WorkflowDefinition
+		public const String BrowseWorkflowDefinition = "BrowseWorkflowDefinition";
 	}
 }
