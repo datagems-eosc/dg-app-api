@@ -3,6 +3,7 @@ using Cite.Tools.Logging.Extensions;
 using DataGEMS.Gateway.App.Accounting;
 using DataGEMS.Gateway.App.Authorization;
 using DataGEMS.Gateway.App.ErrorCode;
+using DataGEMS.Gateway.App.Service.Vocabulary;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -19,6 +20,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		private readonly IAccountingService _accountingService;
 		private readonly App.Service.Vocabulary.FieldsOfScienceVocabulary _fieldsOfScienceVocabulary;
 		private readonly IConfiguration _configuration;
+		private readonly App.Service.Vocabulary.LicenseVocabulary _licenseVocabulary;
 
 		public VocabularyController(
 			ILogger<ConversationController> logger,
@@ -26,7 +28,8 @@ namespace DataGEMS.Gateway.Api.Controllers
 			App.Service.Vocabulary.FieldsOfScienceVocabulary fieldsOfScienceVocabulary,
 			IAccountingService accountingService,
 			ErrorThesaurus errors,
-			IConfiguration configuration)
+			IConfiguration configuration,
+			App.Service.Vocabulary.LicenseVocabulary licenseVocabulary)
 		{
 			this._logger = logger;
 			this._authorizationService = authorizationService;
@@ -34,6 +37,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			this._accountingService = accountingService;
 			this._errors = errors;
 			this._configuration = configuration;
+			this._licenseVocabulary = licenseVocabulary;
 		}
 
 		[HttpGet("fields-of-science")]
@@ -54,6 +58,35 @@ namespace DataGEMS.Gateway.Api.Controllers
 			this._accountingService.AccountFor(KnownActions.Query, KnownResources.Vocabulary.AsAccountable());
 
 			return this._fieldsOfScienceVocabulary;
+		}
+
+		[HttpGet("license")]
+		[Authorize]
+		[SwaggerOperation(Summary = " Returns the license vocabulary")]
+		[SwaggerResponse(statusCode: 200, description: "Successfully retrieved the license vocabulary", type: typeof(App.Service.Vocabulary.LicenseVocabulary))]
+		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
+		[SwaggerResponse(statusCode: 403, description: "The user does not have permission to access this resource")]
+		[SwaggerResponse(statusCode: 500, description: "Internal error")]
+		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
+		[ResponseCache(VaryByHeader = " User-Agent", Duration = 3600, Location = ResponseCacheLocation.Client)]
+		public async Task<App.Service.Vocabulary.LicenseVocabulary> GetLicenceVocabulary([FromQuery(Name = "like")] string like)
+		{
+			this._logger.Debug(new MapLogEntry("get").And("type", nameof(App.Service.Vocabulary.LicenseVocabulary)));
+
+			await this._authorizationService.AuthorizeForce(Permission.BrowseLicenseVocabulary);
+
+			App.Service.Vocabulary.LicenseVocabulary model = this._licenseVocabulary;
+			if (!String.IsNullOrEmpty(like))
+			{
+				List<LicenseVocabulary.License> filtered = this._licenseVocabulary?.Licenses?.Where(x =>
+					(x.Name?.Contains(like, StringComparison.OrdinalIgnoreCase) ?? false) ||
+					(x.Code?.Contains(like, StringComparison.OrdinalIgnoreCase) ?? false))?.ToList();
+				model = new LicenseVocabulary() { Licenses = filtered };
+			}
+
+			this._accountingService.AccountFor(KnownActions.Query, KnownResources.Vocabulary.AsAccountable());
+
+			return model;
 		}
 	}
 }

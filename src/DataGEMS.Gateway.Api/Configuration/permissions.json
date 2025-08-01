@@ -190,6 +190,14 @@
 				"AllowAnonymous": false,
 				"AllowAuthenticated": true
 			},
+			"BrowseLicenseVocabulary": {
+				"Roles": [],
+				"DatasetRoles": [],
+				"Claims": [],
+				"Clients": [],
+				"AllowAnonymous": false,
+				"AllowAuthenticated": true
+			},
 			//WorkflowDefinition
 			"BrowseWorkflowDefinition": {
 				"Roles": [ "GLOBAL_dg_admin" ],

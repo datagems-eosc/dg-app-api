@@ -95,7 +95,7 @@ namespace DataGEMS.Gateway.Api
 				.AddUserCollectionServices(this._config.GetSection("UserCollection"))
 				.AddConversationServices(this._config.GetSection("Conversation"))
 				.AddScoped<IConversationDatasetService, ConversationDatasetService>()
-				.AddVocabularyServices(this._config.GetSection("Vocabulary:FieldsOfScience"))
+				.AddVocabularyServices(this._config.GetSection("Vocabulary:FieldsOfScience"), this._config.GetSection("Vocabulary:License"))
 			;
 
 
