@@ -1,4 +1,6 @@
 ﻿using Cite.Tools.Auth.Claims;
+using Cite.Tools.Logging;
+using Cite.Tools.Logging.Extensions;
 using Cite.WebTools.CurrentPrincipal;
 using DataGEMS.Gateway.App.Data;
 using DataGEMS.Gateway.App.Service.UserCollection;
@@ -40,7 +42,14 @@ namespace DataGEMS.Gateway.Api.AccessToken
 			if (hasUpdate)
 			{
 				user.UpdatedAt = DateTime.UtcNow;
-				await dbContext.SaveChangesAsync();
+				try
+				{
+					await dbContext.SaveChangesAsync();
+				}
+				catch (System.Exception ex)
+				{
+					logger.Warning(ex, "error synching user {idpSubjectId}. assuming race condition and continuing", idpSubjectId);
+				}
 			}
 
 			await userCollectionService.BootstrapFavorites();
