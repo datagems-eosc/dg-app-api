@@ -5,6 +5,7 @@ using Cite.Tools.Logging.Extensions;
 using DataGEMS.Gateway.App.Common;
 using DataGEMS.Gateway.App.ErrorCode;
 using DataGEMS.Gateway.App.Exception;
+using DataGEMS.Gateway.App.LogTracking;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
@@ -31,6 +32,7 @@ namespace DataGEMS.Gateway.App.Query
 		private readonly Service.Airflow.AirflowConfig _config;
 		private readonly ILogger<WorkflowDefinitionHttpQuery> _logger;
 		private readonly ErrorThesaurus _errors;
+		private readonly LogCorrelationScope _logCorrelationScope;
 		private readonly JsonHandlingService _jsonHandlingService;
 		private readonly Service.Airflow.IAirflowAccessTokenService _airflowAccessTokenService;
 
@@ -39,6 +41,7 @@ namespace DataGEMS.Gateway.App.Query
 			Service.Airflow.AirflowConfig config,
 			ILogger<WorkflowDefinitionHttpQuery> logger,
 			JsonHandlingService jsonHandlingService,
+			LogCorrelationScope logCorrelationScope,
 			Service.Airflow.IAirflowAccessTokenService airflowAccessTokenService,
 			ErrorThesaurus errors)
 		{
@@ -47,6 +50,7 @@ namespace DataGEMS.Gateway.App.Query
 			this._logger = logger;
 			this._airflowAccessTokenService = airflowAccessTokenService;
 			this._jsonHandlingService = jsonHandlingService;
+			this._logCorrelationScope = logCorrelationScope;
 			this._errors = errors;
 		}
 
@@ -72,7 +76,7 @@ namespace DataGEMS.Gateway.App.Query
 			if (String.IsNullOrEmpty(this._id)) return null;
 
 			String token = await this._airflowAccessTokenService.GetAirflowAccessTokenAsync();
-			if (token == null) throw new DGUnderpinningException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
+			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
 
 			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"{this._config.BaseUrl}{this._config.DagByIdEndpoint.Replace("{id}", this._id)}");
 			request.Headers.Add(HeaderNames.Accept, "application/json");
@@ -87,7 +91,7 @@ namespace DataGEMS.Gateway.App.Query
 			catch (System.Exception ex)
 			{
 				this._logger.Error(ex, "problem converting response {content}", content);
-				throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message);
+				throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.Workflow, this._logCorrelationScope.CorrelationId);
 			}
 		}
 
@@ -106,7 +110,7 @@ namespace DataGEMS.Gateway.App.Query
 		private async Task<Service.Airflow.Model.AirflowDagList> CollectBaseAsync(Boolean useInCount)
 		{
 			String token = await this._airflowAccessTokenService.GetAirflowAccessTokenAsync();
-			if (token == null) throw new DGUnderpinningException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
+			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
 
 			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"{this._config.BaseUrl}{this._config.DagListEndpoint}");
 			request.Headers.Add(HeaderNames.Accept, "application/json");
@@ -173,25 +177,30 @@ namespace DataGEMS.Gateway.App.Query
 			catch (System.Exception ex)
 			{
 				this._logger.Error(ex, "problem converting response {content}", content);
-				throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message);
+				throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.Workflow, this._logCorrelationScope.CorrelationId);
 			}
 		}
 
 		private async Task<String> SendRequest(HttpRequestMessage request)
 		{
 			HttpResponseMessage response = null;
-			try
-			{
-				response = await this._httpClientFactory.CreateClient().SendAsync(request);
-				response.EnsureSuccessStatusCode();
-				String content = await response.Content.ReadAsStringAsync();
-				return content;
-			}
+			try { response = await this._httpClientFactory.CreateClient().SendAsync(request); }
 			catch (System.Exception ex)
 			{
-				this._logger.Error(ex, $"could not complete request. response was {response?.StatusCode}");
-				throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message);
+				this._logger.Error(ex, $"could not complete the request. response was {response?.StatusCode}");
+				throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, (int?)response?.StatusCode, UnderpinningServiceType.Workflow, this._logCorrelationScope.CorrelationId);
 			}
+
+			try { response.EnsureSuccessStatusCode(); }
+			catch (System.Exception ex)
+			{
+				String errorPayload = null;
+				try { errorPayload = await response.Content.ReadAsStringAsync(); } catch (System.Exception) { }
+				this._logger.Error(ex, "non successful response. StatusCode was {statusCode} and Payload {errorPayload}", response?.StatusCode, errorPayload);
+				throw new Exception.DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, (int?)response?.StatusCode, UnderpinningServiceType.Workflow, this._logCorrelationScope.CorrelationId);
+			}
+			String content = await response.Content.ReadAsStringAsync();
+			return content;
 		}
 
 		private String ApplyOrdering()

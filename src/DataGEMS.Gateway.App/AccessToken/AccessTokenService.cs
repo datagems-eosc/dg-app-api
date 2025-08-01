@@ -1,6 +1,9 @@
 ﻿using Cite.Tools.Logging.Extensions;
 using DataGEMS.Gateway.App.Authorization;
 using DataGEMS.Gateway.App.Common;
+using DataGEMS.Gateway.App.ErrorCode;
+using DataGEMS.Gateway.App.Exception;
+using DataGEMS.Gateway.App.LogTracking;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
@@ -15,17 +18,23 @@ namespace DataGEMS.Gateway.App.AccessToken
 		private readonly IDistributedCache _cache;
 		private readonly IdpClientConfig _config;
 		private readonly ILogger<AccessTokenService> _logger;
+		private readonly ErrorThesaurus _errors;
+		private readonly LogCorrelationScope _logCorrelationScope;
 
 		public AccessTokenService(
 			IHttpClientFactory httpClientFactory,
 			IDistributedCache cache,
 			IdpClientConfig config,
-			ILogger<AccessTokenService> logger)
+			ILogger<AccessTokenService> logger,
+			LogCorrelationScope logCorrelationScope,
+			ErrorThesaurus errors)
 		{
 			this._httpClientFactory = httpClientFactory;
 			this._cache = cache;
 			this._config = config;
 			this._logger = logger;
+			this._errors = errors;
+			this._logCorrelationScope = logCorrelationScope;
 		}
 
 		public async Task<string> GetClientAccessTokenAsync(String scope)
@@ -45,8 +54,23 @@ namespace DataGEMS.Gateway.App.AccessToken
 			{
 				Content = new FormUrlEncodedContent(contentPaylod)
 			};
-			HttpResponseMessage response = await _httpClientFactory.CreateClient().SendAsync(request);
-			response.EnsureSuccessStatusCode();
+
+			HttpResponseMessage response = null;
+			try { response = await this._httpClientFactory.CreateClient().SendAsync(request); }
+			catch (System.Exception ex)
+			{
+				this._logger.Error(ex, $"could not complete the request. response was {response?.StatusCode}");
+				throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, (int?)response?.StatusCode, UnderpinningServiceType.AAI, this._logCorrelationScope.CorrelationId);
+			}
+
+			try { response.EnsureSuccessStatusCode(); }
+			catch (System.Exception ex)
+			{
+				String errorPayload = null;
+				try { errorPayload = await response.Content.ReadAsStringAsync(); } catch (System.Exception) { }
+				this._logger.Error(ex, "non successful response. StatusCode was {statusCode} and Payload {errorPayload}", response?.StatusCode, errorPayload);
+				throw new Exception.DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, (int?)response?.StatusCode, UnderpinningServiceType.DataManagement, this._logCorrelationScope.CorrelationId);
+			}
 
 			String content = await response.Content.ReadAsStringAsync();
 
@@ -99,8 +123,22 @@ namespace DataGEMS.Gateway.App.AccessToken
 				}
 			};
 
-			HttpResponseMessage response = await _httpClientFactory.CreateClient().SendAsync(request);
-			response.EnsureSuccessStatusCode();
+			HttpResponseMessage response = null;
+			try { response = await this._httpClientFactory.CreateClient().SendAsync(request); }
+			catch (System.Exception ex)
+			{
+				this._logger.Error(ex, $"could not complete the request. response was {response?.StatusCode}");
+				throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, (int?)response?.StatusCode, UnderpinningServiceType.AAI, this._logCorrelationScope.CorrelationId);
+			}
+
+			try { response.EnsureSuccessStatusCode(); }
+			catch (System.Exception ex)
+			{
+				String errorPayload = null;
+				try { errorPayload = await response.Content.ReadAsStringAsync(); } catch (System.Exception) { }
+				this._logger.Error(ex, "non successful response. StatusCode was {statusCode} and Payload {errorPayload}", response?.StatusCode, errorPayload);
+				throw new Exception.DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, (int?)response?.StatusCode, UnderpinningServiceType.AAI, this._logCorrelationScope.CorrelationId);
+			}
 
 			String content = await response.Content.ReadAsStringAsync();
 

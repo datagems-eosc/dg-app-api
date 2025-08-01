@@ -1,5 +1,9 @@
 ﻿using Cite.Tools.Json;
 using Cite.Tools.Logging.Extensions;
+using DataGEMS.Gateway.App.Common;
+using DataGEMS.Gateway.App.ErrorCode;
+using DataGEMS.Gateway.App.Exception;
+using DataGEMS.Gateway.App.LogTracking;
 using DataGEMS.Gateway.App.Service.Airflow.Model;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
@@ -16,19 +20,25 @@ namespace DataGEMS.Gateway.App.Service.Airflow
 		private readonly AirflowConfig _config;
 		private readonly ILogger<AirflowAccessTokenService> _logger;
 		private readonly JsonHandlingService _jsonHandlingService;
+		private readonly ErrorThesaurus _errors;
+		private readonly LogCorrelationScope _logCorrelationScope;
 
 		public AirflowAccessTokenService(
 			IHttpClientFactory httpClientFactory,
 			IDistributedCache cache,
 			AirflowConfig config,
+			LogCorrelationScope logCorrelationScope,
 			JsonHandlingService jsonHandlingService,
-			ILogger<AirflowAccessTokenService> logger)
+			ILogger<AirflowAccessTokenService> logger,
+			ErrorThesaurus errors)
 		{
 			this._httpClientFactory = httpClientFactory;
 			this._cache = cache;
 			this._config = config;
 			this._jsonHandlingService = jsonHandlingService;
 			this._logger = logger;
+			this._logCorrelationScope = logCorrelationScope;
+			this._errors = errors;
 		}
 
 		public async Task<string> GetAirflowAccessTokenAsync()
@@ -48,8 +58,22 @@ namespace DataGEMS.Gateway.App.Service.Airflow
 			};
 			httpRequest.Headers.Add(HeaderNames.Accept, "application/json");
 
-			HttpResponseMessage httpResponse = await _httpClientFactory.CreateClient().SendAsync(httpRequest);
-			httpResponse.EnsureSuccessStatusCode();
+			HttpResponseMessage httpResponse = null;
+			try { httpResponse = await this._httpClientFactory.CreateClient().SendAsync(httpRequest); }
+			catch (System.Exception ex)
+			{
+				this._logger.Error(ex, $"could not complete the request. response was {httpResponse?.StatusCode}");
+				throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, (int?)httpResponse?.StatusCode, UnderpinningServiceType.Workflow, this._logCorrelationScope.CorrelationId);
+			}
+
+			try { httpResponse.EnsureSuccessStatusCode(); }
+			catch (System.Exception ex)
+			{
+				String errorPayload = null;
+				try { errorPayload = await httpResponse.Content.ReadAsStringAsync(); } catch (System.Exception) { }
+				this._logger.Error(ex, "non successful response. StatusCode was {statusCode} and Payload {errorPayload}", httpResponse?.StatusCode, errorPayload);
+				throw new Exception.DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, (int?)httpResponse?.StatusCode, UnderpinningServiceType.CrossDatasetDiscovery, this._logCorrelationScope.CorrelationId);
+			}
 
 			String content = await httpResponse.Content.ReadAsStringAsync();
 

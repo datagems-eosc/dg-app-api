@@ -69,12 +69,19 @@ namespace DataGEMS.Gateway.Api.Exception
             }
 			else if (exception is DGUnderpinningException)
 			{
-				logLevel = LogLevel.Warning;
-				statusCode = HttpStatusCode.ServiceUnavailable;
+				logLevel = LogLevel.Error;
+				statusCode = HttpStatusCode.FailedDependency;
+
+                var payload = new
+                {
+                    statusCode = ((DGUnderpinningException)exception).ErrorStatusCode,
+                    source = ((DGUnderpinningException)exception).ErrorSource?.ToString(),
+                    correlationId = ((DGUnderpinningException)exception).CorrelationId
+                };
 
 				int code = ((DGUnderpinningException)exception).Code;
-				if (code > 0) result = new { code, error = exception.Message };
-				else result = new { error = exception.Message };
+				if (code > 0) result = new { code, error = exception.Message, message = payload };
+				else result = new { error = exception.Message, message = payload };
 			}
 			else if (exception is DGValidationException)
             {

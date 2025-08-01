@@ -4,11 +4,13 @@ using Cite.Tools.Json;
 using Cite.Tools.Logging.Extensions;
 using DataGEMS.Gateway.App.AccessToken;
 using DataGEMS.Gateway.App.Authorization;
+using DataGEMS.Gateway.App.Common;
 using DataGEMS.Gateway.App.ErrorCode;
 using DataGEMS.Gateway.App.Exception;
 using DataGEMS.Gateway.App.LogTracking;
 using DataGEMS.Gateway.App.Model;
 using DataGEMS.Gateway.App.Service.Discovery.Model;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using System.Net.Http.Headers;
@@ -56,7 +58,7 @@ namespace DataGEMS.Gateway.App.Service.Discovery
 		public async Task<List<CrossDatasetDiscovery>> DiscoverAsync(DiscoverInfo request, IFieldSet fieldSet)
 		{
 			String token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
-			if (token == null) throw new DGUnderpinningException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
+			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
 
 			CrossDatasetDiscoveryRequest httpRequestModel = new CrossDatasetDiscoveryRequest
 			{
@@ -73,33 +75,36 @@ namespace DataGEMS.Gateway.App.Service.Discovery
 			httpRequest.Headers.Add(this._logTrackingCorrelationConfig.HeaderName, this._logCorrelationScope.CorrelationId);
 
 			String content = await this.SendRequest(httpRequest);
-			try
-			{
-                Model.CrossDatasetDiscoveryResponse rawResponse = this._jsonHandlingService.FromJson<Model.CrossDatasetDiscoveryResponse>(content);
-				return await this._builderFactory.Builder<App.Model.Builder.CrossDatasetDiscoveryBuilder>().Authorize(AuthorizationFlags.Any).Build(fieldSet, rawResponse?.Results);
-			}
+			Model.CrossDatasetDiscoveryResponse rawResponse = null;
+			try { rawResponse = this._jsonHandlingService.FromJson<Model.CrossDatasetDiscoveryResponse>(content); }
 			catch (System.Exception ex)
 			{
 				this._logger.LogError(ex, "Failed to parse response: {content}", content);
-				throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message);
+				throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.CrossDatasetDiscovery, this._logCorrelationScope.CorrelationId);
 			}
+			return await this._builderFactory.Builder<App.Model.Builder.CrossDatasetDiscoveryBuilder>().Authorize(AuthorizationFlags.Any).Build(fieldSet, rawResponse?.Results);
 		}
 
 		private async Task<string> SendRequest(HttpRequestMessage request)
 		{
 			HttpResponseMessage response = null;
-			try
-			{
-				response = await this._httpClientFactory.CreateClient().SendAsync(request);
-				response.EnsureSuccessStatusCode();
-				String content = await response.Content.ReadAsStringAsync();
-				return content;
-			}
+			try { response = await this._httpClientFactory.CreateClient().SendAsync(request); }
 			catch (System.Exception ex)
 			{
-				this._logger.Error(ex, $"could not complete request. response was {response?.StatusCode}");
-				throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message);
+				this._logger.Error(ex, $"could not complete the request. response was {response?.StatusCode}");
+				throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, (int?)response?.StatusCode, UnderpinningServiceType.CrossDatasetDiscovery, this._logCorrelationScope.CorrelationId);
 			}
+
+			try { response.EnsureSuccessStatusCode(); }
+			catch (System.Exception ex)
+			{
+				String errorPayload = null;
+				try { errorPayload = await response.Content.ReadAsStringAsync(); } catch (System.Exception) { }
+				this._logger.Error(ex, "non successful response. StatusCode was {statusCode} and Payload {errorPayload}", response?.StatusCode, errorPayload);
+				throw new Exception.DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, (int?)response?.StatusCode, UnderpinningServiceType.CrossDatasetDiscovery, this._logCorrelationScope.CorrelationId);
+			}
+			String content = await response.Content.ReadAsStringAsync();
+			return content;
 		}
 
 	}

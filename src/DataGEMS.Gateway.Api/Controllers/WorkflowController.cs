@@ -37,6 +37,8 @@ namespace DataGEMS.Gateway.Api.Controllers
 		public WorkflowController(
 			ILogger<WorkflowController> logger,
 			CensorFactory censorFactory,
+			QueryFactory queryFactory,
+			BuilderFactory builderFactory,
 			IAccountingService accountingService,
 			IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> localizer,
 			ErrorThesaurus errors)
@@ -45,7 +47,9 @@ namespace DataGEMS.Gateway.Api.Controllers
 			this._errors = errors;
 			this._accountingService = accountingService;
 			this._localizer = localizer;
+			this._queryFactory = queryFactory;
 			this._censorFactory = censorFactory;
+			this._builderFactory = builderFactory;
 		}
 
 		[SwaggerOperation(Summary = "Retrieve the available workflow definitions")]
