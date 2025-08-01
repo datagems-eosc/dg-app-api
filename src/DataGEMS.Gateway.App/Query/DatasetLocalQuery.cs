@@ -144,11 +144,11 @@ namespace DataGEMS.Gateway.App.Query
 			if (item.Match(nameof(DataManagement.Model.Dataset.Id))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.Id);
 			else if (item.Match(nameof(DataManagement.Model.Dataset.Code))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.Code);
 			else if (item.Match(nameof(DataManagement.Model.Dataset.Name))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.Name);
-			else if (item.Match(nameof(DataManagement.Data.Dataset.DatePublishedRaw))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.DatePublishedRaw);
-			else if (item.Match(nameof(DataManagement.Model.Dataset.Size))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.Size);
-			else if (item.Match(nameof(DataManagement.Model.Dataset.FieldOfScience))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.FieldOfScience);
-			else if (item.Match(nameof(DataManagement.Model.Dataset.Version))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.Version);
+			else if (item.Match(nameof(DataManagement.Model.Dataset.License))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.License);
 			else if (item.Match(nameof(DataManagement.Model.Dataset.MimeType))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.MimeType);
+			else if (item.Match(nameof(DataManagement.Model.Dataset.Size))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.Size);
+			else if (item.Match(nameof(DataManagement.Model.Dataset.Version))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.Version);
+			else if (item.Match(nameof(DataManagement.Model.Dataset.DatePublished))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.DatePublishedRaw);
 			else return null;
 
 			return orderedQuery;
