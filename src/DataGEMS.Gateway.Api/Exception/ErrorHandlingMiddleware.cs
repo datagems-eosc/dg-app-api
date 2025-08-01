@@ -76,8 +76,9 @@ namespace DataGEMS.Gateway.Api.Exception
                 {
                     statusCode = ((DGUnderpinningException)exception).ErrorStatusCode,
                     source = ((DGUnderpinningException)exception).ErrorSource?.ToString(),
-                    correlationId = ((DGUnderpinningException)exception).CorrelationId
-                };
+                    correlationId = ((DGUnderpinningException)exception).CorrelationId,
+                    payload = ((DGUnderpinningException)exception).ResponsePayload,
+				};
 
 				int code = ((DGUnderpinningException)exception).Code;
 				if (code > 0) result = new { code, error = exception.Message, message = payload };

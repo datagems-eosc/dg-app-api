@@ -72,7 +72,8 @@ namespace DataGEMS.Gateway.App.Service.Airflow
 				String errorPayload = null;
 				try { errorPayload = await httpResponse.Content.ReadAsStringAsync(); } catch (System.Exception) { }
 				this._logger.Error(ex, "non successful response. StatusCode was {statusCode} and Payload {errorPayload}", httpResponse?.StatusCode, errorPayload);
-				throw new Exception.DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, (int?)httpResponse?.StatusCode, UnderpinningServiceType.CrossDatasetDiscovery, this._logCorrelationScope.CorrelationId);
+				Boolean includeErrorPayload = httpResponse != null && httpResponse.StatusCode == System.Net.HttpStatusCode.BadRequest;
+				throw new Exception.DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, (int?)httpResponse?.StatusCode, UnderpinningServiceType.CrossDatasetDiscovery, this._logCorrelationScope.CorrelationId, includeErrorPayload ? errorPayload : null);
 			}
 
 			String content = await httpResponse.Content.ReadAsStringAsync();
