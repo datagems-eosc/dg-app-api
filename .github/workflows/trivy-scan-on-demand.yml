@@ -51,8 +51,8 @@ jobs:
           scan-type: image
           image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.event.inputs.image_tag }}
           vuln-type: 'os,library'
-           format: json
-           output: trivy-image-results.json
+          format: json
+          output: trivy-image-results.json
 
       - name: Upload Trivy image scan results
         uses: actions/upload-artifact@v4
