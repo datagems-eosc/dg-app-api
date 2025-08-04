@@ -30,28 +30,20 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-          
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-            dotnet-version: '8.0.x'
-            
-      - name: Restore .NET dependencies
-        run: dotnet restore ./src/DataGEMS.Gateway.sln
-
-      - name: Scan source code (fs)
-        uses: aquasecurity/trivy-action@0.28.0
-        with:
-          scan-type: fs
-          scan-ref: ./src
-          format: 'table'
 
       - name: Scan Dockerfile (config)
         uses: aquasecurity/trivy-action@0.28.0
         with:
           scan-type: config
           scan-ref: ./src
-          format: 'table'
+          format: json
+          output: trivy-config-results.json
+
+      - name: Upload Trivy config scan results
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-config-scan
+          path: trivy-config-results.json
 
       - name: Scan built image (image)
         uses: aquasecurity/trivy-action@0.28.0
@@ -59,4 +51,11 @@ jobs:
           scan-type: image
           image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.event.inputs.image_tag }}
           vuln-type: 'os,library'
-          format: 'table'
+           format: json
+           output: trivy-image-results.json
+
+      - name: Upload Trivy image scan results
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-image-scan
+          path: trivy-image-results.json
