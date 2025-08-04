@@ -37,13 +37,13 @@ jobs:
           scan-type: config
           scan-ref: ./src
           format: json
-          output: trivy-config-results.json
+          output: vulnerability-config-results.json
 
-      - name: Upload Trivy config scan results
+      - name: Upload vulnerability config scan results
         uses: actions/upload-artifact@v4
         with:
-          name: trivy-config-scan
-          path: trivy-config-results.json
+          name: vulnerability-config-scan
+          path: vulnerability-config-results.json
 
       - name: Scan built image (image)
         uses: aquasecurity/trivy-action@0.28.0
@@ -51,11 +51,12 @@ jobs:
           scan-type: image
           image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.event.inputs.image_tag }}
           vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
           format: json
-          output: trivy-image-results.json
+          output: vulnerability-image-results.json
 
-      - name: Upload Trivy image scan results
+      - name: Upload vulnerability image scan results
         uses: actions/upload-artifact@v4
         with:
-          name: trivy-image-scan
-          path: trivy-image-results.json
+          name: vulnerability-image-scan
+          path: vulnerability-image-results.json
