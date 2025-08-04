@@ -50,5 +50,5 @@ jobs:
         with:
           scan-type: image
           image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.event.inputs.image_tag }}
-          vuln-type: 'all'
+          vuln-type: 'os,library'
           format: 'table'
