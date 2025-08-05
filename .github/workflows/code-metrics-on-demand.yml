@@ -28,16 +28,16 @@ jobs:
         run: dotnet restore DataGEMS.Gateway.sln
 
       - name: Build solution
-        run: dotnet build DataGEMS.Gateway.sln --no-restore --configuration Release
+        run: dotnet build DataGEMS.Gateway.sln --configuration Release --no-incremental
 
       - name: Run code metrics on DataGEMS.Gateway.Api
-        run: dotnet msbuild DataGEMS.Gateway.Api/DataGEMS.Gateway.Api.csproj /t:Metrics
+        run: dotnet msbuild DataGEMS.Gateway.Api/DataGEMS.Gateway.Api.csproj /t:Metrics /p:Configuration=Release
 
       - name: Run code metrics on DataGEMS.Gateway.App
-        run: dotnet msbuild DataGEMS.Gateway.App/DataGEMS.Gateway.App.csproj /t:Metrics
+        run: dotnet msbuild DataGEMS.Gateway.App/DataGEMS.Gateway.App.csproj /t:Metrics /p:Configuration=Release
 
       - name: Run code metrics on DataGEMS.Gateway.Resources
-        run: dotnet msbuild DataGEMS.Gateway.Resources/DataGEMS.Gateway.Resources.csproj /t:Metrics
+        run: dotnet msbuild DataGEMS.Gateway.Resources/DataGEMS.Gateway.Resources.csproj /t:Metrics /p:Configuration=Release
 
       - name: Upload Metrics XML reports
         uses: actions/upload-artifact@v4
