@@ -25,6 +25,11 @@ jobs:
 #          dotnet-version: '8.0.118'
           dotnet-version: '8.0.x'
 
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v2
+        with:
+          vs-version: '[17.9)'
+
 #      - name: Check sdk version
 #        run: |
 #          dotnet --list-sdks
