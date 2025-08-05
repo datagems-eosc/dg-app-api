@@ -29,14 +29,14 @@ jobs:
 
       - name: Build solution
 #        run: dotnet build DataGEMS.Gateway.sln --configuration Release --no-incremental
-        run: dotnet build DataGEMS.Gateway.sln
+        run: dotnet build DataGEMS.Gateway.sln --configuration Debug
 
       - name: Check build output size
         run: |
           dir DataGEMS.Gateway.Api/bin/
     
       - name: Run code metrics on DataGEMS.Gateway.Api
-        run: dotnet msbuild DataGEMS.Gateway.Api/DataGEMS.Gateway.Api.csproj /t:Metrics
+        run: dotnet msbuild DataGEMS.Gateway.Api/DataGEMS.Gateway.Api.csproj /t:Metrics /p:Configuration=Debug
 #        run: dotnet msbuild DataGEMS.Gateway.Api/DataGEMS.Gateway.Api.csproj /t:Metrics /p:Configuration=Release /p:TargetFramework=net8.0
 
       - name: Check metrics output size
