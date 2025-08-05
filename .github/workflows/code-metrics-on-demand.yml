@@ -26,10 +26,10 @@ jobs:
 
       - name: Check sdk version
         run: |
-          dir C:\Program Files\dotnet\sdk\
+          dotnet --list-sdks
 
-      - name: Restore dependencies
-        run: dotnet restore DataGEMS.Gateway.sln
+#      - name: Restore dependencies
+#        run: dotnet restore DataGEMS.Gateway.sln
 
 #      - name: Build solution
 #        run: dotnet build DataGEMS.Gateway.sln --configuration Release --no-incremental
