@@ -37,6 +37,10 @@ jobs:
       - name: Run code metrics on DataGEMS.Gateway.Api
         run: dotnet msbuild DataGEMS.Gateway.Api/DataGEMS.Gateway.Api.csproj /t:Metrics /p:Configuration=Release /p:TargetFramework=net8.0
 
+      - name: Check metrics output size
+        run: |
+          dir DataGEMS.Gateway.Api/
+
 #      - name: Run code metrics on DataGEMS.Gateway.App
 #        run: dotnet msbuild DataGEMS.Gateway.App/DataGEMS.Gateway.App.csproj /t:Metrics /p:Configuration=Release
 
