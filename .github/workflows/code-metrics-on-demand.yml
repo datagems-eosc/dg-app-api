@@ -32,6 +32,10 @@ jobs:
 
       - name: Check build output size
         run: |
+          dir DataGEMS.Gateway.Api/bin/Debug/net8.0/
+
+      - name: Check build output size
+        run: |
           dir DataGEMS.Gateway.Api/bin/Release/net8.0/
     
       - name: Run code metrics on DataGEMS.Gateway.Api
