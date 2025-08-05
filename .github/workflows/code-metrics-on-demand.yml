@@ -18,22 +18,30 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'  # Or match your .NET version
+          dotnet-version: '8.0.x'
 
       - name: Restore dependencies
         run: dotnet restore src/DataGEMS.Gateway.sln
 
-      - name: Install Code Metrics tool
-        run: |
-          dotnet new tool-manifest
-          dotnet tool install Microsoft.CodeAnalysis.Metrics
 
-      - name: Run Code Metrics
-        run: |
-          dotnet tool run metrics -p src/DataGEMS.Gateway.sln --format html --output metrics-report.html
 
-      - name: Upload Code Metrics Report
+      - name: Build solution
+        run: dotnet build src/DataGEMS.Gateway.sln --no-restore --configuration Release
+
+      - name: Run code metrics on DataGEMS.Gateway.Api
+        run: dotnet msbuild src/DataGEMS.Gateway.Api/DataGEMS.Gateway.Api.csproj /t:Metrics
+
+      - name: Run code metrics on DataGEMS.Gateway.App
+        run: dotnet msbuild src/DataGEMS.Gateway.App/DataGEMS.Gateway.App.csproj /t:Metrics
+
+      - name: Run code metrics on DataGEMS.Gateway.Resources
+        run: dotnet msbuild src/DataGEMS.Gateway.Resources/DataGEMS.Gateway.Resources.csproj /t:Metrics
+
+      - name: Upload Metrics XML reports
         uses: actions/upload-artifact@v4
         with:
-          name: code-metrics-report
-          path: metrics-report.html
+          name: code-metrics-reports
+          path: |
+            src/DataGEMS.Gateway.Api/DataGEMS.Gateway.Api.Metrics.xml
+            src/DataGEMS.Gateway.App/DataGEMS.Gateway.App.Metrics.xml
+            src/DataGEMS.Gateway.Resources/DataGEMS.Gateway.Resources.Metrics.xml
