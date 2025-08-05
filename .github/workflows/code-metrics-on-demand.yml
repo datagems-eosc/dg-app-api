@@ -1,7 +1,7 @@
 name: "Code Metrics (On Demand)"
 
 on:
-  workflow_dispatch:  # Manual trigger
+  workflow_dispatch:
 
 jobs:
   analyze:
@@ -25,12 +25,12 @@ jobs:
 
       - name: Install Code Metrics tool
         run: |
-          dotnet new tool-manifest --output .tools
-          dotnet tool install Microsoft.CodeAnalysis.Metrics --tool-path .tools
+          dotnet new tool-manifest
+          dotnet tool install Microsoft.CodeAnalysis.Metrics
 
       - name: Run Code Metrics
         run: |
-          ./.tools/dotnet-metrics -p src/DataGEMS.Gateway.sln --format html --output metrics-report.html
+          dotnet tool run metrics -p src/DataGEMS.Gateway.sln --format html --output metrics-report.html
 
       - name: Upload Code Metrics Report
         uses: actions/upload-artifact@v4
