@@ -11,6 +11,10 @@ jobs:
     permissions:
       contents: read
 
+    defaults:
+      run:
+        working-directory: src
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -21,21 +25,19 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Restore dependencies
-        run: dotnet restore src/DataGEMS.Gateway.sln
-
-
+        run: dotnet restore DataGEMS.Gateway.sln
 
       - name: Build solution
-        run: dotnet build src/DataGEMS.Gateway.sln --no-restore --configuration Release
+        run: dotnet build DataGEMS.Gateway.sln --no-restore --configuration Release
 
       - name: Run code metrics on DataGEMS.Gateway.Api
-        run: dotnet msbuild src/DataGEMS.Gateway.Api/DataGEMS.Gateway.Api.csproj /t:Metrics
+        run: dotnet msbuild DataGEMS.Gateway.Api/DataGEMS.Gateway.Api.csproj /t:Metrics
 
       - name: Run code metrics on DataGEMS.Gateway.App
-        run: dotnet msbuild src/DataGEMS.Gateway.App/DataGEMS.Gateway.App.csproj /t:Metrics
+        run: dotnet msbuild DataGEMS.Gateway.App/DataGEMS.Gateway.App.csproj /t:Metrics
 
       - name: Run code metrics on DataGEMS.Gateway.Resources
-        run: dotnet msbuild src/DataGEMS.Gateway.Resources/DataGEMS.Gateway.Resources.csproj /t:Metrics
+        run: dotnet msbuild DataGEMS.Gateway.Resources/DataGEMS.Gateway.Resources.csproj /t:Metrics
 
       - name: Upload Metrics XML reports
         uses: actions/upload-artifact@v4
