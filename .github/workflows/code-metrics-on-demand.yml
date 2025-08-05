@@ -35,17 +35,13 @@ jobs:
           dir DataGEMS.Gateway.Api/bin/Release/net8.0/
     
       - name: Run code metrics on DataGEMS.Gateway.Api
-        run: dotnet msbuild DataGEMS.Gateway.Api/DataGEMS.Gateway.Api.csproj /t:Metrics /p:Configuration=Release
+        run: dotnet msbuild DataGEMS.Gateway.Api/DataGEMS.Gateway.Api.csproj /t:Metrics /p:Configuration=Release /p:TargetFramework=net8.0 /v:diag
 
-      - name: Check build output size
-        run: |
-          dir DataGEMS.Gateway.Api/bin/Release/net8.0/
+#      - name: Run code metrics on DataGEMS.Gateway.App
+#        run: dotnet msbuild DataGEMS.Gateway.App/DataGEMS.Gateway.App.csproj /t:Metrics /p:Configuration=Release
 
-      - name: Run code metrics on DataGEMS.Gateway.App
-        run: dotnet msbuild DataGEMS.Gateway.App/DataGEMS.Gateway.App.csproj /t:Metrics /p:Configuration=Release
-
-      - name: Run code metrics on DataGEMS.Gateway.Resources
-        run: dotnet msbuild DataGEMS.Gateway.Resources/DataGEMS.Gateway.Resources.csproj /t:Metrics /p:Configuration=Release
+#      - name: Run code metrics on DataGEMS.Gateway.Resources
+#        run: dotnet msbuild DataGEMS.Gateway.Resources/DataGEMS.Gateway.Resources.csproj /t:Metrics /p:Configuration=Release
 
       - name: Upload Metrics XML reports
         uses: actions/upload-artifact@v4
@@ -53,5 +49,5 @@ jobs:
           name: code-metrics-reports
           path: |
             src/DataGEMS.Gateway.Api/DataGEMS.Gateway.Api.Metrics.xml
-            src/DataGEMS.Gateway.App/DataGEMS.Gateway.App.Metrics.xml
-            src/DataGEMS.Gateway.Resources/DataGEMS.Gateway.Resources.Metrics.xml
+#            src/DataGEMS.Gateway.App/DataGEMS.Gateway.App.Metrics.xml
+#            src/DataGEMS.Gateway.Resources/DataGEMS.Gateway.Resources.Metrics.xml
