@@ -28,7 +28,7 @@ jobs:
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v2
         with:
-          vs-version: '[17.9)'
+          vs-version: '[17.9,17.10)'
 
 #      - name: Check sdk version
 #        run: |
