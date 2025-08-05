@@ -32,7 +32,10 @@ jobs:
       with:
         languages: ${{ matrix.language }}
         build-mode: ${{ matrix.build-mode }}
-        queries: default,security-extended,security-and-quality
+        queries: |
+          codeql/csharp-queries:default
+          codeql/csharp-queries:security-extended
+          codeql/csharp-queries:security-and-quality        
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
