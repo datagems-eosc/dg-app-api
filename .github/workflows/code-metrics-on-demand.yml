@@ -22,7 +22,7 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.206'
+          dotnet-version: '8.0.118'
 
       - name: Check sdk version
         run: |
@@ -41,7 +41,7 @@ jobs:
     
       - name: Run code metrics on DataGEMS.Gateway.Api
         env:
-          MSBuildSDKsPath: 'C:\Program Files\dotnet\sdk\8.0.206\Sdks'      
+          MSBuildSDKsPath: 'C:\Program Files\dotnet\sdk\8.0.118\Sdks'      
         run: dotnet msbuild DataGEMS.Gateway.Api/DataGEMS.Gateway.Api.csproj /t:Metrics /p:Configuration=Release
 #        run: dotnet msbuild DataGEMS.Gateway.Api/DataGEMS.Gateway.Api.csproj /t:Metrics /p:Configuration=Release /p:TargetFramework=net8.0
 
