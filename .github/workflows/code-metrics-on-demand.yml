@@ -1,0 +1,39 @@
+name: "Code Metrics (On Demand)"
+
+on:
+  workflow_dispatch:  # Manual trigger
+
+jobs:
+  analyze:
+    name: Run Code Metrics
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'  # Or match your .NET version
+
+      - name: Restore dependencies
+        run: dotnet restore src/DataGEMS.Gateway.sln
+
+      - name: Install Code Metrics tool
+        run: |
+          dotnet new tool-manifest --output .tools
+          dotnet tool install Microsoft.CodeAnalysis.Metrics --tool-path .tools
+
+      - name: Run Code Metrics
+        run: |
+          ./.tools/dotnet-metrics -p src/DataGEMS.Gateway.sln --format html --output metrics-report.html
+
+      - name: Upload Code Metrics Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: code-metrics-report
+          path: metrics-report.html
