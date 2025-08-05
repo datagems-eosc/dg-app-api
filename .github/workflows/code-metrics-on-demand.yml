@@ -22,7 +22,7 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: '8.0.5'
 
       - name: Restore dependencies
         run: dotnet restore DataGEMS.Gateway.sln
@@ -35,7 +35,7 @@ jobs:
           dir DataGEMS.Gateway.Api/bin/Release/net8.0/
     
       - name: Run code metrics on DataGEMS.Gateway.Api
-        run: dotnet msbuild DataGEMS.Gateway.Api/DataGEMS.Gateway.Api.csproj /t:Metrics /p:Configuration=Release /p:TargetFramework=net8.0 /v:diag
+        run: dotnet msbuild DataGEMS.Gateway.Api/DataGEMS.Gateway.Api.csproj /t:Metrics /p:Configuration=Release /p:TargetFramework=net8.0
 
 #      - name: Run code metrics on DataGEMS.Gateway.App
 #        run: dotnet msbuild DataGEMS.Gateway.App/DataGEMS.Gateway.App.csproj /t:Metrics /p:Configuration=Release
