@@ -1,9 +1,0 @@
-src/.vs/
-src/DataGEMS.Gateway.Api/bin/
-src/DataGEMS.Gateway.Api/obj/
-src/DataGEMS.Gateway.App/bin/
-src/DataGEMS.Gateway.App/obj/
-src/DataGEMS.Gateway.Resources/bin/
-src/DataGEMS.Gateway.Resources/obj/
-src/DataGEMS.Gateway.Api/Configuration/env.Development.json
-src/DataGEMS.Gateway.Api/DataGEMS.Gateway.Api.csproj.user

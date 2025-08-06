@@ -1,7 +1,0 @@
-{
-  "InDataExplorationService": {
-    "Scope": "in-data-exploration datasets",
-    "BaseUrl": "%{InDataExplorationBaseUrl}%",
-    "ExploreEndpoint": "explore"
-  }
-}

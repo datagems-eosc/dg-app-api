@@ -1,8 +1,0 @@
-{
-	"Cache": {
-		"Provider": {
-			//Possible values: "None","InProc"
-			"Type": "InProc"
-		}
-	}
-}
