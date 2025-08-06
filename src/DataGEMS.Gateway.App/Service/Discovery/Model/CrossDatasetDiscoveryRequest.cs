@@ -8,5 +8,7 @@ namespace DataGEMS.Gateway.App.Service.Discovery.Model
 		public string Query { get; set; }
 		[JsonProperty("k")]
 		public int ResultCount { get; set; }
+		[JsonProperty("dataset_ids")]
+		public List<Guid> DatasetIds { get; set; }
 	}
 }

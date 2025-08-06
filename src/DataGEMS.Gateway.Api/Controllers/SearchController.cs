@@ -77,7 +77,10 @@ namespace DataGEMS.Gateway.Api.Controllers
 			DiscoverInfo request = new DiscoverInfo()
 			{
 				Query = lookup.Query,
-				ResultCount = lookup.ResultCount
+				ResultCount = lookup.ResultCount,
+				DatasetIds = lookup.DatasetIds,
+				CollectionIds = lookup.CollectionIds,
+				UserCollectionIds = lookup.UserCollectionIds,
 			};
 
 			List<CrossDatasetDiscovery> results = await this._crossDatasetDiscoveryService.DiscoverAsync(request, censoredFields);

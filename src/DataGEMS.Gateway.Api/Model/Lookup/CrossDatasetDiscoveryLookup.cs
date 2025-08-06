@@ -1,5 +1,6 @@
 ﻿using Cite.Tools.Validation;
 using DataGEMS.Gateway.Api.Model.Lookup;
+using DataGEMS.Gateway.App.Common;
 using DataGEMS.Gateway.App.Common.Validation;
 using DataGEMS.Gateway.App.ErrorCode;
 using Microsoft.Extensions.Localization;
@@ -13,6 +14,12 @@ namespace DataGEMS.Gateway.Api.Model
 		public String Query { get; set; }
 		[SwaggerSchema(description: "The number of results to retrieve for the query")]
 		public int? ResultCount { get; set; }
+		[SwaggerSchema(description: "Limit lookup to datasets from the specific ids. If set, the list of ids must not be empty")]
+		public List<Guid> DatasetIds { get; set; }
+		[SwaggerSchema(description: "Limit lookup to datasets from the specific collections Ids. If set, the list of ids must not be empty")]
+		public List<Guid> CollectionIds { get; set; }
+		[SwaggerSchema(description: "Limit lookup to datasets from the specific user collections Ids. If set, the list of ids must not be empty")]
+		public List<Guid> UserCollectionIds { get; set; }
 		[SwaggerSchema(description: "The conversation handling options")]
 		public ConversationOptions ConversationOptions { get; set; }
 		public Cite.Tools.FieldSet.FieldSet Project { get; set; }
@@ -50,6 +57,18 @@ namespace DataGEMS.Gateway.Api.Model
 						.On(nameof(CrossDatasetDiscoveryLookup.ConversationOptions))
 						.Over(item.ConversationOptions)
 						.Using(()=>_validatorFactory[typeof(ConversationOptions.ConversationOptionsValidator)]),
+					//datasetIds must be null or not empty
+					this.Spec()
+						.Must(() => !item.DatasetIds.IsNotNullButEmpty())
+						.FailOn(nameof(CrossDatasetDiscoveryLookup.DatasetIds)).FailWith(this._localizer["validation_setButEmpty", nameof(CrossDatasetDiscoveryLookup.DatasetIds)]),
+					//collectionIds must be null or not empty
+					this.Spec()
+						.Must(() => !item.CollectionIds.IsNotNullButEmpty())
+						.FailOn(nameof(CrossDatasetDiscoveryLookup.CollectionIds)).FailWith(this._localizer["validation_setButEmpty", nameof(CrossDatasetDiscoveryLookup.CollectionIds)]),
+					//user collectionIds must be null or not empty
+					this.Spec()
+						.Must(() => !item.UserCollectionIds.IsNotNullButEmpty())
+						.FailOn(nameof(CrossDatasetDiscoveryLookup.UserCollectionIds)).FailWith(this._localizer["validation_setButEmpty", nameof(CrossDatasetDiscoveryLookup.UserCollectionIds)]),
 				};
 			}
 		}

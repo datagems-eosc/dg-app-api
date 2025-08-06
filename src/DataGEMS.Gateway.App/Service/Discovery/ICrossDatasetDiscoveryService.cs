@@ -14,5 +14,8 @@ namespace DataGEMS.Gateway.App.Service.Discovery
 		public static String ModelVersion = "V1";
 		public String Query { get; set; }
 		public int? ResultCount { get; set; }
+		public List<Guid> DatasetIds { get; set; }
+		public List<Guid> CollectionIds { get; set; }
+		public List<Guid> UserCollectionIds { get; set; }
 	}
 }
