@@ -22,9 +22,19 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
         with:
-#          dotnet-version: '8.0.118'
-          dotnet-version: '8.0.x'
+#          dotnet-version: '8.0.x'
+          dotnet-version: '8.0.206'
 
+      - name: Create global.json file
+        run: |
+          @"
+          {
+            "sdk": {
+              "version": "8.0.206"
+            }
+          }
+          "@ | Out-File -Encoding utf8 -FilePath global.json
+          
       - name: Check sdk version
         run: |
           dotnet --list-sdks
