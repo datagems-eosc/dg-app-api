@@ -20,7 +20,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: src
+        working-directory: docs
 
     steps:
       - name: Checkout repository
@@ -40,8 +40,10 @@ jobs:
           git config user.name "datagems-ci[bot]"
           git config user.email "datagems-ci[bot]@datagems.eu"
 
+      - name: Fetch existing gh-pages branch
+        run: git fetch origin gh-pages:gh-pages
+        
       - name: Deploy versioned docs with mike
-        working-directory: docs
         run: |
           mike deploy ${{ github.event.inputs.version }} --push --config-file mkdocs.yml
           if [[ "${{ github.event.inputs.set_default }}" == "true" ]]; then
