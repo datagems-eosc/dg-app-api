@@ -1,0 +1,15 @@
+site_name: DataGEMS Gateway API Docs
+
+site_url: https://datagems-eosc.github.io/dg-app-api/
+
+nav:
+  - Home: index.md
+
+theme:
+  name: 'material'
+
+extra:
+  version:
+    provider: mike
+    alias: true
+    default: latest

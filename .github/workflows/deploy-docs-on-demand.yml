@@ -1,0 +1,49 @@
+name: Deploy MkDocs with mike
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Documentation Version"
+        required: true
+      set_default:
+        description: "Set as default version"
+        required: false
+        default: "true"
+  
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    defaults:
+      run:
+        working-directory: src
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          pip install mkdocs mkdocs-material mike
+
+      - name: Configure git for mike
+        run: |
+          git config user.name "datagems-ci[bot]"
+          git config user.email "datagems-ci[bot]@datagems.eu"
+
+      - name: Deploy versioned docs with mike
+        working-directory: docs
+        run: |
+          mike deploy ${{ github.event.inputs.version }} --push --config-file mkdocs.yml
+          if [[ "${{ github.event.inputs.set_default }}" == "true" ]]; then
+            mike set-default ${{ github.event.inputs.version }} --push --config-file mkdocs.yml
+          fi
