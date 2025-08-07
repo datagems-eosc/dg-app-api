@@ -13,15 +13,17 @@ nav:
 theme:
   name: 'material'
   custom_dir: overrides
-  extra_css:
-    - stylesheets/custom-footer.css
-    - stylesheets/mkdocsoad.css
   features:
     # - navigation.tabs
     # - navigation.tabs.sticky
     # - navigation.sections
     - navigation.path
     - navigation.top
+    - navigation.footer
+
+extra_css:
+  - stylesheets/custom-footer.css
+  - stylesheets/mkdocsoad.css
 
 plugins:
   - search
