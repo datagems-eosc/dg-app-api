@@ -8,9 +8,7 @@ nav:
     - OpenAPI: openapi.md
     - Error Codes: error_codes.md
   - License: license.md
-  - Home: 
-    icon: material/diamond
-    link: https://datagems-eosc.github.io/
+  - Home: https://datagems-eosc.github.io/
 
 theme:
   name: 'material'
