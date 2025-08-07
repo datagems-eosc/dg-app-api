@@ -3,7 +3,7 @@ site_name: DataGEMS Gateway API Docs
 site_url: https://datagems-eosc.github.io/dg-app-api/
 
 nav:
-  - Overview: overview.md
+  - Overview: index.md
   - API:
     - OpenAPI: openapi.md
     - Error Codes: error_codes.md
