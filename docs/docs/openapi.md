@@ -1,5 +1,3 @@
 # API Reference
 
-::: mkdocsoad
-    file: assets/openapi.json
-:::
+[OAD({assets/openapi.json})]
