@@ -14,8 +14,8 @@ theme:
   name: 'material'
   custom_dir: overrides
   extra_css:
-    - css/custom-footer.css
-    - css/mkdocsoad.css
+    - stylesheets/custom-footer.css
+    - stylesheets/mkdocsoad.css
   features:
     # - navigation.tabs
     # - navigation.tabs.sticky
