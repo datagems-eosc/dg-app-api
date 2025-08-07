@@ -19,7 +19,6 @@ theme:
     # - navigation.sections
     - navigation.path
     - navigation.top
-    - navigation.footer
 
 extra_css:
   - stylesheets/custom-footer.css
