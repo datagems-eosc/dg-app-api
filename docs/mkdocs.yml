@@ -4,7 +4,9 @@ site_url: https://datagems-eosc.github.io/dg-app-api/
 
 nav:
   - Home: index.md
-  - OpenAPI: openapi.md
+  - API:
+    - OpenAPI: openapi.md
+    - Error Codes: error_codes.md
   - License: license.md
   - DataGEMS: https://datagems-eosc.github.io/
 
@@ -15,9 +17,9 @@ theme:
     - css/custom-footer.css
     - css/mkdocsoad.css
   features:
-    - navigation.tabs
-    - navigation.tabs.sticky
-    - navigation.sections
+    # - navigation.tabs
+    # - navigation.tabs.sticky
+    # - navigation.sections
     - navigation.path
     - navigation.top
 

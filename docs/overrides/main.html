@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block outdated %}
+  {{ super() }}  {# preserve the default outdated banner rendering #}
+  <div>
+    You're not viewing the latest version.
+    <a href="{{ '../' ~ base_url }}"> 
+      <strong>Click here to go to latest.</strong>
+    </a>
+  </div>
+{% endblock %}
