@@ -9,3 +9,24 @@
     </a>
   </div>
 {% endblock %}
+
+{% block footer %}
+  <footer class="custom-footer">
+    <div class="footer-content">
+      <img src="{{ base_url }}/images/EN-Funded-by-the-EU-POS-7.png" alt="EU logo" class="footer-logo" />
+      <p class="footer-text">
+        DataGEMS is a Research and Innovation Action funded by the European Union under the Horizon Europe Research and Innovation Programme via Grant Agreement No 101188416.
+      </p>
+
+      <div class="footer-social-icons">
+        {% for item in config.extra.social %}
+          <a href="{{ item.link }}" target="_blank" rel="noopener">
+            <span class="icon">
+              <i class="fab {{ item.icon | replace('fontawesome/brands/', 'fa-') }}"></i>
+            </span>
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+  </footer>
+{% endblock %}

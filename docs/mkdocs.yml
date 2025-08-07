@@ -39,6 +39,7 @@ markdown_extensions:
       permalink: true
 
 extra:
+#  generator: false
   version:
     provider: mike
     alias: true
