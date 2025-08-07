@@ -28,10 +28,12 @@ plugins:
       use_pymdownx: true
 
 markdown_extensions:
+  - toc
   - pymdownx.details
   - pymdownx.superfences
   - pymdownx.tabbed:
       alternate_style: true
+
 extra:
   version:
     provider: mike
