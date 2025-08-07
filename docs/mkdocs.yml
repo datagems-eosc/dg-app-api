@@ -10,11 +10,14 @@ nav:
 theme:
   name: 'material'
   custom_dir: overrides
+  extra_css:
+    - assets/custom-footer.css
   features:
     - navigation.tabs
     - navigation.tabs.sticky
     - navigation.sections
     - navigation.path
+    - navigation.top
 
 extra:
   version:
