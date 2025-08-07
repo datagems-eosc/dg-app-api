@@ -2,14 +2,18 @@ site_name: DataGEMS Gateway API Docs
 
 site_url: https://datagems-eosc.github.io/dg-app-api/
 
-custom_dir: overrides
-
 nav:
   - Home: index.md
   - DataGEMS: https://datagems-eosc.github.io/
 
 theme:
   name: 'material'
+  custom_dir: overrides
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.path
 
 extra:
   version:
