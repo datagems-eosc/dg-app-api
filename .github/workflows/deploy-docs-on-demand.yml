@@ -47,5 +47,5 @@ jobs:
         run: mike deploy ${{ github.event.inputs.version }} --push --config-file mkdocs.yml
 
       - name: Set default version
-        if: ${{ github.event.inputs.set_default == "true" }}
+        if: ${{ github.event.inputs.set_default == 'true' }}
         run: mike set-default ${{ github.event.inputs.version }} --push --config-file mkdocs.yml
