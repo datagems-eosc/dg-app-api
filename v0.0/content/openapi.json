@@ -1,0 +1,4499 @@
+{
+  "openapi": "3.0.4",
+  "info": {
+    "title": "DataGEMS Gateway API",
+    "description": "Gateway API exposing the DataGEMS underpinning functionality",
+    "termsOfService": "https://datagems.eu/terms",
+    "contact": {
+      "name": "DataGEMS helpdesk",
+      "url": "https://datagems.eu/contact-us/"
+    },
+    "license": {
+      "name": "EUPL-1.2 license",
+      "url": "https://interoperable-europe.ec.europa.eu/sites/default/files/custom-page/attachment/2020-03/EUPL-1.2%20EN.txt"
+    },
+    "version": "v1"
+  },
+  "servers": [
+    {
+      "url": "/gw"
+    }
+  ],
+  "paths": {
+    "/api/collection/query": {
+      "post": {
+        "tags": [
+          "Collection"
+        ],
+        "summary": "Query collections",
+        "requestBody": {
+          "description": "The query predicates",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CollectionLookup"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The list of matching collections along with the count",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollectionQueryResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/collection/{id}": {
+      "get": {
+        "tags": [
+          "Collection"
+        ],
+        "summary": "Lookup collection by id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the item to lookup",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "f",
+            "in": "query",
+            "schema": {
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "example": "f=id&f=name&f=foo.id&f=foo.br.id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The matching collection",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollectionQueryResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "404": {
+            "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/conversation/query": {
+      "post": {
+        "tags": [
+          "Conversation"
+        ],
+        "summary": "Query conversations",
+        "requestBody": {
+          "description": "The query predicates",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConversationLookup"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The list of matching conversations along with the count",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationQueryResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/conversation/me/query": {
+      "post": {
+        "tags": [
+          "Conversation"
+        ],
+        "summary": "Query user owned conversations",
+        "requestBody": {
+          "description": "The query predicates",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConversationLookup"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The list of matching user owned conversations along with the count",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationQueryResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/conversation/{id}": {
+      "get": {
+        "tags": [
+          "Conversation"
+        ],
+        "summary": "Lookup conversation by id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the item to lookup",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "f",
+            "in": "query",
+            "schema": {
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "example": "f=id&f=name&f=foo.id&f=foo.br.id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The matching conversation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationQueryResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "404": {
+            "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Conversation"
+        ],
+        "summary": "Deletes the user conversation by id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the item to delete",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Use conversation deleted"
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "404": {
+            "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/conversation/me/persist": {
+      "post": {
+        "tags": [
+          "Conversation"
+        ],
+        "summary": "Persist user owned conversation",
+        "parameters": [
+          {
+            "name": "f",
+            "in": "query",
+            "schema": {
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "example": "f=id&f=name&f=foo.id&f=foo.br.id"
+          }
+        ],
+        "requestBody": {
+          "description": "The model to persist",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConversationPersist"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The persisted user owned conversation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Conversation"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "404": {
+            "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/conversation/me/persist/deep": {
+      "post": {
+        "tags": [
+          "Conversation"
+        ],
+        "summary": "Persist user owned conversation along with details provided",
+        "parameters": [
+          {
+            "name": "f",
+            "in": "query",
+            "schema": {
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "example": "f=id&f=name&f=foo.id&f=foo.br.id"
+          }
+        ],
+        "requestBody": {
+          "description": "The model to persist",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConversationPersistDeep"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The persisted user owned conversation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Conversation"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "404": {
+            "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/conversation/me/patch/dataset": {
+      "post": {
+        "tags": [
+          "Conversation"
+        ],
+        "summary": "Patch user owned conversation with updated datasets",
+        "parameters": [
+          {
+            "name": "f",
+            "in": "query",
+            "schema": {
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "example": "f=id&f=name&f=foo.id&f=foo.br.id"
+          }
+        ],
+        "requestBody": {
+          "description": "The model to persist",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConversationDatasetPatch"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The persisted user owned conversation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Conversation"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "404": {
+            "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/conversation/dataset/query": {
+      "post": {
+        "tags": [
+          "Conversation"
+        ],
+        "summary": "Query conversation datasets",
+        "requestBody": {
+          "description": "The query predicates",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConversationDatasetLookup"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The list of matching conversation datasets along with the count",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationDatasetQueryResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/conversation/dataset/me/query": {
+      "post": {
+        "tags": [
+          "Conversation"
+        ],
+        "summary": "Query user owned conversation datasets",
+        "requestBody": {
+          "description": "The query predicates",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConversationDatasetLookup"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The list of matching user owned collection datasets along with the count",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationDatasetQueryResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/conversation/dataset/{id}": {
+      "get": {
+        "tags": [
+          "Conversation"
+        ],
+        "summary": "Lookup conversation dataset by id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the item to lookup",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "f",
+            "in": "query",
+            "schema": {
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "example": "f=id&f=name&f=foo.id&f=foo.br.id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The matching conversation dataset",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationDatasetQueryResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "404": {
+            "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/conversation/dataset/me/{conversationId}/{datasetId}": {
+      "post": {
+        "tags": [
+          "Conversation"
+        ],
+        "summary": "Add dataset in owned conversation",
+        "parameters": [
+          {
+            "name": "conversationId",
+            "in": "path",
+            "description": "The conversation id to add the provided dataset",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "datasetId",
+            "in": "path",
+            "description": "The dataset id to add the provided conversation",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "f",
+            "in": "query",
+            "schema": {
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "example": "f=id&f=name&f=foo.id&f=foo.br.id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The dataset was added and returns the updated conversation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Conversation"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Conversation"
+        ],
+        "summary": "Remove dataset from owned conversation",
+        "parameters": [
+          {
+            "name": "conversationId",
+            "in": "path",
+            "description": "The conversation id from which to remove the provided dataset",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "datasetId",
+            "in": "path",
+            "description": "The dataset id to remove from the provided conversation",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "f",
+            "in": "query",
+            "schema": {
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "example": "f=id&f=name&f=foo.id&f=foo.br.id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The dataset was removed and returns the updated conversation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Conversation"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/conversation/message/query": {
+      "post": {
+        "tags": [
+          "Conversation"
+        ],
+        "summary": "Query conversation messages",
+        "requestBody": {
+          "description": "The query predicates",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConversationMessageLookup"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The list of matching conversation messages along with the count",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationMessageQueryResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/conversation/message/me/query": {
+      "post": {
+        "tags": [
+          "Conversation"
+        ],
+        "summary": "Query user owned conversation messages",
+        "requestBody": {
+          "description": "The query predicates",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConversationMessageLookup"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The list of matching user owned collection messages along with the count",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationMessageQueryResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/dataset/query": {
+      "post": {
+        "tags": [
+          "Dataset"
+        ],
+        "summary": "Query datasets",
+        "requestBody": {
+          "description": "The query predicates",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DatasetLookup"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The list of matching datasets along with the count",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatasetQueryResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/dataset/{id}": {
+      "get": {
+        "tags": [
+          "Dataset"
+        ],
+        "summary": "Lookup dataset by id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the item to lookup",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "f",
+            "in": "query",
+            "schema": {
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "example": "f=id&f=name&f=foo.id&f=foo.br.id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The matching dataset",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatasetQueryResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "404": {
+            "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/principal/me": {
+      "get": {
+        "tags": [
+          "Principal"
+        ],
+        "summary": "Retrieve information for the logged in user",
+        "parameters": [
+          {
+            "name": "f",
+            "in": "query",
+            "schema": {
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "example": "f=id&f=name&f=foo.id&f=foo.br.id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The information available for the logged in user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Account"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "500": {
+            "description": "Internal error"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/search/cross-dataset": {
+      "post": {
+        "tags": [
+          "Search"
+        ],
+        "summary": "Cross-dataset search",
+        "requestBody": {
+          "description": "The discovery query",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CrossDatasetDiscoveryLookup"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Matching results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CrossDatasetDiscoveryListSearchResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/search/in-data-explore": {
+      "post": {
+        "tags": [
+          "Search"
+        ],
+        "summary": "Explore in selected data",
+        "requestBody": {
+          "description": "The exploration query",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InDataExplorationLookup"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Matching results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InDataExploreListSearchResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/user/query": {
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Query users",
+        "requestBody": {
+          "description": "The query predicates",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserLookup"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The list of matching users along with the count",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserQueryResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/user/{id}": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Lookup user by id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the item to lookup",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "f",
+            "in": "query",
+            "schema": {
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "example": "f=id&f=name&f=foo.id&f=foo.br.id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The matching user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserQueryResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "404": {
+            "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/user/collection/query": {
+      "post": {
+        "tags": [
+          "UserCollection"
+        ],
+        "summary": "Query user collections",
+        "requestBody": {
+          "description": "The query predicates",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserCollectionLookup"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The list of matching user collections along with the count",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserCollectionQueryResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/user/collection/me/query": {
+      "post": {
+        "tags": [
+          "UserCollection"
+        ],
+        "summary": "Query user owned collections",
+        "requestBody": {
+          "description": "The query predicates",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserCollectionLookup"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The list of matching user owned collections along with the count",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserCollectionQueryResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/user/collection/{id}": {
+      "get": {
+        "tags": [
+          "UserCollection"
+        ],
+        "summary": "Lookup user collection by id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the item to lookup",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "f",
+            "in": "query",
+            "schema": {
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "example": "f=id&f=name&f=foo.id&f=foo.br.id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The matching user collection",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserCollectionQueryResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "404": {
+            "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "UserCollection"
+        ],
+        "summary": "Deletes the user collection by id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the item to delete",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Use collection deleted"
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "404": {
+            "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/user/collection/me/persist": {
+      "post": {
+        "tags": [
+          "UserCollection"
+        ],
+        "summary": "Persist user owned collection",
+        "parameters": [
+          {
+            "name": "f",
+            "in": "query",
+            "schema": {
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "example": "f=id&f=name&f=foo.id&f=foo.br.id"
+          }
+        ],
+        "requestBody": {
+          "description": "The model to persist",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserCollectionPersist"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The persisted user owned collection",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserCollection"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "404": {
+            "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/user/collection/me/persist/deep": {
+      "post": {
+        "tags": [
+          "UserCollection"
+        ],
+        "summary": "Persist user owned collection along with details provided",
+        "parameters": [
+          {
+            "name": "f",
+            "in": "query",
+            "schema": {
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "example": "f=id&f=name&f=foo.id&f=foo.br.id"
+          }
+        ],
+        "requestBody": {
+          "description": "The model to persist",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserCollectionPersistDeep"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The persisted user owned collection",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserCollection"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "404": {
+            "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/user/collection/me/patch/dataset": {
+      "post": {
+        "tags": [
+          "UserCollection"
+        ],
+        "summary": "Patch user owned collection with updated datasets",
+        "parameters": [
+          {
+            "name": "f",
+            "in": "query",
+            "schema": {
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "example": "f=id&f=name&f=foo.id&f=foo.br.id"
+          }
+        ],
+        "requestBody": {
+          "description": "The model to persist",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserCollectionDatasetPatch"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The persisted user owned collection",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserCollection"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "404": {
+            "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/user/collection/dataset/query": {
+      "post": {
+        "tags": [
+          "UserCollection"
+        ],
+        "summary": "Query user collection datasets",
+        "requestBody": {
+          "description": "The query predicates",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserDatasetCollectionLookup"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The list of matching user collection datasets along with the count",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDatasetCollectionQueryResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/user/collection/dataset/me/query": {
+      "post": {
+        "tags": [
+          "UserCollection"
+        ],
+        "summary": "Query user owned collection datasets",
+        "requestBody": {
+          "description": "The query predicates",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserDatasetCollectionLookup"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The list of matching user owned collection datasets along with the count",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDatasetCollectionQueryResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/user/collection/dataset/{id}": {
+      "get": {
+        "tags": [
+          "UserCollection"
+        ],
+        "summary": "Lookup user collection dataset by id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the item to lookup",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "f",
+            "in": "query",
+            "schema": {
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "example": "f=id&f=name&f=foo.id&f=foo.br.id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The matching user collection dataset",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDatasetCollectionQueryResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "404": {
+            "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/user/collection/dataset/me/{userCollectionId}/{datasetId}": {
+      "post": {
+        "tags": [
+          "UserCollection"
+        ],
+        "summary": "Add dataset in owned user collection",
+        "parameters": [
+          {
+            "name": "userCollectionId",
+            "in": "path",
+            "description": "The user collection id to add the provided dataset",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "datasetId",
+            "in": "path",
+            "description": "The dataset id to add the provided user collection",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "f",
+            "in": "query",
+            "schema": {
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "example": "f=id&f=name&f=foo.id&f=foo.br.id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The dataset was added and returns the updated user collection",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserCollection"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "UserCollection"
+        ],
+        "summary": "Remove dataset from owned user collection",
+        "parameters": [
+          {
+            "name": "userCollectionId",
+            "in": "path",
+            "description": "The user collection id from which to remove the provided dataset",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "datasetId",
+            "in": "path",
+            "description": "The dataset id to remove from the provided user collection",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "f",
+            "in": "query",
+            "schema": {
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "example": "f=id&f=name&f=foo.id&f=foo.br.id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The dataset was removed and returns the updated user collection",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserCollection"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/version-info/current": {
+      "get": {
+        "tags": [
+          "VersionInfo"
+        ],
+        "summary": "Retrieve current app version",
+        "responses": {
+          "200": {
+            "description": "The current app version",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VersionInfoQueryResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "404": {
+            "description": "Could not locate item"
+          },
+          "500": {
+            "description": "Internal error"
+          }
+        }
+      }
+    },
+    "/api/vocabulary/fields-of-science": {
+      "get": {
+        "tags": [
+          "Vocabulary"
+        ],
+        "summary": "Returns the fields of science vocabulary",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the fields of science vocabulary",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FieldsOfScienceVocabulary"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "403": {
+            "description": "The user does not have permission to access this resource"
+          },
+          "500": {
+            "description": "Internal error"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/vocabulary/license": {
+      "get": {
+        "tags": [
+          "Vocabulary"
+        ],
+        "summary": " Returns the license vocabulary",
+        "parameters": [
+          {
+            "name": "like",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the license vocabulary",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LicenseVocabulary"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "403": {
+            "description": "The user does not have permission to access this resource"
+          },
+          "500": {
+            "description": "Internal error"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/workflow/definition/query": {
+      "get": {
+        "tags": [
+          "Workflow"
+        ],
+        "summary": "Retrieve the available workflow definitions",
+        "requestBody": {
+          "description": "The query predicates",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkflowDefinitionLookup"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The list of matching workflows along with the count",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkflowDefinitionQueryResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        }
+      }
+    },
+    "/api/workflow/{id}": {
+      "get": {
+        "tags": [
+          "Workflow"
+        ],
+        "summary": "Lookup workflow definition by id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the item to lookup",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "f",
+            "in": "query",
+            "schema": {
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "example": "f=id&f=name&f=foo.id&f=foo.br.id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The matching workflow definition",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkflowDefinitionQueryResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "404": {
+            "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Account": {
+        "type": "object",
+        "properties": {
+          "isAuthenticated": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "principal": {
+            "$ref": "#/components/schemas/PrincipalInfo"
+          },
+          "token": {
+            "$ref": "#/components/schemas/TokenInfo"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "deferredPermissions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "datasets": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "datasetGrants": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DatasetGrant"
+            },
+            "nullable": true
+          },
+          "more": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "nullable": true
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Collection": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "datasets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Dataset"
+            },
+            "nullable": true
+          },
+          "datasetCount": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CollectionLookup": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Limit lookup to items with specific ids. If set, the list of ids must not be empty",
+            "nullable": true
+          },
+          "excludedIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Exclude from the lookup items with specific ids. If set, the list of ids must not be empty",
+            "nullable": true
+          },
+          "datasetIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Limit lookup to items containing the specific dataset ids. If set, the list of ids must not be empty",
+            "nullable": true
+          },
+          "like": {
+            "type": "string",
+            "description": "Limit lookup to items whose name matches the pattern",
+            "nullable": true
+          },
+          "page": {
+            "$ref": "#/components/schemas/Paging"
+          },
+          "order": {
+            "$ref": "#/components/schemas/Ordering"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/Header"
+          },
+          "project": {
+            "$ref": "#/components/schemas/FieldSet"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CollectionQueryResult": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Collection"
+            },
+            "nullable": true
+          },
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "Conversation": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
+          },
+          "datasets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ConversationDataset"
+            },
+            "nullable": true
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ConversationMessage"
+            },
+            "nullable": true
+          },
+          "isActive": {
+            "$ref": "#/components/schemas/IsActive"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "eTag": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ConversationDataset": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "dataset": {
+            "$ref": "#/components/schemas/Dataset"
+          },
+          "conversation": {
+            "$ref": "#/components/schemas/Conversation"
+          },
+          "isActive": {
+            "$ref": "#/components/schemas/IsActive"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "eTag": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ConversationDatasetLookup": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Limit lookup to items with specific ids. If set, the list of ids must not be empty",
+            "nullable": true
+          },
+          "excludedIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Exclude from the lookup items with specific ids. If set, the list of ids must not be empty",
+            "nullable": true
+          },
+          "conversationIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Limit lookup to items that have the specific conversation ids. If set, the list of ids must not be empty",
+            "nullable": true
+          },
+          "datasetIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Limit lookup to items that have the specific dataset ids. If set, the list of ids must not be empty",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IsActive"
+            },
+            "description": "Limit lookup to items that are active, or inactive or both. If set, the list of flags must not be empty",
+            "nullable": true
+          },
+          "page": {
+            "$ref": "#/components/schemas/Paging"
+          },
+          "order": {
+            "$ref": "#/components/schemas/Ordering"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/Header"
+          },
+          "project": {
+            "$ref": "#/components/schemas/FieldSet"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ConversationDatasetPatch": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "conversationDatasets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ConversationDatasetPersist"
+            },
+            "nullable": true
+          },
+          "eTag": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ConversationDatasetPersist": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "conversationId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "datasetId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "eTag": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ConversationDatasetQueryResult": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ConversationDataset"
+            },
+            "nullable": true
+          },
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ConversationEntry": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/ConversationMessageKind"
+          },
+          "version": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ConversationLookup": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Limit lookup to items with specific ids. If set, the list of ids must not be empty",
+            "nullable": true
+          },
+          "userIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Limit lookup to items belonging to specific user ids. If set, the list of ids must not be empty",
+            "nullable": true
+          },
+          "excludedIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Exclude from the lookup items with specific ids. If set, the list of ids must not be empty",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IsActive"
+            },
+            "description": "Limit lookup to items that are active, or inactive or both. If set, the list of flags must not be empty",
+            "nullable": true
+          },
+          "like": {
+            "type": "string",
+            "description": "Limit lookup to items whose name or email matches the pattern",
+            "nullable": true
+          },
+          "page": {
+            "$ref": "#/components/schemas/Paging"
+          },
+          "order": {
+            "$ref": "#/components/schemas/Ordering"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/Header"
+          },
+          "project": {
+            "$ref": "#/components/schemas/FieldSet"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ConversationMessage": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "conversation": {
+            "$ref": "#/components/schemas/Conversation"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/ConversationMessageKind"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ConversationEntry"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ConversationMessageKind": {
+        "enum": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "type": "integer",
+        "description": "  (0 - CrossDatasetQuery = 0 - CrossDataset Query, 1 - CrossDatasetResponse = 1 - CrossDataset Response, 2 - InDataExploreQuery = 2 - InDataExplore Query, 3 - InDataExploreResponse = 3 - InDataExplore Response)",
+        "format": "int32",
+        "x-enum-varnames": [
+          "0 - CrossDatasetQuery",
+          "1 - CrossDatasetResponse",
+          "2 - InDataExploreQuery",
+          "3 - InDataExploreResponse"
+        ],
+        "x-enum-descriptions": [
+          "0 - CrossDataset Query",
+          "1 - CrossDataset Response",
+          "2 - InDataExplore Query",
+          "3 - InDataExplore Response"
+        ]
+      },
+      "ConversationMessageLookup": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Limit lookup to items with specific ids. If set, the list of ids must not be empty",
+            "nullable": true
+          },
+          "excludedIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Exclude from the lookup items with specific ids. If set, the list of ids must not be empty",
+            "nullable": true
+          },
+          "conversationIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Limit lookup to items that have the specific conversation ids. If set, the list of ids must not be empty",
+            "nullable": true
+          },
+          "kinds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ConversationMessageKind"
+            },
+            "description": "Limit lookup to items that have the specific kind. If set, the list of ids must not be empty",
+            "nullable": true
+          },
+          "page": {
+            "$ref": "#/components/schemas/Paging"
+          },
+          "order": {
+            "$ref": "#/components/schemas/Ordering"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/Header"
+          },
+          "project": {
+            "$ref": "#/components/schemas/FieldSet"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ConversationMessageQueryResult": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ConversationMessage"
+            },
+            "nullable": true
+          },
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ConversationOptions": {
+        "type": "object",
+        "properties": {
+          "conversationId": {
+            "type": "string",
+            "description": "The conversation id to include the user query",
+            "format": "uuid",
+            "nullable": true
+          },
+          "autoCreateConversation": {
+            "type": "boolean",
+            "description": "Option to auto create new conversation if no conversation id provided. Leaving it empty is equivalent to false. Should not be true if Conversation id is provided",
+            "nullable": true
+          },
+          "autoUpdateDatasets": {
+            "type": "boolean",
+            "description": "Option to auto update the conversation datasets with the query context. Leaving it empty is equivalent to false. Should not be true if Conversation id is not provided of autocreate is set to true",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ConversationPersist": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "eTag": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ConversationPersistDeep": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "conversationDatasets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ConversationDatasetPersist"
+            },
+            "nullable": true
+          },
+          "eTag": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ConversationQueryResult": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Conversation"
+            },
+            "nullable": true
+          },
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CrossDatasetDiscovery": {
+        "type": "object",
+        "properties": {
+          "dataset": {
+            "$ref": "#/components/schemas/Dataset"
+          },
+          "maxSimilarity": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "hits": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DatasetHits"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CrossDatasetDiscoveryListSearchResult": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CrossDatasetDiscovery"
+            },
+            "nullable": true
+          },
+          "conversationId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CrossDatasetDiscoveryLookup": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "The user query for which datasets must be discovered",
+            "nullable": true
+          },
+          "resultCount": {
+            "type": "integer",
+            "description": "The number of results to retrieve for the query",
+            "format": "int32",
+            "nullable": true
+          },
+          "conversationOptions": {
+            "$ref": "#/components/schemas/ConversationOptions"
+          },
+          "project": {
+            "$ref": "#/components/schemas/FieldSet"
+          }
+        },
+        "additionalProperties": false
+      },
+      "Dataset": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "license": {
+            "type": "string",
+            "nullable": true
+          },
+          "mimeType": {
+            "type": "string",
+            "nullable": true
+          },
+          "size": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "url": {
+            "type": "string",
+            "nullable": true
+          },
+          "version": {
+            "type": "string",
+            "nullable": true
+          },
+          "headline": {
+            "type": "string",
+            "nullable": true
+          },
+          "keywords": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "fieldOfScience": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "language": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "country": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "datePublished": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "profileRaw": {
+            "type": "string",
+            "nullable": true
+          },
+          "collections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Collection"
+            },
+            "nullable": true
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DatasetGrant": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/TargetType"
+          },
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "access": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DatasetHits": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string",
+            "nullable": true
+          },
+          "objectId": {
+            "type": "string",
+            "nullable": true
+          },
+          "similarity": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DatasetLookup": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Limit lookup to items with specific ids. If set, the list of ids must not be empty",
+            "nullable": true
+          },
+          "excludedIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Exclude from the lookup items with specific ids. If set, the list of ids must not be empty",
+            "nullable": true
+          },
+          "collectionIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Limit lookup to items belonging to the specific collection ids. If set, the list of ids must not be empty",
+            "nullable": true
+          },
+          "like": {
+            "type": "string",
+            "description": "Limit lookup to items whose name matches the pattern",
+            "nullable": true
+          },
+          "license": {
+            "type": "string",
+            "description": "Limit lookup to items whose license matches the provided value",
+            "nullable": true
+          },
+          "mimeType": {
+            "type": "string",
+            "description": "Limit lookup to items whose mime type matches the provided value",
+            "nullable": true
+          },
+          "fieldsOfScience": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Limit lookup to items belonging to the specific fields of science. If set, the list of values must not be empty",
+            "nullable": true
+          },
+          "publishedRange": {
+            "$ref": "#/components/schemas/DateOnlyNullableRangeOf"
+          },
+          "sizeRange": {
+            "$ref": "#/components/schemas/Int64NullableRangeOf"
+          },
+          "page": {
+            "$ref": "#/components/schemas/Paging"
+          },
+          "order": {
+            "$ref": "#/components/schemas/Ordering"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/Header"
+          },
+          "project": {
+            "$ref": "#/components/schemas/FieldSet"
+          }
+        },
+        "additionalProperties": false
+      },
+      "DatasetQueryResult": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Dataset"
+            },
+            "nullable": true
+          },
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "DateOnlyNullableRangeOf": {
+        "type": "object",
+        "properties": {
+          "start": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "end": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "EntryStatus": {
+        "enum": [
+          0,
+          1
+        ],
+        "type": "integer",
+        "description": "  (0 - Success = 0 - Successful evaluation, 1 - Error = 1 - Problem in evaluation)",
+        "format": "int32",
+        "x-enum-varnames": [
+          "0 - Success",
+          "1 - Error"
+        ],
+        "x-enum-descriptions": [
+          "0 - Successful evaluation",
+          "1 - Problem in evaluation"
+        ]
+      },
+      "FieldSet": {
+        "title": "Projection Fields",
+        "type": "object",
+        "properties": {
+          "fields": {
+            "title": "Projection list",
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The list of properties to include in the response for each returned record. Property names can be qualified with . to control nested objects"
+          }
+        },
+        "additionalProperties": false,
+        "description": "The list of field to include in the response model. Fields can be qualified with . to control nested properties",
+        "nullable": true,
+        "example": {
+          "fields": [
+            "id",
+            "name",
+            "foo.id",
+            "foo.bar.id"
+          ]
+        }
+      },
+      "FieldsOfScienceVocabulary": {
+        "type": "object",
+        "properties": {
+          "hierarchy": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VocabularyItem"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Header": {
+        "title": "Additional directives",
+        "type": "object",
+        "properties": {
+          "countAll": {
+            "title": "Counting outside paging",
+            "type": "boolean",
+            "description": "Control if the count returned will be evaluated omitting the requested paging. If true, the full number of records mathing the predicates will be returned. If false, the count will be over the retrieved records"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Additional directives for the lookup operaiton",
+        "nullable": true,
+        "example": {
+          "countAll": true
+        }
+      },
+      "InDataExplorationLookup": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "A string containing the user query in natural language. Cannot be empty.",
+            "nullable": true
+          },
+          "datasetIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "The datasets to look into. Cannot be empty.",
+            "nullable": true
+          },
+          "conversationOptions": {
+            "$ref": "#/components/schemas/ConversationOptions"
+          },
+          "project": {
+            "$ref": "#/components/schemas/FieldSet"
+          }
+        },
+        "additionalProperties": false
+      },
+      "InDataExplore": {
+        "type": "object",
+        "properties": {
+          "question": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "type": "object",
+            "additionalProperties": {
+              "nullable": true
+            },
+            "nullable": true
+          },
+          "status": {
+            "$ref": "#/components/schemas/ResponseStatus"
+          },
+          "entries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InDataExploreEntry"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "InDataExploreEntry": {
+        "type": "object",
+        "properties": {
+          "process": {
+            "$ref": "#/components/schemas/InDataExploreProcessEntry"
+          },
+          "result": {
+            "$ref": "#/components/schemas/InDataExploreResultEntry"
+          },
+          "status": {
+            "$ref": "#/components/schemas/EntryStatus"
+          }
+        },
+        "additionalProperties": false
+      },
+      "InDataExploreListSearchResult": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InDataExplore"
+            },
+            "nullable": true
+          },
+          "conversationId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "InDataExploreProcessEntry": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/InDataExploreProcessKind"
+          }
+        },
+        "additionalProperties": false
+      },
+      "InDataExploreProcessKind": {
+        "enum": [
+          0,
+          1
+        ],
+        "type": "integer",
+        "description": "  (0 - None = 0 - None, 1 - Sql = 1 - Sql)",
+        "format": "int32",
+        "x-enum-varnames": [
+          "0 - None",
+          "1 - Sql"
+        ],
+        "x-enum-descriptions": [
+          "0 - None",
+          "1 - Sql"
+        ]
+      },
+      "InDataExploreResultEntry": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/InDataExploreResultKind"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "InDataExploreResultKind": {
+        "enum": [
+          0,
+          1
+        ],
+        "type": "integer",
+        "description": "  (0 - None = 0 - None, 1 - Table = 1 - Table)",
+        "format": "int32",
+        "x-enum-varnames": [
+          "0 - None",
+          "1 - Table"
+        ],
+        "x-enum-descriptions": [
+          "0 - None",
+          "1 - Table"
+        ]
+      },
+      "Int64NullableRangeOf": {
+        "type": "object",
+        "properties": {
+          "start": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "end": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "IsActive": {
+        "enum": [
+          0,
+          1
+        ],
+        "type": "integer",
+        "description": "  (0 - Inactive = 0 - Inactive entry, 1 - Active = 1 - Active entry)",
+        "format": "int32",
+        "x-enum-varnames": [
+          "0 - Inactive",
+          "1 - Active"
+        ],
+        "x-enum-descriptions": [
+          "0 - Inactive entry",
+          "1 - Active entry"
+        ]
+      },
+      "License": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "url": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "code": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "LicenseVocabulary": {
+        "type": "object",
+        "properties": {
+          "licenses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/License"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Ordering": {
+        "title": "Ordering directives",
+        "type": "object",
+        "properties": {
+          "items": {
+            "title": "Ordering clause",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The ordering to be applied for the returned records. Multiple fields can be set. Prepending + applies ascending ordering while - descending"
+          },
+          "isEmpty": {
+            "type": "boolean",
+            "readOnly": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Ordering directives to be applied for the returned models. If paging is set, ordering must be set also",
+        "nullable": true,
+        "example": {
+          "items": [
+            "+name",
+            "-id"
+          ]
+        }
+      },
+      "Paging": {
+        "title": "Paging directives",
+        "type": "object",
+        "properties": {
+          "offset": {
+            "title": "Record offset",
+            "type": "integer",
+            "description": "Offset to start retrieving records from. Starts from 0",
+            "format": "int32"
+          },
+          "size": {
+            "title": "Record size",
+            "type": "integer",
+            "description": "Number of records to retrieve",
+            "format": "int32"
+          },
+          "isEmpty": {
+            "type": "boolean",
+            "readOnly": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Paging directives to be applied for the returned models. If paging is set, ordering must be set also",
+        "nullable": true,
+        "example": {
+          "offset": 0,
+          "size": 10
+        }
+      },
+      "PrincipalInfo": {
+        "type": "object",
+        "properties": {
+          "subject": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "username": {
+            "type": "string",
+            "nullable": true
+          },
+          "givenName": {
+            "type": "string",
+            "nullable": true
+          },
+          "familyName": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ResponseStatus": {
+        "enum": [
+          0,
+          1
+        ],
+        "type": "integer",
+        "description": "  (0 - Success = 0 - Successful evaluation, 1 - Error = 1 - Problem in evaluation)",
+        "format": "int32",
+        "x-enum-varnames": [
+          "0 - Success",
+          "1 - Error"
+        ],
+        "x-enum-descriptions": [
+          "0 - Successful evaluation",
+          "1 - Problem in evaluation"
+        ]
+      },
+      "TargetType": {
+        "enum": [
+          0,
+          1
+        ],
+        "type": "integer",
+        "description": "  (0 - Dataset = 0 - Grant assigned at the dataset level, 1 - Group = 1 - Grant assigned at the group level)",
+        "format": "int32",
+        "x-enum-varnames": [
+          "0 - Dataset",
+          "1 - Group"
+        ],
+        "x-enum-descriptions": [
+          "0 - Grant assigned at the dataset level",
+          "1 - Grant assigned at the group level"
+        ]
+      },
+      "TokenInfo": {
+        "type": "object",
+        "properties": {
+          "client": {
+            "type": "string",
+            "nullable": true
+          },
+          "issuer": {
+            "type": "string",
+            "nullable": true
+          },
+          "tokenType": {
+            "type": "string",
+            "nullable": true
+          },
+          "authorizedParty": {
+            "type": "string",
+            "nullable": true
+          },
+          "audience": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "issuedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "scope": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "idpSubjectId": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "userCollections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserCollection"
+            },
+            "nullable": true
+          },
+          "eTag": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserCollection": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
+          },
+          "userDatasetCollections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserDatasetCollection"
+            },
+            "nullable": true
+          },
+          "isActive": {
+            "$ref": "#/components/schemas/IsActive"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/UserCollectionKind"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "eTag": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserCollectionDatasetPatch": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "userDatasetCollections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserDatasetCollectionPersist"
+            },
+            "nullable": true
+          },
+          "eTag": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserCollectionKind": {
+        "enum": [
+          0,
+          1
+        ],
+        "type": "integer",
+        "description": "  (0 - User = 0 - User entry, 1 - Favorites = 1 - Favorites entry)",
+        "format": "int32",
+        "x-enum-varnames": [
+          "0 - User",
+          "1 - Favorites"
+        ],
+        "x-enum-descriptions": [
+          "0 - User entry",
+          "1 - Favorites entry"
+        ]
+      },
+      "UserCollectionLookup": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Limit lookup to items with specific ids. If set, the list of ids must not be empty",
+            "nullable": true
+          },
+          "userIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Limit lookup to items belonging to specific user ids. If set, the list of ids must not be empty",
+            "nullable": true
+          },
+          "excludedIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Exclude from the lookup items with specific ids. If set, the list of ids must not be empty",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IsActive"
+            },
+            "description": "Limit lookup to items that are active, or inactive or both. If set, the list of flags must not be empty",
+            "nullable": true
+          },
+          "kind": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserCollectionKind"
+            },
+            "description": "Limit lookup to items based on the collection kind. If set, the list of flags must not be empty",
+            "nullable": true
+          },
+          "like": {
+            "type": "string",
+            "description": "Limit lookup to items whose name or email matches the pattern",
+            "nullable": true
+          },
+          "page": {
+            "$ref": "#/components/schemas/Paging"
+          },
+          "order": {
+            "$ref": "#/components/schemas/Ordering"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/Header"
+          },
+          "project": {
+            "$ref": "#/components/schemas/FieldSet"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserCollectionPersist": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "eTag": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserCollectionPersistDeep": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "userDatasetCollections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserDatasetCollectionPersist"
+            },
+            "nullable": true
+          },
+          "eTag": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserCollectionQueryResult": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserCollection"
+            },
+            "nullable": true
+          },
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserDatasetCollection": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "dataset": {
+            "$ref": "#/components/schemas/Dataset"
+          },
+          "isActive": {
+            "$ref": "#/components/schemas/IsActive"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "userCollection": {
+            "$ref": "#/components/schemas/UserCollection"
+          },
+          "eTag": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserDatasetCollectionLookup": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Limit lookup to items with specific ids. If set, the list of ids must not be empty",
+            "nullable": true
+          },
+          "excludedIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Exclude from the lookup items with specific ids. If set, the list of ids must not be empty",
+            "nullable": true
+          },
+          "userCollectionIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Limit lookup to items that have the specific user collection ids. If set, the list of ids must not be empty",
+            "nullable": true
+          },
+          "datasetIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Limit lookup to items that have the specific dataset ids. If set, the list of ids must not be empty",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IsActive"
+            },
+            "description": "Limit lookup to items that are active, or inactive or both. If set, the list of flags must not be empty",
+            "nullable": true
+          },
+          "page": {
+            "$ref": "#/components/schemas/Paging"
+          },
+          "order": {
+            "$ref": "#/components/schemas/Ordering"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/Header"
+          },
+          "project": {
+            "$ref": "#/components/schemas/FieldSet"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserDatasetCollectionPersist": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "userCollectionId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "datasetId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "eTag": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserDatasetCollectionQueryResult": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserDatasetCollection"
+            },
+            "nullable": true
+          },
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserLookup": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Limit lookup to items with specific ids. If set, the list of ids must not be empty",
+            "nullable": true
+          },
+          "excludedIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Exclude from the lookup items with specific ids. If set, the list of ids must not be empty",
+            "nullable": true
+          },
+          "idpSubjectIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Limit lookup to items with specific subject identifiers as produced from the idp. If set, the list of ids must not be empty",
+            "nullable": true
+          },
+          "like": {
+            "type": "string",
+            "description": "Limit lookup to items whose name or email matches the pattern",
+            "nullable": true
+          },
+          "page": {
+            "$ref": "#/components/schemas/Paging"
+          },
+          "order": {
+            "$ref": "#/components/schemas/Ordering"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/Header"
+          },
+          "project": {
+            "$ref": "#/components/schemas/FieldSet"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserQueryResult": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/User"
+            },
+            "nullable": true
+          },
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "VersionInfo": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "nullable": true
+          },
+          "version": {
+            "type": "string",
+            "nullable": true
+          },
+          "releasedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "deployedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "VersionInfoQueryResult": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VersionInfo"
+            },
+            "nullable": true
+          },
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "VocabularyItem": {
+        "type": "object",
+        "properties": {
+          "ordinal": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "children": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VocabularyItem"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "WorkflowDefinition": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "isPaused": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isStale": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "lastParsedTime": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "lastExpired": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "bundleName": {
+            "type": "string",
+            "nullable": true
+          },
+          "bundleVersion": {
+            "type": "string",
+            "nullable": true
+          },
+          "relativeFileLocation": {
+            "type": "string",
+            "nullable": true
+          },
+          "fileLocation": {
+            "type": "string",
+            "nullable": true
+          },
+          "fileToken": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "timetableSummary": {
+            "type": "string",
+            "nullable": true
+          },
+          "timetableDescription": {
+            "type": "string",
+            "nullable": true
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "maxActiveTasks": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "maxActiveRuns": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "maxConsecutiveFailedRuns": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "hasTaskConcurrencyLimits": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "hasImportErrors": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "nextLogicalDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "nextDataIntervalStart": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "nextDataIntervalEnd": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "nextRunAfter": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "owners": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "WorkflowDefinitionKind": {
+        "enum": [
+          0
+        ],
+        "type": "integer",
+        "description": "  (0 - DatasetIngestion = 0 - Dataset Ingestion)",
+        "format": "int32",
+        "x-enum-varnames": [
+          "0 - DatasetIngestion"
+        ],
+        "x-enum-descriptions": [
+          "0 - Dataset Ingestion"
+        ]
+      },
+      "WorkflowDefinitionLookup": {
+        "type": "object",
+        "properties": {
+          "kinds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkflowDefinitionKind"
+            },
+            "description": "Limit lookup to items with specific kinds. If set, the list of values must not be empty",
+            "nullable": true
+          },
+          "like": {
+            "type": "string",
+            "description": "Limit lookup to items whose name matches the pattern",
+            "nullable": true
+          },
+          "excludeStaled": {
+            "type": "boolean",
+            "description": "Limit lookup to items that are or are not staled",
+            "nullable": true
+          },
+          "includePaused": {
+            "type": "boolean",
+            "description": "Limit lookup to items that are or are not paused",
+            "nullable": true
+          },
+          "lastRunState": {
+            "$ref": "#/components/schemas/WorkflowRunState"
+          },
+          "runStartRange": {
+            "$ref": "#/components/schemas/DateOnlyNullableRangeOf"
+          },
+          "runEndRange": {
+            "$ref": "#/components/schemas/DateOnlyNullableRangeOf"
+          },
+          "runState": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkflowRunState"
+            },
+            "description": "Limit lookup to items who are at a specific state. If set, the list of values must not be empty",
+            "nullable": true
+          },
+          "page": {
+            "$ref": "#/components/schemas/Paging"
+          },
+          "order": {
+            "$ref": "#/components/schemas/Ordering"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/Header"
+          },
+          "project": {
+            "$ref": "#/components/schemas/FieldSet"
+          }
+        },
+        "additionalProperties": false
+      },
+      "WorkflowDefinitionQueryResult": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkflowDefinition"
+            },
+            "nullable": true
+          },
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "WorkflowRunState": {
+        "enum": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "type": "integer",
+        "description": "  (0 - Queued = 0 - Queued, 1 - Running = 1 - Running, 2 - Success = 2 - Success, 3 - Failed = 3 - Failed)",
+        "format": "int32",
+        "x-enum-varnames": [
+          "0 - Queued",
+          "1 - Running",
+          "2 - Success",
+          "3 - Failed"
+        ],
+        "x-enum-descriptions": [
+          "0 - Queued",
+          "1 - Running",
+          "2 - Success",
+          "3 - Failed"
+        ]
+      }
+    },
+    "securitySchemes": {
+      "oauth2": {
+        "type": "oauth2",
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "https://datagems-dev.scayle.es/oauth/realms/dev/protocol/openid-connect/auth",
+            "tokenUrl": "https://datagems-dev.scayle.es/oauth/realms/dev/protocol/openid-connect/token",
+            "scopes": {
+              "datasets": "Datasets",
+              "dg-app-api": "DataGEMS Gateway API",
+              "email": "Email",
+              "openid": "OpenID Connect",
+              "profile": "User profile"
+            }
+          }
+        }
+      }
+    }
+  }
+}
