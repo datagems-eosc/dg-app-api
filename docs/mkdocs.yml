@@ -27,13 +27,13 @@ extra:
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/datagems-eosc/
-    - icon: fontawesome/brands/instagram
-      link: https://www.instagram.com/datagems_eosc
-    - icon: fontawesome/brands/x-twitter
-      link: https://x.com/datagems_eosc
-    - icon: fontawesome/brands/youtube
-      link: https://www.youtube.com/@DataGEMS-65n
-    - icon: fontawesome/brands/linkedin
-      link: https://www.linkedin.com/company/eosc-datagems
-    - icon: fontawesome/brands/facebook
-      link: https://www.facebook.com/datagems.eosc/
+    # - icon: fontawesome/brands/instagram
+    #   link: https://www.instagram.com/datagems_eosc
+    # - icon: fontawesome/brands/x-twitter
+    #   link: https://x.com/datagems_eosc
+    # - icon: fontawesome/brands/youtube
+    #   link: https://www.youtube.com/@DataGEMS-65n
+    # - icon: fontawesome/brands/linkedin
+    #   link: https://www.linkedin.com/company/eosc-datagems
+    # - icon: fontawesome/brands/facebook
+    #   link: https://www.facebook.com/datagems.eosc/
