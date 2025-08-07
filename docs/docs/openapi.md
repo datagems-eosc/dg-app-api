@@ -1,2 +1,2 @@
 
-[OAD(assets/openapi.json)]
+[OAD(../content/openapi.json)]
