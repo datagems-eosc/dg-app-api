@@ -1,3 +1,3 @@
 # API Reference
 
-[OAD({assets/openapi.json})]
+[OAD(assets/openapi.json)]
