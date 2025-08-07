@@ -8,4 +8,8 @@
          <loc>https://datagems-eosc.github.io/dg-app-api/v0.0/license/</loc>
          <lastmod>2025-08-07</lastmod>
     </url>
+    <url>
+         <loc>https://datagems-eosc.github.io/dg-app-api/v0.0/openapi/</loc>
+         <lastmod>2025-08-07</lastmod>
+    </url>
 </urlset>
