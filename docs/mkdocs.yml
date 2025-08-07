@@ -4,6 +4,7 @@ site_url: https://datagems-eosc.github.io/dg-app-api/
 
 nav:
   - Home: index.md
+  - License: license.md
   - DataGEMS: https://datagems-eosc.github.io/
 
 theme:

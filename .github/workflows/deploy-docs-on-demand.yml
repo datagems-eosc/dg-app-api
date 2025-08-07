@@ -45,7 +45,7 @@ jobs:
         
       - name: Deploy versioned docs with mike
         run: |
-          mike deploy ${{ github.event.inputs.version }} --push --force --config-file mkdocs.yml
+          mike deploy ${{ github.event.inputs.version }} --push --config-file mkdocs.yml
           if [[ "${{ github.event.inputs.set_default }}" == "true" ]]; then
-            mike set-default ${{ github.event.inputs.version }} --push --force --config-file mkdocs.yml
+            mike set-default ${{ github.event.inputs.version }} --push --config-file mkdocs.yml
           fi
