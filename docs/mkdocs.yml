@@ -4,6 +4,7 @@ site_url: https://datagems-eosc.github.io/dg-app-api/
 
 nav:
   - Home: index.md
+  - OpenAPI: openapi.md
   - License: license.md
   - DataGEMS: https://datagems-eosc.github.io/
 
@@ -19,6 +20,17 @@ theme:
     - navigation.path
     - navigation.top
 
+plugins:
+  - search
+  - mike
+  - neoteroi.mkdocsoad:
+      use_pymdownx: true
+
+markdown_extensions:
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
 extra:
   version:
     provider: mike
@@ -27,13 +39,13 @@ extra:
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/datagems-eosc/
-    # - icon: fontawesome/brands/instagram
-    #   link: https://www.instagram.com/datagems_eosc
-    # - icon: fontawesome/brands/x-twitter
-    #   link: https://x.com/datagems_eosc
-    # - icon: fontawesome/brands/youtube
-    #   link: https://www.youtube.com/@DataGEMS-65n
-    # - icon: fontawesome/brands/linkedin
-    #   link: https://www.linkedin.com/company/eosc-datagems
-    # - icon: fontawesome/brands/facebook
-    #   link: https://www.facebook.com/datagems.eosc/
+    - icon: fontawesome/brands/instagram
+      link: https://www.instagram.com/datagems_eosc
+    - icon: fontawesome/brands/x-twitter
+      link: https://x.com/datagems_eosc
+    - icon: fontawesome/brands/youtube
+      link: https://www.youtube.com/@DataGEMS-65n
+    - icon: fontawesome/brands/linkedin
+      link: https://www.linkedin.com/company/eosc-datagems
+    - icon: fontawesome/brands/facebook
+      link: https://www.facebook.com/datagems.eosc/
