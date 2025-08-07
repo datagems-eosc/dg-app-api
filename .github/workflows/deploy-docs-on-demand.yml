@@ -6,10 +6,6 @@ on:
       version:
         description: "Documentation Version"
         required: true
-      set_default:
-        description: "Set as default version"
-        required: false
-        default: "true"
   
 jobs:
   deploy:
@@ -35,7 +31,7 @@ jobs:
         run: |
           pip install mkdocs mkdocs-material mike
 
-      - name: Configure git for mike
+      - name: Configure git
         run: |
           git config user.name "datagems-ci[bot]"
           git config user.email "datagems-ci[bot]@datagems.eu"
@@ -43,9 +39,7 @@ jobs:
       - name: Fetch existing gh-pages branch
         run: git fetch origin gh-pages:gh-pages
 
-      - name: Deploy versioned docs with mike
-        run: mike deploy ${{ github.event.inputs.version }} --push --config-file mkdocs.yml
-
-      - name: Set default version
-        if: ${{ github.event.inputs.set_default == 'true' }}
-        run: mike set-default ${{ github.event.inputs.version }} --push --config-file mkdocs.yml
+      - name: Publish docs
+        run: |
+          mike deploy --push --update-aliases ${{ github.event.inputs.version }} latest --config-file mkdocs.yml
+          mike set-default --push latest --config-file mkdocs.yml
