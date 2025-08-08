@@ -999,10 +999,12 @@
 <span class="p">}</span>
 </code></pre></div></p>
 <h2 id="verions-updates">Verions &amp; Updates<a class="headerlink" href="#verions-updates" title="Permanent link">&para;</a></h2>
-<p>The service follows a semantic versioning scheme and structures versions as MAJOR.MINOR.PATCH:
-* MAJOR (X.0.0): Breaking changes that are incompatible with previous versions.
-* MINOR (X.Y.0): New features added in a backward-compatible way.
-* PATCH (X.Y.Z): Bug fixes and security patches that do not affect compatibility.</p>
+<p>The service follows a semantic versioning scheme and structures versions as MAJOR.MINOR.PATCH:</p>
+<ul>
+<li>MAJOR (X.0.0): Breaking changes that are incompatible with previous versions.</li>
+<li>MINOR (X.Y.0): New features added in a backward-compatible way.</li>
+<li>PATCH (X.Y.Z): Bug fixes and security patches that do not affect compatibility.</li>
+</ul>
 <h2 id="backups">Backups<a class="headerlink" href="#backups" title="Permanent link">&para;</a></h2>
 <p>All state persisted by the service is maintained in the relational database as described in the respective <a href="../datastore/">datastores</a> section.</p>
 <p>To keep backups of the state, the respective utilities must be scheduled to run in a consistent manner. </p>

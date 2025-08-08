@@ -977,9 +977,11 @@
 <p>For example, in idp.client.json the Idp:Client:Authority configuration option value is set to "%{IdpAuthority}%". If at another configuration file we define a property with a key of "IdpAuthority", the value of that property will substitute the value of the Idp:Client:Authority key. </p>
 <p>The practice employed is to define an env.[Environment].json file (eg env.Development.json) file where we place the various keys that need to be substituted. This way, and from a single location, we control the environment specific values.</p>
 <p>Additonally, configuration overrides can be applied through environment variables. Only variables starting with the prefix <em>DG_GW_</em> are considered by the service configuration stack.</p>
-<p>For the ASP.NET environment to be properly bootstrapped, there are two envrionment variables that must be set explicitly:
-* ASPNETCORE_ENVIRONMENT: This must define the envrionment in which the service runs. This value will control the "Environment" value in any xxx.[Environment].json configuration file that must be loaded
-* ASPNETCORE_URLS: Indicates the IP addresses or host addresses with ports and protocols that the server should listen on for requests</p>
+<p>For the ASP.NET environment to be properly bootstrapped, there are two envrionment variables that must be set explicitly:</p>
+<ul>
+<li>ASPNETCORE_ENVIRONMENT: This must define the envrionment in which the service runs. This value will control the "Environment" value in any xxx.[Environment].json configuration file that must be loaded</li>
+<li>ASPNETCORE_URLS: Indicates the IP addresses or host addresses with ports and protocols that the server should listen on for requests</li>
+</ul>
 <h2 id="secrets">Secrets<a class="headerlink" href="#secrets" title="Permanent link">&para;</a></h2>
 <p>Some of the configuration values contain sensitive data and should be treated differently. These may include secrets, connection strings, etc. It is suggested that, depending on the available infrastructure and tooling, the handling of these values is done separately from other configuration values.</p>
 

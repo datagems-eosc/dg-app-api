@@ -973,21 +973,25 @@
 <p>At the time of invoking another service, we include the correlation id header, along with the correlation id value so that the next service in line will use the same identifier.</p>
 <p>The respective <a href="../configuration/">Configuration</a> section describes where this behavior is configured. </p>
 <h2 id="troubleshooting-logs">Troubleshooting Logs<a class="headerlink" href="#troubleshooting-logs" title="Permanent link">&para;</a></h2>
-<p>Troubleshooting logs are produced by the service throughout the execution of caller requests. The messages are separated by the log level:
-* Trace
-* Debug
-* Information
-* Warning
-* Error
-* Critical</p>
-<p>Log entries may contain the following information (where available):
-* Timestamp in UTC (ISO8601)
-* Correlation Identifier
-* Subject Id
-* Client Id
-* Message text
-* Log Level
-* ... additional properties</p>
+<p>Troubleshooting logs are produced by the service throughout the execution of caller requests. The messages are separated by the log level:</p>
+<ul>
+<li>Trace</li>
+<li>Debug</li>
+<li>Information</li>
+<li>Warning</li>
+<li>Error</li>
+<li>Critical</li>
+</ul>
+<p>Log entries may contain the following information (where available):</p>
+<ul>
+<li>Timestamp in UTC (ISO8601)</li>
+<li>Correlation Identifier</li>
+<li>Subject Id</li>
+<li>Client Id</li>
+<li>Message text</li>
+<li>Log Level</li>
+<li>... additional properties</li>
+</ul>
 <p>An prettified example of a log entry is:</p>
 <div class="highlight"><pre><span></span><code><span class="p">[</span>
 <span class="w">    </span><span class="p">{</span>
