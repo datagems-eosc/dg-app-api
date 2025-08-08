@@ -1,6 +1,7 @@
 site_name: DataGEMS Gateway API Docs
 
 site_url: https://datagems-eosc.github.io/dg-app-api/
+repo_url: https://github.com/datagems-eosc/dg-app-api/
 
 nav:
   - Overview: index.md
@@ -23,13 +24,14 @@ nav:
     - Quality Assurance: qa.md
     - FAQ & Known Issues: faq.md
   - License: license.md
-  - Code Repository: https://github.com/datagems-eosc/dg-app-api
   - Home: https://datagems-eosc.github.io/
 
 theme:
   name: 'material'
   favicon: images/favicon.jpg
   logo: images/datagems-portal-icon.png
+  icon:
+    repo: fontawesome/brands/github
   custom_dir: overrides
   features:
     # - navigation.tabs

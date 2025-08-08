@@ -90,7 +90,7 @@ An prettified example of a log entry is:
 ]
 ```
 
-## Acconting Logs
+## Accounting Logs
 
 The service generates accounting entries that ustilize the same logging mechanism but are differentiated by troubleshooting logs through the "SourceContext" property which is set to "accounting".
 
