@@ -25,6 +25,7 @@ You can always contact us through the [DataGEMS Help Desk](https://datagems.eu/c
 ## Examples
 
 You can find here a postman collection that describes some example calls of the Api. You will need to create an environment and define the following variables:
+
 * userAccessToken: set here the access token retrieved from the DataGEMS AAI service
 * baseUrl: set this to the api endpoint you want to use
 
@@ -40,9 +41,10 @@ You can find useful material and onboarding guidelines in our social channels be
 ## Keep in touch
 
 Make sure to follow the DataGEMS channels to get the latest news and references:
-* [:fontawesome-brands-github: GitHub](https://github.com/datagems-eosc/)
-* [:fontawesome-brands-instagram: Instagram](https://www.instagram.com/datagems_eosc)
-* [:fontawesome-brands-x-twitter: X](https://x.com/datagems_eosc)
-* [:fontawesome-brands-youtube: YoutTube](https://www.youtube.com/@DataGEMS-65n)
-* [:fontawesome-brands-linkedin: LinkedIn](https://www.linkedin.com/company/eosc-datagems)
-* [:fontawesome-brands-facebook: Facebook](https://www.facebook.com/datagems.eosc/)
+
+* [GitHub](https://github.com/datagems-eosc/)
+* [Instagram](https://www.instagram.com/datagems_eosc)
+* [X](https://x.com/datagems_eosc)
+* [YoutTube](https://www.youtube.com/@DataGEMS-65n)
+* [LinkedIn](https://www.linkedin.com/company/eosc-datagems)
+* [Facebook](https://www.facebook.com/datagems.eosc/)

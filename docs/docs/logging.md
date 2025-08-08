@@ -23,6 +23,7 @@ The respective [Configuration](configuration.md) section describes where this be
 ## Troubleshooting Logs
 
 Troubleshooting logs are produced by the service throughout the execution of caller requests. The messages are separated by the log level:
+
 * Trace
 * Debug
 * Information
@@ -31,6 +32,7 @@ Troubleshooting logs are produced by the service throughout the execution of cal
 * Critical
 
 Log entries may contain the following information (where available):
+
 * Timestamp in UTC (ISO8601)
 * Correlation Identifier
 * Subject Id

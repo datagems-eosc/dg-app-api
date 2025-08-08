@@ -45,6 +45,7 @@ An example of a Verbose response that returns 200 OK for healthy state is:
 ## Verions & Updates
 
 The service follows a semantic versioning scheme and structures versions as MAJOR.MINOR.PATCH:
+
 * MAJOR (X.0.0): Breaking changes that are incompatible with previous versions.
 * MINOR (X.Y.0): New features added in a backward-compatible way.
 * PATCH (X.Y.Z): Bug fixes and security patches that do not affect compatibility.

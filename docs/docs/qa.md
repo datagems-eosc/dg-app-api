@@ -14,7 +14,7 @@ Code metrics are quantitative measurements used to assess various aspects of sou
 
 The service has configured an automated GitHub Actions workflow, as described in the relevant [Automations](automations.md) section to calculate such metrics.
 
-## Vulenrability checks
+## Vulnerability checks
 
 Vulnerability checks are processes used to identify known security weaknesses in software, libraries, or dependencies. These checks typically scan the codebase, configuration files, or external packages against databases of publicly disclosed vulnerabilities. By detecting issues such as outdated libraries, insecure functions, or misconfigurations, vulnerability checks help developers address security risks early and maintain a secure software environment.
 

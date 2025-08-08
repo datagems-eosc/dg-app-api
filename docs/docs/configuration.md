@@ -42,6 +42,7 @@ The practice employed is to define an env.[Environment].json file (eg env.Develo
 Additonally, configuration overrides can be applied through environment variables. Only variables starting with the prefix *DG_GW_* are considered by the service configuration stack.
 
 For the ASP.NET environment to be properly bootstrapped, there are two envrionment variables that must be set explicitly:
+
 * ASPNETCORE_ENVIRONMENT: This must define the envrionment in which the service runs. This value will control the "Environment" value in any xxx.[Environment].json configuration file that must be loaded
 * ASPNETCORE_URLS: Indicates the IP addresses or host addresses with ports and protocols that the server should listen on for requests
 
