@@ -1,0 +1,1830 @@
+{
+	"info": {
+		"_postman_id": "610aad0f-e0c0-4ace-a557-ab69ee5679cb",
+		"name": "DataGEMS",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "654785"
+	},
+	"item": [
+		{
+			"name": "Gateway-Api",
+			"item": [
+				{
+					"name": "Collection",
+					"item": [
+						{
+							"name": "Collection - Query",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"project\": { \"fields\": [\"id\", \"code\", \"name\", \"permissions.browseDataset\", \"permissions.editDataset\", \"datasetCount\", \"datasets.id\", \"datasets.code\", \"datasets.name\" ] },\r\n    \"page\":{\r\n        \"Offset\": 0,\r\n        \"Size\": 10\r\n    },\r\n    \"Order\":{\r\n        \"Items\": [\"+code\"]\r\n    },\r\n    \"Metadata\":{\r\n        \"CountAll\": true\r\n    },\r\n    \"like\": \"math%\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/collection/query",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"collection",
+										"query"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Collection - Get",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/collection/c09b4ca6-f435-485e-acfe-537e92413039?f=id&f=code",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"collection",
+										"c09b4ca6-f435-485e-acfe-537e92413039"
+									],
+									"query": [
+										{
+											"key": "f",
+											"value": "id"
+										},
+										{
+											"key": "f",
+											"value": "code"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Conversation",
+					"item": [
+						{
+							"name": "Admin",
+							"item": [
+								{
+									"name": "Conversation - Query",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "Bearer {{userAccessToken}}",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"project\": { \"fields\": [\"id\", \"name\", \"user.id\", \"user.name\", \"datasets.dataset.id\", \"datasets.dataset.code\", \"messages.kind\", \"messages.data\", \"messages.createdAt\" ] },\r\n    \"page\":{\r\n        \"Offset\": 0,\r\n        \"Size\": 10\r\n    },\r\n    \"Order\":{\r\n        \"Items\": [\"+name\"]\r\n    },\r\n    \"Metadata\":{\r\n        \"CountAll\": true\r\n    }\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/api/conversation/query",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"conversation",
+												"query"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Conversation - Dataset - Query",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "Bearer {{userAccessToken}}",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"project\": { \"fields\": [\"id\", \"dataset.id\", \"conversation.id\" ] },\r\n    \"page\":{\r\n        \"Offset\": 0,\r\n        \"Size\": 10\r\n    },\r\n    \"Order\":{\r\n        \"Items\": [\"+name\"]\r\n    },\r\n    \"Metadata\":{\r\n        \"CountAll\": true\r\n    }\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/api/conversation/dataset/query",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"conversation",
+												"dataset",
+												"query"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Conversation - Message - Query",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "Bearer {{userAccessToken}}",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"project\": { \"fields\": [ \"id\", \"kind\", \"data\", \"createdAt\", \"conversation.id\" ] },\r\n    \"conversationIds\": [ \"98f8a206-ead1-4417-90ac-c3ff542624ce\" ],\r\n    \"page\":{\r\n        \"Offset\": 0,\r\n        \"Size\": 10\r\n    },\r\n    \"Order\":{\r\n        \"Items\": [\"-createdAt\"]\r\n    },\r\n    \"Metadata\":{\r\n        \"CountAll\": true\r\n    }\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/api/conversation/message/query",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"conversation",
+												"message",
+												"query"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "Conversation - Me - Query",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"project\": { \"fields\": [\"id\", \"name\", \"user.id\", \"user.name\", \"datasets.dataset.id\", \"datasets.dataset.code\", \"messages.kind\", \"messages.data\", \"messages.createdAt\" ] },\r\n    \"page\":{\r\n        \"Offset\": 0,\r\n        \"Size\": 10\r\n    },\r\n    \"Order\":{\r\n        \"Items\": [\"+name\"]\r\n    },\r\n    \"Metadata\":{\r\n        \"CountAll\": true\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/conversation/me/query",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"conversation",
+										"me",
+										"query"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Conversation - Get",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/conversation/20a8b54f-49fb-464f-81ae-1f6bec22bf05?f=id&f=isActive&f=name&f=user.id&f=user.name&f=datasets.dataset.id&f=datasets.dataset.code&f=messages.kind&f=messages.data&f=messages.createdAt",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"conversation",
+										"20a8b54f-49fb-464f-81ae-1f6bec22bf05"
+									],
+									"query": [
+										{
+											"key": "f",
+											"value": "id"
+										},
+										{
+											"key": "f",
+											"value": "isActive"
+										},
+										{
+											"key": "f",
+											"value": "name"
+										},
+										{
+											"key": "f",
+											"value": "user.id"
+										},
+										{
+											"key": "f",
+											"value": "user.name"
+										},
+										{
+											"key": "f",
+											"value": "datasets.dataset.id"
+										},
+										{
+											"key": "f",
+											"value": "datasets.dataset.code"
+										},
+										{
+											"key": "f",
+											"value": "messages.kind"
+										},
+										{
+											"key": "f",
+											"value": "messages.data"
+										},
+										{
+											"key": "f",
+											"value": "messages.createdAt"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Conversation - Me - Persist",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"online testing\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/conversation/me/persist?f=id&f=etag",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"conversation",
+										"me",
+										"persist"
+									],
+									"query": [
+										{
+											"key": "f",
+											"value": "id"
+										},
+										{
+											"key": "f",
+											"value": "etag"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Conversation - Me - Persist Deep",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"this is anothger online test\",\r\n    \"conversationDatasets\": [\r\n        {\r\n            \"datasetId\":\"8930240b-a0e8-46e7-ace8-aab2b42fcc01\"\r\n        },\r\n        {\r\n            \"datasetId\":\"a36dde9d-7f95-40ff-8a9b-f687d0a72318\"\r\n        }\r\n    ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/conversation/me/persist/deep?f=id&d=name&f=datasets.id&f=datasets.dataset.Id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"conversation",
+										"me",
+										"persist",
+										"deep"
+									],
+									"query": [
+										{
+											"key": "f",
+											"value": "id"
+										},
+										{
+											"key": "d",
+											"value": "name"
+										},
+										{
+											"key": "f",
+											"value": "datasets.id"
+										},
+										{
+											"key": "f",
+											"value": "datasets.dataset.Id"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Conversation - Me - Patch Dataset",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": \"04efbb72-f5cb-48cc-920e-d280426fb88a\",\r\n    \"eTag\": \"1752757216\",\r\n    \"conversationDatasets\": [\r\n        {\r\n            \"datasetId\":\"8930240b-a0e8-46e7-ace8-aab2b42fcc01\"\r\n        },\r\n        {\r\n            \"datasetId\":\"a36dde9d-7f95-40ff-8a9b-f687d0a72318\"\r\n        }\r\n   ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/conversation/me/patch/dataset?f=id&d=name&f=datasets.id&f=datasets.dataset.Id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"conversation",
+										"me",
+										"patch",
+										"dataset"
+									],
+									"query": [
+										{
+											"key": "f",
+											"value": "id"
+										},
+										{
+											"key": "d",
+											"value": "name"
+										},
+										{
+											"key": "f",
+											"value": "datasets.id"
+										},
+										{
+											"key": "f",
+											"value": "datasets.dataset.Id"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Conversation - Me - Add Dataset",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/conversation/dataset/me/a497aba4-046a-4655-9ec5-fdad4c44150c/8930240b-a0e8-46e7-ace8-aab2b42fcc01?f=id&d=name&f=datasets.id&f=datasets.dataset.Id&f=datasets.conversation.Id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"conversation",
+										"dataset",
+										"me",
+										"a497aba4-046a-4655-9ec5-fdad4c44150c",
+										"8930240b-a0e8-46e7-ace8-aab2b42fcc01"
+									],
+									"query": [
+										{
+											"key": "f",
+											"value": "id"
+										},
+										{
+											"key": "d",
+											"value": "name"
+										},
+										{
+											"key": "f",
+											"value": "datasets.id"
+										},
+										{
+											"key": "f",
+											"value": "datasets.dataset.Id"
+										},
+										{
+											"key": "f",
+											"value": "datasets.conversation.Id"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Conversation - Me - Remove Dataset",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/conversation/dataset/me/a497aba4-046a-4655-9ec5-fdad4c44150c/8930240b-a0e8-46e7-ace8-aab2b42fcc01?f=id&d=name&f=datasets.id&f=datasets.dataset.Id&f=datasets.conversation.Id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"conversation",
+										"dataset",
+										"me",
+										"a497aba4-046a-4655-9ec5-fdad4c44150c",
+										"8930240b-a0e8-46e7-ace8-aab2b42fcc01"
+									],
+									"query": [
+										{
+											"key": "f",
+											"value": "id"
+										},
+										{
+											"key": "d",
+											"value": "name"
+										},
+										{
+											"key": "f",
+											"value": "datasets.id"
+										},
+										{
+											"key": "f",
+											"value": "datasets.dataset.Id"
+										},
+										{
+											"key": "f",
+											"value": "datasets.conversation.Id"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Conversation - Dataset - Me - Query",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"project\": { \"fields\": [\"id\", \"dataset.id\", \"conversation.id\" ] },\r\n    \"page\":{\r\n        \"Offset\": 0,\r\n        \"Size\": 10\r\n    },\r\n    \"Order\":{\r\n        \"Items\": [\"+name\"]\r\n    },\r\n    \"Metadata\":{\r\n        \"CountAll\": true\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/conversation/dataset/me/query",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"conversation",
+										"dataset",
+										"me",
+										"query"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Conversation - Dataset - Get",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/conversation/dataset/b8cba34c-cad1-4cd2-aee0-8972471d118a?f=id&f=dataset.id&f=dataset.name&f=conversation.id&f=conversation.name",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"conversation",
+										"dataset",
+										"b8cba34c-cad1-4cd2-aee0-8972471d118a"
+									],
+									"query": [
+										{
+											"key": "f",
+											"value": "id"
+										},
+										{
+											"key": "f",
+											"value": "dataset.id"
+										},
+										{
+											"key": "f",
+											"value": "dataset.name"
+										},
+										{
+											"key": "f",
+											"value": "conversation.id"
+										},
+										{
+											"key": "f",
+											"value": "conversation.name"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Conversation - Message - Me - Query",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"project\": { \"fields\": [ \"id\", \"kind\", \"data\", \"createdAt\", \"conversation.id\" ] },\r\n    \"conversationIds\": [ \"90f41f6e-8940-409d-a3a3-7a18eb0ab08a\" ],\r\n    \"page\":{\r\n        \"Offset\": 0,\r\n        \"Size\": 10\r\n    },\r\n    \"Order\":{\r\n        \"Items\": [\"-createdAt\"]\r\n    },\r\n    \"Metadata\":{\r\n        \"CountAll\": true\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/conversation/message/me/query",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"conversation",
+										"message",
+										"me",
+										"query"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Conversation - Delete",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/conversation/39ee41b6-b3ab-49be-a855-f05533b6633a",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"conversation",
+										"39ee41b6-b3ab-49be-a855-f05533b6633a"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Dataset",
+					"item": [
+						{
+							"name": "Dataset - Query",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"project\": { \"fields\": [\"id\", \"code\", \"name\", \"size\", \"collections.id\", \"collections.code\", \"collections.name\", \"collections.datasetCount\", \"permissions.browseDataset\", \"permissions.editDataset\" ] },\r\n    \"page\":{\r\n        \"Offset\": 0,\r\n        \"Size\": 5\r\n    },\r\n    \"Order\":{\r\n        //\"Items\": [\"-size\"]\r\n    },\r\n    \"Metadata\":{\r\n        \"CountAll\": true\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/dataset/query",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"dataset",
+										"query"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Dataset - Get",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/dataset/8930240b-a0e8-46e7-ace8-aab2b42fcc01?f=id&f=code",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"dataset",
+										"8930240b-a0e8-46e7-ace8-aab2b42fcc01"
+									],
+									"query": [
+										{
+											"key": "f",
+											"value": "id"
+										},
+										{
+											"key": "f",
+											"value": "code"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Search",
+					"item": [
+						{
+							"name": "Search - Cross Dataset Discovery",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"conversationOptions\":{\r\n        //\"conversationId\": \"90f41f6e-8940-409d-a3a3-7a18eb0ab08a\",\r\n        \"autoCreateConversation\": false\r\n    },\r\n    \"project\": { \"fields\": [\"maxSimilarity\", \"dataset.id\", \"dataset.collections.id\", \"dataset.collections.name\", \"dataset.code\", \"dataset.name\", \"hits.content\", \"hits.objectId\", \"hits.similarity\" ] },\r\n    \"query\": \"What is the fundamental theorem of calculus?\",\r\n    //\"query\": \"I want to know more about pythagoras\",\r\n   // \"datasetIds\": [\"d84d1a2e-127d-4393-91d0-afb7e4fd9c68\"],\r\n    \"collectionIds\": [\"c09b4ca6-f435-485e-acfe-537e92413039\"],\r\n    \"resultCount\": 10\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/search/cross-dataset",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"search",
+										"cross-dataset"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Search - In Data Explore",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"conversationOptions\":{\r\n        //\"conversationId\": \"90f41f6e-8940-409d-a3a3-7a18eb0ab08a\",\r\n        \"autoCreateConversation\": false\r\n    },\r\n    \"project\": { \"fields\": [\"question\", \"data\", \"status\", \"entries\" ] },\r\n    //\"query\": \"What is the average daily temperature of Bern in the year 2020?\",\r\n    //\"query\": \"In what age did pythagora died?\",\r\n    \"query\": \"something not sensical, waiting for an error to be returned\",\r\n    \"datasetIds\": [ \"8930240b-a0e8-46e7-ace8-aab2b42fcc01\" ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/search/in-data-explore",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"search",
+										"in-data-explore"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "User Collection",
+					"item": [
+						{
+							"name": "Admin",
+							"item": [
+								{
+									"name": "User Collection - Query",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "Bearer {{userAccessToken}}",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"project\": { \"fields\": [\"id\", \"name\", \"user.id\", \"user.name\", \"userDatasetCollections.id\", \"userDatasetCollections.dataset.Id\", \"userDatasetCollections.dataset.name\" ] },\r\n    \"page\":{\r\n        \"Offset\": 0,\r\n        \"Size\": 10\r\n    },\r\n    \"Order\":{\r\n        \"Items\": [\"+code\"]\r\n    },\r\n    \"Metadata\":{\r\n        \"CountAll\": true\r\n    }\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/api/user/collection/query",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"user",
+												"collection",
+												"query"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "User Collection - Dataset - Query",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "Bearer {{userAccessToken}}",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"project\": { \"fields\": [\"id\", \"dataset.id\", \"userCollection.id\" ] },\r\n    \"page\":{\r\n        \"Offset\": 0,\r\n        \"Size\": 10\r\n    },\r\n    \"Order\":{\r\n        \"Items\": [\"+name\"]\r\n    },\r\n    \"Metadata\":{\r\n        \"CountAll\": true\r\n    }\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/api/user/collection/dataset/query",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"user",
+												"collection",
+												"dataset",
+												"query"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "User Collection - Me - Query",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"project\": { \"fields\": [\"id\", \"name\", \"user.id\", \"user.name\", \"userDatasetCollections.id\", \"userDatasetCollections.dataset.Id\", \"userDatasetCollections.dataset.name\" ] },\r\n    \"page\":{\r\n        \"Offset\": 0,\r\n        \"Size\": 10\r\n    },\r\n    \"Order\":{\r\n        \"Items\": [\"+code\"]\r\n    },\r\n    \"Metadata\":{\r\n        \"CountAll\": true\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/user/collection/me/query",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"user",
+										"collection",
+										"me",
+										"query"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "User Collection - Get",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/user/collection/cfad3536-1648-4b5c-8bfa-49bdc60759e0?f=id&f=name&f=user.id&f=user.name&f=UserDatasetCollections.id&f=UserDatasetCollections.dataset.Id&f=UserDatasetCollections.dataset.name&f=etag",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"user",
+										"collection",
+										"cfad3536-1648-4b5c-8bfa-49bdc60759e0"
+									],
+									"query": [
+										{
+											"key": "f",
+											"value": "id"
+										},
+										{
+											"key": "f",
+											"value": "name"
+										},
+										{
+											"key": "f",
+											"value": "user.id"
+										},
+										{
+											"key": "f",
+											"value": "user.name"
+										},
+										{
+											"key": "f",
+											"value": "UserDatasetCollections.id"
+										},
+										{
+											"key": "f",
+											"value": "UserDatasetCollections.dataset.Id"
+										},
+										{
+											"key": "f",
+											"value": "UserDatasetCollections.dataset.name"
+										},
+										{
+											"key": "f",
+											"value": "etag"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "User Collection - Me - Persist",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"my favorite collection\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/user/collection/me/persist?f=id&f=name&f=user.id&f=user.name&f=userDatasetCollections.id&f=userDatasetCollections.dataset.Id&f=userDatasetCollections.dataset.name",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"user",
+										"collection",
+										"me",
+										"persist"
+									],
+									"query": [
+										{
+											"key": "f",
+											"value": "id"
+										},
+										{
+											"key": "f",
+											"value": "name"
+										},
+										{
+											"key": "f",
+											"value": "user.id"
+										},
+										{
+											"key": "f",
+											"value": "user.name"
+										},
+										{
+											"key": "f",
+											"value": "userDatasetCollections.id"
+										},
+										{
+											"key": "f",
+											"value": "userDatasetCollections.dataset.Id"
+										},
+										{
+											"key": "f",
+											"value": "userDatasetCollections.dataset.name"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "User Collection - Me - Persist Deep",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"my favorite collection\",\r\n    \"userDatasetCollections\": [\r\n        {\r\n            \"datasetId\": \"8930240b-a0e8-46e7-ace8-aab2b42fcc01\"\r\n        }\r\n    ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/user/collection/me/persist/deep?f=id&f=name&f=user.id&f=user.name&f=userDatasetCollections.id&f=userDatasetCollections.dataset.Id&f=userDatasetCollections.dataset.name",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"user",
+										"collection",
+										"me",
+										"persist",
+										"deep"
+									],
+									"query": [
+										{
+											"key": "f",
+											"value": "id"
+										},
+										{
+											"key": "f",
+											"value": "name"
+										},
+										{
+											"key": "f",
+											"value": "user.id"
+										},
+										{
+											"key": "f",
+											"value": "user.name"
+										},
+										{
+											"key": "f",
+											"value": "userDatasetCollections.id"
+										},
+										{
+											"key": "f",
+											"value": "userDatasetCollections.dataset.Id"
+										},
+										{
+											"key": "f",
+											"value": "userDatasetCollections.dataset.name"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "User Collection - Me - Patch Dataset",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": \"289c3346-287e-4eff-a357-abb1d0b7441f\",\r\n    \"eTag\": \"1752764180\",\r\n    \"userDatasetCollections\": [\r\n        {\r\n            \"datasetId\":\"8930240b-a0e8-46e7-ace8-aab2b42fcc01\"\r\n        },\r\n        {\r\n            \"datasetId\":\"a36dde9d-7f95-40ff-8a9b-f687d0a72318\"\r\n        }\r\n   ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/user/collection/me/patch/dataset?f=id&f=name&f=user.id&f=user.name&f=userDatasetCollections.id&f=userDatasetCollections.dataset.Id&f=userDatasetCollections.dataset.name",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"user",
+										"collection",
+										"me",
+										"patch",
+										"dataset"
+									],
+									"query": [
+										{
+											"key": "f",
+											"value": "id"
+										},
+										{
+											"key": "f",
+											"value": "name"
+										},
+										{
+											"key": "f",
+											"value": "user.id"
+										},
+										{
+											"key": "f",
+											"value": "user.name"
+										},
+										{
+											"key": "f",
+											"value": "userDatasetCollections.id"
+										},
+										{
+											"key": "f",
+											"value": "userDatasetCollections.dataset.Id"
+										},
+										{
+											"key": "f",
+											"value": "userDatasetCollections.dataset.name"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "User Collection - Me - Add Dataset",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/user/collection/dataset/me/289c3346-287e-4eff-a357-abb1d0b7441f/8930240b-a0e8-46e7-ace8-aab2b42fcc01?f=id&f=UserDatasetCollections.id&f=UserDatasetCollections.dataset.id&f=name&f=user.id&f=user.name&f=UserDatasetCollections.dataset.name",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"user",
+										"collection",
+										"dataset",
+										"me",
+										"289c3346-287e-4eff-a357-abb1d0b7441f",
+										"8930240b-a0e8-46e7-ace8-aab2b42fcc01"
+									],
+									"query": [
+										{
+											"key": "f",
+											"value": "id"
+										},
+										{
+											"key": "f",
+											"value": "UserDatasetCollections.id"
+										},
+										{
+											"key": "f",
+											"value": "UserDatasetCollections.dataset.id"
+										},
+										{
+											"key": "f",
+											"value": "name"
+										},
+										{
+											"key": "f",
+											"value": "user.id"
+										},
+										{
+											"key": "f",
+											"value": "user.name"
+										},
+										{
+											"key": "f",
+											"value": "UserDatasetCollections.dataset.name"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "User Collection - Me - Remove Dataset",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/user/collection/dataset/me/cfad3536-1648-4b5c-8bfa-49bdc60759e0/8930240b-a0e8-46e7-ace8-aab2b42fcc01?f=id&f=UserDatasetCollections.id&f=UserDatasetCollections.dataset.id&f=name&f=user.id&f=user.name&f=UserDatasetCollections.dataset.name&f=UserDatasetCollections.isActive",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"user",
+										"collection",
+										"dataset",
+										"me",
+										"cfad3536-1648-4b5c-8bfa-49bdc60759e0",
+										"8930240b-a0e8-46e7-ace8-aab2b42fcc01"
+									],
+									"query": [
+										{
+											"key": "f",
+											"value": "id"
+										},
+										{
+											"key": "f",
+											"value": "UserDatasetCollections.id"
+										},
+										{
+											"key": "f",
+											"value": "UserDatasetCollections.dataset.id"
+										},
+										{
+											"key": "f",
+											"value": "name"
+										},
+										{
+											"key": "f",
+											"value": "user.id"
+										},
+										{
+											"key": "f",
+											"value": "user.name"
+										},
+										{
+											"key": "f",
+											"value": "UserDatasetCollections.dataset.name"
+										},
+										{
+											"key": "f",
+											"value": "UserDatasetCollections.isActive"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "User Collection - Dataset - Me- Query",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"project\": { \"fields\": [\"id\", \"dataset.id\", \"userCollection.id\" ] },\r\n    \"page\":{\r\n        \"Offset\": 0,\r\n        \"Size\": 10\r\n    },\r\n    \"Order\":{\r\n        \"Items\": [\"+name\"]\r\n    },\r\n    \"Metadata\":{\r\n        \"CountAll\": true\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/user/collection/dataset/me/query",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"user",
+										"collection",
+										"dataset",
+										"me",
+										"query"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "User Collection - Dataset - Get",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/user/collection/dataset/96cd14d3-f812-4624-b7c9-3d2c05cd4e51?f=id&f=dataset.id&f=dataset.name&f=userCollection.id&f=userCollection.name",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"user",
+										"collection",
+										"dataset",
+										"96cd14d3-f812-4624-b7c9-3d2c05cd4e51"
+									],
+									"query": [
+										{
+											"key": "f",
+											"value": "id"
+										},
+										{
+											"key": "f",
+											"value": "dataset.id"
+										},
+										{
+											"key": "f",
+											"value": "dataset.name"
+										},
+										{
+											"key": "f",
+											"value": "userCollection.id"
+										},
+										{
+											"key": "f",
+											"value": "userCollection.name"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "User Collection - Delete",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/user/collection/e005a28d-31f1-4a5f-846f-b322a9baab38",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"user",
+										"collection",
+										"e005a28d-31f1-4a5f-846f-b322a9baab38"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Misc",
+					"item": [
+						{
+							"name": "Health check",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/health-check",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"health-check"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Version Info",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/version-info/current",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"version-info",
+										"current"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "me",
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"user-agent": true,
+									"accept-encoding": true,
+									"connection": true
+								}
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/principal/me",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"principal",
+										"me"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "User",
+					"item": [
+						{
+							"name": "Admin",
+							"item": [
+								{
+									"name": "User - Query",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "Bearer {{userAccessToken}}",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"project\": { \"fields\": [\"id\", \"name\", \"email\" ] },\r\n    \"page\":{\r\n        \"Offset\": 0,\r\n        \"Size\": 10\r\n    },\r\n    \"Order\":{\r\n        \"Items\": [\"+code\"]\r\n    },\r\n    \"Metadata\":{\r\n        \"CountAll\": true\r\n    }\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/api/user/query",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"user",
+												"query"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "User - Get",
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "Bearer {{userAccessToken}}",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/api/user/a85c61b0-fc46-4e31-9ee8-b7e0670a1471?f=id&f=name&f=email",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"user",
+												"a85c61b0-fc46-4e31-9ee8-b7e0670a1471"
+											],
+											"query": [
+												{
+													"key": "f",
+													"value": "id"
+												},
+												{
+													"key": "f",
+													"value": "name"
+												},
+												{
+													"key": "f",
+													"value": "email"
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "Vocabulary",
+					"item": [
+						{
+							"name": "Vocabulary - Fields of Science",
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"user-agent": true,
+									"accept-encoding": true,
+									"connection": true
+								}
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/vocabulary/fields-of-science",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"vocabulary",
+										"fields-of-science"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Vocabulary - License",
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"user-agent": true,
+									"accept-encoding": true,
+									"connection": true
+								}
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/vocabulary/license?like=eupl",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"vocabulary",
+										"license"
+									],
+									"query": [
+										{
+											"key": "like",
+											"value": "eupl"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		}
+	]
+}

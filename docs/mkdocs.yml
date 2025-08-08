@@ -4,10 +4,26 @@ site_url: https://datagems-eosc.github.io/dg-app-api/
 
 nav:
   - Overview: index.md
+  - System:
+    - Architecture: architecture.md
+    - Security: security.md
+    - Datastores: datastore.md
   - API:
+    - Overview: api-overview.md
+    - Status & Error Codes: error-codes.md
     - OpenAPI: openapi.md
-    - Error Codes: error_codes.md
+  - Setup & Monitoring:
+    - Automations: automations.md
+    - Deployment: deployment.md
+    - Configuration: configuration.md
+    - Logging & Accounting: logging.md
+    - Maintenance: maintenance.md
+  - Material: 
+    - Onboarding: onboarding.md
+    - Quality Assurance: qa.md
+    - FAQ & Known Issues: faq.md
   - License: license.md
+  - Code Repository: https://github.com/datagems-eosc/dg-app-api
   - Home: https://datagems-eosc.github.io/
 
 theme:
