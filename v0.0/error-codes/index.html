@@ -8,11 +8,13 @@
       
       
       
-        <link rel="canonical" href="https://datagems-eosc.github.io/dg-app-api/v0.0/license/">
+        <link rel="canonical" href="https://datagems-eosc.github.io/dg-app-api/v0.0/error-codes/">
       
       
-        <link rel="prev" href="../faq/">
+        <link rel="prev" href="../api-overview/">
       
+      
+        <link rel="next" href="../openapi/">
       
       
       <link rel="icon" href="../images/favicon.jpg">
@@ -20,7 +22,7 @@
     
     
       
-        <title>License - DataGEMS Gateway API Docs</title>
+        <title>Status & Error Codes - DataGEMS Gateway API Docs</title>
       
     
     
@@ -67,6 +69,11 @@
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
+      
+        
+        <a href="#status-error-codes" class="md-skip">
+          Skip to content
+        </a>
       
     </div>
     <div data-md-component="announce">
@@ -118,7 +125,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              License
+              Status & Error Codes
             
           </span>
         </div>
@@ -346,18 +353,20 @@
       
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
           <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
@@ -373,7 +382,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             API
@@ -407,10 +416,32 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../error-codes/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Status & Error Codes
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -421,6 +452,62 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#status-codes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Status Codes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#error-codes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error Codes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bad-requests" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bad requests
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#failed-dependency" class="md-nav__link">
+    <span class="md-ellipsis">
+      Failed Dependency
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -734,17 +821,10 @@
       
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../license/" class="md-nav__link">
         
   
   
@@ -755,7 +835,6 @@
   
 
       </a>
-      
     </li>
   
 
@@ -821,6 +900,52 @@
   
   
   
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#status-codes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Status Codes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#error-codes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error Codes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bad-requests" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bad requests
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#failed-dependency" class="md-nav__link">
+    <span class="md-ellipsis">
+      Failed Dependency
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
   
 </nav>
                   </div>
@@ -836,294 +961,136 @@
 
 
 
-  <h1>License</h1>
-
-<pre><code>                  EUROPEAN UNION PUBLIC LICENCE v. 1.2
-                  EUPL © the European Union 2007, 2016
-</code></pre>
-<p>This European Union Public Licence (the ‘EUPL’) applies to the Work (as defined
-below) which is provided under the terms of this Licence. Any use of the Work,
-other than as authorised under this Licence is prohibited (to the extent such
-use is covered by a right of the copyright holder of the Work).</p>
-<p>The Work is provided under the terms of this Licence when the Licensor (as
-defined below) has placed the following notice immediately following the
-copyright notice for the Work:</p>
-<pre><code>    Licensed under the EUPL
-</code></pre>
-<p>or has expressed by any other means his willingness to license under the EUPL.</p>
-<ol>
-<li>Definitions</li>
-</ol>
-<p>In this Licence, the following terms have the following meaning:</p>
+<h1 id="status-error-codes">Status &amp; Error Codes<a class="headerlink" href="#status-error-codes" title="Permanent link">&para;</a></h1>
+<p>The HTTP Api exposed by the service exposes restful endpoints to offer its functionality. These endpoints are documented using the <a href="http://openapis.org/">OpenAPI specification</a> and available for integrators to consult in the respective <a href="../openapi/">API section</a>.</p>
+<p>In this section, we describe further the HTTP Status Codes that the service may expose and possible Error Codes that can be expected.</p>
+<h2 id="status-codes">Status Codes<a class="headerlink" href="#status-codes" title="Permanent link">&para;</a></h2>
+<p>Commonly used HTTP Response codes are in the service. It makes proper usage of these HTTP Status Codes and tries not to abuse their semantics. The following subset is used and documented in the respective <a href="../openapi/">OpenAPI document</a>:</p>
 <ul>
-<li>
-<p>‘The Licence’: this Licence.</p>
+<li>200 OK - request has succeeded</li>
+<li>400 Bad Request - request not processed due to a request/client error</li>
+<li>401 Unauthorized - request was not successful because it lacks valid authentication credentials</li>
+<li>403 Forbidden - understood the request but refused to process it. Authenticating or re-authenticating makes no difference. The request failure is tied to application logic, such as insufficient permissions to a resource or action</li>
+<li>404 Not Found - cannot find the requested resource</li>
+<li>424 Failed Dependency - method could not be performed on the resource because the requested action depended on another action, and that action failed</li>
+<li>500 Internal Server Error - encountered an unexpected condition that prevented the service from fulfilling the request</li>
+</ul>
+<h2 id="error-codes">Error Codes<a class="headerlink" href="#error-codes" title="Permanent link">&para;</a></h2>
+<p>For unsucessful requests (other than 200 OK), there may be additional information that can and are provided to the caller. They should be considered as refinements of the error category that is defined through the respective HTTP Status Code of the response. The additional information is provided in both a system friendly error code as well as a user friendly message.</p>
+<p>The service exposes the following error codes, depending on the HTTP Status Code that will be returned:</p>
+<ul>
+<li>System Error<ul>
+<li>Code: 100</li>
+<li>Error: an unexpected system error occured</li>
+</ul>
 </li>
-<li>
-<p>‘The Original Work’: the work or software distributed or communicated by the
-  Licensor under this Licence, available as Source Code and also as Executable
-  Code as the case may be.</p>
+<li>Forbidden<ul>
+<li>Code": 101</li>
+<li>Error: insufficient rights</li>
+</ul>
 </li>
-<li>
-<p>‘Derivative Works’: the works or software that could be created by the
-  Licensee, based upon the Original Work or modifications thereof. This Licence
-  does not define the extent of modification or dependence on the Original Work
-  required in order to classify a work as a Derivative Work; this extent is
-  determined by copyright law applicable in the country mentioned in Article 15.</p>
+<li>Model Validation<ul>
+<li>Code: 102</li>
+<li>Error: validation error structured description</li>
+</ul>
 </li>
-<li>
-<p>‘The Work’: the Original Work or its Derivative Works.</p>
+<li>Unsupported Action<ul>
+<li>Code: 103</li>
+<li>Error: request for unsupported action</li>
+</ul>
 </li>
-<li>
-<p>‘The Source Code’: the human-readable form of the Work which is the most
-  convenient for people to study and modify.</p>
+<li>Underpinning Service<ul>
+<li>Code: 104</li>
+<li>Error: error communicating with underpinning service</li>
+</ul>
 </li>
-<li>
-<p>‘The Executable Code’: any code which has generally been compiled and which is
-  meant to be interpreted by a computer as a program.</p>
+<li>Token Exchange<ul>
+<li>Code: 105</li>
+<li>Error: error exchanging tokens for underpinning service</li>
+</ul>
 </li>
-<li>
-<p>‘The Licensor’: the natural or legal person that distributes or communicates
-  the Work under the Licence.</p>
+<li>User Sync<ul>
+<li>Code: 106</li>
+<li>Error: authorized user out of sync with internal registry</li>
+</ul>
 </li>
-<li>
-<p>‘Contributor(s)’: any natural or legal person who modifies the Work under the
-  Licence, or otherwise contributes to the creation of a Derivative Work.</p>
+<li>Concurrent Update Conflict<ul>
+<li>Code: 107</li>
+<li>Error: there is an etag conflict for the item modifed with Id = X of Type = Y. please reload to get the latest changes</li>
+</ul>
 </li>
-<li>
-<p>‘The Licensee’ or ‘You’: any natural or legal person who makes any usage of
-  the Work under the terms of the Licence.</p>
-</li>
-<li>
-<p>‘Distribution’ or ‘Communication’: any act of selling, giving, lending,
-  renting, distributing, communicating, transmitting, or otherwise making
-  available, online or offline, copies of the Work or providing access to its
-  essential functionalities at the disposal of any other natural or legal
-  person.</p>
-</li>
-<li>
-<p>Scope of the rights granted by the Licence</p>
+<li>Immutable Item<ul>
+<li>Code: 108</li>
+<li>Error: you are trying to modify an immutable item or property</li>
+</ul>
 </li>
 </ul>
-<p>The Licensor hereby grants You a worldwide, royalty-free, non-exclusive,
-sublicensable licence to do the following, for the duration of copyright vested
-in the Original Work:</p>
-<ul>
-<li>use the Work in any circumstance and for all usage,</li>
-<li>reproduce the Work,</li>
-<li>modify the Work, and make Derivative Works based upon the Work,</li>
-<li>communicate to the public, including the right to make available or display
-  the Work or copies thereof to the public and perform publicly, as the case may
-  be, the Work,</li>
-<li>distribute the Work or copies thereof,</li>
-<li>lend and rent the Work or copies thereof,</li>
-<li>sublicense rights in the Work or copies thereof.</li>
-</ul>
-<p>Those rights can be exercised on any media, supports and formats, whether now
-known or later invented, as far as the applicable law permits so.</p>
-<p>In the countries where moral rights apply, the Licensor waives his right to
-exercise his moral right to the extent allowed by law in order to make effective
-the licence of the economic rights here above listed.</p>
-<p>The Licensor grants to the Licensee royalty-free, non-exclusive usage rights to
-any patents held by the Licensor, to the extent necessary to make use of the
-rights granted on the Work under this Licence.</p>
-<ol>
-<li>Communication of the Source Code</li>
-</ol>
-<p>The Licensor may provide the Work either in its Source Code form, or as
-Executable Code. If the Work is provided as Executable Code, the Licensor
-provides in addition a machine-readable copy of the Source Code of the Work
-along with each copy of the Work that the Licensor distributes or indicates, in
-a notice following the copyright notice attached to the Work, a repository where
-the Source Code is easily and freely accessible for as long as the Licensor
-continues to distribute or communicate the Work.</p>
-<ol>
-<li>Limitations on copyright</li>
-</ol>
-<p>Nothing in this Licence is intended to deprive the Licensee of the benefits from
-any exception or limitation to the exclusive rights of the rights owners in the
-Work, of the exhaustion of those rights or of other applicable limitations
-thereto.</p>
-<ol>
-<li>Obligations of the Licensee</li>
-</ol>
-<p>The grant of the rights mentioned above is subject to some restrictions and
-obligations imposed on the Licensee. Those obligations are the following:</p>
-<p>Attribution right: The Licensee shall keep intact all copyright, patent or
-trademarks notices and all notices that refer to the Licence and to the
-disclaimer of warranties. The Licensee must include a copy of such notices and a
-copy of the Licence with every copy of the Work he/she distributes or
-communicates. The Licensee must cause any Derivative Work to carry prominent
-notices stating that the Work has been modified and the date of modification.</p>
-<p>Copyleft clause: If the Licensee distributes or communicates copies of the
-Original Works or Derivative Works, this Distribution or Communication will be
-done under the terms of this Licence or of a later version of this Licence
-unless the Original Work is expressly distributed only under this version of the
-Licence — for example by communicating ‘EUPL v. 1.2 only’. The Licensee
-(becoming Licensor) cannot offer or impose any additional terms or conditions on
-the Work or Derivative Work that alter or restrict the terms of the Licence.</p>
-<p>Compatibility clause: If the Licensee Distributes or Communicates Derivative
-Works or copies thereof based upon both the Work and another work licensed under
-a Compatible Licence, this Distribution or Communication can be done under the
-terms of this Compatible Licence. For the sake of this clause, ‘Compatible
-Licence’ refers to the licences listed in the appendix attached to this Licence.
-Should the Licensee's obligations under the Compatible Licence conflict with
-his/her obligations under this Licence, the obligations of the Compatible
-Licence shall prevail.</p>
-<p>Provision of Source Code: When distributing or communicating copies of the Work,
-the Licensee will provide a machine-readable copy of the Source Code or indicate
-a repository where this Source will be easily and freely available for as long
-as the Licensee continues to distribute or communicate the Work.</p>
-<p>Legal Protection: This Licence does not grant permission to use the trade names,
-trademarks, service marks, or names of the Licensor, except as required for
-reasonable and customary use in describing the origin of the Work and
-reproducing the content of the copyright notice.</p>
-<ol>
-<li>Chain of Authorship</li>
-</ol>
-<p>The original Licensor warrants that the copyright in the Original Work granted
-hereunder is owned by him/her or licensed to him/her and that he/she has the
-power and authority to grant the Licence.</p>
-<p>Each Contributor warrants that the copyright in the modifications he/she brings
-to the Work are owned by him/her or licensed to him/her and that he/she has the
-power and authority to grant the Licence.</p>
-<p>Each time You accept the Licence, the original Licensor and subsequent
-Contributors grant You a licence to their contributions to the Work, under the
-terms of this Licence.</p>
-<ol>
-<li>Disclaimer of Warranty</li>
-</ol>
-<p>The Work is a work in progress, which is continuously improved by numerous
-Contributors. It is not a finished work and may therefore contain defects or
-‘bugs’ inherent to this type of development.</p>
-<p>For the above reason, the Work is provided under the Licence on an ‘as is’ basis
-and without warranties of any kind concerning the Work, including without
-limitation merchantability, fitness for a particular purpose, absence of defects
-or errors, accuracy, non-infringement of intellectual property rights other than
-copyright as stated in Article 6 of this Licence.</p>
-<p>This disclaimer of warranty is an essential part of the Licence and a condition
-for the grant of any rights to the Work.</p>
-<ol>
-<li>Disclaimer of Liability</li>
-</ol>
-<p>Except in the cases of wilful misconduct or damages directly caused to natural
-persons, the Licensor will in no event be liable for any direct or indirect,
-material or moral, damages of any kind, arising out of the Licence or of the use
-of the Work, including without limitation, damages for loss of goodwill, work
-stoppage, computer failure or malfunction, loss of data or any commercial
-damage, even if the Licensor has been advised of the possibility of such damage.
-However, the Licensor will be liable under statutory product liability laws as
-far such laws apply to the Work.</p>
-<ol>
-<li>Additional agreements</li>
-</ol>
-<p>While distributing the Work, You may choose to conclude an additional agreement,
-defining obligations or services consistent with this Licence. However, if
-accepting obligations, You may act only on your own behalf and on your sole
-responsibility, not on behalf of the original Licensor or any other Contributor,
-and only if You agree to indemnify, defend, and hold each Contributor harmless
-for any liability incurred by, or claims asserted against such Contributor by
-the fact You have accepted any warranty or additional liability.</p>
-<ol>
-<li>Acceptance of the Licence</li>
-</ol>
-<p>The provisions of this Licence can be accepted by clicking on an icon ‘I agree’
-placed under the bottom of a window displaying the text of this Licence or by
-affirming consent in any other similar way, in accordance with the rules of
-applicable law. Clicking on that icon indicates your clear and irrevocable
-acceptance of this Licence and all of its terms and conditions.</p>
-<p>Similarly, you irrevocably accept this Licence and all of its terms and
-conditions by exercising any rights granted to You by Article 2 of this Licence,
-such as the use of the Work, the creation by You of a Derivative Work or the
-Distribution or Communication by You of the Work or copies thereof.</p>
-<ol>
-<li>Information to the public</li>
-</ol>
-<p>In case of any Distribution or Communication of the Work by means of electronic
-communication by You (for example, by offering to download the Work from a
-remote location) the distribution channel or media (for example, a website) must
-at least provide to the public the information requested by the applicable law
-regarding the Licensor, the Licence and the way it may be accessible, concluded,
-stored and reproduced by the Licensee.</p>
-<ol>
-<li>Termination of the Licence</li>
-</ol>
-<p>The Licence and the rights granted hereunder will terminate automatically upon
-any breach by the Licensee of the terms of the Licence.</p>
-<p>Such a termination will not terminate the licences of any person who has
-received the Work from the Licensee under the Licence, provided such persons
-remain in full compliance with the Licence.</p>
-<ol>
-<li>Miscellaneous</li>
-</ol>
-<p>Without prejudice of Article 9 above, the Licence represents the complete
-agreement between the Parties as to the Work.</p>
-<p>If any provision of the Licence is invalid or unenforceable under applicable
-law, this will not affect the validity or enforceability of the Licence as a
-whole. Such provision will be construed or reformed so as necessary to make it
-valid and enforceable.</p>
-<p>The European Commission may publish other linguistic versions or new versions of
-this Licence or updated versions of the Appendix, so far this is required and
-reasonable, without reducing the scope of the rights granted by the Licence. New
-versions of the Licence will be published with a unique version number.</p>
-<p>All linguistic versions of this Licence, approved by the European Commission,
-have identical value. Parties can take advantage of the linguistic version of
-their choice.</p>
-<ol>
-<li>Jurisdiction</li>
-</ol>
-<p>Without prejudice to specific agreement between parties,</p>
-<ul>
-<li>
-<p>any litigation resulting from the interpretation of this License, arising
-  between the European Union institutions, bodies, offices or agencies, as a
-  Licensor, and any Licensee, will be subject to the jurisdiction of the Court
-  of Justice of the European Union, as laid down in article 272 of the Treaty on
-  the Functioning of the European Union,</p>
-</li>
-<li>
-<p>any litigation arising between other parties and resulting from the
-  interpretation of this License, will be subject to the exclusive jurisdiction
-  of the competent court where the Licensor resides or conducts its primary
-  business.</p>
-</li>
-<li>
-<p>Applicable Law</p>
-</li>
-</ul>
-<p>Without prejudice to specific agreement between parties,</p>
-<ul>
-<li>
-<p>this Licence shall be governed by the law of the European Union Member State
-  where the Licensor has his seat, resides or has his registered office,</p>
-</li>
-<li>
-<p>this licence shall be governed by Belgian law if the Licensor has no seat,
-  residence or registered office inside a European Union Member State.</p>
-</li>
-</ul>
-<p>Appendix</p>
-<p>‘Compatible Licences’ according to Article 5 EUPL are:</p>
-<ul>
-<li>GNU General Public License (GPL) v. 2, v. 3</li>
-<li>GNU Affero General Public License (AGPL) v. 3</li>
-<li>Open Software License (OSL) v. 2.1, v. 3.0</li>
-<li>Eclipse Public License (EPL) v. 1.0</li>
-<li>CeCILL v. 2.0, v. 2.1</li>
-<li>Mozilla Public Licence (MPL) v. 2</li>
-<li>GNU Lesser General Public Licence (LGPL) v. 2.1, v. 3</li>
-<li>Creative Commons Attribution-ShareAlike v. 3.0 Unported (CC BY-SA 3.0) for
-  works other than software</li>
-<li>European Union Public Licence (EUPL) v. 1.1, v. 1.2</li>
-<li>Québec Free and Open-Source Licence — Reciprocity (LiLiQ-R) or Strong
-  Reciprocity (LiLiQ-R+).</li>
-</ul>
-<p>The European Commission may update this Appendix to later versions of the above
-licences without producing a new version of the EUPL, as long as they provide
-the rights granted in Article 2 of this Licence and protect the covered Source
-Code from exclusive appropriation.</p>
-<p>All other changes or additions to this Appendix require the production of a new
-EUPL version.</p>
+<h2 id="bad-requests">Bad requests<a class="headerlink" href="#bad-requests" title="Permanent link">&para;</a></h2>
+<p>Specifically for the case of responses with status code 400 (Bad Request), with an error code 102 (Model Validation), the response message may include additional structured information on the kind of error that was identified. </p>
+<p>For example, if the caller is requesting a paged list of results without providing the ordering to be used and the service does not support default ordering, the response will be a 400 Bad Request with a payload as bellow</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;code&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">102</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Validation Error&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;Key&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Page&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;Value&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                </span><span class="s2">&quot;paging not supported without ordering&quot;</span>
+<span class="w">            </span><span class="p">]</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>The "Key" binds directly to the request property that was problematic.</p>
+<p>In case the request had an array of objects and one of the properties within the array objects was failty, the key would indicate the specific failty object and property. So, if we try to update a User Collection providing also the links to the Datasets that is should contain but we do not provide the dataset id for the 4th item in the list (index 3), the response will look like the following:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;code&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">102</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Validation Error&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;Key&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;UserDatasetCollections[3].DatasetId&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;Value&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                </span><span class="s2">&quot;DatasetId is required&quot;</span>
+<span class="w">            </span><span class="p">]</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<h2 id="failed-dependency">Failed Dependency<a class="headerlink" href="#failed-dependency" title="Permanent link">&para;</a></h2>
+<p>When this status code is used, the service, in the process of serving the request, calls other services. One of its underpinning services did not operate as expected to complete the processing of the request sucessfuly. The response status code would be a 424 Failed Dependency with the needed code and error message. But it can also contain additional information about the underpinning service reported error. This way, the response will contain all the information that the service can provide, without needed to redefine all the possible error conditions of its underpinning services. Additionally, this gives the possibility to track the error stack across multiple services if needed. An example of such a case might be:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;code&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">104</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;error communicating with underpinning service&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;statusCode&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">500</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;source&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;the service name&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;correlationId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;log correlation identifier&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>The intend of propagating additional payload from the underpining service response in the payload is to assist in identifying issues that can be managed in the context of the request, not to provide general troubleshooting capabilities. For the later, the correlationId is included so that if reported additonal information can be retrieved from the logsm as covered in the relevant <a href="../logging/">Logging</a> section. But in case the underpinning service response code is a 400 Bad Request, that means that this is something that the caller will need to be notified about as it may be something that can be fixed in the context of the request. So, in such cases, another example could be:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;code&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">104</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;error communicating with underpinning service&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;statusCode&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">400</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;source&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;the service name&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;correlationId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;log correlation identifier&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;payload&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;code&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">102</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Validation Error&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">              </span><span class="p">{</span>
+<span class="w">                  </span><span class="nt">&quot;Key&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Page&quot;</span><span class="p">,</span>
+<span class="w">                  </span><span class="nt">&quot;Value&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                      </span><span class="s2">&quot;paging not supported without ordering&quot;</span>
+<span class="w">                  </span><span class="p">]</span>
+<span class="w">              </span><span class="p">}</span>
+<span class="w">          </span><span class="p">]</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
 
 
 
