@@ -64,21 +64,21 @@ jobs:
         run: >
           dotnet msbuild DataGEMS.Gateway.Api/DataGEMS.Gateway.Api.csproj
           /t:Metrics /p:Configuration=Release
-          /p:MetricsOutputFile="DataGEMS.Gateway.Api/DataGEMS.Gateway.Api.Metrics.xml"
+          /p:MetricsOutputFile="DataGEMS.Gateway.Api.Metrics.xml"
           /bl:msbuild-api.binlog
 
       - name: Run code metrics on DataGEMS.Gateway.App
         run: >
           dotnet msbuild DataGEMS.Gateway.App/DataGEMS.Gateway.App.csproj
           /t:Metrics /p:Configuration=Release
-          /p:MetricsOutputFile="DataGEMS.Gateway.App/DataGEMS.Gateway.App.Metrics.xml"
+          /p:MetricsOutputFile="DataGEMS.Gateway.App.Metrics.xml"
           /bl:msbuild-app.binlog
 
       - name: Run code metrics on DataGEMS.Gateway.Resources
         run: >
           dotnet msbuild DataGEMS.Gateway.Resources/DataGEMS.Gateway.Resources.csproj
           /t:Metrics /p:Configuration=Release
-          /p:MetricsOutputFile="DataGEMS.Gateway.Resources/DataGEMS.Gateway.Resources.Metrics.xml"
+          /p:MetricsOutputFile="DataGEMS.Gateway.Resources.Metrics.xml"
           /bl:msbuild-resources.binlog
           
       - name: Upload Metrics XML reports
