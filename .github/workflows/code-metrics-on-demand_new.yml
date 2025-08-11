@@ -1,0 +1,92 @@
+name: "Code Metrics (On Demand)"
+
+on:
+  workflow_dispatch:
+
+jobs:
+  analyze:
+    name: Run Code Metrics
+    runs-on: windows-latest
+
+    permissions:
+      contents: read
+
+    defaults:
+      run:
+        working-directory: src
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+#          dotnet-version: '8.0.x'
+          dotnet-version: '8.0.118'
+
+      - name: Create global.json file
+        run: |
+          @"
+          {
+            "sdk": {
+              "version": "8.0.118"
+            }
+          }
+          "@ | Out-File -Encoding utf8 -FilePath global.json
+          
+      - name: Check sdk version
+        run: |
+          dotnet --list-sdks
+
+      - name: Check .net version
+        run: |
+          dotnet --version
+
+      - name: Check msbuild version
+        run: |
+          dotnet msbuild --version
+
+      - name: Restore dependencies
+        run: dotnet restore DataGEMS.Gateway.sln
+
+      - name: Build solution
+        run: dotnet build DataGEMS.Gateway.sln --configuration Release
+
+      - name: Resolve MSBuildSDKsPath
+        run: |
+          $ver = dotnet --version
+          $path = Join-Path $env:DOTNET_ROOT "sdk\$ver\Sdks"
+          "MSBuildSDKsPath=$path" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          Write-Host "MSBuildSDKsPath = $path"
+
+      - name: Run code metrics on DataGEMS.Gateway.Api
+        run: >
+          dotnet msbuild DataGEMS.Gateway.Api/DataGEMS.Gateway.Api.csproj
+          /t:Metrics /p:Configuration=Release
+          /p:MetricsOutputFile="DataGEMS.Gateway.Api/DataGEMS.Gateway.Api.Metrics.xml"
+          /bl:msbuild-api.binlog
+
+      - name: Run code metrics on DataGEMS.Gateway.App
+        run: >
+          dotnet msbuild DataGEMS.Gateway.App/DataGEMS.Gateway.App.csproj
+          /t:Metrics /p:Configuration=Release
+          /p:MetricsOutputFile="DataGEMS.Gateway.App/DataGEMS.Gateway.App.Metrics.xml"
+          /bl:msbuild-app.binlog
+
+      - name: Run code metrics on DataGEMS.Gateway.Resources
+        run: >
+          dotnet msbuild DataGEMS.Gateway.Resources/DataGEMS.Gateway.Resources.csproj
+          /t:Metrics /p:Configuration=Release
+          /p:MetricsOutputFile="DataGEMS.Gateway.Resources/DataGEMS.Gateway.Resources.Metrics.xml"
+          /bl:msbuild-resources.binlog
+          
+      - name: Upload Metrics XML reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: code-metrics-reports
+          path: |
+            src/DataGEMS.Gateway.Api/DataGEMS.Gateway.Api.Metrics.xml
+            src/DataGEMS.Gateway.App/DataGEMS.Gateway.App.Metrics.xml
+            src/DataGEMS.Gateway.Resources/DataGEMS.Gateway.Resources.Metrics.xml
+            src/msbuild-*.binlog
