@@ -58,7 +58,7 @@ jobs:
         run: dotnet build DataGEMS.Gateway.sln --configuration Release --no-restore
 
       - name: Run code metrics on DataGEMS.Gateway.Api
-        run: dotnet msbuild src/DataGEMS.Gateway.Api/DataGEMS.Gateway.Api.csproj /t:Metrics /p:Configuration=Release /p:TargetFramework=net8.0 /p:DesignTimeBuild=false /p:SkipCompilerExecution=false
+        run: dotnet msbuild DataGEMS.Gateway.Api/DataGEMS.Gateway.Api.csproj /t:Metrics /p:Configuration=Release /p:TargetFramework=net8.0 /p:DesignTimeBuild=false /p:SkipCompilerExecution=false
 
       - name: Run code metrics on DataGEMS.Gateway.App
         run: dotnet msbuild DataGEMS.Gateway.App/DataGEMS.Gateway.App.csproj /t:Metrics /p:Configuration=Release /p:TargetFramework=net8.0 /p:DesignTimeBuild=false /p:SkipCompilerExecution=false
