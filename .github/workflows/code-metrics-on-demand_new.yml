@@ -23,16 +23,13 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
         with:
-#          dotnet-version: '8.0.x'
           dotnet-version: '8.0.118'
 
       - name: Create global.json file
         run: |
           @"
           {
-            "sdk": {
-              "version": "8.0.118"
-            }
+            "sdk": { "version": "8.0.118" }
           }
           "@ | Out-File -Encoding utf8 -FilePath global.json
           
@@ -55,16 +52,25 @@ jobs:
         run: dotnet restore DataGEMS.Gateway.sln
 
       - name: Build solution
-        run: dotnet build DataGEMS.Gateway.sln --configuration Release --no-restore /bl:build.binlog
+        run: dotnet build DataGEMS.Gateway.sln --configuration Release --no-restore
 
-      - name: Run code metrics on DataGEMS.Gateway.Api
-        run: dotnet msbuild DataGEMS.Gateway.Api/DataGEMS.Gateway.Api.csproj /t:Metrics /p:Configuration=Release /p:TargetFramework=net8.0 /p:DesignTimeBuild=false /p:SkipCompilerExecution=false /p:RunAnalyzers=true /p:EnforceCodeStyleInBuild=true /bl:api.metrics.binlog
+      - name: Run code metrics on compiled assemblies
+        run: |
+          $metrics = Get-ChildItem "$env:USERPROFILE\.nuget\packages\microsoft.codeanalysis.metrics\*\Metrics\Metrics.exe" -Recurse -ErrorAction SilentlyContinue |
+                     Select-Object -First 1 -ExpandProperty FullName
+          if (-not $metrics) { throw "Metrics.exe not found in NuGet cache." }
+          Write-Host "Using Metrics.exe at: $metrics"
 
-      - name: Run code metrics on DataGEMS.Gateway.App
-        run: dotnet msbuild DataGEMS.Gateway.App/DataGEMS.Gateway.App.csproj /t:Metrics /p:Configuration=Release /p:TargetFramework=net8.0 /p:DesignTimeBuild=false /p:SkipCompilerExecution=false /p:RunAnalyzers=true /p:EnforceCodeStyleInBuild=true /bl:app.metrics.binlog
+          $targets = @(
+            @{ Dll = "DataGEMS.Gateway.Api\bin\Release\net8.0\DataGEMS.Gateway.Api.dll";       Out = "DataGEMS.Gateway.Api\DataGEMS.Gateway.Api.Metrics.xml" },
+            @{ Dll = "DataGEMS.Gateway.App\bin\Release\net8.0\DataGEMS.Gateway.App.dll";       Out = "DataGEMS.Gateway.App\DataGEMS.Gateway.App.Metrics.xml" },
+            @{ Dll = "DataGEMS.Gateway.Resources\bin\Release\net8.0\DataGEMS.Gateway.Resources.dll"; Out = "DataGEMS.Gateway.Resources\DataGEMS.Gateway.Resources.Metrics.xml" }
+          )
 
-      - name: Run code metrics on DataGEMS.Gateway.Resources
-        run: dotnet msbuild DataGEMS.Gateway.Resources/DataGEMS.Gateway.Resources.csproj /t:Metrics /p:Configuration=Release /p:TargetFramework=net8.0 /p:DesignTimeBuild=false /p:SkipCompilerExecution=false /p:RunAnalyzers=true /p:EnforceCodeStyleInBuild=true /bl:resources.metrics.binlog
+          foreach ($t in $targets) {
+            if (-not (Test-Path $t.Dll)) { throw "Assembly not found: $($t.Dll). Did the Release build run?" }
+            & $metrics /assembly:"$PWD\$($t.Dll)" /out:"$PWD\$($t.Out)" /verbosity:diagnostic
+          }
 
       - name: Upload Metrics XML reports
         uses: actions/upload-artifact@v4
@@ -74,4 +80,3 @@ jobs:
             src/DataGEMS.Gateway.Api/DataGEMS.Gateway.Api.Metrics.xml
             src/DataGEMS.Gateway.App/DataGEMS.Gateway.App.Metrics.xml
             src/DataGEMS.Gateway.Resources/DataGEMS.Gateway.Resources.Metrics.xml
-            src/*.binlog
