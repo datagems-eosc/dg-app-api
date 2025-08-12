@@ -61,10 +61,10 @@ jobs:
         run: dotnet msbuild DataGEMS.Gateway.Api/DataGEMS.Gateway.Api.csproj /t:Metrics /p:Configuration=Release /p:TargetFramework=net8.0 /p:DesignTimeBuild=false /p:SkipCompilerExecution=false /p:RunAnalyzers=true /p:EnforceCodeStyleInBuild=true /bl:api.metrics.binlog
 
       - name: Run code metrics on DataGEMS.Gateway.App
-        run: dotnet msbuild DataGEMS.Gateway.App/DataGEMS.Gateway.App.csproj /t:Metrics /p:Configuration=Release /p:TargetFramework=net8.0 /p:DesignTimeBuild=false /p:SkipCompilerExecution=false /p:RunAnalyzers=true /p:EnforceCodeStyleInBuild=true /bl:api.metrics.binlog
+        run: dotnet msbuild DataGEMS.Gateway.App/DataGEMS.Gateway.App.csproj /t:Metrics /p:Configuration=Release /p:TargetFramework=net8.0 /p:DesignTimeBuild=false /p:SkipCompilerExecution=false /p:RunAnalyzers=true /p:EnforceCodeStyleInBuild=true /bl:app.metrics.binlog
 
       - name: Run code metrics on DataGEMS.Gateway.Resources
-        run: dotnet msbuild DataGEMS.Gateway.Resources/DataGEMS.Gateway.Resources.csproj /t:Metrics /p:Configuration=Release /p:TargetFramework=net8.0 /p:DesignTimeBuild=false /p:SkipCompilerExecution=false /p:RunAnalyzers=true /p:EnforceCodeStyleInBuild=true /bl:api.metrics.binlog
+        run: dotnet msbuild DataGEMS.Gateway.Resources/DataGEMS.Gateway.Resources.csproj /t:Metrics /p:Configuration=Release /p:TargetFramework=net8.0 /p:DesignTimeBuild=false /p:SkipCompilerExecution=false /p:RunAnalyzers=true /p:EnforceCodeStyleInBuild=true /bl:resources.metrics.binlog
 
       - name: Upload Metrics XML reports
         uses: actions/upload-artifact@v4
