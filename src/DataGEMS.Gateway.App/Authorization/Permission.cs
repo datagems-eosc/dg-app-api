@@ -38,8 +38,9 @@ namespace DataGEMS.Gateway.App.Authorization
 		//Vocabulary
 		public const String BrowseFieldsOfScienceVocabulary = "BrowseFieldsOfScienceVocabulary";
 		public const String BrowseLicenseVocabulary = "BrowseLicenseVocabulary";
-
 		//WorkflowDefinition
 		public const String BrowseWorkflowDefinition = "BrowseWorkflowDefinition";
+		//WorkflowExecution
+		public const String WorkflowExecution = "WorkflowExecution";
 	}
 }
