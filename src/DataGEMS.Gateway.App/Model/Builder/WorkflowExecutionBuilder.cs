@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Nodes;
-using System.Threading.Tasks;
-using Cite.Tools.Data.Builder;
+﻿using Cite.Tools.Data.Builder;
 using Cite.Tools.FieldSet;
 using Cite.Tools.Json;
 using Cite.Tools.Logging.Extensions;
@@ -40,34 +34,31 @@ namespace DataGEMS.Gateway.App.Model.Builder
 		{
 			this._logger.Debug(new MapLogEntry("building").And("type", nameof(Service.Airflow.Model.AirflowDagExecution)).And("fields", fields).And("dataCount", datas?.Count()));
 			if (fields == null || fields.IsEmpty() || datas == null || !datas.Any())
-				return Task.FromResult(Enumerable.Empty<WorkflowExecution>().ToList());// here it return to me the count = 0 cause of the if case .... well its gets null fields and the datas are 28 so the issue is within the fields !!!!
+				return Task.FromResult(Enumerable.Empty<WorkflowExecution>().ToList());
 
 			List<WorkflowExecution> results = new List<WorkflowExecution>();
 
 			foreach (Service.Airflow.Model.AirflowDagExecution d in datas)
 			{
-				WorkflowExecution trigger = new WorkflowExecution();
+				WorkflowExecution m = new WorkflowExecution();
 
-				if (fields.HasField(nameof(WorkflowExecution.Id))) trigger.Id=d.Id;
-				if (fields.HasField(nameof(WorkflowExecution.RunId))) trigger.RunId = d.RunId;
-				if (fields.HasField(nameof(WorkflowExecution.QueuedAt))) trigger.QueuedAt = d.QueuedAt;
-				if (fields.HasField(nameof(WorkflowExecution.Start))) trigger.Start = d.Start;
-				if (fields.HasField(nameof(WorkflowExecution.End))) trigger.End = d.End;
-				if (fields.HasField(nameof(WorkflowExecution.IntervalStart))) trigger.IntervalStart = d.IntervalStart;
-				if (fields.HasField(nameof(WorkflowExecution.IntervalEnd))) trigger.IntervalEnd = d.IntervalEnd;
-				if (fields.HasField(nameof(WorkflowExecution.LogicalDate))) trigger.LogicalDate = d.LogicalDate;
-				if (fields.HasField(nameof(WorkflowExecution.RunAfter))) trigger.RunAfter = d.RunAfter;
-				if (fields.HasField(nameof(WorkflowExecution.LastSchedulingDecision))) trigger.LastSchedulingDecision = d.LastSchedulingDecision;
-				if (fields.HasField(nameof(WorkflowExecution.RunType))) trigger.RunType = d.RunType;
-				if (fields.HasField(nameof(WorkflowExecution.TriggeredBy))) trigger.TriggeredBy = d.TriggeredBy;
-				if (fields.HasField(nameof(WorkflowExecution.State))) trigger.State = d.State;
-				if (fields.HasField(nameof(WorkflowExecution.Note))) trigger.Note = d.Note;
-				if (fields.HasField(nameof(WorkflowExecution.DagVersions))) trigger.DagVersions = d.DagVersions;
-				if (fields.HasField(nameof(WorkflowExecution.Conf))) trigger.Conf = d.Conf;
-				if (fields.HasField(nameof(WorkflowExecution.BundleVersion))) trigger.BundleVersion = d.BundleVersion;
-			//	if (fields.HasField(nameof(WorkflowExecution.ListDagIds))) trigger.ListDagIds = d.ListDagIds;
+				if (fields.HasField(nameof(WorkflowExecution.Id))) m.Id=d.Id;
+				if (fields.HasField(nameof(WorkflowExecution.WorkflowId))) m.WorkflowId = d.RunId;
+				if (fields.HasField(nameof(WorkflowExecution.LogicalDate))) m.LogicalDate = d.LogicalDate;
+				if (fields.HasField(nameof(WorkflowExecution.QueuedAt))) m.QueuedAt = d.QueuedAt;
+				if (fields.HasField(nameof(WorkflowExecution.Start))) m.Start = d.Start;
+				if (fields.HasField(nameof(WorkflowExecution.End))) m.End = d.End;
+				if (fields.HasField(nameof(WorkflowExecution.DataIntervalStart))) m.DataIntervalStart = d.IntervalStart;
+				if (fields.HasField(nameof(WorkflowExecution.DataIntervalEnd))) m.DataIntervalEnd = d.IntervalEnd;
+				if (fields.HasField(nameof(WorkflowExecution.RunAfter))) m.RunAfter = d.RunAfter;
+				if (fields.HasField(nameof(WorkflowExecution.LastSchedulingDecision))) m.LastSchedulingDecision = d.LastSchedulingDecision;
+				if (fields.HasField(nameof(WorkflowExecution.RunType)) && Enum.TryParse<Common.WorkflowRunType>(d.RunType, out Common.WorkflowRunType runType)) m.RunType = runType;
+				if (fields.HasField(nameof(WorkflowExecution.TriggeredBy))) m.TriggeredBy = d.TriggeredBy;
+				if (fields.HasField(nameof(WorkflowExecution.State)) && Enum.TryParse<Common.WorkflowRunState>(d.RunType, out Common.WorkflowRunState runState)) m.State = runState;
+				if (fields.HasField(nameof(WorkflowExecution.Note))) m.Note = d.Note;
+				if (fields.HasField(nameof(WorkflowExecution.BundleVersion))) m.BundleVersion = d.BundleVersion;
 
-				results.Add(trigger);
+				results.Add(m);
 			}
 
 			return Task.FromResult(results);

@@ -1,5 +1,4 @@
-﻿using Cite.Tools.Common.Extensions;
-using Cite.Tools.Data.Builder;
+﻿using Cite.Tools.Data.Builder;
 using Cite.Tools.Data.Query;
 using Cite.Tools.FieldSet;
 using Cite.Tools.Json;
@@ -13,7 +12,6 @@ using DataGEMS.Gateway.App.LogTracking;
 using DataGEMS.Gateway.App.Model;
 using DataGEMS.Gateway.App.Query;
 using DataGEMS.Gateway.App.Service.Discovery.Model;
-using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using System.Net.Http.Headers;

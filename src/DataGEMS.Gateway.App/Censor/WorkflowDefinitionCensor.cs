@@ -1,5 +1,4 @@
 ﻿using Cite.Tools.Auth.Claims;
-using Cite.Tools.Common.Extensions;
 using Cite.Tools.Data.Censor;
 using Cite.Tools.FieldSet;
 using Cite.Tools.Logging;
@@ -8,11 +7,6 @@ using Cite.WebTools.CurrentPrincipal;
 using DataGEMS.Gateway.App.Authorization;
 using DataGEMS.Gateway.App.Common;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DataGEMS.Gateway.App.Censor
 {

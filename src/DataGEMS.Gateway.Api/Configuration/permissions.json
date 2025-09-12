@@ -208,7 +208,15 @@
 				"AllowAuthenticated": false
 			},
 			//WorkflowExecution
-			"WorkflowExecution": {
+			"ExecuteWorkflow": {
+				"Roles": [ "GLOBAL_dg_admin" ],
+				"DatasetRoles": [],
+				"Claims": [],
+				"Clients": [],
+				"AllowAnonymous": false,
+				"AllowAuthenticated": false
+			},
+			"BrowseWorkflowExecution": {
 				"Roles": [ "GLOBAL_dg_admin" ],
 				"DatasetRoles": [],
 				"Claims": [],

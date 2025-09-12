@@ -5,6 +5,7 @@ using Cite.Tools.Data.Query;
 using Cite.Tools.FieldSet;
 using Cite.Tools.Logging;
 using Cite.Tools.Logging.Extensions;
+using Cite.WebTools.Validation;
 using DataGEMS.Gateway.Api.Model;
 using DataGEMS.Gateway.Api.Model.Lookup;
 using DataGEMS.Gateway.Api.OpenApi;
@@ -36,7 +37,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		private readonly QueryFactory _queryFactory;
 		private readonly IAccountingService _accountingService;
 		private readonly IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> _localizer;
-		private readonly IAirflowExecutionService _airflowService;
+		private readonly IAirflowService _airflowService;
 
 		public WorkflowController(
 			ILogger<WorkflowController> logger,
@@ -46,7 +47,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			IAccountingService accountingService,
 			IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> localizer,
 			ErrorThesaurus errors,
-			IAirflowExecutionService airflowService
+			IAirflowService airflowService
 			)
 		{
 			this._logger = logger;
@@ -76,7 +77,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			[SwaggerRequestBody(description: "The query predicates", Required = true)]
 			WorkflowDefinitionLookup lookup)
 		{
-			this._logger.Debug(new MapLogEntry("get").And("type", nameof(App.Model.WorkflowDefinition)).And("lookup", lookup));
+			this._logger.Debug(new MapLogEntry("query").And("type", nameof(App.Model.WorkflowDefinition)).And("lookup", lookup));
 
 			IFieldSet censoredFields = await this._censorFactory.Censor<WorkflowDefinitionCensor>().Censor(lookup.Project, CensorContext.AsCensor());
 			if (lookup.Project.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
@@ -91,7 +92,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			return new QueryResult<App.Model.WorkflowDefinition>(models, count);
 		}
 
-		[HttpGet("{id}")]
+		[HttpGet("definition/{id}")]
 		[Authorize]
 		[ModelStateValidationFilter]
 		[SwaggerOperation(Summary = "Lookup workflow definition by id")]
@@ -103,7 +104,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[SwaggerResponse(statusCode: 500, description: "Internal error")]
 		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
 		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
-		public async Task<App.Model.WorkflowDefinition> Get(
+		public async Task<App.Model.WorkflowDefinition> GetWorkflowDefinition(
 			[FromRoute]
 			[SwaggerParameter(description: "The id of the item to lookup", Required = true)]
 			String id,
@@ -120,18 +121,19 @@ namespace DataGEMS.Gateway.Api.Controllers
 			WorkflowDefinitionHttpQuery query = this._queryFactory.Query<WorkflowDefinitionHttpQuery>().Id(id);
 			App.Service.Airflow.Model.AirflowDag data = await query.ByIdAsync();
 			App.Model.WorkflowDefinition model = await this._builderFactory.Builder<WorkflowDefinitionBuilder>().Authorize(AuthorizationFlags.Any).Build(censoredFields, data);
-			if (model == null) throw new DGNotFoundException(this._localizer["general_notFound", id, nameof(App.Model.Collection)]);
+			if (model == null) throw new DGNotFoundException(this._localizer["general_notFound", id, nameof(App.Model.WorkflowDefinition)]);
 
 			this._accountingService.AccountFor(KnownActions.Query, KnownResources.Workflow.AsAccountable());
 
 			return model;
 		}
 
-		[HttpPost("{id}/Execute")]
+		[HttpPost("execute")]
 		[Authorize]
 		[ModelStateValidationFilter]
+		[ValidationFilter(typeof(WorkflowExecutionArgs.WorkflowExecutionArgsValidator), "model")]
 		[SwaggerOperation(Summary = "Lookup workflow definition by id")]
-		[SwaggerResponse(statusCode: 200, description: "Trigger a DAG run", type: typeof(QueryResult<App.Model.WorkflowDefinition>))]
+		[SwaggerResponse(statusCode: 200, description: "Trigger a workflow run", type: typeof(QueryResult<App.Model.WorkflowDefinition>))]
 		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
 		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
 		[SwaggerResponse(statusCode: 404, description: "Could not locate item with the provided id")]
@@ -141,30 +143,30 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
 		public async Task<App.Model.WorkflowExecution> Post(
 			[FromRoute]
-			[SwaggerParameter(description: "The id of the item to lookup", Required = true)]
-			String id,
+			[SwaggerParameter(description: "The model describing the execution parameters", Required = true)]
+			WorkflowExecutionArgs model,
 			[ModelBinder(Name = "f")]
 			[SwaggerParameter(description: "The fields to include in the response model", Required = true)]
 			[LookupFieldSetQueryStringOpenApi]
 			IFieldSet fieldSet)
 		{
-			this._logger.Debug(new MapLogEntry("post").And("type", nameof(App.Model.WorkflowExecution)).And("id", id).And("fields", fieldSet));
+			this._logger.Debug(new MapLogEntry("execute").And("type", nameof(App.Model.WorkflowExecution)).And("model", model).And("fields", fieldSet));
 
 			IFieldSet censoredFields = await this._censorFactory.Censor<WorkflowExecutionCensor>().Censor(fieldSet, CensorContext.AsCensor());
 			if (fieldSet.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
 
-			WorkflowExecution execution = await this._airflowService.ExecutionDagAsync(id, censoredFields);
+			WorkflowExecution execution = await this._airflowService.ExecuteWorkflowAsync(model, censoredFields);
 
 			this._accountingService.AccountFor(KnownActions.Persist, KnownResources.Workflow.AsAccountable());
 
 			return execution;
 		}
 
-		[HttpPost("{id}/Workflow/ListExecute")]
+		[HttpGet("definition/{workflowId}/execution/{executionId}")]
 		[Authorize]
 		[ModelStateValidationFilter]
-		[SwaggerOperation(Summary = "Lookup workflow execution by id")]
-		[SwaggerResponse(statusCode: 200, description: "The matching workflow list of executions", type: typeof(App.Model.WorkflowExecution))]
+		[SwaggerOperation(Summary = "Lookup workflow exection by if of definition by id")]
+		[SwaggerResponse(statusCode: 200, description: "The matching workflow execution", type: typeof(QueryResult<App.Model.WorkflowExecution>))]
 		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
 		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
 		[SwaggerResponse(statusCode: 404, description: "Could not locate item with the provided id")]
@@ -172,68 +174,63 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[SwaggerResponse(statusCode: 500, description: "Internal error")]
 		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
 		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
-		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
-		public async Task<QueryResult<App.Model.WorkflowExecution>> GetExecutions(
-			String id,
-			[FromBody]
-			[SwaggerRequestBody(description: "The query predicates", Required = true)]
-			WorkflowExecutionLookup lookup)
+		public async Task<App.Model.WorkflowExecution> GetWorkflowExecution(
+			[FromRoute]
+			[SwaggerParameter(description: "The workflow id of the item to lookup", Required = true)]
+			String workflowId,
+			[FromRoute]
+			[SwaggerParameter(description: "The execution id of the item to lookup", Required = true)]
+			String executionId,
+			[ModelBinder(Name = "f")]
+			[SwaggerParameter(description: "The fields to include in the response model", Required = true)]
+			[LookupFieldSetQueryStringOpenApi]
+			IFieldSet fieldSet)
 		{
-			this._logger.Debug(new MapLogEntry("get").And("type", nameof(App.Model.WorkflowExecution)).And("lookup", lookup));
+			this._logger.Debug(new MapLogEntry("get").And("type", nameof(App.Model.WorkflowDefinition)).And("workflowId", workflowId).And("executionId", executionId).And("fields", fieldSet));
 
-			IFieldSet censoredFields = await this._censorFactory.Censor<WorkflowExecutionCensor>().Censor(lookup.Project, CensorContext.AsCensor());
-			
-			if (lookup.Project.CensoredAsUnauthorized(censoredFields)) 
-				throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+			IFieldSet censoredFields = await this._censorFactory.Censor<WorkflowExecutionCensor>().Censor(fieldSet, CensorContext.AsCensor());
+			if (fieldSet.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
 
-			WorkflowExecutionQuery query = lookup.Enrich(this._queryFactory);
-
-			List<App.Service.Airflow.Model.AirflowDagExecution> datas = await query.CollectAsync(id);
-			int count = (lookup.Metadata != null && lookup.Metadata.CountAll) ? await query.CountAsync(id) : datas.Count;
-			List<App.Model.WorkflowExecution> models = await this._builderFactory.Builder<WorkflowExecutionBuilder>().Authorize(AuthorizationFlags.Any).Build(censoredFields, datas); 
+			WorkflowExecutionHttpQuery query = this._queryFactory.Query<WorkflowExecutionHttpQuery>().Id(executionId).WorkflowIds(workflowId);
+			App.Service.Airflow.Model.AirflowDagExecution data = await query.ByIdAsync();
+			App.Model.WorkflowExecution model = await this._builderFactory.Builder<WorkflowExecutionBuilder>().Authorize(AuthorizationFlags.Any).Build(censoredFields, data);
+			if (model == null) throw new DGNotFoundException(this._localizer["general_notFound", executionId, nameof(App.Model.WorkflowExecution)]);
 
 			this._accountingService.AccountFor(KnownActions.Query, KnownResources.Workflow.AsAccountable());
 
-			return new QueryResult<App.Model.WorkflowExecution>(models, count);
-
+			return model;
 		}
 
-		[HttpPost("BatchListExecute/query")]
 		[Authorize]
 		[ModelStateValidationFilter]
-		[SwaggerOperation(Summary = "Lookup workflow execution by id")]
-		[SwaggerResponse(statusCode: 200, description: "The matching workflow list of executions", type: typeof(App.Model.WorkflowExecution))]
+		[SwaggerOperation(Summary = "Retrieve the available workflow executions")]
+		[SwaggerResponse(statusCode: 200, description: "The list of matching workflow executions along with the count", type: typeof(QueryResult<App.Model.WorkflowExecution>))]
 		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
 		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
-		[SwaggerResponse(statusCode: 404, description: "Could not locate item with the provided id")]
 		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
 		[SwaggerResponse(statusCode: 500, description: "Internal error")]
 		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
 		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
 		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
-		public async Task<QueryResult<App.Model.WorkflowExecution>> GetBatchExecutions(
+		[HttpPost("execution/query")]
+		public async Task<QueryResult<App.Model.WorkflowExecution>> WorkflowExecutionQuery(
 			[FromBody]
 			[SwaggerRequestBody(description: "The query predicates", Required = true)]
 			WorkflowExecutionLookup lookup)
 		{
-			this._logger.Debug(new MapLogEntry("post").And("type", nameof(App.Model.WorkflowExecution)).And("lookup", lookup));
+			this._logger.Debug(new MapLogEntry("query").And("type", nameof(App.Model.WorkflowExecution)).And("lookup", lookup));
 
 			IFieldSet censoredFields = await this._censorFactory.Censor<WorkflowExecutionCensor>().Censor(lookup.Project, CensorContext.AsCensor());
+			if (lookup.Project.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
 
-			if (lookup.Project.CensoredAsUnauthorized(censoredFields))
-				throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
-
-			WorkflowExecutionQuery query = lookup.Enrich(this._queryFactory);
-
-			List<App.Service.Airflow.Model.AirflowDagExecution> datas = await query.CollectBatchAsync();
-			int count = (lookup.Metadata != null && lookup.Metadata.CountAll) ? await query.CountBatchAsync() : datas.Count;
+			WorkflowExecutionHttpQuery query = lookup.Enrich(this._queryFactory);
+			List<App.Service.Airflow.Model.AirflowDagExecution> datas = await query.CollectAsync();
+			int count = (lookup.Metadata != null && lookup.Metadata.CountAll) ? await query.CountAsync() : datas.Count;
 			List<App.Model.WorkflowExecution> models = await this._builderFactory.Builder<WorkflowExecutionBuilder>().Authorize(AuthorizationFlags.Any).Build(censoredFields, datas);
 
 			this._accountingService.AccountFor(KnownActions.Query, KnownResources.Workflow.AsAccountable());
 
 			return new QueryResult<App.Model.WorkflowExecution>(models, count);
-
 		}
-
 	}
 }

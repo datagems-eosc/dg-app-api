@@ -10,7 +10,7 @@ namespace DataGEMS.Gateway.App.Service.Airflow
 		{
 			services.ConfigurePOCO<AirflowConfig>(airflowConfigurationSection);
 			services.AddTransient<IAirflowAccessTokenService, AirflowAccessTokenService>();
-			services.AddTransient<IAirflowExecutionService, AirflowExecutionService>();
+			services.AddTransient<IAirflowService, AirflowService>();
 
 			return services;
 		}

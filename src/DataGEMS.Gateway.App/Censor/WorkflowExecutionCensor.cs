@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Cite.Tools.Auth.Claims;
+﻿using Cite.Tools.Auth.Claims;
 using Cite.Tools.Data.Censor;
 using Cite.Tools.FieldSet;
 using Cite.Tools.Logging;
@@ -49,9 +44,9 @@ namespace DataGEMS.Gateway.App.Censor
 			Boolean authZPass = false;
 			switch (context?.Behavior)
 			{
-				case CensorBehavior.Censor: { authZPass = await this._authService.Authorize(Permission.WorkflowExecution); break; }
+				case CensorBehavior.Censor: { authZPass = await this._authService.Authorize(Permission.BrowseWorkflowExecution); break; }
 				case CensorBehavior.Throw:
-				default: { authZPass = await this._authService.AuthorizeForce(Permission.WorkflowExecution); break; }
+				default: { authZPass = await this._authService.AuthorizeForce(Permission.BrowseWorkflowExecution); break; }
 			}
 			if (authZPass)
 			{

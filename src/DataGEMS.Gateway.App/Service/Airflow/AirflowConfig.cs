@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace DataGEMS.Gateway.App.Service.Airflow
 {
 	public class AirflowConfig
@@ -14,7 +9,7 @@ namespace DataGEMS.Gateway.App.Service.Airflow
 		public String DagByIdEndpoint { get; set; }
 		public String DagRunEndpoint {  get; set; }
 		public String DagExecutionListEndpoint {  get; set; }
-		public String DagExecutionBatchListEndpoint {  get; set; }
+		public String DagExecutionByIdEndpoint { get; set; }
 		public String Username { get; set; }
 		public String Password { get; set; }
 

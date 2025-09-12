@@ -5,8 +5,8 @@
 		"DagListEndpoint": "api/v2/dags",
 		"DagByIdEndpoint": "api/v2/dags/{id}",
 		"DagRunEndpoint": "api/v2/dags/{id}/dagRuns",
-		"DagExecutionListEndpoint": "api/v2/dags/{id}/dagRuns",
-		"DagExecutionBatchListEndpoint":"api/v2/dags/~/dagRuns/list", 
+		"DagExecutionListEndpoint": "api/v2/dags/~/dagRuns/list",
+		"DagExecutionByIdEndpoint": "api/v2/dags/{workflowId}/dagRuns/{id}",
 		"Username": "%{AirflowUsername}%",
 		"Password": "%{AirflowPassword}%"
 	}
