@@ -180,7 +180,7 @@ namespace DataGEMS.Gateway.App.Query
 				if (this.Page.Size > 0) requestModel.Limit = this.Page.Size;
 			}
 
-			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"{this._config.BaseUrl}{this._config.DagExecutionListEndpoint}")
+			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, $"{this._config.BaseUrl}{this._config.DagExecutionListEndpoint}")
 			{
 				Content = new StringContent(this._jsonHandlingService.ToJson(requestModel), Encoding.UTF8, "application/json")
 			};

@@ -142,7 +142,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
 		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
 		public async Task<App.Model.WorkflowExecution> Post(
-			[FromRoute]
+			[FromBody]
 			[SwaggerParameter(description: "The model describing the execution parameters", Required = true)]
 			WorkflowExecutionArgs model,
 			[ModelBinder(Name = "f")]

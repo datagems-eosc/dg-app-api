@@ -42,8 +42,8 @@ namespace DataGEMS.Gateway.App.Model.Builder
 			{
 				WorkflowExecution m = new WorkflowExecution();
 
-				if (fields.HasField(nameof(WorkflowExecution.Id))) m.Id=d.Id;
-				if (fields.HasField(nameof(WorkflowExecution.WorkflowId))) m.WorkflowId = d.RunId;
+				if (fields.HasField(nameof(WorkflowExecution.Id))) m.Id=d.RunId;
+				if (fields.HasField(nameof(WorkflowExecution.WorkflowId))) m.WorkflowId = d.Id;
 				if (fields.HasField(nameof(WorkflowExecution.LogicalDate))) m.LogicalDate = d.LogicalDate;
 				if (fields.HasField(nameof(WorkflowExecution.QueuedAt))) m.QueuedAt = d.QueuedAt;
 				if (fields.HasField(nameof(WorkflowExecution.Start))) m.Start = d.Start;
@@ -52,9 +52,9 @@ namespace DataGEMS.Gateway.App.Model.Builder
 				if (fields.HasField(nameof(WorkflowExecution.DataIntervalEnd))) m.DataIntervalEnd = d.IntervalEnd;
 				if (fields.HasField(nameof(WorkflowExecution.RunAfter))) m.RunAfter = d.RunAfter;
 				if (fields.HasField(nameof(WorkflowExecution.LastSchedulingDecision))) m.LastSchedulingDecision = d.LastSchedulingDecision;
-				if (fields.HasField(nameof(WorkflowExecution.RunType)) && Enum.TryParse<Common.WorkflowRunType>(d.RunType, out Common.WorkflowRunType runType)) m.RunType = runType;
+				if (fields.HasField(nameof(WorkflowExecution.RunType)) && Enum.TryParse<Common.WorkflowRunType>(d.RunType, true, out Common.WorkflowRunType runType)) m.RunType = runType;
 				if (fields.HasField(nameof(WorkflowExecution.TriggeredBy))) m.TriggeredBy = d.TriggeredBy;
-				if (fields.HasField(nameof(WorkflowExecution.State)) && Enum.TryParse<Common.WorkflowRunState>(d.RunType, out Common.WorkflowRunState runState)) m.State = runState;
+				if (fields.HasField(nameof(WorkflowExecution.State)) && Enum.TryParse<Common.WorkflowRunState>(d.State, true, out Common.WorkflowRunState runState)) m.State = runState;
 				if (fields.HasField(nameof(WorkflowExecution.Note))) m.Note = d.Note;
 				if (fields.HasField(nameof(WorkflowExecution.BundleVersion))) m.BundleVersion = d.BundleVersion;
 

@@ -112,10 +112,6 @@ namespace DataGEMS.Gateway.App.Query
 			String token = await this._airflowAccessTokenService.GetAirflowAccessTokenAsync();
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
 
-			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"{this._config.BaseUrl}{this._config.DagListEndpoint}");
-			request.Headers.Add(HeaderNames.Accept, "application/json");
-			request.Headers.Add(HeaderNames.Authorization, $"Bearer {token}");
-
 			QueryString qs = new QueryString();
 			if (this._kinds != null)
 			{
@@ -167,6 +163,10 @@ namespace DataGEMS.Gateway.App.Query
 				if (this.Page.Offset >= 0) qs = qs.Add("offset", this.Page.Offset.ToString());
 				if (this.Page.Size > 0) qs = qs.Add("limit", this.Page.Size.ToString());
 			}
+
+			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"{this._config.BaseUrl}{this._config.DagListEndpoint}{qs.ToString()}");
+			request.Headers.Add(HeaderNames.Accept, "application/json");
+			request.Headers.Add(HeaderNames.Authorization, $"Bearer {token}");
 
 			String content = await this.SendRequest(request);
 			try

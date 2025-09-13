@@ -18,12 +18,12 @@ namespace DataGEMS.Gateway.App.Common
 	{
 		[Description("Backfill")]
 		Backfill = 0,
-		[Description("Running")]
-		Running = 1,
-		[Description("Success")]
-		Success = 2,
-		[Description("Failed")]
-		Failed = 3,
+		[Description("Scheduled")]
+		Scheduled = 1,
+		[Description("Manual")]
+		Manual = 2,
+		[Description("Asset_triggered")]
+		Asset_triggered = 3,
 	}
 
 }
