@@ -5,9 +5,9 @@ VisualStudioVersion = 17.9.34902.65
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataGEMS.Gateway.Api", "DataGEMS.Gateway.Api\DataGEMS.Gateway.Api.csproj", "{586AA284-A996-4980-A7D4-042E2636A59F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataGEMS.Gateway.App", "DataGEMS.Gateway.App\DataGEMS.Gateway.App.csproj", "{B91993A7-4D11-4661-8920-D0770C04B654}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataGEMS.Gateway.App", "DataGEMS.Gateway.App\DataGEMS.Gateway.App.csproj", "{B91993A7-4D11-4661-8920-D0770C04B654}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataGEMS.Gateway.Resources", "DataGEMS.Gateway.Resources\DataGEMS.Gateway.Resources.csproj", "{CD787CE1-1143-4891-8967-C7EA466F6DD2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataGEMS.Gateway.Resources", "DataGEMS.Gateway.Resources\DataGEMS.Gateway.Resources.csproj", "{CD787CE1-1143-4891-8967-C7EA466F6DD2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

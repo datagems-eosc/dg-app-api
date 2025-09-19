@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace DataGEMS.Gateway.App.Service.Airflow.Model
 {
-	public class AirflowTaskExecution
+	public class AirflowTaskInstance
 	{
 		[JsonProperty("id")]
 		public String Id { get; set; }
@@ -22,6 +17,8 @@ namespace DataGEMS.Gateway.App.Service.Airflow.Model
 		public String MapIndex { get; set; }
 		[JsonProperty("logical_date")]
 		public DateTime? LogicalDate { get; set; }
+		[JsonProperty("run_after")]
+		public DateTime? RunAfter { get; set; }
 		[JsonProperty("start_date")]
 		public DateTime? Start { get; set; }
 		[JsonProperty("end_date")]
@@ -58,20 +55,20 @@ namespace DataGEMS.Gateway.App.Service.Airflow.Model
 		[JsonProperty("pid")]
 		public int? Pid { get; set; }
 		[JsonProperty("executor")]
-		public String? Executor { get; set; }
+		public String Executor { get; set; }
 		[JsonProperty("executor_config")]
-		public String? ExecutorConfig { get; set; }
+		public String ExecutorConfig { get; set; }
 		[JsonProperty("note")]
-		public String? Note { get; set; }
+		public String Note { get; set; }
 		[JsonProperty("rendered_map_index")]
-		public String? RenderedMapIndex { get; set; }
+		public String RenderedMapIndex { get; set; }
 		[JsonProperty("rendered_fields")]
-		public Object? RenderedFields { get; set; }
+		public Object RenderedFields { get; set; }
 		[JsonProperty("trigger")]
-		public List<Object> Trigger { get; set; }
+		public Object Trigger { get; set; }
 		[JsonProperty("triggerer_job")]
-		public List<Object> TriggererJob { get; set; }
+		public Object TriggererJob { get; set; }
 		[JsonProperty("dag_versions")]
-		public List<Object> DagVersion { get; set; }
+		public Object DagVersion { get; set; }
 	}
 }

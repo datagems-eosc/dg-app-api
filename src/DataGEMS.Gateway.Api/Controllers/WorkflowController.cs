@@ -165,7 +165,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[HttpGet("definition/{workflowId}/execution/{executionId}")]
 		[Authorize]
 		[ModelStateValidationFilter]
-		[SwaggerOperation(Summary = "Lookup workflow exection by if of definition by id")]
+		[SwaggerOperation(Summary = "Lookup workflow exection by id of definition by id")]
 		[SwaggerResponse(statusCode: 200, description: "The matching workflow execution", type: typeof(QueryResult<App.Model.WorkflowExecution>))]
 		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
 		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
@@ -233,10 +233,52 @@ namespace DataGEMS.Gateway.Api.Controllers
 			return new QueryResult<App.Model.WorkflowExecution>(models, count);
 		}
 
+		[HttpGet("definition/{workflowId}/execution/{executionId}/task/{taskId}")]
 		[Authorize]
 		[ModelStateValidationFilter]
-		[SwaggerOperation(Summary = "Retrieve the available workflow executions")]
-		[SwaggerResponse(statusCode: 200, description: "The list of matching workflow executions along with the count", type: typeof(QueryResult<App.Model.WorkflowTasks>))]
+		[SwaggerOperation(Summary = "Lookup workflow task instance by id")]
+		[SwaggerResponse(statusCode: 200, description: "The matching workflow task instance", type: typeof(QueryResult<App.Model.WorkflowTaskInstance>))]
+		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
+		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
+		[SwaggerResponse(statusCode: 404, description: "Could not locate item with the provided id")]
+		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
+		[SwaggerResponse(statusCode: 500, description: "Internal error")]
+		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
+		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
+		public async Task<App.Model.WorkflowTaskInstance> GetWorkflowTaskInstance(
+			[FromRoute]
+			[SwaggerParameter(description: "The workflow id of the item to lookup", Required = true)]
+			String workflowId,
+			[FromRoute]
+			[SwaggerParameter(description: "The execution id of the item to lookup", Required = true)]
+			String executionId,
+			[FromRoute]
+			[SwaggerParameter(description: "The task id of the item to lookup", Required = true)]
+			String taskId,
+			[ModelBinder(Name = "f")]
+			[SwaggerParameter(description: "The fields to include in the response model", Required = true)]
+			[LookupFieldSetQueryStringOpenApi]
+			IFieldSet fieldSet)
+		{
+			this._logger.Debug(new MapLogEntry("get").And("type", nameof(App.Model.WorkflowTaskInstance)).And("workflowId", workflowId).And("executionId", executionId).And("taskId", taskId).And("fields", fieldSet));
+
+			IFieldSet censoredFields = await this._censorFactory.Censor<WorkflowTaskInstanceCensor>().Censor(fieldSet, CensorContext.AsCensor());
+			if (fieldSet.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+
+			WorkflowTaskInstanceHttpQuery query = this._queryFactory.Query<WorkflowTaskInstanceHttpQuery>().WorkflowIds(workflowId).WorkflowExecutionIds(executionId).TaskIds(taskId);
+			App.Service.Airflow.Model.AirflowTaskInstance data = await query.ByIdAsync();
+			App.Model.WorkflowTaskInstance model = await this._builderFactory.Builder<WorkflowTaskInstanceBuilder>().Authorize(AuthorizationFlags.Any).Build(censoredFields, data);
+			if (model == null) throw new DGNotFoundException(this._localizer["general_notFound", taskId, nameof(App.Model.WorkflowTaskInstance)]);
+
+			this._accountingService.AccountFor(KnownActions.Query, KnownResources.Workflow.AsAccountable());
+
+			return model;
+		}
+
+		[Authorize]
+		[ModelStateValidationFilter]
+		[SwaggerOperation(Summary = "Retrieve the available workflow task instances")]
+		[SwaggerResponse(statusCode: 200, description: "The list of matching workflow task instances along with the count", type: typeof(QueryResult<App.Model.WorkflowTaskInstance>))]
 		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
 		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
 		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
@@ -244,25 +286,25 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
 		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
 		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
-		[HttpPost("tasks/query")]
-		public async Task<QueryResult<App.Model.WorkflowTasks>> WorkflowExecutionTasksQuery(
+		[HttpPost("task/instance/query")]
+		public async Task<QueryResult<App.Model.WorkflowTaskInstance>> WorkflowTaskInstanceQuery(
 			[FromBody]
 			[SwaggerRequestBody(description: "The query predicates", Required = true)]
-			WorkflowTaskLookup lookup)
+			WorkflowTaskInstanceLookup lookup)
 		{
-			this._logger.Debug(new MapLogEntry("query").And("type", nameof(App.Model.WorkflowTasks)).And("lookup", lookup));
+			this._logger.Debug(new MapLogEntry("query").And("type", nameof(App.Model.WorkflowTaskInstance)).And("lookup", lookup));
 
-			IFieldSet censoredFields = await this._censorFactory.Censor<WorkflowTaskCensor>().Censor(lookup.Project, CensorContext.AsCensor());
+			IFieldSet censoredFields = await this._censorFactory.Censor<WorkflowTaskInstanceCensor>().Censor(lookup.Project, CensorContext.AsCensor());
 			if (lookup.Project.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
 
-			WorkflowTaskHttpQuery query = lookup.Enrich(this._queryFactory);
-			List<App.Service.Airflow.Model.AirflowTaskExecution> datas = await query.CollectAsync();
+			WorkflowTaskInstanceHttpQuery query = lookup.Enrich(this._queryFactory);
+			List<App.Service.Airflow.Model.AirflowTaskInstance> datas = await query.CollectAsync();
 			int count = (lookup.Metadata != null && lookup.Metadata.CountAll) ? await query.CountAsync() : datas.Count;
-			List<App.Model.WorkflowTasks> models = await this._builderFactory.Builder<WorkflowTaskBuilder>().Authorize(AuthorizationFlags.Any).Build(censoredFields, datas);
+			List<App.Model.WorkflowTaskInstance> models = await this._builderFactory.Builder<WorkflowTaskInstanceBuilder>().Authorize(AuthorizationFlags.Any).Build(censoredFields, datas);
 
 			this._accountingService.AccountFor(KnownActions.Query, KnownResources.Workflow.AsAccountable());
 
-			return new QueryResult<App.Model.WorkflowTasks>(models, count);
+			return new QueryResult<App.Model.WorkflowTaskInstance>(models, count);
 		}
 
 		[HttpGet("tasklogs/query")]
@@ -278,12 +320,12 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
 		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
 		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
-		public async Task<QueryResult<App.Model.WorkflowTasks>> WorkflowTaskLogsQuery(
+		public async Task<QueryResult<App.Model.WorkflowTaskInstance>> WorkflowTaskLogsQuery(
 			[FromBody]
 			[SwaggerRequestBody(description: "The query predicates", Required = true)]
 			WorkflowTaskLogsLookup lookup)
 		{
-			this._logger.Debug(new MapLogEntry("query").And("type", nameof(App.Model.WorkflowTasks)).And("lookup", lookup));
+			this._logger.Debug(new MapLogEntry("query").And("type", nameof(App.Model.WorkflowTaskInstance)).And("lookup", lookup));
 
 			IFieldSet censoredFields = await this._censorFactory.Censor<WorkflowTaskLogsCensor>().Censor(lookup.Project, CensorContext.AsCensor());
 			if (lookup.Project.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);

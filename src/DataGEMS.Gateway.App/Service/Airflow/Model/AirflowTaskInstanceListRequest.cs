@@ -1,23 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace DataGEMS.Gateway.App.Service.Airflow.Model
 {
-	public class AirflowTaskListRequest
+	public class AirflowTaskInstanceListRequest
 	{
 		[JsonProperty("dag_ids")]
 		public List<string> DagIds { get; set; }
+
 		[JsonProperty("dag_run_ids")]
 		public List<string> DagRunIds { get; set; }
+
 		[JsonProperty("task_ids")]
 		public List<string> TaskIds { get; set; }
 
 		[JsonProperty("state")]
 		public List<string> State { get; set; }
+
 		[JsonProperty("run_after_gte")]
 		public DateTime? RunAfterGte { get; set; }
 
@@ -49,13 +47,13 @@ namespace DataGEMS.Gateway.App.Service.Airflow.Model
 		public Decimal? DurationLte { get; set; }
 		
 		[JsonProperty("pool")]
-		public List<String?> Pool { get; set; }
+		public List<String> Pool { get; set; }
 		
 		[JsonProperty("queue")]
-		public List<String?> Queue { get; set; }
+		public List<String> Queue { get; set; }
 		
 		[JsonProperty("executor")]
-		public List<String?> Executor { get; set; }
+		public List<String> Executor { get; set; }
 		
 		[JsonProperty("page_offset")]
 		public int? Offset { get; set; }

@@ -33,7 +33,7 @@ namespace DataGEMS.Gateway.App.Service.Airflow.Model
 		[JsonProperty("note")]
 		public String Note { get; set; }
 		[JsonProperty("dag_versions")]
-		public List<Object> DagVersions { get; set; }
+		public Object DagVersions { get; set; }
 		[JsonProperty("conf")]
 		public Object Conf { get; set; }
 		[JsonProperty("bundle_version")]

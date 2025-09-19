@@ -31,7 +31,7 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 		public int MapIndex { get; set; } 
 
 		[SwaggerSchema("Continuation token for paginated logs")]
-		public string? Token { get; set; }
+		public string Token { get; set; }
 
 		public WorkflowTaskLogsHttpQuery Enrich(QueryFactory factory)
 		{
@@ -43,7 +43,7 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 
 			return query;
 		}
-		public class QueryValidator : BaseValidator<WorkflowTaskLookup>
+		public class QueryValidator : BaseValidator<WorkflowTaskInstanceLookup>
 		{
 			public QueryValidator(
 				IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> localizer,
@@ -56,18 +56,18 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 
 			private readonly IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> _localizer;
 
-			protected override IEnumerable<ISpecification> Specifications(WorkflowTaskLookup item)
+			protected override IEnumerable<ISpecification> Specifications(WorkflowTaskInstanceLookup item)
 			{
 				return new ISpecification[]{
 					//Workflow Ids must be null or not empty
 					this.Spec()
 						.Must(() => !item.WorkflowIds.IsNotNullButEmpty())
-						.FailOn(nameof(WorkflowTaskLookup.WorkflowIds)).FailWith(this._localizer["validation_setButEmpty", nameof(WorkflowTaskLookup.WorkflowIds)]),
+						.FailOn(nameof(WorkflowTaskInstanceLookup.WorkflowIds)).FailWith(this._localizer["validation_setButEmpty", nameof(WorkflowTaskInstanceLookup.WorkflowIds)]),
 					//Paging with Ordering is only supported !
 					this.Spec()
 						.If(()=> item.Page != null && !item.Page.IsEmpty)
 						.Must(() => !item.Order.IsEmpty)
-						.FailOn(nameof(WorkflowTaskLookup.Page)).FailWith(this._localizer["validation_pagingWithoutOrdering"]),
+						.FailOn(nameof(WorkflowTaskInstanceLookup.Page)).FailWith(this._localizer["validation_pagingWithoutOrdering"]),
 				};
 			}
 

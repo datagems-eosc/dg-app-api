@@ -7,15 +7,6 @@ namespace DataGEMS.Gateway.App.Service.Airflow.Model
 		[JsonProperty("dag_ids")]
 		public List<string> DagIds { get; set; }
 
-		[JsonProperty("order_by")]
-		public string OrderBy { get; set; }
-
-		[JsonProperty("page_offset")]
-		public int? Offset { get; set; }
-
-		[JsonProperty("page_limit")]
-		public int? Limit { get; set; }
-
 		[JsonProperty("states")]
 		public List<string> States { get; set; }
 
@@ -42,6 +33,15 @@ namespace DataGEMS.Gateway.App.Service.Airflow.Model
 
 		[JsonProperty("end_date_lte")]
 		public DateTime? EndDateLte { get; set; }
+
+		[JsonProperty("page_offset")]
+		public int? Offset { get; set; }
+
+		[JsonProperty("page_limit")]
+		public int? Limit { get; set; }
+
+		[JsonProperty("order_by")]
+		public string OrderBy { get; set; }
 	}
 
 }

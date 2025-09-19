@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Cite.Tools.Auth.Claims;
+﻿using Cite.Tools.Auth.Claims;
 using Cite.Tools.Data.Censor;
 using Cite.Tools.FieldSet;
 using Cite.Tools.Logging;
@@ -15,19 +10,19 @@ using Microsoft.Extensions.Logging;
 
 namespace DataGEMS.Gateway.App.Censor
 {
-	public class WorkflowTaskCensor : ICensor
+	public class WorkflowTaskInstanceCensor : ICensor
 	{
 		private readonly CensorFactory _censorFactory;
 		private readonly IAuthorizationService _authService;
-		private readonly ILogger<WorkflowTaskCensor> _logger;
+		private readonly ILogger<WorkflowTaskInstanceCensor> _logger;
 		private readonly IAuthorizationContentResolver _authorizationContentResolver;
 		private readonly ICurrentPrincipalResolverService _principalResolverService;
 		private readonly ClaimExtractor _claimExtractor;
 
-		public WorkflowTaskCensor(
+		public WorkflowTaskInstanceCensor(
 			CensorFactory censorFactory,
 			IAuthorizationService authService,
-			ILogger<WorkflowTaskCensor> logger,
+			ILogger<WorkflowTaskInstanceCensor> logger,
 			IAuthorizationContentResolver authorizationContentResolver,
 			ICurrentPrincipalResolverService principalResolverService,
 			ClaimExtractor claimExtractor)
@@ -49,9 +44,9 @@ namespace DataGEMS.Gateway.App.Censor
 			Boolean authZPass = false;
 			switch (context?.Behavior)
 			{
-				case CensorBehavior.Censor: { authZPass = await this._authService.Authorize(Permission.BrowseWorkflowExecution); break; }
+				case CensorBehavior.Censor: { authZPass = await this._authService.Authorize(Permission.BrowseWorkflowTaskInstance); break; }
 				case CensorBehavior.Throw:
-				default: { authZPass = await this._authService.AuthorizeForce(Permission.BrowseWorkflowExecution); break; }
+				default: { authZPass = await this._authService.AuthorizeForce(Permission.BrowseWorkflowTaskInstance); break; }
 			}
 			if (authZPass)
 			{
