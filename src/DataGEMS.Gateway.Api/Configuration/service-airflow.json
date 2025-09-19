@@ -7,7 +7,10 @@
 		"DagRunEndpoint": "api/v2/dags/{id}/dagRuns",
 		"DagExecutionListEndpoint": "api/v2/dags/~/dagRuns/list",
 		"DagExecutionByIdEndpoint": "api/v2/dags/{workflowId}/dagRuns/{id}",
+		"TaskInstancesListEndpoint": "api/v2/dags/~/dagRuns/~/taskInstances/list",
+		"TaskInstancesLogsEndpoint": "api/v2/dags/~/dagRuns/~/taskInstances/~/logs/{try_number}",
 		"Username": "%{AirflowUsername}%",
 		"Password": "%{AirflowPassword}%"
 	}
 }
+ 

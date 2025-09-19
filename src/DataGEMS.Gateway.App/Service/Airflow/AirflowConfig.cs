@@ -10,6 +10,8 @@ namespace DataGEMS.Gateway.App.Service.Airflow
 		public String DagRunEndpoint {  get; set; }
 		public String DagExecutionListEndpoint {  get; set; }
 		public String DagExecutionByIdEndpoint { get; set; }
+		public String TaskInstancesListEndpoint { get; set; }
+		public String TaskInstancesLogsEndpoint { get; set; }
 		public String Username { get; set; }
 		public String Password { get; set; }
 
