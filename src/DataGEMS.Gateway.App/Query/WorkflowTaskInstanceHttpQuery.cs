@@ -61,7 +61,7 @@ namespace DataGEMS.Gateway.App.Query
 		public WorkflowTaskInstanceHttpQuery WorkflowIds(IEnumerable<String> workflowId) { this._workflowIds = workflowId?.ToList(); return this; }
 		public WorkflowTaskInstanceHttpQuery WorkflowIds(String workflowId) { this._workflowIds = workflowId.AsList(); return this; }
 		public WorkflowTaskInstanceHttpQuery WorkflowExecutionIds(IEnumerable<String> workflowExecutionId) { this._workflowExecutionIds = workflowExecutionId?.ToList(); return this; }
-		public WorkflowTaskInstanceHttpQuery WorkflowExecutionIds(String workflowExecutionId) { this._workflowIds = workflowExecutionId.AsList(); return this; }
+		public WorkflowTaskInstanceHttpQuery WorkflowExecutionIds(String workflowExecutionId) { this._workflowExecutionIds = workflowExecutionId.AsList(); return this; }
 		public WorkflowTaskInstanceHttpQuery State(IEnumerable<WorkflowTaskInstanceState> state) { this._state = state?.ToList(); return this; }
 		public WorkflowTaskInstanceHttpQuery State(WorkflowTaskInstanceState state) { this._state = state.AsList(); return this; }
 		public WorkflowTaskInstanceHttpQuery LogicalDateRange(RangeOf<DateOnly?> logicalDateRange) { this._logicalDateRange = logicalDateRange; return this; }

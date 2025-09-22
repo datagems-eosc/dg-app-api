@@ -37,5 +37,9 @@ namespace DataGEMS.Gateway.App.Model
 		public Object Trigger { get; set; }
 		public Object TriggererJob { get; set; }
 		public Object DagVersion { get; set; }
+		public WorkflowDefinition Workflow { get; set; }
+		public WorkflowTask Task { get; set; }
+		public WorkflowExecution WorkflowExecution { get; set; }
+
 	}
 }

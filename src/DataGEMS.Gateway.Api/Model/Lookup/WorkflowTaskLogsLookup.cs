@@ -43,7 +43,7 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 
 			return query;
 		}
-		public class QueryValidator : BaseValidator<WorkflowTaskInstanceLookup>
+		public class QueryValidator : BaseValidator<WorkflowTaskLogsLookup>
 		{
 			public QueryValidator(
 				IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> localizer,
@@ -56,18 +56,18 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 
 			private readonly IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> _localizer;
 
-			protected override IEnumerable<ISpecification> Specifications(WorkflowTaskInstanceLookup item)
+			protected override IEnumerable<ISpecification> Specifications(WorkflowTaskLogsLookup item)
 			{
 				return new ISpecification[]{
 					//Workflow Ids must be null or not empty
 					this.Spec()
-						.Must(() => !item.WorkflowIds.IsNotNullButEmpty())
-						.FailOn(nameof(WorkflowTaskInstanceLookup.WorkflowIds)).FailWith(this._localizer["validation_setButEmpty", nameof(WorkflowTaskInstanceLookup.WorkflowIds)]),
+						.Must(() => !item.DagId.IsNotNullButEmpty())
+						.FailOn(nameof(WorkflowTaskLogsLookup.DagId)).FailWith(this._localizer["validation_setButEmpty", nameof(WorkflowTaskLogsLookup.DagId)]),
 					//Paging with Ordering is only supported !
 					this.Spec()
 						.If(()=> item.Page != null && !item.Page.IsEmpty)
 						.Must(() => !item.Order.IsEmpty)
-						.FailOn(nameof(WorkflowTaskInstanceLookup.Page)).FailWith(this._localizer["validation_pagingWithoutOrdering"]),
+						.FailOn(nameof(WorkflowTaskLogsLookup.Page)).FailWith(this._localizer["validation_pagingWithoutOrdering"]),
 				};
 			}
 

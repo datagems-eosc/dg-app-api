@@ -275,38 +275,6 @@ namespace DataGEMS.Gateway.Api.Controllers
 			return model;
 		}
 
-		[Authorize]
-		[ModelStateValidationFilter]
-		[SwaggerOperation(Summary = "Retrieve the available workflow task instances")]
-		[SwaggerResponse(statusCode: 200, description: "The list of matching workflow task instances along with the count", type: typeof(QueryResult<App.Model.WorkflowTaskInstance>))]
-		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
-		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
-		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
-		[SwaggerResponse(statusCode: 500, description: "Internal error")]
-		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
-		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
-		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
-		[HttpPost("task/instance/query")]
-		public async Task<QueryResult<App.Model.WorkflowTaskInstance>> WorkflowTaskInstanceQuery(
-			[FromBody]
-			[SwaggerRequestBody(description: "The query predicates", Required = true)]
-			WorkflowTaskInstanceLookup lookup)
-		{
-			this._logger.Debug(new MapLogEntry("query").And("type", nameof(App.Model.WorkflowTaskInstance)).And("lookup", lookup));
-
-			IFieldSet censoredFields = await this._censorFactory.Censor<WorkflowTaskInstanceCensor>().Censor(lookup.Project, CensorContext.AsCensor());
-			if (lookup.Project.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
-
-			WorkflowTaskInstanceHttpQuery query = lookup.Enrich(this._queryFactory);
-			List<App.Service.Airflow.Model.AirflowTaskInstance> datas = await query.CollectAsync();
-			int count = (lookup.Metadata != null && lookup.Metadata.CountAll) ? await query.CountAsync() : datas.Count;
-			List<App.Model.WorkflowTaskInstance> models = await this._builderFactory.Builder<WorkflowTaskInstanceBuilder>().Authorize(AuthorizationFlags.Any).Build(censoredFields, datas);
-
-			this._accountingService.AccountFor(KnownActions.Query, KnownResources.Workflow.AsAccountable());
-
-			return new QueryResult<App.Model.WorkflowTaskInstance>(models, count);
-		}
-
 		[HttpGet("tasklogs/query")]
 		[Authorize]
 		[ModelStateValidationFilter]

@@ -18,6 +18,6 @@ namespace DataGEMS.Gateway.App.Model
 		public String MapIndex { get; set; }
 		public int TryNumber { get; set; }
 		public bool FullContent { get; set; } 
-		public string? Token { get; set; }
+		public string Token { get; set; }
 	}
 }

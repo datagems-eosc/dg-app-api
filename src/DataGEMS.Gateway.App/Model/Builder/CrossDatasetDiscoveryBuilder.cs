@@ -13,7 +13,6 @@ namespace DataGEMS.Gateway.App.Model.Builder
 	{
 		private readonly QueryFactory _queryFactory;
 		private readonly BuilderFactory _builderFactory;
-		private readonly IAuthorizationContentResolver _authorizationContentResolver;
 
 		private AuthorizationFlags _authorize { get; set; } = AuthorizationFlags.None;
 

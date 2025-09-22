@@ -58,7 +58,7 @@ namespace DataGEMS.Gateway.App.Service.Airflow.Model
 		[JsonProperty("dag_run_id")]
 		public String RunId { get; set; }
 		[JsonProperty("dag_id")]
-		public String Id { get; set; }
+		public String DagId { get; set; }
 		[JsonProperty("queued_at")]
 		public DateTime? QueuedAt { get; set; }
 		[JsonProperty("start_date")]

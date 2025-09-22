@@ -94,7 +94,7 @@ namespace DataGEMS.Gateway.App.Query
 			Service.Airflow.Model.AirflowTaskLogsList model = await this.CollectBaseAsync(false);
 			return model?.Content ?? Enumerable.Empty<Service.Airflow.Model.AirflowTaskLogs>().ToList();
 		} 
-		public async Task<String?> CountAsync()
+		public async Task<String> CountAsync()
 		{
 			Service.Airflow.Model.AirflowTaskLogsList model = await this.CollectBaseAsync(true);
 			return model?.ContinuationToken;

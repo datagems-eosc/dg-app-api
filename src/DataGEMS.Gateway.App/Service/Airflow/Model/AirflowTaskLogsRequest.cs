@@ -30,6 +30,6 @@ namespace DataGEMS.Gateway.App.Service.Airflow.Model
 		public int MapIndex { get; set; } = -1;
 
 		[JsonProperty("token")]
-		public string? Token { get; set; }
+		public string Token { get; set; }
 	}
 }

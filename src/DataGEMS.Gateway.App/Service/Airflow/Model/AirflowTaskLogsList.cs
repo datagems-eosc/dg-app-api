@@ -12,6 +12,6 @@ namespace DataGEMS.Gateway.App.Service.Airflow.Model
 		[JsonProperty("content")]
 		public List<AirflowTaskLogs> Content { get; set; }
 		[JsonProperty("continuation_token")]
-		public String? ContinuationToken  { get; set; }
+		public String ContinuationToken  { get; set; }
 	}
 }
