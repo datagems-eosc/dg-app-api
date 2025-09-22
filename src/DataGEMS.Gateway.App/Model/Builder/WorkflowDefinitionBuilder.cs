@@ -5,21 +5,26 @@ using Cite.Tools.Logging.Extensions;
 using Cite.Tools.Logging;
 using DataGEMS.Gateway.App.Authorization;
 using Microsoft.Extensions.Logging;
+using DataGEMS.Gateway.App.Query;
+using Cite.Tools.Data.Query;
 
 namespace DataGEMS.Gateway.App.Model.Builder
 {
 	public class WorkflowDefinitionBuilder : Builder<WorkflowDefinition, Service.Airflow.Model.AirflowDag>
 	{
+		private readonly QueryFactory _queryFactory;
 		private readonly BuilderFactory _builderFactory;
 		private readonly JsonHandlingService _jsonHandlingService;
 
 		private AuthorizationFlags _authorize { get; set; } = AuthorizationFlags.None;
 
 		public WorkflowDefinitionBuilder(
+			QueryFactory queryFactory,
 			BuilderFactory builderFactory,
 			JsonHandlingService jsonHandlingService,
 			ILogger<WorkflowDefinitionBuilder> logger): base(logger)
 		{
+			this._queryFactory = queryFactory;
 			this._builderFactory = builderFactory;
 			this._jsonHandlingService = jsonHandlingService;
 		}
@@ -30,11 +35,13 @@ namespace DataGEMS.Gateway.App.Model.Builder
 			return this;
 		}
 
-		public override Task<List<WorkflowDefinition>> Build(IFieldSet fields, IEnumerable<Service.Airflow.Model.AirflowDag> datas)
+		public override async Task<List<WorkflowDefinition>> Build(IFieldSet fields, IEnumerable<Service.Airflow.Model.AirflowDag> datas)
 		{
 			this._logger.Debug(new MapLogEntry("building").And("type", nameof(Service.Airflow.Model.AirflowDag)).And("fields", fields).And("dataCount", datas?.Count()));
-			if (fields == null || fields.IsEmpty() || datas == null || !datas.Any())
-				return Task.FromResult(Enumerable.Empty<WorkflowDefinition>().ToList());
+			if (fields == null || fields.IsEmpty() || datas == null || !datas.Any()) return Enumerable.Empty<WorkflowDefinition>().ToList();
+
+			IFieldSet workflowTaskFields = fields.ExtractPrefixed(this.AsPrefix(nameof(WorkflowDefinition.Tasks)));
+			Dictionary<String, List<WorkflowTask>> workflowTaskMap = await this.CollectWorkflowTasks(workflowTaskFields, datas);
 
 			List<WorkflowDefinition> results = new List<WorkflowDefinition>();
 
@@ -67,11 +74,30 @@ namespace DataGEMS.Gateway.App.Model.Builder
 				if (fields.HasField(nameof(WorkflowDefinition.NextDataIntervalEnd))) m.NextDataIntervalEnd = d.NextDataIntervalEnd;
 				if (fields.HasField(nameof(WorkflowDefinition.NextRunAfter))) m.NextRunAfter = d.NextRunAfter;
 				if (fields.HasField(nameof(WorkflowDefinition.Owners))) m.Owners = d.Owners;
+				if (!workflowTaskFields.IsEmpty() && workflowTaskMap != null && workflowTaskMap.ContainsKey(d.Id)) m.Tasks = workflowTaskMap[d.Id];
 
 				results.Add(m);
 			}
 
-			return Task.FromResult(results);
+			return results;
+		}
+
+		private async Task<Dictionary<String, List<WorkflowTask>>> CollectWorkflowTasks(IFieldSet fields, IEnumerable<Service.Airflow.Model.AirflowDag> datas)
+		{
+			if (fields.IsEmpty() || !datas.Any()) return null;
+			this._logger.Debug(new MapLogEntry("building related").And("type", nameof(App.Model.WorkflowTask)).And("fields", fields).And("dataCount", datas?.Count()));
+
+			Dictionary<String, List<WorkflowTask>> itemMap = new Dictionary<String, List<WorkflowTask>>();
+
+			List<String> workflowIds = datas.Select(x => x.Id).Distinct().ToList();
+			foreach(String workflowId in workflowIds)
+			{
+				List<Service.Airflow.Model.AirflowTask> taskDatas = await this._queryFactory.Query<WorkflowTaskHttpQuery>().WorkflowId(workflowId).CollectAsync();
+				List<Model.WorkflowTask> taskModels = await this._builderFactory.Builder<WorkflowTaskBuilder>().Authorize(this._authorize).Build(fields, taskDatas);
+				if(taskModels != null && taskModels.Count > 0) itemMap[workflowId] = taskModels;
+			}
+
+			return itemMap;
 		}
 	}
 }

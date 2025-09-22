@@ -1,5 +1,4 @@
 ﻿using Cite.Tools.Auth.Claims;
-using Cite.Tools.Common.Extensions;
 using Cite.Tools.Data.Censor;
 using Cite.Tools.FieldSet;
 using Cite.Tools.Logging;
@@ -11,19 +10,19 @@ using Microsoft.Extensions.Logging;
 
 namespace DataGEMS.Gateway.App.Censor
 {
-	public class WorkflowDefinitionCensor : ICensor
+	public class WorkflowTaskCensor : ICensor
 	{
 		private readonly CensorFactory _censorFactory;
 		private readonly IAuthorizationService _authService;
-		private readonly ILogger<WorkflowDefinitionCensor> _logger;
+		private readonly ILogger<WorkflowTaskCensor> _logger;
 		private readonly IAuthorizationContentResolver _authorizationContentResolver;
 		private readonly ICurrentPrincipalResolverService _principalResolverService;
 		private readonly ClaimExtractor _claimExtractor;
 
-		public WorkflowDefinitionCensor(
+		public WorkflowTaskCensor(
 			CensorFactory censorFactory,
 			IAuthorizationService authService,
-			ILogger<WorkflowDefinitionCensor> logger,
+			ILogger<WorkflowTaskCensor> logger,
 			IAuthorizationContentResolver authorizationContentResolver,
 			ICurrentPrincipalResolverService principalResolverService,
 			ClaimExtractor claimExtractor)
@@ -45,16 +44,14 @@ namespace DataGEMS.Gateway.App.Censor
 			Boolean authZPass = false;
 			switch (context?.Behavior)
 			{
-				case CensorBehavior.Censor: { authZPass = await this._authService.Authorize(Permission.BrowseWorkflowDefinition); break; }
+				case CensorBehavior.Censor: { authZPass = await this._authService.Authorize(Permission.BrowseWorkflowTask); break; }
 				case CensorBehavior.Throw:
-				default: { authZPass = await this._authService.AuthorizeForce(Permission.BrowseWorkflowDefinition); break; }
+				default: { authZPass = await this._authService.AuthorizeForce(Permission.BrowseWorkflowTask); break; }
 			}
 			if (authZPass)
 			{
 				censored = censored.Merge(fields.ExtractNonPrefixed());
 			}
-
-			censored = censored.MergeAsPrefixed(await this._censorFactory.Censor<WorkflowTaskCensor>().Censor(fields.ExtractPrefixed(nameof(Model.WorkflowDefinition.Tasks).AsIndexerPrefix()), context), nameof(Model.WorkflowDefinition.Tasks));
 
 			return censored;
 		}

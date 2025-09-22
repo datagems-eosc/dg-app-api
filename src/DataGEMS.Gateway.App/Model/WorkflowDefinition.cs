@@ -28,5 +28,6 @@ namespace DataGEMS.Gateway.App.Model
 		public DateTime? NextDataIntervalEnd { get; set; }
 		public DateTime? NextRunAfter { get; set; }
 		public List<String> Owners { get; set; }
+		public List<WorkflowTask> Tasks { get; set; }
 	}
 }

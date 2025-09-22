@@ -22,7 +22,7 @@ namespace DataGEMS.Gateway.App.Model
 		public String Hostname { get; set; }
 		public String Unixname { get; set; }
 		public String Pool {  get; set; }
-		public int PoolSlots { get; set; }
+		public int? PoolSlots { get; set; }
 		public String Queue { get; set; }
 		public DateTime? QueuedWhen { get; set; }
 		public DateTime? ScheduledWhen { get; set; }

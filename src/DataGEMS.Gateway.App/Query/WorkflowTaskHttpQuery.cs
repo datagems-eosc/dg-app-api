@@ -1,46 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Cite.Tools.Common.Extensions;
-using Cite.Tools.Data.Query;
+﻿using Cite.Tools.Data.Query;
 using Cite.Tools.Json;
 using Cite.Tools.Logging.Extensions;
 using DataGEMS.Gateway.App.Common;
 using DataGEMS.Gateway.App.ErrorCode;
 using DataGEMS.Gateway.App.Exception;
 using DataGEMS.Gateway.App.LogTracking;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 
 namespace DataGEMS.Gateway.App.Query
 {
-	public class WorkflowTaskLogsHttpQuery : Cite.Tools.Data.Query.IQuery
+	public class WorkflowTaskHttpQuery : Cite.Tools.Data.Query.IQuery
 	{
+		private String _workflowId { get; set; }
 		private String _taskId { get; set; }
-		private String _dagId { get; set; }
-		private String _dagRunId { get; set; }
-		private int _tryNumber { get; set; }
-		private int _mapIndex { get; set; }
-		private String _token { get; set; }
 
 		public Paging Page { get; set; }
 		public Ordering Order { get; set; }
 
-
 		private readonly IHttpClientFactory _httpClientFactory;
 		private readonly Service.Airflow.AirflowConfig _config;
-		private readonly ILogger<WorkflowTaskLogsHttpQuery> _logger;
+		private readonly ILogger<WorkflowTaskHttpQuery> _logger;
 		private readonly ErrorThesaurus _errors;
 		private readonly LogCorrelationScope _logCorrelationScope;
 		private readonly JsonHandlingService _jsonHandlingService;
 		private readonly Service.Airflow.IAirflowAccessTokenService _airflowAccessTokenService;
 
-		public WorkflowTaskLogsHttpQuery(
+		public WorkflowTaskHttpQuery(
 			IHttpClientFactory httpClientFactory,
 			Service.Airflow.AirflowConfig config,
-			ILogger<WorkflowTaskLogsHttpQuery> logger,
+			ILogger<WorkflowTaskHttpQuery> logger,
 			JsonHandlingService jsonHandlingService,
 			LogCorrelationScope logCorrelationScope,
 			Service.Airflow.IAirflowAccessTokenService airflowAccessTokenService,
@@ -54,33 +44,30 @@ namespace DataGEMS.Gateway.App.Query
 			this._jsonHandlingService = jsonHandlingService;
 			this._airflowAccessTokenService = airflowAccessTokenService;
 		}
-		public WorkflowTaskLogsHttpQuery TaskId(string taskid) { this._taskId= taskid; return this; }
-		public WorkflowTaskLogsHttpQuery DagIds(string dagIds){this._dagId = dagIds;return this;}
-		public WorkflowTaskLogsHttpQuery DagRunIds(string dagRunIds){this._dagRunId = dagRunIds;	return this;}
-		public WorkflowTaskLogsHttpQuery TryNumber(int tryNumber){this._tryNumber = tryNumber;return this;}
-		public WorkflowTaskLogsHttpQuery MapIndex(int mapIndex){this._mapIndex = mapIndex;return this;}
-		public WorkflowTaskLogsHttpQuery Token(string token){this._token = token;return this;}
+		
+		public WorkflowTaskHttpQuery WorkflowId(String workflowId) { this._workflowId = workflowId; return this; }
+		public WorkflowTaskHttpQuery TaskId(String taskId) { this._taskId = taskId; return this; }
 
 		protected bool IsFalseQuery()
 		{
-			return  this._taskId.IsNotNullButEmpty() || this._dagId.IsNotNullButEmpty() || this._dagRunId.IsNotNullButEmpty();
+			return String.IsNullOrEmpty(this._workflowId);
 		}
 
-		public async Task<Service.Airflow.Model.AirflowTaskLogs> ByIdAsync()
+		public async Task<Service.Airflow.Model.AirflowTask> ByIdAsync()
 		{
-			if (String.IsNullOrEmpty(this._taskId) || this._dagId == null || String.IsNullOrEmpty(this._dagRunId)) return null;
+			if (String.IsNullOrEmpty(this._workflowId) || String.IsNullOrEmpty(this._taskId)) return null;
 
 			String token = await this._airflowAccessTokenService.GetAirflowAccessTokenAsync();
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
 
-			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"{this._config.BaseUrl}{this._config.TaskInstanceLogsEndpoint}");
+			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"{this._config.BaseUrl}{this._config.TaskByIdEndpoint.Replace("{workflowId}", this._workflowId).Replace("{taskId}", this._taskId)}");
 			request.Headers.Add(HeaderNames.Accept, "application/json");
 			request.Headers.Add(HeaderNames.Authorization, $"Bearer {token}");
 
 			String content = await this.SendRequest(request);
 			try
 			{
-				Service.Airflow.Model.AirflowTaskLogs model = this._jsonHandlingService.FromJson<Service.Airflow.Model.AirflowTaskLogs>(content);
+				Service.Airflow.Model.AirflowTask model = this._jsonHandlingService.FromJson<Service.Airflow.Model.AirflowTask>(content);
 				return model;
 			}
 			catch (System.Exception ex)
@@ -89,43 +76,36 @@ namespace DataGEMS.Gateway.App.Query
 				throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.Workflow, this._logCorrelationScope.CorrelationId);
 			}
 		}
-		public async Task<List<Service.Airflow.Model.AirflowTaskLogs>> CollectAsync()
+
+		public async Task<List<Service.Airflow.Model.AirflowTask>> CollectAsync()
 		{
-			Service.Airflow.Model.AirflowTaskLogsList model = await this.CollectBaseAsync(false);
-			return model?.Content ?? Enumerable.Empty<Service.Airflow.Model.AirflowTaskLogs>().ToList();
-		} 
-		public async Task<String?> CountAsync()
-		{
-			Service.Airflow.Model.AirflowTaskLogsList model = await this.CollectBaseAsync(true);
-			return model?.ContinuationToken;
+			Service.Airflow.Model.AirflowTaskList model = await this.CollectBaseAsync(false);
+			return model?.Items ?? Enumerable.Empty<Service.Airflow.Model.AirflowTask>().ToList();
 		}
-		private async Task<Service.Airflow.Model.AirflowTaskLogsList> CollectBaseAsync(Boolean useInCount)
+
+		public async Task<int> CountAsync()
+		{
+			Service.Airflow.Model.AirflowTaskList model = await this.CollectBaseAsync(true);
+			return model?.TotalEntries ?? 0;
+		}
+
+		private async Task<Service.Airflow.Model.AirflowTaskList> CollectBaseAsync(Boolean useInCount)
 		{
 			String token = await this._airflowAccessTokenService.GetAirflowAccessTokenAsync();
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
 
-			Service.Airflow.Model.AirflowTaskLogsRequest requestModel = new Service.Airflow.Model.AirflowTaskLogsRequest();
-			
-			if (!string.IsNullOrEmpty(this._taskId))requestModel.TaskId = this._taskId;
-			if (!string.IsNullOrEmpty(this._dagId))requestModel.DagId = this._dagId;
-			if (!string.IsNullOrEmpty(this._dagRunId))requestModel.DagRunId = this._dagRunId;
-			if (this._tryNumber > 0)requestModel.TryNumber = this._tryNumber;
-			if (this._mapIndex != -1)  requestModel.MapIndex = this._mapIndex;
-			if (!string.IsNullOrEmpty(this._token))requestModel.Token = this._token;
+			QueryString qs = new QueryString();
+			String orderBy = this.ApplyOrdering();
+			if (!String.IsNullOrEmpty(orderBy) && !useInCount) qs = qs.Add("order_by", orderBy);
 
-
-			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, $"{this._config.BaseUrl}{this._config.TaskInstanceLogsEndpoint}")
-			{
-				Content = new StringContent(this._jsonHandlingService.ToJson(requestModel), Encoding.UTF8, "application/json")
-			};
-
+			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"{this._config.BaseUrl}{this._config.TaskListEndpoint.Replace("{workflowId}", this._workflowId)}{qs.ToString()}");
 			request.Headers.Add(HeaderNames.Accept, "application/json");
 			request.Headers.Add(HeaderNames.Authorization, $"Bearer {token}");
 
 			String content = await this.SendRequest(request);
 			try
 			{
-				Service.Airflow.Model.AirflowTaskLogsList model = this._jsonHandlingService.FromJson<Service.Airflow.Model.AirflowTaskLogsList>(content);
+				Service.Airflow.Model.AirflowTaskList model = this._jsonHandlingService.FromJson<Service.Airflow.Model.AirflowTaskList>(content);
 				return model;
 			}
 			catch (System.Exception ex)
@@ -134,6 +114,7 @@ namespace DataGEMS.Gateway.App.Query
 				throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.Workflow, this._logCorrelationScope.CorrelationId);
 			}
 		}
+
 		private async Task<String> SendRequest(HttpRequestMessage request)
 		{
 			HttpResponseMessage response = null;
@@ -154,9 +135,34 @@ namespace DataGEMS.Gateway.App.Query
 				throw new Exception.DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, (int?)response?.StatusCode, UnderpinningServiceType.Workflow, this._logCorrelationScope.CorrelationId, includeErrorPayload ? errorPayload : null);
 			}
 			String content = await response.Content.ReadAsStringAsync();
-			Console.WriteLine(content);
-			return content; 
+			return content;
 		}
 
+		private String ApplyOrdering()
+		{
+			if (this.Order == null || this.Order.IsEmpty) return null;
+
+			foreach (OrderingFieldResolver field in this.Order.Items.Select(x => new OrderingFieldResolver(x)).ToList())
+			{
+				if (field.Match(nameof(App.Model.WorkflowTask.Id))) return "task_id";
+				else if (field.Match(nameof(App.Model.WorkflowTask.TaskDisplayName))) return "task_display_name";
+				else if (field.Match(nameof(App.Model.WorkflowTask.Owner))) return "owner";
+				else if (field.Match(nameof(App.Model.WorkflowTask.Start))) return "start_date";
+				else if (field.Match(nameof(App.Model.WorkflowTask.End))) return "end_date";
+				else if (field.Match(nameof(App.Model.WorkflowTask.TriggerRule))) return "trigger_rule";
+				else if (field.Match(nameof(App.Model.WorkflowTask.DependsOnPast))) return "depends_on_past";
+				else if (field.Match(nameof(App.Model.WorkflowTask.WaitForDownstream))) return "wait_for_downstream";
+				else if (field.Match(nameof(App.Model.WorkflowTask.Retries))) return "retries";
+				else if (field.Match(nameof(App.Model.WorkflowTask.Queue))) return "queue";
+				else if (field.Match(nameof(App.Model.WorkflowTask.Pool))) return "pool";
+				else if (field.Match(nameof(App.Model.WorkflowTask.PoolSlots))) return "pool_slots";
+				else if (field.Match(nameof(App.Model.WorkflowTask.RetryExponentialBackoff))) return "retry_exponential_backoff";
+				else if (field.Match(nameof(App.Model.WorkflowTask.PriorityWeight))) return "priority_weight";
+				else if (field.Match(nameof(App.Model.WorkflowTask.WeightRule))) return "weight_rule";
+				else if (field.Match(nameof(App.Model.WorkflowTask.OperatorName))) return "operator_name";
+				else if (field.Match(nameof(App.Model.WorkflowTask.IsMapped))) return "is_mapped";
+			}
+			return null;
+		}
 	}
 }
