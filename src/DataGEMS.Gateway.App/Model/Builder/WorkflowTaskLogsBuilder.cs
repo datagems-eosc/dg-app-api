@@ -13,42 +13,42 @@ using Microsoft.Extensions.Logging;
 
 namespace DataGEMS.Gateway.App.Model.Builder
 {
-	public class WorkflowTaskLogsBuilder : Builder<WorkflowTaskLogs, Service.Airflow.Model.AirflowTaskLogs>
+	public class WorkflowTaskLogBuilder : Builder<WorkflowTaskLog, Service.Airflow.Model.AirflowTaskLog>
 	{
 		private readonly BuilderFactory _builderFactory;
 		private readonly JsonHandlingService _jsonHandlingService;
 
 		private AuthorizationFlags _authorize { get; set; } = AuthorizationFlags.None;
 
-		public WorkflowTaskLogsBuilder(
+		public WorkflowTaskLogBuilder(
 			BuilderFactory builderFactory,
 			JsonHandlingService jsonHandlingService,
-			ILogger<WorkflowTaskLogsBuilder> logger) : base(logger)
+			ILogger<WorkflowTaskLogBuilder> logger) : base(logger)
 		{
 			this._builderFactory = builderFactory;
 			this._jsonHandlingService = jsonHandlingService;
 		}
 
-		public WorkflowTaskLogsBuilder Authorize(AuthorizationFlags flags)
+		public WorkflowTaskLogBuilder Authorize(AuthorizationFlags flags)
 		{
 			this._authorize = flags;
 			return this;
 		}
 
-		public override Task<List<WorkflowTaskLogs>> Build(IFieldSet fields, IEnumerable<Service.Airflow.Model.AirflowTaskLogs> datas)
+		public override Task<List<WorkflowTaskLog>> Build(IFieldSet fields, IEnumerable<Service.Airflow.Model.AirflowTaskLog> datas)
 		{
-			this._logger.Debug(new MapLogEntry("building").And("type", nameof(Service.Airflow.Model.AirflowTaskLogs)).And("fields", fields).And("dataCount", datas?.Count()));
+			this._logger.Debug(new MapLogEntry("building").And("type", nameof(Service.Airflow.Model.AirflowTaskLog)).And("fields", fields));
 			if (fields == null || fields.IsEmpty() || datas == null || !datas.Any())
-				return Task.FromResult(Enumerable.Empty<WorkflowTaskLogs>().ToList());
+				return Task.FromResult(Enumerable.Empty<WorkflowTaskLog>().ToList());
 
-			List<WorkflowTaskLogs> results = new List<WorkflowTaskLogs>();
+			List<WorkflowTaskLog> results = new List<WorkflowTaskLog>();
 
-			foreach (Service.Airflow.Model.AirflowTaskLogs d in datas)
+			foreach (Service.Airflow.Model.AirflowTaskLog d in datas)
 			{
-				WorkflowTaskLogs m = new WorkflowTaskLogs();
+				WorkflowTaskLog m = new WorkflowTaskLog();
 
-				if (fields.HasField(nameof(WorkflowTaskLogs.Timestamp))) m.Timestamp = d.Timestamp;
-				if (fields.HasField(nameof(WorkflowTaskLogs.Event))) m.Event = d.Event;
+				if (fields.HasField(nameof(WorkflowTaskLog.Timestamp))) m.Timestamp = d.Timestamp;
+				if (fields.HasField(nameof(WorkflowTaskLog.Event))) m.Event = d.Event;
 
 
 				results.Add(m);

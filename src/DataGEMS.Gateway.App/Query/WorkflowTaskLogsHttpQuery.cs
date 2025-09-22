@@ -24,6 +24,7 @@ namespace DataGEMS.Gateway.App.Query
 		private int _tryNumber { get; set; }
 		private int _mapIndex { get; set; }
 		private String _token { get; set; }
+		private bool _fullContent {  get; set; }
 
 		public Paging Page { get; set; }
 		public Ordering Order { get; set; }
@@ -55,32 +56,36 @@ namespace DataGEMS.Gateway.App.Query
 			this._airflowAccessTokenService = airflowAccessTokenService;
 		}
 		public WorkflowTaskLogsHttpQuery TaskId(string taskid) { this._taskId= taskid; return this; }
-		public WorkflowTaskLogsHttpQuery DagIds(string dagIds){this._dagId = dagIds;return this;}
-		public WorkflowTaskLogsHttpQuery DagRunIds(string dagRunIds){this._dagRunId = dagRunIds;	return this;}
+		public WorkflowTaskLogsHttpQuery DagId(string dagId){this._dagId = dagId;return this;}
+		public WorkflowTaskLogsHttpQuery DagRunId(string dagRunId){this._dagRunId = dagRunId;	return this;}
 		public WorkflowTaskLogsHttpQuery TryNumber(int tryNumber){this._tryNumber = tryNumber;return this;}
 		public WorkflowTaskLogsHttpQuery MapIndex(int mapIndex){this._mapIndex = mapIndex;return this;}
 		public WorkflowTaskLogsHttpQuery Token(string token){this._token = token;return this;}
+		public WorkflowTaskLogsHttpQuery FullContent(bool fullContent) { this._fullContent = fullContent; return this; }
+
 
 		protected bool IsFalseQuery()
 		{
 			return  this._taskId.IsNotNullButEmpty() || this._dagId.IsNotNullButEmpty() || this._dagRunId.IsNotNullButEmpty();
 		}
-
-		public async Task<Service.Airflow.Model.AirflowTaskLogs> ByIdAsync()
+		
+		public async Task<Service.Airflow.Model.AirflowTaskLog> ByIdAsync()
 		{
-			if (String.IsNullOrEmpty(this._taskId) || this._dagId == null || String.IsNullOrEmpty(this._dagRunId)) return null;
+			//		if (String.IsNullOrEmpty(this._taskId) || this._dagId == null || String.IsNullOrEmpty(this._dagRunId)) return null;
+			if (String.IsNullOrEmpty(this._tryNumber.ToString()))
+				throw new DGValidationException("try_number is required");
 
 			String token = await this._airflowAccessTokenService.GetAirflowAccessTokenAsync();
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
 
-			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"{this._config.BaseUrl}{this._config.TaskInstancesLogsEndpoint}");
+			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"{this._config.BaseUrl}{this._config.TaskInstancesLogsEndpoint.Replace("{tryNumber}", this._tryNumber.ToString()).Replace("{taskId}",this._taskId).Replace("{dagId}", this._dagId).Replace("{dagRunId}", this._dagRunId)}");
 			request.Headers.Add(HeaderNames.Accept, "application/json");
 			request.Headers.Add(HeaderNames.Authorization, $"Bearer {token}");
 
 			String content = await this.SendRequest(request);
 			try
 			{
-				Service.Airflow.Model.AirflowTaskLogs model = this._jsonHandlingService.FromJson<Service.Airflow.Model.AirflowTaskLogs>(content);
+				Service.Airflow.Model.AirflowTaskLog model = this._jsonHandlingService.FromJson<Service.Airflow.Model.AirflowTaskLog>(content);
 				return model;
 			}
 			catch (System.Exception ex)
@@ -89,51 +94,8 @@ namespace DataGEMS.Gateway.App.Query
 				throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.Workflow, this._logCorrelationScope.CorrelationId);
 			}
 		}
-		public async Task<List<Service.Airflow.Model.AirflowTaskLogs>> CollectAsync()
-		{
-			Service.Airflow.Model.AirflowTaskLogsList model = await this.CollectBaseAsync(false);
-			return model?.Content ?? Enumerable.Empty<Service.Airflow.Model.AirflowTaskLogs>().ToList();
-		} 
-		public async Task<String?> CountAsync()
-		{
-			Service.Airflow.Model.AirflowTaskLogsList model = await this.CollectBaseAsync(true);
-			return model?.ContinuationToken;
-		}
-		private async Task<Service.Airflow.Model.AirflowTaskLogsList> CollectBaseAsync(Boolean useInCount)
-		{
-			String token = await this._airflowAccessTokenService.GetAirflowAccessTokenAsync();
-			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
 
-			Service.Airflow.Model.AirflowTaskLogsRequest requestModel = new Service.Airflow.Model.AirflowTaskLogsRequest();
-			
-			if (!string.IsNullOrEmpty(this._taskId))requestModel.TaskId = this._taskId;
-			if (!string.IsNullOrEmpty(this._dagId))requestModel.DagId = this._dagId;
-			if (!string.IsNullOrEmpty(this._dagRunId))requestModel.DagRunId = this._dagRunId;
-			if (this._tryNumber > 0)requestModel.TryNumber = this._tryNumber;
-			if (this._mapIndex != -1)  requestModel.MapIndex = this._mapIndex;
-			if (!string.IsNullOrEmpty(this._token))requestModel.Token = this._token;
-
-
-			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, $"{this._config.BaseUrl}{this._config.TaskInstancesLogsEndpoint}")
-			{
-				Content = new StringContent(this._jsonHandlingService.ToJson(requestModel), Encoding.UTF8, "application/json")
-			};
-
-			request.Headers.Add(HeaderNames.Accept, "application/json");
-			request.Headers.Add(HeaderNames.Authorization, $"Bearer {token}");
-
-			String content = await this.SendRequest(request);
-			try
-			{
-				Service.Airflow.Model.AirflowTaskLogsList model = this._jsonHandlingService.FromJson<Service.Airflow.Model.AirflowTaskLogsList>(content);
-				return model;
-			}
-			catch (System.Exception ex)
-			{
-				this._logger.Error(ex, "problem converting response {content}", content);
-				throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.Workflow, this._logCorrelationScope.CorrelationId);
-			}
-		}
+		
 		private async Task<String> SendRequest(HttpRequestMessage request)
 		{
 			HttpResponseMessage response = null;
@@ -154,7 +116,7 @@ namespace DataGEMS.Gateway.App.Query
 				throw new Exception.DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, (int?)response?.StatusCode, UnderpinningServiceType.Workflow, this._logCorrelationScope.CorrelationId, includeErrorPayload ? errorPayload : null);
 			}
 			String content = await response.Content.ReadAsStringAsync();
-			Console.WriteLine(content);
+			this._logger.LogInformation("Airflow API response content: {content}", content);
 			return content; 
 		}
 

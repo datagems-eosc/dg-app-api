@@ -13,6 +13,7 @@ namespace DataGEMS.Gateway.App.Service.Airflow
 		public String TaskInstancesListEndpoint { get; set; }
 		public String TaskInstancesByIdEndpoint { get; set; }
 		public String TaskInstancesLogsEndpoint { get; set; }
+		public String XcomEntriesEndpoint { get; set; }
 		public String Username { get; set; }
 		public String Password { get; set; }
 

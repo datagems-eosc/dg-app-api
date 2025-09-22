@@ -44,5 +44,6 @@ namespace DataGEMS.Gateway.App.Authorization
 		public const String ExecuteWorkflow = "ExecuteWorkflow";
 		public const String BrowseWorkflowExecution = "BrowseWorkflowExecution";
 		public const String BrowseWorkflowTaskInstance = "BrowseWorkflowTaskInstance";
+		public const String BrowseWorkflowXCom = "BrowseWorkflowXCom";
 	}
 }

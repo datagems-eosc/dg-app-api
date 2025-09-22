@@ -7,12 +7,13 @@ using Newtonsoft.Json;
 
 namespace DataGEMS.Gateway.App.Service.Airflow.Model
 {
-	public class AirflowTaskLogs
+	public class AirflowXcomEntryList
 	{
-		[JsonProperty("timestamp")]
-		public String Timestamp { get; set; }
-		[JsonProperty("event")]
-		public String Event { get; set; }
+		[JsonProperty("xcom_entries")]
+		public List<AirflowXcomEntry> Items { get; set; }
 
+		[JsonProperty("total_entries")]
+		public int TotalEntries { get; set; }
+		
 	}
 }

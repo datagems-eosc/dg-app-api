@@ -307,11 +307,12 @@ namespace DataGEMS.Gateway.Api.Controllers
 			return new QueryResult<App.Model.WorkflowTaskInstance>(models, count);
 		}
 
-		[HttpGet("tasklogs/query")]
+
+		[HttpGet("definition/{dagId}/execution/{dagRunId}/task/{taskId}/logs/{tryNumber}")]
 		[Authorize]
 		[ModelStateValidationFilter]
-		[SwaggerOperation(Summary = "Lookup workflow exection by if of definition by id")]
-		[SwaggerResponse(statusCode: 200, description: "The matching workflow execution", type: typeof(QueryResult<App.Model.WorkflowExecution>))]
+		[SwaggerOperation(Summary = " The workflow log by taskid dagid and dagrunid and tryNumber")]
+		[SwaggerResponse(statusCode: 200, description: "The matching workflow task log", type: typeof(QueryResult<App.Model.WorkflowTaskLog>))]
 		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
 		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
 		[SwaggerResponse(statusCode: 404, description: "Could not locate item with the provided id")]
@@ -319,25 +320,38 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[SwaggerResponse(statusCode: 500, description: "Internal error")]
 		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
 		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
-		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
-		public async Task<QueryResult<App.Model.WorkflowTaskInstance>> WorkflowTaskLogsQuery(
-			[FromBody]
-			[SwaggerRequestBody(description: "The query predicates", Required = true)]
-			WorkflowTaskLogsLookup lookup)
+		public async Task<App.Model.WorkflowTaskLog> GetWorkflowTaskLog(
+			[FromRoute]
+			[SwaggerParameter(description: "The workflow dag id of the item to lookup", Required = true)]
+			String dagRunId,
+			[FromRoute]
+			[SwaggerParameter(description: "The workflow dag run id of the item to lookup", Required = true)]
+			String dagId,
+			[FromRoute]
+			[SwaggerParameter(description: "The workflow task id of the item to lookup", Required = true)]
+			String taskId,
+			[FromRoute]
+			[SwaggerParameter(description: "The execution try number of the item to lookup", Required = true)]
+			int tryNumber,
+			[ModelBinder(Name = "f")]
+			[SwaggerParameter(description: "The fields to include in the response model", Required = true)]
+			[LookupFieldSetQueryStringOpenApi]
+			IFieldSet fieldSet)
 		{
-			this._logger.Debug(new MapLogEntry("query").And("type", nameof(App.Model.WorkflowTaskInstance)).And("lookup", lookup));
+			this._logger.Debug(new MapLogEntry("get").And("type", nameof(App.Model.WorkflowTaskLog)).And("tryNumber", tryNumber).And("taskId", taskId).And("dagId", dagId).And("dagRunId", dagRunId).And("fields", fieldSet));
 
-			IFieldSet censoredFields = await this._censorFactory.Censor<WorkflowTaskLogsCensor>().Censor(lookup.Project, CensorContext.AsCensor());
-			if (lookup.Project.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+			IFieldSet censoredFields = await this._censorFactory.Censor<WorkflowTaskLogsCensor>().Censor(fieldSet, CensorContext.AsCensor());
+			if (fieldSet.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
 
-			WorkflowTaskLogsHttpQuery query = lookup.Enrich(this._queryFactory);
-			List<App.Service.Airflow.Model.AirflowTaskLogs> datas = await query.CollectAsync();
-			string count = (lookup.Metadata != null && lookup.Metadata.CountAll) ? await query.CountAsync() : datas.Count.ToString();
-			List<App.Model.WorkflowTaskLogs> models = await this._builderFactory.Builder<WorkflowTaskLogsBuilder>().Authorize(AuthorizationFlags.Any).Build(censoredFields, datas);
+			WorkflowTaskLogsHttpQuery query = this._queryFactory.Query<WorkflowTaskLogsHttpQuery>().TryNumber(tryNumber).TaskId(taskId).DagId(dagId).DagRunId(dagRunId);
+			App.Service.Airflow.Model.AirflowTaskLog datas = await query.ByIdAsync();
+			App.Model.WorkflowTaskLog model = await this._builderFactory.Builder<WorkflowTaskLogBuilder>().Authorize(AuthorizationFlags.Any).Build(censoredFields, datas);
+			if (model == null) throw new DGNotFoundException(this._localizer["general_notFound", taskId, nameof(App.Model.WorkflowTaskLog)]);
 
 			this._accountingService.AccountFor(KnownActions.Query, KnownResources.Workflow.AsAccountable());
 
-			return null;
+			return model;
 		}
+
 	}
 }

@@ -7,10 +7,10 @@ using Newtonsoft.Json;
 
 namespace DataGEMS.Gateway.App.Service.Airflow.Model
 {
-	public class AirflowTaskLogsList
+	public class AirflowTaskLogList
 	{
 		[JsonProperty("content")]
-		public List<AirflowTaskLogs> Content { get; set; }
+		public List<AirflowTaskLog> Content { get; set; }
 		[JsonProperty("continuation_token")]
 		public String? ContinuationToken  { get; set; }
 	}

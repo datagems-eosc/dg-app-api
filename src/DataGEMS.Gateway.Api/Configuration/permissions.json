@@ -231,6 +231,14 @@
 				"Clients": [],
 				"AllowAnonymous": false,
 				"AllowAuthenticated": false
+			},
+			"BrowseWorkflowXCom": {
+				"Roles": [ "GLOBAL_dg_admin" ],
+				"DatasetRoles": [],
+				"Claims": [],
+				"Clients": [],
+				"AllowAnonymous": false,
+				"AllowAuthenticated": false
 			}
 		}
 	}
