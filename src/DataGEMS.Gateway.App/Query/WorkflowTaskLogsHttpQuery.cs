@@ -18,9 +18,9 @@ namespace DataGEMS.Gateway.App.Query
 {
 	public class WorkflowTaskLogsHttpQuery : Cite.Tools.Data.Query.IQuery
 	{
-		private String _taskId { get; set; }
-		private String _dagId { get; set; }
-		private String _dagRunId { get; set; }
+		private String _workflowTaskId { get; set; }
+		private String _workflowId { get; set; }
+		private String _workflowExecutionId { get; set; }
 		private int _tryNumber { get; set; }
 		private int _mapIndex { get; set; }
 		private String _token { get; set; }
@@ -55,9 +55,9 @@ namespace DataGEMS.Gateway.App.Query
 			this._jsonHandlingService = jsonHandlingService;
 			this._airflowAccessTokenService = airflowAccessTokenService;
 		}
-		public WorkflowTaskLogsHttpQuery TaskId(string taskid) { this._taskId= taskid; return this; }
-		public WorkflowTaskLogsHttpQuery DagId(string dagId){this._dagId = dagId;return this;}
-		public WorkflowTaskLogsHttpQuery DagRunId(string dagRunId){this._dagRunId = dagRunId;	return this;}
+		public WorkflowTaskLogsHttpQuery WorkflowTaskId(string workflowTaskid) { this._workflowTaskId = workflowTaskid; return this; }
+		public WorkflowTaskLogsHttpQuery WorkflowId(string workflowId) {this._workflowId = workflowId; return this;}
+		public WorkflowTaskLogsHttpQuery WorkflowExecutionId(string workflowExecutionId) {this._workflowExecutionId = workflowExecutionId;	return this;}
 		public WorkflowTaskLogsHttpQuery TryNumber(int tryNumber){this._tryNumber = tryNumber;return this;}
 		public WorkflowTaskLogsHttpQuery MapIndex(int mapIndex){this._mapIndex = mapIndex;return this;}
 		public WorkflowTaskLogsHttpQuery Token(string token){this._token = token;return this;}
@@ -66,19 +66,19 @@ namespace DataGEMS.Gateway.App.Query
 
 		protected bool IsFalseQuery()
 		{
-			return  this._taskId.IsNotNullButEmpty() || this._dagId.IsNotNullButEmpty() || this._dagRunId.IsNotNullButEmpty();
+			return  this._workflowTaskId.IsNotNullButEmpty() || this._workflowId.IsNotNullButEmpty() || this._workflowExecutionId.IsNotNullButEmpty();
 		}
 		
 		public async Task<Service.Airflow.Model.AirflowTaskLog> ByIdAsync()
 		{
-			//		if (String.IsNullOrEmpty(this._taskId) || this._dagId == null || String.IsNullOrEmpty(this._dagRunId)) return null;
+			if (String.IsNullOrEmpty(this._workflowTaskId) || this._workflowId == null || String.IsNullOrEmpty(this._workflowExecutionId)) return null;
 			if (String.IsNullOrEmpty(this._tryNumber.ToString()))
-				throw new DGValidationException("try_number is required");
+				throw new DGValidationException("try number is required");
 
 			String token = await this._airflowAccessTokenService.GetAirflowAccessTokenAsync();
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
 
-			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"{this._config.BaseUrl}{this._config.TaskInstancesLogsEndpoint.Replace("{tryNumber}", this._tryNumber.ToString()).Replace("{taskId}",this._taskId).Replace("{dagId}", this._dagId).Replace("{dagRunId}", this._dagRunId)}");
+			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"{this._config.BaseUrl}{this._config.TaskInstancesLogsEndpoint.Replace("{tryNumber}", this._tryNumber.ToString()).Replace("{taskId}",this._workflowTaskId).Replace("{dagId}", this._workflowId).Replace("{dagRunId}", this._workflowExecutionId)}");
 			request.Headers.Add(HeaderNames.Accept, "application/json");
 			request.Headers.Add(HeaderNames.Authorization, $"Bearer {token}");
 
@@ -116,7 +116,6 @@ namespace DataGEMS.Gateway.App.Query
 				throw new Exception.DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, (int?)response?.StatusCode, UnderpinningServiceType.Workflow, this._logCorrelationScope.CorrelationId, includeErrorPayload ? errorPayload : null);
 			}
 			String content = await response.Content.ReadAsStringAsync();
-			this._logger.LogInformation("Airflow API response content: {content}", content);
 			return content; 
 		}
 

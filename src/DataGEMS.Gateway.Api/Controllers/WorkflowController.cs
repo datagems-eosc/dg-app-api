@@ -308,7 +308,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		}
 
 
-		[HttpGet("definition/{dagId}/execution/{dagRunId}/task/{taskId}/logs/{tryNumber}")]
+		[HttpGet("definition/{workflowId}/execution/{workflowExecutionId}/taskinstance/{workflowTaskId}/logs/{tryNumber}")]
 		[Authorize]
 		[ModelStateValidationFilter]
 		[SwaggerOperation(Summary = " The workflow log by taskid dagid and dagrunid and tryNumber")]
@@ -322,14 +322,14 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
 		public async Task<App.Model.WorkflowTaskLog> GetWorkflowTaskLog(
 			[FromRoute]
-			[SwaggerParameter(description: "The workflow dag id of the item to lookup", Required = true)]
-			String dagRunId,
+			[SwaggerParameter(description: "The workflow id of the item to lookup", Required = true)]
+			String workflowExecutionId,
 			[FromRoute]
-			[SwaggerParameter(description: "The workflow dag run id of the item to lookup", Required = true)]
-			String dagId,
+			[SwaggerParameter(description: "The workflow execution id of the item to lookup", Required = true)]
+			String workflowId,
 			[FromRoute]
 			[SwaggerParameter(description: "The workflow task id of the item to lookup", Required = true)]
-			String taskId,
+			String workflowTaskId,
 			[FromRoute]
 			[SwaggerParameter(description: "The execution try number of the item to lookup", Required = true)]
 			int tryNumber,
@@ -338,15 +338,15 @@ namespace DataGEMS.Gateway.Api.Controllers
 			[LookupFieldSetQueryStringOpenApi]
 			IFieldSet fieldSet)
 		{
-			this._logger.Debug(new MapLogEntry("get").And("type", nameof(App.Model.WorkflowTaskLog)).And("tryNumber", tryNumber).And("taskId", taskId).And("dagId", dagId).And("dagRunId", dagRunId).And("fields", fieldSet));
+			this._logger.Debug(new MapLogEntry("get").And("type", nameof(App.Model.WorkflowTaskLog)).And("tryNumber", tryNumber).And("taskId", workflowTaskId).And("dagId", workflowId).And("dagRunId", workflowExecutionId).And("fields", fieldSet));
 
 			IFieldSet censoredFields = await this._censorFactory.Censor<WorkflowTaskLogsCensor>().Censor(fieldSet, CensorContext.AsCensor());
 			if (fieldSet.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
 
-			WorkflowTaskLogsHttpQuery query = this._queryFactory.Query<WorkflowTaskLogsHttpQuery>().TryNumber(tryNumber).TaskId(taskId).DagId(dagId).DagRunId(dagRunId);
+			WorkflowTaskLogsHttpQuery query = this._queryFactory.Query<WorkflowTaskLogsHttpQuery>().TryNumber(tryNumber).WorkflowTaskId(workflowTaskId).WorkflowId(workflowId).WorkflowExecutionId(workflowExecutionId);
 			App.Service.Airflow.Model.AirflowTaskLog datas = await query.ByIdAsync();
 			App.Model.WorkflowTaskLog model = await this._builderFactory.Builder<WorkflowTaskLogBuilder>().Authorize(AuthorizationFlags.Any).Build(censoredFields, datas);
-			if (model == null) throw new DGNotFoundException(this._localizer["general_notFound", taskId, nameof(App.Model.WorkflowTaskLog)]);
+			if (model == null) throw new DGNotFoundException(this._localizer["general_notFound", workflowTaskId, nameof(App.Model.WorkflowTaskLog)]);
 
 			this._accountingService.AccountFor(KnownActions.Query, KnownResources.Workflow.AsAccountable());
 
