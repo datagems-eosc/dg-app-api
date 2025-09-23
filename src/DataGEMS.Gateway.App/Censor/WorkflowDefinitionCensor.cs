@@ -1,4 +1,5 @@
 ﻿using Cite.Tools.Auth.Claims;
+using Cite.Tools.Common.Extensions;
 using Cite.Tools.Data.Censor;
 using Cite.Tools.FieldSet;
 using Cite.Tools.Logging;
@@ -52,6 +53,8 @@ namespace DataGEMS.Gateway.App.Censor
 			{
 				censored = censored.Merge(fields.ExtractNonPrefixed());
 			}
+
+			censored = censored.MergeAsPrefixed(await this._censorFactory.Censor<WorkflowTaskCensor>().Censor(fields.ExtractPrefixed(nameof(Model.WorkflowDefinition.Tasks).AsIndexerPrefix()), context), nameof(Model.WorkflowDefinition.Tasks));
 
 			return censored;
 		}

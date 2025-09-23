@@ -224,6 +224,14 @@
 				"AllowAnonymous": false,
 				"AllowAuthenticated": false
 			},
+			"BrowseWorkflowTask": {
+				"Roles": [ "GLOBAL_dg_admin" ],
+				"DatasetRoles": [],
+				"Claims": [],
+				"Clients": [],
+				"AllowAnonymous": false,
+				"AllowAuthenticated": false
+			},
 			"BrowseWorkflowTaskInstance": {
 				"Roles": [ "GLOBAL_dg_admin" ],
 				"DatasetRoles": [],

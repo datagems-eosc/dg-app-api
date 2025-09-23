@@ -22,7 +22,7 @@ namespace DataGEMS.Gateway.App.Model
 		public String Hostname { get; set; }
 		public String Unixname { get; set; }
 		public String Pool {  get; set; }
-		public int PoolSlots { get; set; }
+		public int? PoolSlots { get; set; }
 		public String Queue { get; set; }
 		public DateTime? QueuedWhen { get; set; }
 		public DateTime? ScheduledWhen { get; set; }
@@ -37,5 +37,9 @@ namespace DataGEMS.Gateway.App.Model
 		public Object Trigger { get; set; }
 		public Object TriggererJob { get; set; }
 		public Object DagVersion { get; set; }
+		public WorkflowDefinition Workflow { get; set; }
+		public WorkflowTask Task { get; set; }
+		public WorkflowExecution WorkflowExecution { get; set; }
+
 	}
 }

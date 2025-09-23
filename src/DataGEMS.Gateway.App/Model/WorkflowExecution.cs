@@ -19,5 +19,7 @@ namespace DataGEMS.Gateway.App.Model
 		public WorkflowRunState? State { get; set; }
 		public String Note { get;set; }
 		public String BundleVersion { get; set; }
+		public WorkflowDefinition Workflow { get; set; }
+		public List<WorkflowTaskInstance> TaskInstances { get; set; }
 	}
 }

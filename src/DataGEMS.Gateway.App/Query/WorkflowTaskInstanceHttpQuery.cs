@@ -61,7 +61,7 @@ namespace DataGEMS.Gateway.App.Query
 		public WorkflowTaskInstanceHttpQuery WorkflowIds(IEnumerable<String> workflowId) { this._workflowIds = workflowId?.ToList(); return this; }
 		public WorkflowTaskInstanceHttpQuery WorkflowIds(String workflowId) { this._workflowIds = workflowId.AsList(); return this; }
 		public WorkflowTaskInstanceHttpQuery WorkflowExecutionIds(IEnumerable<String> workflowExecutionId) { this._workflowExecutionIds = workflowExecutionId?.ToList(); return this; }
-		public WorkflowTaskInstanceHttpQuery WorkflowExecutionIds(String workflowExecutionId) { this._workflowIds = workflowExecutionId.AsList(); return this; }
+		public WorkflowTaskInstanceHttpQuery WorkflowExecutionIds(String workflowExecutionId) { this._workflowExecutionIds = workflowExecutionId.AsList(); return this; }
 		public WorkflowTaskInstanceHttpQuery State(IEnumerable<WorkflowTaskInstanceState> state) { this._state = state?.ToList(); return this; }
 		public WorkflowTaskInstanceHttpQuery State(WorkflowTaskInstanceState state) { this._state = state.AsList(); return this; }
 		public WorkflowTaskInstanceHttpQuery LogicalDateRange(RangeOf<DateOnly?> logicalDateRange) { this._logicalDateRange = logicalDateRange; return this; }
@@ -89,7 +89,7 @@ namespace DataGEMS.Gateway.App.Query
 			String token = await this._airflowAccessTokenService.GetAirflowAccessTokenAsync();
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
 
-			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"{this._config.BaseUrl}{this._config.TaskInstancesByIdEndpoint.Replace("{workflowId}", this._workflowIds[0]).Replace("{executionId}", this._workflowExecutionIds[0]).Replace("{id}", this._taskIds[0])}");
+			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"{this._config.BaseUrl}{this._config.TaskInstanceByIdEndpoint.Replace("{workflowId}", this._workflowIds[0]).Replace("{executionId}", this._workflowExecutionIds[0]).Replace("{taskId}", this._taskIds[0])}");
 			request.Headers.Add(HeaderNames.Accept, "application/json");
 			request.Headers.Add(HeaderNames.Authorization, $"Bearer {token}");
 
@@ -211,7 +211,7 @@ namespace DataGEMS.Gateway.App.Query
 				if (this.Page.Size > 0) requestModel.Limit = this.Page.Size;
 			}
 
-			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, $"{this._config.BaseUrl}{this._config.TaskInstancesListEndpoint}")
+			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, $"{this._config.BaseUrl}{this._config.TaskInstanceListEndpoint}")
 			{
 				Content = new StringContent(this._jsonHandlingService.ToJson(requestModel), Encoding.UTF8, "application/json")
 			};
