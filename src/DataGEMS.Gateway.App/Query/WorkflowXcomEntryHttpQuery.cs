@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Cite.Tools.Common.Extensions;
+﻿using System.Text;
 using Cite.Tools.Data.Query;
 using Cite.Tools.Json;
 using Cite.Tools.Logging.Extensions;
@@ -11,6 +6,7 @@ using DataGEMS.Gateway.App.Common;
 using DataGEMS.Gateway.App.ErrorCode;
 using DataGEMS.Gateway.App.Exception;
 using DataGEMS.Gateway.App.LogTracking;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 
@@ -21,9 +17,7 @@ namespace DataGEMS.Gateway.App.Query
 		private String _taskId { get; set; }
 		private String _workflowId { get; set; }
 		private String _workflowExecutionId { get; set; }
-		private String _xcomKey { get; set; }
-		private DateOnly? _logicalDate { get; set; }
-		private int _mapIndex { get; set; }
+		private String _xComKey { get; set; }
 
 		public Paging Page { get; set; }
 		public Ordering Order { get; set; }
@@ -57,22 +51,25 @@ namespace DataGEMS.Gateway.App.Query
 		public WorkflowXcomEntryHttpQuery TaskIds(String taskid) { this._taskId = taskid; return this; }
 		public WorkflowXcomEntryHttpQuery WorkflowIds(String workflowId) { this._workflowId = workflowId; return this; }
 		public WorkflowXcomEntryHttpQuery WorkflowExecutionIds(String workflowExecutionId) { this._workflowExecutionId = workflowExecutionId; return this; }
-		public WorkflowXcomEntryHttpQuery XcomKey(String XcomKey) { this._xcomKey = XcomKey; return this; }
-		public WorkflowXcomEntryHttpQuery MapIndex(int MapIndex) { this._mapIndex = MapIndex; return this; }
+		public WorkflowXcomEntryHttpQuery XComKey(String xComKey) { this._xComKey = xComKey; return this; }
 
 		protected bool IsFalseQuery()
 		{
-			return this._taskId.IsNotNullButEmpty() || this._workflowId.IsNotNullButEmpty() || this._workflowExecutionId.IsNotNullButEmpty();
+			return String.IsNullOrEmpty(this._taskId) || String.IsNullOrEmpty(this._workflowId) || String.IsNullOrEmpty(this._workflowExecutionId);
 		}
 
 		public async Task<Service.Airflow.Model.AirflowXcomEntry> ByIdAsync()
 		{
-			if (this._workflowId == null || this._workflowExecutionId == null || this._taskId == null) return null;
+			if(String.IsNullOrEmpty(this._taskId) || String.IsNullOrEmpty(this._workflowId) || String.IsNullOrEmpty(this._workflowExecutionId) || String.IsNullOrEmpty(this._xComKey)) return null;
 
 			String token = await this._airflowAccessTokenService.GetAirflowAccessTokenAsync();
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
 
-			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"{this._config.BaseUrl}{this._config.XcomEntriesEndpoint.Replace("{workflowId}", this._workflowId ).Replace("{executionId}", this._workflowExecutionId).Replace("{id}", this._taskId)}");
+			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"{this._config.BaseUrl}{this._config.XComByIdEndpoint
+				.Replace("{workflowId}", this._workflowId )
+				.Replace("{executionId}", this._workflowExecutionId)
+				.Replace("{taskId}", this._taskId)
+				.Replace("{xcomKey}", this._xComKey)}");
 			request.Headers.Add(HeaderNames.Accept, "application/json");
 			request.Headers.Add(HeaderNames.Authorization, $"Bearer {token}");
 
@@ -106,26 +103,24 @@ namespace DataGEMS.Gateway.App.Query
 			String token = await this._airflowAccessTokenService.GetAirflowAccessTokenAsync();
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
 
-			Service.Airflow.Model.AirflowXcomEntryRequest requestModel = new Service.Airflow.Model.AirflowXcomEntryRequest();
-			if (this._mapIndex != null ) requestModel.MapIndex = this._mapIndex;
-			if (this._xcomKey != null) requestModel.XcomKey = this._xcomKey;
-
+			QueryString qs = new QueryString();
+			if (!String.IsNullOrEmpty(this._xComKey)) qs = qs.Add("xcom_key", this._xComKey);
 
 			if (useInCount)
 			{
-				requestModel.Offset = 0;
-				requestModel.Limit = 1;
+				qs = qs.Add("offset", 0.ToString());
+				qs = qs.Add("limit", 1.ToString());
 			}
 			else if (this.Page != null && !this.Page.IsEmpty)
 			{
-				if (this.Page.Offset >= 0) requestModel.Offset = this.Page.Offset;
-				if (this.Page.Size > 0) requestModel.Limit = this.Page.Size;
+				if (this.Page.Offset >= 0) qs = qs.Add("offset", this.Page.Offset.ToString());
+				if (this.Page.Size >= 0) qs = qs.Add("limit", this.Page.Size.ToString());
 			}
 
-			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, $"{this._config.BaseUrl}{this._config.XcomEntriesEndpoint}")
-			{
-				Content = new StringContent(this._jsonHandlingService.ToJson(requestModel), Encoding.UTF8, "application/json")
-			};
+			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"{this._config.BaseUrl}{this._config.XComListEndpoint
+				.Replace("{workflowId}", this._workflowId)
+				.Replace("{executionId}", this._workflowExecutionId)
+				.Replace("{taskId}", this._taskId)}");
 
 			request.Headers.Add(HeaderNames.Accept, "application/json");
 			request.Headers.Add(HeaderNames.Authorization, $"Bearer {token}");

@@ -11,8 +11,9 @@
 		"TaskByIdEndpoint": "api/v2/dags/{workflowId}/tasks/{taskId}",
 		"TaskInstanceListEndpoint": "api/v2/dags/~/dagRuns/~/taskInstances/list",
 		"TaskInstanceByIdEndpoint": "api/v2/dags/{workflowId}/dagRuns/{executionId}/taskInstances/{taskId}",
-		"TaskInstancesLogsEndpoint": "api/v2/dags/{dagId}/dagRuns/{dagRunId}/taskInstances/{taskId}/logs/{tryNumber}",
-		"XcomEntriesEndpoint": "api/v2/dags/~/dagRuns/~/taskInstances/~/xcomEntries",
+		"TaskInstanceLogsEndpoint": "api/v2/dags/{workflowId}/dagRuns/{executionId}/taskInstances/{taskId}/logs/{tryNumber}?full_content=true",
+		"XComListEndpoint": "api/v2/dags/{workflowId}/dagRuns/{executionId}/taskInstances/{taskId}/xcomEntries",
+		"XComByIdEndpoint": "api/v2/dags/{workflowId}/dagRuns/{executionId}/taskInstances/{taskId}/xcomEntries/{xcomKey}",
 		"Username": "%{AirflowUsername}%",
 		"Password": "%{AirflowPassword}%"
 	}

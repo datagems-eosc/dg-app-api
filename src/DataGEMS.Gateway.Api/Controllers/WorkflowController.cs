@@ -92,7 +92,6 @@ namespace DataGEMS.Gateway.Api.Controllers
 			return new QueryResult<App.Model.WorkflowDefinition>(models, count);
 		}
 
-		[HttpGet("definition/{id}")]
 		[Authorize]
 		[ModelStateValidationFilter]
 		[SwaggerOperation(Summary = "Lookup workflow definition by id")]
@@ -104,6 +103,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[SwaggerResponse(statusCode: 500, description: "Internal error")]
 		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
 		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
+		[HttpGet("definition/{id}")]
 		public async Task<App.Model.WorkflowDefinition> GetWorkflowDefinition(
 			[FromRoute]
 			[SwaggerParameter(description: "The id of the item to lookup", Required = true)]
@@ -128,7 +128,6 @@ namespace DataGEMS.Gateway.Api.Controllers
 			return model;
 		}
 
-		[HttpPost("execute")]
 		[Authorize]
 		[ModelStateValidationFilter]
 		[ValidationFilter(typeof(WorkflowExecutionArgs.WorkflowExecutionArgsValidator), "model")]
@@ -141,6 +140,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[SwaggerResponse(statusCode: 500, description: "Internal error")]
 		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
 		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
+		[HttpPost("execute")]
 		public async Task<App.Model.WorkflowExecution> Post(
 			[FromBody]
 			[SwaggerParameter(description: "The model describing the execution parameters", Required = true)]
@@ -162,7 +162,6 @@ namespace DataGEMS.Gateway.Api.Controllers
 			return execution;
 		}
 
-		[HttpGet("definition/{workflowId}/execution/{executionId}")]
 		[Authorize]
 		[ModelStateValidationFilter]
 		[SwaggerOperation(Summary = "Lookup workflow exection by id of definition by id")]
@@ -174,6 +173,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[SwaggerResponse(statusCode: 500, description: "Internal error")]
 		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
 		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
+		[HttpGet("definition/{workflowId}/execution/{executionId}")]
 		public async Task<App.Model.WorkflowExecution> GetWorkflowExecution(
 			[FromRoute]
 			[SwaggerParameter(description: "The workflow id of the item to lookup", Required = true)]
@@ -233,7 +233,6 @@ namespace DataGEMS.Gateway.Api.Controllers
 			return new QueryResult<App.Model.WorkflowExecution>(models, count);
 		}
 
-		[HttpGet("definition/{workflowId}/execution/{executionId}/task/{taskId}")]
 		[Authorize]
 		[ModelStateValidationFilter]
 		[SwaggerOperation(Summary = "Lookup workflow task instance by id")]
@@ -245,6 +244,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[SwaggerResponse(statusCode: 500, description: "Internal error")]
 		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
 		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
+		[HttpGet("definition/{workflowId}/execution/{executionId}/task/{taskId}")]
 		public async Task<App.Model.WorkflowTaskInstance> GetWorkflowTaskInstance(
 			[FromRoute]
 			[SwaggerParameter(description: "The workflow id of the item to lookup", Required = true)]
@@ -275,11 +275,10 @@ namespace DataGEMS.Gateway.Api.Controllers
 			return model;
 		}
 
-		[HttpGet("definition/{workflowId}/execution/{workflowExecutionId}/taskinstance/{workflowTaskId}/logs/{tryNumber}")]
 		[Authorize]
 		[ModelStateValidationFilter]
-		[SwaggerOperation(Summary = " The workflow log by taskid dagid and dagrunid and tryNumber")]
-		[SwaggerResponse(statusCode: 200, description: "The matching workflow task log", type: typeof(QueryResult<App.Model.WorkflowTaskLog>))]
+		[SwaggerOperation(Summary = " The workflow log by taskid, workflowid, executionid and tryNumber")]
+		[SwaggerResponse(statusCode: 200, description: "The matching workflow task log", type: typeof(List<App.Model.WorkflowTaskLog>))]
 		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
 		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
 		[SwaggerResponse(statusCode: 404, description: "Could not locate item with the provided id")]
@@ -287,7 +286,8 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[SwaggerResponse(statusCode: 500, description: "Internal error")]
 		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
 		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
-		public async Task<App.Model.WorkflowTaskLog> GetWorkflowTaskLog(
+		[HttpGet("definition/{workflowId}/execution/{workflowExecutionId}/taskinstance/{workflowTaskId}/logs/{tryNumber}")]
+		public async Task<List<App.Model.WorkflowTaskLog>> GetWorkflowTaskLog(
 			[FromRoute]
 			[SwaggerParameter(description: "The workflow id of the item to lookup", Required = true)]
 			String workflowExecutionId,
@@ -311,9 +311,8 @@ namespace DataGEMS.Gateway.Api.Controllers
 			if (fieldSet.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
 
 			WorkflowTaskLogsHttpQuery query = this._queryFactory.Query<WorkflowTaskLogsHttpQuery>().TryNumber(tryNumber).WorkflowTaskId(workflowTaskId).WorkflowId(workflowId).WorkflowExecutionId(workflowExecutionId);
-			App.Service.Airflow.Model.AirflowTaskLog datas = await query.ByIdAsync();
-			App.Model.WorkflowTaskLog model = await this._builderFactory.Builder<WorkflowTaskLogBuilder>().Authorize(AuthorizationFlags.Any).Build(censoredFields, datas);
-			if (model == null) throw new DGNotFoundException(this._localizer["general_notFound", workflowTaskId, nameof(App.Model.WorkflowTaskLog)]);
+			List<App.Service.Airflow.Model.AirflowTaskLog> datas = await query.ByIdAsync();
+			List<App.Model.WorkflowTaskLog> model = await this._builderFactory.Builder<WorkflowTaskLogBuilder>().Authorize(AuthorizationFlags.Any).Build(censoredFields, datas);
 
 			this._accountingService.AccountFor(KnownActions.Query, KnownResources.Workflow.AsAccountable());
 

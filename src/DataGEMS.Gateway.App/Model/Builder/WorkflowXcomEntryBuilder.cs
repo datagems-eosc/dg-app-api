@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Cite.Tools.Data.Builder;
+﻿using Cite.Tools.Data.Builder;
 using Cite.Tools.FieldSet;
 using Cite.Tools.Json;
 using Cite.Tools.Logging.Extensions;
@@ -48,12 +43,13 @@ namespace DataGEMS.Gateway.App.Model.Builder
 				WorkflowXcomEntry m = new WorkflowXcomEntry();
 
 				if (fields.HasField(nameof(WorkflowXcomEntry.Key))) m.Key = d.Key;
+				if (fields.HasField(nameof(WorkflowXcomEntry.Timestamp))) m.Timestamp = d.Timestamp;
+				if (fields.HasField(nameof(WorkflowXcomEntry.LogicalDate))) m.LogicalDate = d.LogicalDate;
+				if (fields.HasField(nameof(WorkflowXcomEntry.MapIndex))) m.MapIndex = d.MapIndex;
 				if (fields.HasField(nameof(WorkflowXcomEntry.WorkflowId))) m.WorkflowId = d.DagId;
 				if (fields.HasField(nameof(WorkflowXcomEntry.WorkflowTaskId))) m.WorkflowTaskId = d.TaskId;
 				if (fields.HasField(nameof(WorkflowXcomEntry.WorkflowExecutionId))) m.WorkflowExecutionId = d.DagRunId;
-				if (fields.HasField(nameof(WorkflowXcomEntry.MapIndex))) m.MapIndex = d.MapIndex;
-				if (fields.HasField(nameof(WorkflowXcomEntry.LogicalDate))) m.LogicalDate = d.LogicalDate;
-
+				if (fields.HasField(nameof(WorkflowXcomEntry.Value))) m.Value = d.Value;
 
 				results.Add(m);
 			}

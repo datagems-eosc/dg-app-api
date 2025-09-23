@@ -198,7 +198,7 @@
 				"AllowAnonymous": false,
 				"AllowAuthenticated": true
 			},
-			//WorkflowDefinition
+			//Workflow
 			"BrowseWorkflowDefinition": {
 				"Roles": [ "GLOBAL_dg_admin" ],
 				"DatasetRoles": [],
@@ -207,7 +207,6 @@
 				"AllowAnonymous": false,
 				"AllowAuthenticated": false
 			},
-			//WorkflowExecution
 			"ExecuteWorkflow": {
 				"Roles": [ "GLOBAL_dg_admin" ],
 				"DatasetRoles": [],
@@ -241,6 +240,14 @@
 				"AllowAuthenticated": false
 			},
 			"BrowseWorkflowXCom": {
+				"Roles": [ "GLOBAL_dg_admin" ],
+				"DatasetRoles": [],
+				"Claims": [],
+				"Clients": [],
+				"AllowAnonymous": false,
+				"AllowAuthenticated": false
+			},
+			"BrowseWorkflowTaskLog": {
 				"Roles": [ "GLOBAL_dg_admin" ],
 				"DatasetRoles": [],
 				"Claims": [],

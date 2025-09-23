@@ -49,9 +49,9 @@ namespace DataGEMS.Gateway.App.Censor
 			Boolean authZPass = false;
 			switch (context?.Behavior)
 			{
-				case CensorBehavior.Censor: { authZPass = await this._authService.Authorize(Permission.BrowseWorkflowExecution); break; }
+				case CensorBehavior.Censor: { authZPass = await this._authService.Authorize(Permission.BrowseWorkflowTaskLog); break; }
 				case CensorBehavior.Throw:
-				default: { authZPass = await this._authService.AuthorizeForce(Permission.BrowseWorkflowExecution); break; }
+				default: { authZPass = await this._authService.AuthorizeForce(Permission.BrowseWorkflowTaskLog); break; }
 			}
 			if (authZPass)
 			{

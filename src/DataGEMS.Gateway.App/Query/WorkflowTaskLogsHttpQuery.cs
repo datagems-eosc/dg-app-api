@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Cite.Tools.Common.Extensions;
-using Cite.Tools.Data.Query;
+﻿using Cite.Tools.Data.Query;
 using Cite.Tools.Json;
 using Cite.Tools.Logging.Extensions;
 using DataGEMS.Gateway.App.Common;
@@ -21,14 +15,10 @@ namespace DataGEMS.Gateway.App.Query
 		private String _workflowTaskId { get; set; }
 		private String _workflowId { get; set; }
 		private String _workflowExecutionId { get; set; }
-		private int _tryNumber { get; set; }
-		private int _mapIndex { get; set; }
-		private String _token { get; set; }
-		private bool _fullContent {  get; set; }
+		private int? _tryNumber { get; set; }
 
 		public Paging Page { get; set; }
 		public Ordering Order { get; set; }
-
 
 		private readonly IHttpClientFactory _httpClientFactory;
 		private readonly Service.Airflow.AirflowConfig _config;
@@ -56,37 +46,34 @@ namespace DataGEMS.Gateway.App.Query
 			this._airflowAccessTokenService = airflowAccessTokenService;
 		}
 		public WorkflowTaskLogsHttpQuery WorkflowTaskId(string workflowTaskid) { this._workflowTaskId = workflowTaskid; return this; }
-		public WorkflowTaskLogsHttpQuery WorkflowId(string workflowId) {this._workflowId = workflowId; return this;}
-		public WorkflowTaskLogsHttpQuery WorkflowExecutionId(string workflowExecutionId) {this._workflowExecutionId = workflowExecutionId;	return this;}
-		public WorkflowTaskLogsHttpQuery TryNumber(int tryNumber){this._tryNumber = tryNumber;return this;}
-		public WorkflowTaskLogsHttpQuery MapIndex(int mapIndex){this._mapIndex = mapIndex;return this;}
-		public WorkflowTaskLogsHttpQuery Token(string token){this._token = token;return this;}
-		public WorkflowTaskLogsHttpQuery FullContent(bool fullContent) { this._fullContent = fullContent; return this; }
-
+		public WorkflowTaskLogsHttpQuery WorkflowId(string workflowId) { this._workflowId = workflowId; return this; }
+		public WorkflowTaskLogsHttpQuery WorkflowExecutionId(string workflowExecutionId) { this._workflowExecutionId = workflowExecutionId; return this; }
+		public WorkflowTaskLogsHttpQuery TryNumber(int? tryNumber) { this._tryNumber = tryNumber; return this; }
 
 		protected bool IsFalseQuery()
 		{
-			return  this._workflowTaskId.IsNotNullButEmpty() || this._workflowId.IsNotNullButEmpty() || this._workflowExecutionId.IsNotNullButEmpty();
+			return !this._tryNumber.HasValue || String.IsNullOrEmpty(this._workflowTaskId) || String.IsNullOrEmpty(this._workflowId) || String.IsNullOrEmpty(this._workflowExecutionId);
 		}
-		
-		public async Task<Service.Airflow.Model.AirflowTaskLog> ByIdAsync()
+
+		public async Task<List<Service.Airflow.Model.AirflowTaskLog>> ByIdAsync()
 		{
-			if (String.IsNullOrEmpty(this._workflowTaskId) || this._workflowId == null || String.IsNullOrEmpty(this._workflowExecutionId)) return null;
-			if (String.IsNullOrEmpty(this._tryNumber.ToString()))
-				throw new DGValidationException("try number is required");
+			if (!this._tryNumber.HasValue || 
+				String.IsNullOrEmpty(this._workflowTaskId) || 
+				this._workflowId == null || 
+				String.IsNullOrEmpty(this._workflowExecutionId)) return null;
 
 			String token = await this._airflowAccessTokenService.GetAirflowAccessTokenAsync();
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
 
-			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"{this._config.BaseUrl}{this._config.TaskInstancesLogsEndpoint.Replace("{tryNumber}", this._tryNumber.ToString()).Replace("{taskId}",this._workflowTaskId).Replace("{dagId}", this._workflowId).Replace("{dagRunId}", this._workflowExecutionId)}");
+			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"{this._config.BaseUrl}{this._config.TaskInstanceLogsEndpoint.Replace("{tryNumber}", this._tryNumber.ToString()).Replace("{taskId}", this._workflowTaskId).Replace("{workflowId}", this._workflowId).Replace("{executionId}", this._workflowExecutionId)}");
 			request.Headers.Add(HeaderNames.Accept, "application/json");
 			request.Headers.Add(HeaderNames.Authorization, $"Bearer {token}");
 
 			String content = await this.SendRequest(request);
 			try
 			{
-				Service.Airflow.Model.AirflowTaskLog model = this._jsonHandlingService.FromJson<Service.Airflow.Model.AirflowTaskLog>(content);
-				return model;
+				Service.Airflow.Model.AirflowTaskLogList model = this._jsonHandlingService.FromJson<Service.Airflow.Model.AirflowTaskLogList>(content);
+				return model?.Content ?? Enumerable.Empty<Service.Airflow.Model.AirflowTaskLog>().ToList();
 			}
 			catch (System.Exception ex)
 			{
@@ -95,7 +82,6 @@ namespace DataGEMS.Gateway.App.Query
 			}
 		}
 
-		
 		private async Task<String> SendRequest(HttpRequestMessage request)
 		{
 			HttpResponseMessage response = null;
@@ -116,7 +102,7 @@ namespace DataGEMS.Gateway.App.Query
 				throw new Exception.DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, (int?)response?.StatusCode, UnderpinningServiceType.Workflow, this._logCorrelationScope.CorrelationId, includeErrorPayload ? errorPayload : null);
 			}
 			String content = await response.Content.ReadAsStringAsync();
-			return content; 
+			return content;
 		}
 
 	}

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Cite.Tools.Data.Builder;
+﻿using Cite.Tools.Data.Builder;
 using Cite.Tools.FieldSet;
 using Cite.Tools.Json;
 using Cite.Tools.Logging.Extensions;
@@ -49,7 +44,6 @@ namespace DataGEMS.Gateway.App.Model.Builder
 
 				if (fields.HasField(nameof(WorkflowTaskLog.Timestamp))) m.Timestamp = d.Timestamp;
 				if (fields.HasField(nameof(WorkflowTaskLog.Event))) m.Event = d.Event;
-
 
 				results.Add(m);
 			}

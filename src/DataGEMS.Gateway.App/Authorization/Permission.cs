@@ -38,13 +38,13 @@ namespace DataGEMS.Gateway.App.Authorization
 		//Vocabulary
 		public const String BrowseFieldsOfScienceVocabulary = "BrowseFieldsOfScienceVocabulary";
 		public const String BrowseLicenseVocabulary = "BrowseLicenseVocabulary";
-		//WorkflowDefinition
+		//Workflow
 		public const String BrowseWorkflowDefinition = "BrowseWorkflowDefinition";
-		//WorkflowExecution
 		public const String ExecuteWorkflow = "ExecuteWorkflow";
 		public const String BrowseWorkflowExecution = "BrowseWorkflowExecution";
 		public const String BrowseWorkflowTask = "BrowseWorkflowTask";
 		public const String BrowseWorkflowTaskInstance = "BrowseWorkflowTaskInstance";
 		public const String BrowseWorkflowXCom = "BrowseWorkflowXCom";
+		public const String BrowseWorkflowTaskLog = "BrowseWorkflowTaskLog";
 	}
 }
