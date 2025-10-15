@@ -36,6 +36,7 @@ namespace DataGEMS.Gateway.App.Accounting
 		Vocabulary = 6,
 		InDataExploration = 7,
 		Workflow = 8,
+		UserSettings = 9,
 	}
 
 	public class AccountingInfo

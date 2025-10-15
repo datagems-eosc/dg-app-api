@@ -520,5 +520,79 @@ namespace DataGEMS.Gateway.App.Event
 		}
 
 		#endregion
+
+		#region UserSettings Deleted
+
+		private EventHandler<OnEventArgs> _userSettingsDeleted;
+		public event EventHandler<OnEventArgs> UserSettingsDeleted
+		{
+			add { this._userSettingsDeleted += value; }
+			remove { this._userSettingsDeleted -= value; }
+		}
+
+		public void EmitUserSettingsDeleted(Guid id)
+		{
+			this.EmitUserSettingsDeleted(this, new List<Guid>() { id });
+		}
+
+		public void EmitUserSettingsDeleted(IEnumerable<Guid> ids)
+		{
+			this.EmitUserSettingsDeleted(this, ids);
+		}
+
+		public void EmitUserSettingsDeleted(IEnumerable<OnEventArgs> events)
+		{
+			this.EmitUserSettingsDeleted(this, events);
+		}
+
+		public void EmitUserSettingsDeleted(Object sender, IEnumerable<Guid> ids)
+		{
+			this._userSettingsDeleted?.Invoke(sender, new OnEventArgs(ids));
+		}
+
+		public void EmitUserSettingsDeleted(Object sender, IEnumerable<OnEventArgs> events)
+		{
+			if (events == null) return;
+			foreach (OnEventArgs ev in events) this._userSettingsDeleted?.Invoke(sender, ev);
+		}
+
+		#endregion
+
+		#region UserSettings Touched
+
+		private EventHandler<OnEventArgs> _userSettingsTouched;
+		public event EventHandler<OnEventArgs> UserSettingsTouched
+		{
+			add { this._userSettingsTouched += value; }
+			remove { this._userSettingsTouched -= value; }
+		}
+
+		public void EmitUserSettingsTouched(Guid id)
+		{
+			this.EmitUserSettingsTouched(this, new List<Guid>() { id });
+		}
+
+		public void EmitUserSettingsTouched(IEnumerable<Guid> ids)
+		{
+			this.EmitUserSettingsTouched(this, ids);
+		}
+
+		public void EmitUserSettingsTouched(IEnumerable<OnEventArgs> events)
+		{
+			this.EmitUserSettingsTouched(this, events);
+		}
+
+		public void EmitUserSettingsTouched(Object sender, IEnumerable<Guid> ids)
+		{
+			this._userSettingsTouched?.Invoke(sender, new OnEventArgs(ids));
+		}
+
+		public void EmitUserSettingsTouched(Object sender, IEnumerable<OnEventArgs> events)
+		{
+			if (events == null) return;
+			foreach (OnEventArgs ev in events) this._userSettingsTouched?.Invoke(sender, ev);
+		}
+
+		#endregion
 	}
 }

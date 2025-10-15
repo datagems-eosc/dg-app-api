@@ -36,6 +36,7 @@ using DataGEMS.Gateway.App.Service.Discovery;
 using DataGEMS.Gateway.App.Service.InDataExploration;
 using DataGEMS.Gateway.App.Service.Vocabulary;
 using DataGEMS.Gateway.App.Service.Airflow;
+using DataGEMS.Gateway.App.Service.UserSettings;
 
 namespace DataGEMS.Gateway.Api
 {
@@ -93,6 +94,7 @@ namespace DataGEMS.Gateway.Api
 			services
 				.AddScoped<IVersionInfoService, VersionInfoService>()
 				.AddUserCollectionServices(this._config.GetSection("UserCollection"))
+				.AddUserSettingsServices()
 				.AddConversationServices(this._config.GetSection("Conversation"))
 				.AddScoped<IConversationDatasetService, ConversationDatasetService>()
 				.AddVocabularyServices(this._config.GetSection("Vocabulary:FieldsOfScience"), this._config.GetSection("Vocabulary:License"))

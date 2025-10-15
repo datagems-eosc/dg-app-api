@@ -498,7 +498,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[ModelStateValidationFilter]
 		[ServiceFilter(typeof(AppTransactionFilter))]
 		[SwaggerOperation(Summary = "Deletes the user collection by id")]
-		[SwaggerResponse(statusCode: 200, description: "Use collection deleted")]
+		[SwaggerResponse(statusCode: 200, description: "User collection deleted")]
 		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
 		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
 		[SwaggerResponse(statusCode: 404, description: "Could not locate item with the provided id")]
