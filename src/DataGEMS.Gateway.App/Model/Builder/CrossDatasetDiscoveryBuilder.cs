@@ -98,7 +98,7 @@ namespace DataGEMS.Gateway.App.Model.Builder
 			else
 			{
 				IFieldSet clone = new FieldSet(fields.Fields).Ensure(nameof(Dataset.Id));
-				List<DataManagement.Model.Dataset> models = await this._queryFactory.Query<DatasetLocalQuery>().DisableTracking().Ids(datas.Select(x => x.DatasetId).Distinct()).Authorize(this._authorize).CollectAsyncAsModels();
+				List<Service.DataManagement.Model.Dataset> models = await this._queryFactory.Query<DatasetLocalQuery>().DisableTracking().Ids(datas.Select(x => x.DatasetId).Distinct()).Authorize(this._authorize).CollectAsyncAsModels();
 				itemMap = await this._builderFactory.Builder<DatasetBuilder>().Authorize(this._authorize).AsForeignKey(models, clone, x => x.Id.Value);
 			}
 			if (!fields.HasField(nameof(Dataset.Id))) itemMap.Values.Where(x => x != null).ToList().ForEach(x => x.Id = null);

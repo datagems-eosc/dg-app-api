@@ -1,11 +1,12 @@
 ﻿using Cite.Tools.Common.Extensions;
 using Cite.Tools.Data.Query;
 using DataGEMS.Gateway.App.Authorization;
+using DataGEMS.Gateway.App.Service.DataManagement;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataGEMS.Gateway.App.Query
 {
-	public class CollectionLocalQuery : Cite.Tools.Data.Query.Query<DataManagement.Data.Collection>
+    public class CollectionLocalQuery : Cite.Tools.Data.Query.Query<App.Service.DataManagement.Data.Collection>
 	{
 		private List<Guid> _ids { get; set; }
 		private List<Guid> _excludedIds { get; set; }
@@ -14,7 +15,7 @@ namespace DataGEMS.Gateway.App.Query
 		private AuthorizationFlags _authorize { get; set; } = AuthorizationFlags.None;
 
 		public CollectionLocalQuery(
-			DataManagement.Data.DataManagementDbContext dbContext,
+		    App.Service.DataManagement.Data.DataManagementDbContext dbContext,
 			QueryFactory queryFactory,
 			IAuthorizationContentResolver authorizationContentResolver)
 		{
@@ -23,7 +24,7 @@ namespace DataGEMS.Gateway.App.Query
 			this._authorizationContentResolver = authorizationContentResolver;
 		}
 
-		private readonly DataManagement.Data.DataManagementDbContext _dbContext;
+		private readonly App.Service.DataManagement.Data.DataManagementDbContext _dbContext;
 		private readonly QueryFactory _queryFactory;
 		private readonly IAuthorizationContentResolver _authorizationContentResolver;
 
@@ -45,19 +46,19 @@ namespace DataGEMS.Gateway.App.Query
 			return this.IsEmpty(this._ids) || this.IsEmpty(this._excludedIds) || this.IsEmpty(this._datasetIds);
 		}
 
-		public async Task<DataManagement.Data.Collection> Find(Guid id, Boolean tracked = true)
+		public async Task<App.Service.DataManagement.Data.Collection> Find(Guid id, Boolean tracked = true)
 		{
 			if (tracked) return await this._dbContext.Collections.FindAsync(id);
 			else return await this._dbContext.Collections.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
 		}
 
-		protected override IQueryable<DataManagement.Data.Collection> Queryable()
+		protected override IQueryable<App.Service.DataManagement.Data.Collection> Queryable()
 		{
-			IQueryable<DataManagement.Data.Collection> query = this._dbContext.Collections.AsQueryable();
+			IQueryable<App.Service.DataManagement.Data.Collection> query = this._dbContext.Collections.AsQueryable();
 			return query;
 		}
 
-		protected override async Task<IQueryable<DataManagement.Data.Collection>> ApplyAuthzAsync(IQueryable<DataManagement.Data.Collection> query)
+		protected override async Task<IQueryable<App.Service.DataManagement.Data.Collection>> ApplyAuthzAsync(IQueryable<App.Service.DataManagement.Data.Collection> query)
 		{
 			if (this._authorize.HasFlag(AuthorizationFlags.None)) return query;
 			if (this._authorize.HasFlag(AuthorizationFlags.Permission) && await this._authorizationContentResolver.HasPermission(Permission.BrowseCollection)) return query;
@@ -87,7 +88,7 @@ namespace DataGEMS.Gateway.App.Query
 			return query.Where(x => union.Contains(x.Id));
 		}
 
-		protected override Task<IQueryable<DataManagement.Data.Collection>> ApplyFiltersAsync(IQueryable<DataManagement.Data.Collection> query)
+		protected override Task<IQueryable<App.Service.DataManagement.Data.Collection>> ApplyFiltersAsync(IQueryable<App.Service.DataManagement.Data.Collection> query)
 		{
 			if (this._ids != null) query = query.Where(x => this._ids.Contains(x.Id));
 			if (this._excludedIds != null) query = query.Where(x => !this._excludedIds.Contains(x.Id));
@@ -97,14 +98,14 @@ namespace DataGEMS.Gateway.App.Query
 			return Task.FromResult(query);
 		}
 
-		protected override IOrderedQueryable<DataManagement.Data.Collection> OrderClause(IQueryable<DataManagement.Data.Collection> query, Cite.Tools.Data.Query.OrderingFieldResolver item)
+		protected override IOrderedQueryable<App.Service.DataManagement.Data.Collection> OrderClause(IQueryable<App.Service.DataManagement.Data.Collection> query, Cite.Tools.Data.Query.OrderingFieldResolver item)
 		{
-			IOrderedQueryable<DataManagement.Data.Collection> orderedQuery = null;
-			if (this.IsOrdered(query)) orderedQuery = query as IOrderedQueryable<DataManagement.Data.Collection>;
+			IOrderedQueryable<App.Service.DataManagement.Data.Collection> orderedQuery = null;
+			if (this.IsOrdered(query)) orderedQuery = query as IOrderedQueryable<App.Service.DataManagement.Data.Collection>;
 
-			if (item.Match(nameof(DataManagement.Model.Collection.Id))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.Id);
-			else if (item.Match(nameof(DataManagement.Model.Collection.Code))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.Code);
-			else if (item.Match(nameof(DataManagement.Model.Collection.Name))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.Name);
+			if (item.Match(nameof(Service.DataManagement.Model.Collection.Id))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.Id);
+			else if (item.Match(nameof(Service.DataManagement.Model.Collection.Code))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.Code);
+			else if (item.Match(nameof(Service.DataManagement.Model.Collection.Name))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.Name);
 			else return null;
 
 			return orderedQuery;
@@ -115,26 +116,26 @@ namespace DataGEMS.Gateway.App.Query
 			HashSet<String> projectionFields = new HashSet<String>();
 			foreach (Cite.Tools.Data.Query.FieldResolver item in items)
 			{
-				if (item.Match(nameof(DataManagement.Model.Collection.Id))) projectionFields.Add(nameof(DataManagement.Data.Collection.Id));
-				else if (item.Match(nameof(DataManagement.Model.Collection.Code))) projectionFields.Add(nameof(DataManagement.Data.Collection.Code));
-				else if (item.Match(nameof(DataManagement.Model.Collection.Name))) projectionFields.Add(nameof(DataManagement.Data.Collection.Name));
-				else if (item.Match(nameof(DataManagement.Model.Collection.DatasetCount))) projectionFields.Add(nameof(DataManagement.Data.Collection.Id));
+				if (item.Match(nameof(Service.DataManagement.Model.Collection.Id))) projectionFields.Add(nameof(App.Service.DataManagement.Data.Collection.Id));
+				else if (item.Match(nameof(Service.DataManagement.Model.Collection.Code))) projectionFields.Add(nameof(App.Service.DataManagement.Data.Collection.Code));
+				else if (item.Match(nameof(Service.DataManagement.Model.Collection.Name))) projectionFields.Add(nameof(App.Service.DataManagement.Data.Collection.Name));
+				else if (item.Match(nameof(Service.DataManagement.Model.Collection.DatasetCount))) projectionFields.Add(nameof(App.Service.DataManagement.Data.Collection.Id));
 			}
 			return projectionFields.ToList();
 		}
 
-		public async Task<List<DataManagement.Model.Collection>> CollectAsyncAsModels()
+		public async Task<List<Service.DataManagement.Model.Collection>> CollectAsyncAsModels()
 		{
-			List<DataManagement.Data.Collection> datas = await this.CollectAsync();
-			List<DataManagement.Model.Collection> models = datas.Select(x => CollectionLocalQuery.ToModel(x)).ToList();
+			List<App.Service.DataManagement.Data.Collection> datas = await this.CollectAsync();
+			List<Service.DataManagement.Model.Collection> models = datas.Select(x => x.ToModel()).ToList();
 
 			List<Guid> ids = datas.Select(x => x.Id).Distinct().ToList();
 			if (ids.Count > 0)
 			{
-				IQueryable<DataManagement.Data.DatasetCollection> query = await this._queryFactory.Query<DatasetCollectionLocalQuery>().Authorize(this._authorize).CollectionIds(ids).ApplyAsync();
+				IQueryable<App.Service.DataManagement.Data.DatasetCollection> query = await this._queryFactory.Query<DatasetCollectionLocalQuery>().Authorize(this._authorize).CollectionIds(ids).ApplyAsync();
 				var byCollectionCount = await query.GroupBy(x => x.CollectionId).Select(x => new { x.Key, Count = x.Count() }).ToListAsync();
 				Dictionary<Guid, int> byCollectionCountMap = byCollectionCount.ToDictionary(x => x.Key, x => x.Count);
-				foreach(DataManagement.Model.Collection model in models)
+				foreach(Service.DataManagement.Model.Collection model in models)
 				{
 					if(byCollectionCountMap.ContainsKey(model.Id)) model.DatasetCount = byCollectionCountMap[model.Id];
 				}
@@ -143,22 +144,11 @@ namespace DataGEMS.Gateway.App.Query
 			return models;
 		}
 
-		public async Task<DataManagement.Model.Collection> FirstAsyncAsModel()
+		public async Task<Service.DataManagement.Model.Collection> FirstAsyncAsModel()
 		{
-			DataManagement.Data.Collection datas = await this.FirstAsync();
-			DataManagement.Model.Collection models = CollectionLocalQuery.ToModel(datas);
+			App.Service.DataManagement.Data.Collection datas = await this.FirstAsync();
+			Service.DataManagement.Model.Collection models = datas.ToModel();
 			return models;
-		}
-
-		private static DataManagement.Model.Collection ToModel(DataManagement.Data.Collection data)
-		{
-			if (data == null) return null;
-			return new DataManagement.Model.Collection()
-			{
-				Id = data.Id,
-				Code = data.Code,
-				Name = data.Name,
-			};
 		}
 	}
 }

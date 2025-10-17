@@ -17,6 +17,7 @@ using DataGEMS.Gateway.App.ErrorCode;
 using DataGEMS.Gateway.App.Exception;
 using DataGEMS.Gateway.App.Model.Builder;
 using DataGEMS.Gateway.App.Query;
+using DataGEMS.Gateway.App.Service.DataManagement.Model;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
@@ -24,7 +25,7 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace DataGEMS.Gateway.Api.Controllers
 {
-	[Route("api/dataset")]
+    [Route("api/dataset")]
 	public class DatasetController : ControllerBase
 	{
 		private readonly CensorFactory _censorFactory;
@@ -77,7 +78,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			if (lookup.Project.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
 
 			DatasetLocalQuery query = lookup.Enrich(this._queryFactory).DisableTracking().Authorize(AuthorizationFlags.Any);
-			List<DataGEMS.Gateway.App.DataManagement.Model.Dataset> datas = await query.CollectAsyncAsModels();
+			List<Dataset> datas = await query.CollectAsyncAsModels();
 			int count = (lookup.Metadata != null && lookup.Metadata.CountAll) ? await query.CountAsync() : datas.Count;
 			List<App.Model.Dataset> models = await this._builderFactory.Builder<DatasetBuilder>().Authorize(AuthorizationFlags.Any).Build(censoredFields, datas);
 
@@ -113,7 +114,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			if (fieldSet.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
 
 			DatasetLocalQuery query = this._queryFactory.Query<DatasetLocalQuery>().Ids(id).DisableTracking().Authorize(AuthorizationFlags.Any);
-			DataGEMS.Gateway.App.DataManagement.Model.Dataset data = await query.FirstAsyncAsModel();
+			Dataset data = await query.FirstAsyncAsModel();
 			App.Model.Dataset model = await this._builderFactory.Builder<DatasetBuilder>().Authorize(AuthorizationFlags.Any).Build(censoredFields, data);
 			if (model == null) throw new DGNotFoundException(this._localizer["general_notFound", id, nameof(App.Model.Dataset)]);
 

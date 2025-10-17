@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DataGEMS.Gateway.App.Query
 {
-	public class DatasetCollectionLocalQuery : Cite.Tools.Data.Query.Query<DataManagement.Data.DatasetCollection>
+    public class DatasetCollectionLocalQuery : Cite.Tools.Data.Query.Query<Service.DataManagement.Data.DatasetCollection>
 	{
 		private List<Guid> _ids { get; set; }
 		private List<Guid> _excludedIds { get; set; }
@@ -13,14 +13,14 @@ namespace DataGEMS.Gateway.App.Query
 		private AuthorizationFlags _authorize { get; set; } = AuthorizationFlags.None;
 
 		public DatasetCollectionLocalQuery(
-			DataManagement.Data.DataManagementDbContext dbContext,
+			Service.DataManagement.Data.DataManagementDbContext dbContext,
 			IAuthorizationContentResolver authorizationContentResolver)
 		{
 			this._dbContext = dbContext;
 			this._authorizationContentResolver = authorizationContentResolver;
 		}
 
-		private readonly DataManagement.Data.DataManagementDbContext _dbContext;
+		private readonly Service.DataManagement.Data.DataManagementDbContext _dbContext;
 		private readonly IAuthorizationContentResolver _authorizationContentResolver;
 
 		public DatasetCollectionLocalQuery Ids(IEnumerable<Guid> ids) { this._ids = ids?.ToList(); return this; }
@@ -42,19 +42,19 @@ namespace DataGEMS.Gateway.App.Query
 			return this.IsEmpty(this._ids) || this.IsEmpty(this._excludedIds) || this.IsEmpty(this._datasetIds) || this.IsEmpty(this._collectionIds);
 		}
 
-		public async Task<DataManagement.Data.DatasetCollection> Find(Guid id, Boolean tracked = true)
+		public async Task<Service.DataManagement.Data.DatasetCollection> Find(Guid id, Boolean tracked = true)
 		{
 			if (tracked) return await this._dbContext.DatasetCollections.FindAsync(id);
 			else return await this._dbContext.DatasetCollections.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
 		}
 
-		protected override IQueryable<DataManagement.Data.DatasetCollection> Queryable()
+		protected override IQueryable<Service.DataManagement.Data.DatasetCollection> Queryable()
 		{
-			IQueryable<DataManagement.Data.DatasetCollection> query = this._dbContext.DatasetCollections.AsQueryable();
+			IQueryable<Service.DataManagement.Data.DatasetCollection> query = this._dbContext.DatasetCollections.AsQueryable();
 			return query;
 		}
 
-		protected override async Task<IQueryable<DataManagement.Data.DatasetCollection>> ApplyAuthzAsync(IQueryable<DataManagement.Data.DatasetCollection> query)
+		protected override async Task<IQueryable<Service.DataManagement.Data.DatasetCollection>> ApplyAuthzAsync(IQueryable<Service.DataManagement.Data.DatasetCollection> query)
 		{
 			if (this._authorize.HasFlag(AuthorizationFlags.None)) return query;
 			if (this._authorize.HasFlag(AuthorizationFlags.Permission) && await this._authorizationContentResolver.HasPermission(Permission.BrowseDatasetCollection)) return query;
@@ -84,7 +84,7 @@ namespace DataGEMS.Gateway.App.Query
 			return query.Where(x => union.Contains(x.Id));
 		}
 
-		protected override Task<IQueryable<DataManagement.Data.DatasetCollection>> ApplyFiltersAsync(IQueryable<DataManagement.Data.DatasetCollection> query)
+		protected override Task<IQueryable<Service.DataManagement.Data.DatasetCollection>> ApplyFiltersAsync(IQueryable<Service.DataManagement.Data.DatasetCollection> query)
 		{
 			if (this._ids != null) query = query.Where(x => this._ids.Contains(x.Id));
 			if (this._excludedIds != null) query = query.Where(x => !this._excludedIds.Contains(x.Id));
@@ -94,14 +94,14 @@ namespace DataGEMS.Gateway.App.Query
 			return Task.FromResult(query);
 		}
 
-		protected override IOrderedQueryable<DataManagement.Data.DatasetCollection> OrderClause(IQueryable<DataManagement.Data.DatasetCollection> query, Cite.Tools.Data.Query.OrderingFieldResolver item)
+		protected override IOrderedQueryable<Service.DataManagement.Data.DatasetCollection> OrderClause(IQueryable<Service.DataManagement.Data.DatasetCollection> query, Cite.Tools.Data.Query.OrderingFieldResolver item)
 		{
-			IOrderedQueryable<DataManagement.Data.DatasetCollection> orderedQuery = null;
-			if (this.IsOrdered(query)) orderedQuery = query as IOrderedQueryable<DataManagement.Data.DatasetCollection>;
+			IOrderedQueryable<Service.DataManagement.Data.DatasetCollection> orderedQuery = null;
+			if (this.IsOrdered(query)) orderedQuery = query as IOrderedQueryable<Service.DataManagement.Data.DatasetCollection>;
 
-			if (item.Match(nameof(DataManagement.Model.DatasetCollection.Id))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.Id);
-			else if (item.Match(nameof(DataManagement.Model.DatasetCollection.DatasetId))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.DatasetId);
-			else if (item.Match(nameof(DataManagement.Model.DatasetCollection.CollectionId))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.CollectionId);
+			if (item.Match(nameof(Service.DataManagement.Model.DatasetCollection.Id))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.Id);
+			else if (item.Match(nameof(Service.DataManagement.Model.DatasetCollection.DatasetId))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.DatasetId);
+			else if (item.Match(nameof(Service.DataManagement.Model.DatasetCollection.CollectionId))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.CollectionId);
 			else return null;
 
 			return orderedQuery;
@@ -112,31 +112,31 @@ namespace DataGEMS.Gateway.App.Query
 			HashSet<String> projectionFields = new HashSet<String>();
 			foreach (Cite.Tools.Data.Query.FieldResolver item in items)
 			{
-				if (item.Match(nameof(DataManagement.Model.DatasetCollection.Id))) projectionFields.Add(nameof(DataManagement.Data.DatasetCollection.Id));
-				else if (item.Match(nameof(DataManagement.Model.DatasetCollection.CollectionId))) projectionFields.Add(nameof(DataManagement.Data.DatasetCollection.CollectionId));
-				else if (item.Match(nameof(DataManagement.Model.DatasetCollection.DatasetId))) projectionFields.Add(nameof(DataManagement.Data.DatasetCollection.DatasetId));
+				if (item.Match(nameof(Service.DataManagement.Model.DatasetCollection.Id))) projectionFields.Add(nameof(Service.DataManagement.Data.DatasetCollection.Id));
+				else if (item.Match(nameof(Service.DataManagement.Model.DatasetCollection.CollectionId))) projectionFields.Add(nameof(Service.DataManagement.Data.DatasetCollection.CollectionId));
+				else if (item.Match(nameof(Service.DataManagement.Model.DatasetCollection.DatasetId))) projectionFields.Add(nameof(Service.DataManagement.Data.DatasetCollection.DatasetId));
 			}
 			return projectionFields.ToList();
 		}
 
-		public async Task<List<DataManagement.Model.DatasetCollection>> CollectAsyncAsModels()
+		public async Task<List<Service.DataManagement.Model.DatasetCollection>> CollectAsyncAsModels()
 		{
-			List<DataManagement.Data.DatasetCollection> datas = await this.CollectAsync();
-			List<DataManagement.Model.DatasetCollection> models = datas.Select(x => DatasetCollectionLocalQuery.ToModel(x)).ToList();
+			List<Service.DataManagement.Data.DatasetCollection> datas = await this.CollectAsync();
+			List<Service.DataManagement.Model.DatasetCollection> models = datas.Select(x => DatasetCollectionLocalQuery.ToModel(x)).ToList();
 			return models;
 		}
 
-		public async Task<DataManagement.Model.DatasetCollection> FirstAsyncAsModel()
+		public async Task<Service.DataManagement.Model.DatasetCollection> FirstAsyncAsModel()
 		{
-			DataManagement.Data.DatasetCollection datas = await this.FirstAsync();
-			DataManagement.Model.DatasetCollection models = DatasetCollectionLocalQuery.ToModel(datas);
+			Service.DataManagement.Data.DatasetCollection datas = await this.FirstAsync();
+			Service.DataManagement.Model.DatasetCollection models = DatasetCollectionLocalQuery.ToModel(datas);
 			return models;
 		}
 
-		private static DataManagement.Model.DatasetCollection ToModel(DataManagement.Data.DatasetCollection data)
+		private static Service.DataManagement.Model.DatasetCollection ToModel(Service.DataManagement.Data.DatasetCollection data)
 		{
 			if (data == null) return null;
-			return new DataManagement.Model.DatasetCollection()
+			return new Service.DataManagement.Model.DatasetCollection()
 			{
 				Id = data.Id,
 				DatasetId = data.DatasetId,

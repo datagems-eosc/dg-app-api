@@ -19,7 +19,6 @@ using DataGEMS.Gateway.Api.Model;
 using DataGEMS.Gateway.App.Accounting;
 using Serilog;
 using Cite.Tools.Data.Censor.Extensions;
-using DataGEMS.Gateway.App.DataManagement;
 using DataGEMS.Gateway.App.AccessToken;
 using DataGEMS.Gateway.Api.AccessToken;
 using Cite.Tools.Data.Query.Extensions;
@@ -37,6 +36,8 @@ using DataGEMS.Gateway.App.Service.InDataExploration;
 using DataGEMS.Gateway.App.Service.Vocabulary;
 using DataGEMS.Gateway.App.Service.Airflow;
 using DataGEMS.Gateway.App.Service.UserSettings;
+using DataGEMS.Gateway.App.Service.DataManagement;
+using DataGEMS.Gateway.App.Service.AAI;
 
 namespace DataGEMS.Gateway.Api
 {
@@ -89,6 +90,7 @@ namespace DataGEMS.Gateway.Api
 				.AddCrossDatasetDiscoveryServices(this._config.GetSection("CrossDatasetDiscoveryService")) //Cross Dataset Discovery API
 				.AddInDataExplorationServices(this._config.GetSection("InDataExplorationService"))  //In Data Exploration API
 				.AddAirflowServices(this._config.GetSection("AirflowService")) //Airflow
+				.AddAAIServices(this._config.GetSection("AAIService")) //AAI Keycloak
 			;
 
 			services

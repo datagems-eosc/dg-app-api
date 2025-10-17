@@ -87,6 +87,10 @@ namespace DataGEMS.Gateway.Api
 							.AddJsonFileInPaths("permissions.json", sharedConfigPath, "Configuration")
 							.AddJsonFileInPaths("permissions.override.json", sharedConfigPath, "Configuration")
 							.AddJsonFileInPaths($"permissions.{env.EnvironmentName}.json", sharedConfigPath, "Configuration")
+							//service aai
+							.AddJsonFileInPaths("service-aai.json", sharedConfigPath, "Configuration")
+							.AddJsonFileInPaths("service-aai.override.json", sharedConfigPath, "Configuration")
+							.AddJsonFileInPaths($"service-aai.{env.EnvironmentName}.json", sharedConfigPath, "Configuration")
 							//service airflow
 							.AddJsonFileInPaths("service-airflow.json", sharedConfigPath, "Configuration")
 							.AddJsonFileInPaths("service-airflow.override.json", sharedConfigPath, "Configuration")

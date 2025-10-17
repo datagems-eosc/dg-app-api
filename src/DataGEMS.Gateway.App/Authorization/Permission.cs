@@ -5,6 +5,8 @@ namespace DataGEMS.Gateway.App.Authorization
 	{
 		//Collection
 		public const String BrowseCollection = "BrowseCollection";
+		public const String EditCollection = "EditCollection";
+		public const String DeleteCollection = "DeleteCollection";
 		//Conversation
 		public const String BrowseConversation = "BrowseConversation";
 		public const String EditConversation = "EditConversation";

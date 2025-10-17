@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DataGEMS.Gateway.App.Query
 {
-	public class DatasetLocalQuery : Cite.Tools.Data.Query.Query<DataManagement.Data.Dataset>
+    public class DatasetLocalQuery : Cite.Tools.Data.Query.Query<Service.DataManagement.Data.Dataset>
 	{
 		private List<Guid> _ids { get; set; }
 		private List<Guid> _excludedIds { get; set; }
@@ -19,14 +19,14 @@ namespace DataGEMS.Gateway.App.Query
 		private AuthorizationFlags _authorize { get; set; } = AuthorizationFlags.None;
 
 		public DatasetLocalQuery(
-			DataManagement.Data.DataManagementDbContext dbContext,
+			Service.DataManagement.Data.DataManagementDbContext dbContext,
 			IAuthorizationContentResolver authorizationContentResolver)
 		{
 			this._dbContext = dbContext;
 			this._authorizationContentResolver = authorizationContentResolver;
 		}
 
-		private readonly DataManagement.Data.DataManagementDbContext _dbContext;
+		private readonly Service.DataManagement.Data.DataManagementDbContext _dbContext;
 		private readonly IAuthorizationContentResolver _authorizationContentResolver;
 
 		public DatasetLocalQuery Ids(IEnumerable<Guid> ids) { this._ids = ids?.ToList(); return this; }
@@ -53,19 +53,19 @@ namespace DataGEMS.Gateway.App.Query
 			return this.IsEmpty(this._ids) || this.IsEmpty(this._excludedIds) || this.IsEmpty(this._collectionIds) || this.IsEmpty(this._fieldsOfScience);
 		}
 
-		public async Task<DataManagement.Data.Dataset> Find(Guid id, Boolean tracked = true)
+		public async Task<Service.DataManagement.Data.Dataset> Find(Guid id, Boolean tracked = true)
 		{
 			if (tracked) return await this._dbContext.Datasets.FindAsync(id);
 			else return await this._dbContext.Datasets.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
 		}
 
-		protected override IQueryable<DataManagement.Data.Dataset> Queryable()
+		protected override IQueryable<Service.DataManagement.Data.Dataset> Queryable()
 		{
-			IQueryable<DataManagement.Data.Dataset> query = this._dbContext.Datasets.AsQueryable();
+			IQueryable<Service.DataManagement.Data.Dataset> query = this._dbContext.Datasets.AsQueryable();
 			return query;
 		}
 
-		protected override async Task<IQueryable<DataManagement.Data.Dataset>> ApplyAuthzAsync(IQueryable<DataManagement.Data.Dataset> query)
+		protected override async Task<IQueryable<Service.DataManagement.Data.Dataset>> ApplyAuthzAsync(IQueryable<Service.DataManagement.Data.Dataset> query)
 		{
 			if (this._authorize.HasFlag(AuthorizationFlags.None)) return query;
 			if (this._authorize.HasFlag(AuthorizationFlags.Permission) && await this._authorizationContentResolver.HasPermission(Permission.BrowseDataset)) return query;
@@ -97,7 +97,7 @@ namespace DataGEMS.Gateway.App.Query
 			return query.Where(x => union.Contains(x.Id));
 		}
 
-		protected override Task<IQueryable<DataManagement.Data.Dataset>> ApplyFiltersAsync(IQueryable<DataManagement.Data.Dataset> query)
+		protected override Task<IQueryable<Service.DataManagement.Data.Dataset>> ApplyFiltersAsync(IQueryable<Service.DataManagement.Data.Dataset> query)
 		{
 			if (this._ids != null) query = query.Where(x => this._ids.Contains(x.Id));
 			if (this._excludedIds != null) query = query.Where(x => !this._excludedIds.Contains(x.Id));
@@ -136,19 +136,19 @@ namespace DataGEMS.Gateway.App.Query
 			return Task.FromResult(query);
 		}
 
-		protected override IOrderedQueryable<DataManagement.Data.Dataset> OrderClause(IQueryable<DataManagement.Data.Dataset> query, Cite.Tools.Data.Query.OrderingFieldResolver item)
+		protected override IOrderedQueryable<Service.DataManagement.Data.Dataset> OrderClause(IQueryable<Service.DataManagement.Data.Dataset> query, Cite.Tools.Data.Query.OrderingFieldResolver item)
 		{
-			IOrderedQueryable<DataManagement.Data.Dataset> orderedQuery = null;
-			if (this.IsOrdered(query)) orderedQuery = query as IOrderedQueryable<DataManagement.Data.Dataset>;
+			IOrderedQueryable<Service.DataManagement.Data.Dataset> orderedQuery = null;
+			if (this.IsOrdered(query)) orderedQuery = query as IOrderedQueryable<Service.DataManagement.Data.Dataset>;
 
-			if (item.Match(nameof(DataManagement.Model.Dataset.Id))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.Id);
-			else if (item.Match(nameof(DataManagement.Model.Dataset.Code))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.Code);
-			else if (item.Match(nameof(DataManagement.Model.Dataset.Name))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.Name);
-			else if (item.Match(nameof(DataManagement.Model.Dataset.License))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.License);
-			else if (item.Match(nameof(DataManagement.Model.Dataset.MimeType))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.MimeType);
-			else if (item.Match(nameof(DataManagement.Model.Dataset.Size))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.Size);
-			else if (item.Match(nameof(DataManagement.Model.Dataset.Version))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.Version);
-			else if (item.Match(nameof(DataManagement.Model.Dataset.DatePublished))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.DatePublishedRaw);
+			if (item.Match(nameof(Service.DataManagement.Model.Dataset.Id))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.Id);
+			else if (item.Match(nameof(Service.DataManagement.Model.Dataset.Code))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.Code);
+			else if (item.Match(nameof(Service.DataManagement.Model.Dataset.Name))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.Name);
+			else if (item.Match(nameof(Service.DataManagement.Model.Dataset.License))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.License);
+			else if (item.Match(nameof(Service.DataManagement.Model.Dataset.MimeType))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.MimeType);
+			else if (item.Match(nameof(Service.DataManagement.Model.Dataset.Size))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.Size);
+			else if (item.Match(nameof(Service.DataManagement.Model.Dataset.Version))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.Version);
+			else if (item.Match(nameof(Service.DataManagement.Model.Dataset.DatePublished))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.DatePublishedRaw);
 			else return null;
 
 			return orderedQuery;
@@ -159,44 +159,44 @@ namespace DataGEMS.Gateway.App.Query
 			HashSet<String> projectionFields = new HashSet<String>();
 			foreach (Cite.Tools.Data.Query.FieldResolver item in items)
 			{
-				if (item.Match(nameof(DataManagement.Model.Dataset.Id))) projectionFields.Add(nameof(DataManagement.Data.Dataset.Id));
-				else if (item.Match(nameof(DataManagement.Model.Dataset.Code))) projectionFields.Add(nameof(DataManagement.Data.Dataset.Code));
-				else if (item.Match(nameof(DataManagement.Model.Dataset.Name))) projectionFields.Add(nameof(DataManagement.Data.Dataset.Name));
-				else if (item.Match(nameof(DataManagement.Model.Dataset.Description))) projectionFields.Add(nameof(DataManagement.Data.Dataset.Description));
-				else if (item.Match(nameof(DataManagement.Model.Dataset.License))) projectionFields.Add(nameof(DataManagement.Data.Dataset.License));
-				else if (item.Match(nameof(DataManagement.Model.Dataset.Url))) projectionFields.Add(nameof(DataManagement.Data.Dataset.Url));
-				else if (item.Match(nameof(DataManagement.Model.Dataset.Version))) projectionFields.Add(nameof(DataManagement.Data.Dataset.Version));
-				else if (item.Match(nameof(DataManagement.Model.Dataset.Headline))) projectionFields.Add(nameof(DataManagement.Data.Dataset.Headline));
-				else if (item.Match(nameof(DataManagement.Model.Dataset.Keywords))) projectionFields.Add(nameof(DataManagement.Data.Dataset.Keywords));
-				else if (item.Match(nameof(DataManagement.Model.Dataset.FieldOfScience))) projectionFields.Add(nameof(DataManagement.Data.Dataset.FieldOfScience));
-				else if (item.Match(nameof(DataManagement.Model.Dataset.Language))) projectionFields.Add(nameof(DataManagement.Data.Dataset.Language));
-				else if (item.Match(nameof(DataManagement.Model.Dataset.Country))) projectionFields.Add(nameof(DataManagement.Data.Dataset.Country));
-				else if (item.Match(nameof(DataManagement.Model.Dataset.DatePublished))) projectionFields.Add(nameof(DataManagement.Data.Dataset.DatePublishedRaw));
-				else if (item.Match(nameof(DataManagement.Model.Dataset.Size))) projectionFields.Add(nameof(DataManagement.Data.Dataset.Size));
-				else if (item.Match(nameof(DataManagement.Model.Dataset.MimeType))) projectionFields.Add(nameof(DataManagement.Data.Dataset.MimeType));
-				else if (item.Match(nameof(DataManagement.Model.Dataset.ProfileRaw))) projectionFields.Add(nameof(DataManagement.Data.Dataset.Profile));
+				if (item.Match(nameof(Service.DataManagement.Model.Dataset.Id))) projectionFields.Add(nameof(Service.DataManagement.Data.Dataset.Id));
+				else if (item.Match(nameof(Service.DataManagement.Model.Dataset.Code))) projectionFields.Add(nameof(Service.DataManagement.Data.Dataset.Code));
+				else if (item.Match(nameof(Service.DataManagement.Model.Dataset.Name))) projectionFields.Add(nameof(Service.DataManagement.Data.Dataset.Name));
+				else if (item.Match(nameof(Service.DataManagement.Model.Dataset.Description))) projectionFields.Add(nameof(Service.DataManagement.Data.Dataset.Description));
+				else if (item.Match(nameof(Service.DataManagement.Model.Dataset.License))) projectionFields.Add(nameof(Service.DataManagement.Data.Dataset.License));
+				else if (item.Match(nameof(Service.DataManagement.Model.Dataset.Url))) projectionFields.Add(nameof(Service.DataManagement.Data.Dataset.Url));
+				else if (item.Match(nameof(Service.DataManagement.Model.Dataset.Version))) projectionFields.Add(nameof(Service.DataManagement.Data.Dataset.Version));
+				else if (item.Match(nameof(Service.DataManagement.Model.Dataset.Headline))) projectionFields.Add(nameof(Service.DataManagement.Data.Dataset.Headline));
+				else if (item.Match(nameof(Service.DataManagement.Model.Dataset.Keywords))) projectionFields.Add(nameof(Service.DataManagement.Data.Dataset.Keywords));
+				else if (item.Match(nameof(Service.DataManagement.Model.Dataset.FieldOfScience))) projectionFields.Add(nameof(Service.DataManagement.Data.Dataset.FieldOfScience));
+				else if (item.Match(nameof(Service.DataManagement.Model.Dataset.Language))) projectionFields.Add(nameof(Service.DataManagement.Data.Dataset.Language));
+				else if (item.Match(nameof(Service.DataManagement.Model.Dataset.Country))) projectionFields.Add(nameof(Service.DataManagement.Data.Dataset.Country));
+				else if (item.Match(nameof(Service.DataManagement.Model.Dataset.DatePublished))) projectionFields.Add(nameof(Service.DataManagement.Data.Dataset.DatePublishedRaw));
+				else if (item.Match(nameof(Service.DataManagement.Model.Dataset.Size))) projectionFields.Add(nameof(Service.DataManagement.Data.Dataset.Size));
+				else if (item.Match(nameof(Service.DataManagement.Model.Dataset.MimeType))) projectionFields.Add(nameof(Service.DataManagement.Data.Dataset.MimeType));
+				else if (item.Match(nameof(Service.DataManagement.Model.Dataset.ProfileRaw))) projectionFields.Add(nameof(Service.DataManagement.Data.Dataset.Profile));
 			}
 			return projectionFields.ToList();
 		}
 
-		public async Task<List<DataManagement.Model.Dataset>> CollectAsyncAsModels()
+		public async Task<List<Service.DataManagement.Model.Dataset>> CollectAsyncAsModels()
 		{
-			List<DataManagement.Data.Dataset> datas = await this.CollectAsync();
-			List<DataManagement.Model.Dataset> models = datas.Select(x => DatasetLocalQuery.ToModel(x)).ToList();
+			List<Service.DataManagement.Data.Dataset> datas = await this.CollectAsync();
+			List<Service.DataManagement.Model.Dataset> models = datas.Select(x => DatasetLocalQuery.ToModel(x)).ToList();
 			return models;
 		}
 
-		public async Task<DataManagement.Model.Dataset> FirstAsyncAsModel()
+		public async Task<Service.DataManagement.Model.Dataset> FirstAsyncAsModel()
 		{
-			DataManagement.Data.Dataset datas = await this.FirstAsync();
-			DataManagement.Model.Dataset models = DatasetLocalQuery.ToModel(datas);
+			Service.DataManagement.Data.Dataset datas = await this.FirstAsync();
+			Service.DataManagement.Model.Dataset models = DatasetLocalQuery.ToModel(datas);
 			return models;
 		}
 
-		private static DataManagement.Model.Dataset ToModel(DataManagement.Data.Dataset data)
+		private static Service.DataManagement.Model.Dataset ToModel(Service.DataManagement.Data.Dataset data)
 		{
 			if(data == null) return null;
-			return new DataManagement.Model.Dataset()
+			return new Service.DataManagement.Model.Dataset()
 			{
 				Id = data.Id,
 				Code = data.Code,

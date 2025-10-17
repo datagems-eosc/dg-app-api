@@ -4,16 +4,17 @@ using Cite.Tools.Json;
 using Cite.Tools.Logging.Extensions;
 using DataGEMS.Gateway.App.AccessToken;
 using DataGEMS.Gateway.App.Common;
-using DataGEMS.Gateway.App.DataManagement;
 using DataGEMS.Gateway.App.ErrorCode;
 using DataGEMS.Gateway.App.Exception;
 using DataGEMS.Gateway.App.LogTracking;
+using DataGEMS.Gateway.App.Service.DataManagement;
+using DataGEMS.Gateway.App.Service.DataManagement.Model;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 
 namespace DataGEMS.Gateway.App.Query
 {
-	public class DatasetHttpQuery : Cite.Tools.Data.Query.IQuery
+    public class DatasetHttpQuery : Cite.Tools.Data.Query.IQuery
 	{
 		private List<Guid> _ids { get; set; }
 		private List<Guid> _excludedIds { get; set; }
@@ -68,7 +69,7 @@ namespace DataGEMS.Gateway.App.Query
 			return this._ids.IsNotNullButEmpty() || this._excludedIds.IsNotNullButEmpty() || this._collectionIds.IsNotNullButEmpty();
 		}
 
-		public async Task<List<DataManagement.Model.Dataset>> CollectAsync()
+		public async Task<List<Dataset>> CollectAsync()
 		{
 			String token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
@@ -82,7 +83,7 @@ namespace DataGEMS.Gateway.App.Query
 			String content = await this.SendRequest(request);
 			try
 			{
-				List<DataManagement.Model.Dataset> models = this._jsonHandlingService.FromJson<List<DataManagement.Model.Dataset>>(content);
+				List<Dataset> models = this._jsonHandlingService.FromJson<List<Dataset>>(content);
 				return models;
 			}
 			catch (System.Exception ex)

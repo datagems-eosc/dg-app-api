@@ -11,6 +11,22 @@
 				"AllowAnonymous": false,
 				"AllowAuthenticated": false
 			},
+			"EditCollection": {
+				"Roles": [ "GLOBAL_dg_admin" ],
+				"DatasetRoles": [],
+				"Claims": [],
+				"Clients": [],
+				"AllowAnonymous": false,
+				"AllowAuthenticated": false
+			},
+			"DeleteCollection": {
+				"Roles": [ "GLOBAL_dg_admin" ],
+				"DatasetRoles": [],
+				"Claims": [],
+				"Clients": [],
+				"AllowAnonymous": false,
+				"AllowAuthenticated": false
+			},
 			//Conversation
 			"BrowseConversation": {
 				"Roles": [ "GLOBAL_dg_admin" ],

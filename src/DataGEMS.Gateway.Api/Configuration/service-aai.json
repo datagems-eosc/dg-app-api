@@ -1,0 +1,6 @@
+{
+	"AAIService": {
+		"BaseUrl": "%{AAIBaseUrl}%"
+	}
+}
+ 

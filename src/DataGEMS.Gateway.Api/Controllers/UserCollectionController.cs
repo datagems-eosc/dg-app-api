@@ -233,7 +233,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			[LookupFieldSetQueryStringOpenApi]
 			IFieldSet fieldSet)
 		{
-			this._logger.Debug(new MapLogEntry("persisting").And("type", nameof(App.Model.UserCollectionPersist)).And("fields", fieldSet));
+			this._logger.Debug(new MapLogEntry("persisting").And("type", nameof(App.Model.UserCollectionPersistDeep)).And("fields", fieldSet));
 
 			Guid? userId = await this._authorizationContentResolver.CurrentUserId();
 			if (!userId.HasValue) throw new DGApplicationException(this._errors.UserSync.Code, this._errors.UserSync.Message);

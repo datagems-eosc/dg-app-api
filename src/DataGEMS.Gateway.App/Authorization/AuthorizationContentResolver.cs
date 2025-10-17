@@ -3,11 +3,12 @@ using Cite.Tools.Common.Extensions;
 using Cite.Tools.Data.Query;
 using Cite.WebTools.CurrentPrincipal;
 using DataGEMS.Gateway.App.Query;
+using DataGEMS.Gateway.App.Service.DataManagement.Model;
 using System.Collections.Generic;
 
 namespace DataGEMS.Gateway.App.Authorization
 {
-	public class AuthorizationContentResolver : IAuthorizationContentResolver
+    public class AuthorizationContentResolver : IAuthorizationContentResolver
 	{
 		private readonly ICurrentPrincipalResolverService _currentPrincipalResolverService;
 		private readonly IAuthorizationService _authorizationService;
@@ -75,11 +76,11 @@ namespace DataGEMS.Gateway.App.Authorization
 			List<Common.Auth.DatasetGrant> grants = this._extractor.DatasetGrants(this._currentPrincipalResolverService.CurrentPrincipal());
 			if (grants == null || grants.Count == 0) return new Dictionary<Guid, HashSet<string>>();
 
-			List<DataManagement.Model.DatasetCollection> datasetCollections = await this._queryFactory.Query<DatasetCollectionLocalQuery>()
+			List<DatasetCollection> datasetCollections = await this._queryFactory.Query<DatasetCollectionLocalQuery>()
 				.Authorize(AuthorizationFlags.Any)
 				.DatasetIds(datasetIds)
 				.CollectAsyncAsModels();
-			List<DataManagement.Model.Collection> collections = await this._queryFactory.Query<CollectionLocalQuery>()
+			List<Collection> collections = await this._queryFactory.Query<CollectionLocalQuery>()
 				.Authorize(AuthorizationFlags.Any)
 				.Ids(datasetCollections.Select(x => x.CollectionId).Distinct().ToList())
 				.CollectAsyncAsModels();
@@ -113,7 +114,7 @@ namespace DataGEMS.Gateway.App.Authorization
 			List<Common.Auth.DatasetGrant> grants = this._extractor.DatasetGrants(this._currentPrincipalResolverService.CurrentPrincipal());
 			if (grants == null || grants.Count == 0) return new Dictionary<Guid, HashSet<string>>();
 
-			List<DataManagement.Model.Collection> collections = await this._queryFactory.Query<CollectionLocalQuery>()
+			List<Collection> collections = await this._queryFactory.Query<CollectionLocalQuery>()
 				.Authorize(AuthorizationFlags.Any)
 				.Ids(collectionIds.Distinct().ToList())
 				.CollectAsyncAsModels();
