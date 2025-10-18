@@ -37,6 +37,8 @@ namespace DataGEMS.Gateway.App.Accounting
 		InDataExploration = 7,
 		Workflow = 8,
 		UserSettings = 9,
+		ContextGroup = 10,
+		ContextGroupAssignment = 11,
 	}
 
 	public class AccountingInfo

@@ -9,9 +9,9 @@ using DataGEMS.Gateway.App.ErrorCode;
 using DataGEMS.Gateway.App.Event;
 using DataGEMS.Gateway.App.Exception;
 using DataGEMS.Gateway.App.Query;
+using DataGEMS.Gateway.App.Service.AAI;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
-using System.Security;
 
 namespace DataGEMS.Gateway.App.Service.DataManagement
 {
@@ -27,6 +27,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 		private readonly ILogger<CollectionLocalService> _logger;
 		private readonly ErrorThesaurus _errors;
 		private readonly EventBroker _eventBroker;
+		private readonly IAAIService _aaiService;
 
 		public CollectionLocalService(
 			ILogger<CollectionLocalService> logger,
@@ -34,6 +35,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 			BuilderFactory builderFactory,
 			DeleterFactory deleterFactory,
 			QueryFactory queryFactory,
+			IAAIService aaiService,
 			IAuthorizationService authorizationService,
 			IAuthorizationContentResolver authorizationContentResolver,
 			IStringLocalizer<Resources.MySharedResources> localizer,
@@ -45,6 +47,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 			this._builderFactory = builderFactory;
 			this._deleterFactory = deleterFactory;
 			this._queryFactory = queryFactory;
+			this._aaiService = aaiService;
 			this._authorizationService = authorizationService;
 			this._authorizationContentResolver = authorizationContentResolver;
 			this._localizer = localizer;
@@ -82,6 +85,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 
 			Service.DataManagement.Model.Collection data = await this.PatchAndSave(model);
 
+			await this._aaiService.BootstrapContextGrantGroupsFor(Common.Auth.ContextGrant.TargetType.Group, data.Id.ToString().ToLowerInvariant());
 			this._eventBroker.EmitCollectionTouched(data.Id);
 
 			App.Model.Collection persisted = await this._builderFactory.Builder<App.Model.Builder.CollectionBuilder>().Build(FieldSet.Build(fields, nameof(App.Model.Collection.Id)), data);
@@ -108,6 +112,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 				Datasets = model.Datasets
 			});
 
+			await this._aaiService.BootstrapContextGrantGroupsFor(Common.Auth.ContextGrant.TargetType.Group, data.Id.ToString().ToLowerInvariant());
 			this._eventBroker.EmitCollectionTouched(data.Id);
 
 			App.Model.Collection persisted = await this._builderFactory.Builder<App.Model.Builder.CollectionBuilder>().Authorize(AuthorizationFlags.Any).Build(FieldSet.Build(fields, nameof(App.Model.Collection.Id)), data);
@@ -239,6 +244,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 
 			await this._dbContext.SaveChangesAsync();
 
+			await this._aaiService.DeleteContextGrantGroupsFor(data.Id.ToString().ToLowerInvariant());
 			this._eventBroker.EmitCollectionDeleted(data.Id);
 		}
 	}

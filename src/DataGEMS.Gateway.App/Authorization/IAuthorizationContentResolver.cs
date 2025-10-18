@@ -15,8 +15,12 @@ namespace DataGEMS.Gateway.App.Authorization
 		ISet<String> PermissionsOfContextRoles(IEnumerable<String> roles);
 
 		Task<HashSet<String>> ContextRolesForCollection(Guid collectionId);
+		Task<HashSet<String>> ContextRolesForCollection(String subjectId, Guid collectionId);
 		Task<Dictionary<Guid, HashSet<String>>> ContextRolesForCollection(IEnumerable<Guid> collectionIds);
+		Task<Dictionary<Guid, HashSet<String>>> ContextRolesForCollection(String subjectId, IEnumerable<Guid> collectionIds);
+		Task<HashSet<String>> EffectiveContextRolesForDataset(Guid datasetId);
 		Task<Dictionary<Guid, HashSet<String>>> EffectiveContextRolesForDataset(IEnumerable<Guid> datasetIds);
+		Task<Dictionary<Guid, HashSet<String>>> EffectiveContextRolesForDataset(String subjectId, IEnumerable<Guid> datasetIds);
 
 		Task<List<String>> ContextRolesOf();
 

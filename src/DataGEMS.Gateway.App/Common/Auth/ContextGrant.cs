@@ -3,7 +3,7 @@ using System.ComponentModel;
 
 namespace DataGEMS.Gateway.App.Common.Auth
 {
-	public class DatasetGrant
+	public class ContextGrant
 	{
 		public String GroupId { get; set; }
 		public TargetType Type { get; set; }

@@ -14,6 +14,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace DataGEMS.Gateway.App.Service.AAI
 {
@@ -51,11 +52,27 @@ namespace DataGEMS.Gateway.App.Service.AAI
 			this._jsonHandlingService = jsonHandlingService;
 		}
 
-		public async Task<List<DatasetGrant>> LookupDatasetGrantGroups(String code)
+		public async Task<ContextGrantGroupTarget> TargetOfContextGrantGroup(String groupId)
+		{
+			List<ContextGrant> contextGrantGroups = await this.LookupContextGrantGroups(groupId);
+			List<ContextGrant> targetContextGrantGroups = contextGrantGroups.Where(x=> x.GroupId == groupId).ToList();
+			if(targetContextGrantGroups.Count == 0) return null;
+			List<ContextGrant.TargetType> targetTypes = targetContextGrantGroups.Select(x => x.Type).Distinct().ToList();
+			List<String> targetCodes = targetContextGrantGroups.Select(x => x.Code).Distinct().ToList();
+
+			if(targetTypes.Count != 1 || targetCodes.Count != 1) return null;
+			return new ContextGrantGroupTarget()
+			{
+				Type = targetTypes[0],
+				Code = targetCodes[0]
+			};
+		}
+
+		public async Task<List<ContextGrant>> LookupContextGrantGroups(String code)
 		{
 			if (String.IsNullOrEmpty(code)) throw new DGApplicationException(this._errors.ModelValidation.Code, this._errors.ModelValidation.Message);
 
-			List<DatasetGrant> cachedGrants = await this._aaiCache.CacheGroupLookup(code);
+			List<ContextGrant> cachedGrants = await this._aaiCache.CacheGroupLookup(code);
 			if (cachedGrants != null) return cachedGrants;
 
 			String token = await this._accessTokenService.GetClientAccessTokenAsync(this._config.Scope);
@@ -73,9 +90,8 @@ namespace DataGEMS.Gateway.App.Service.AAI
 				this._logger.LogError(ex, "Failed to parse response: {content}", groupsContent);
 				throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.AAI, this._logCorrelationScope.CorrelationId);
 			}
-			if(groups == null || groups.Count !=1 || String.IsNullOrEmpty(groups[0].Id)) throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.AAI, this._logCorrelationScope.CorrelationId);
+			if(groups == null || groups.Count != 1 || String.IsNullOrEmpty(groups[0].Id)) throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.AAI, this._logCorrelationScope.CorrelationId);
 			String codeGroupId = groups[0].Id;
-
 
 			HttpRequestMessage lookupGrantsHttpRequest = new HttpRequestMessage(HttpMethod.Get, $"{this._config.BaseUrl}{this._config.GroupChildrenEndpoint.Replace("{groupId}", codeGroupId)}");
 			lookupGrantsHttpRequest.Headers.Add(HeaderNames.Accept, "application/json");
@@ -90,15 +106,15 @@ namespace DataGEMS.Gateway.App.Service.AAI
 				throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.AAI, this._logCorrelationScope.CorrelationId);
 			}
 
-			List<DatasetGrant> grants = this.ParseDatasetGrants(grantGroups.Select(x => new DatasetGrantInfo() { Id = x.Id, Path = x.Path }).ToList());
+			List<ContextGrant> grants = this.ParseDatasetGrants(grantGroups.Select(x => new DatasetGrantInfo() { Id = x.Id, Path = x.Path }).ToList());
 			await this._aaiCache.CacheGroupUpdate(code, grants);
 
 			return grants;
 		}
 
-		public async Task BootstrapDatasetGrant(DatasetGrant.TargetType type, String id)
+		public async Task BootstrapContextGrantGroupsFor(ContextGrant.TargetType type, String code)
 		{
-			if (String.IsNullOrEmpty(id)) throw new DGApplicationException(this._errors.ModelValidation.Code, this._errors.ModelValidation.Message);
+			if (String.IsNullOrEmpty(code)) throw new DGApplicationException(this._errors.ModelValidation.Code, this._errors.ModelValidation.Message);
 
 			String token = await this._accessTokenService.GetClientAccessTokenAsync(this._config.Scope);
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
@@ -107,13 +123,13 @@ namespace DataGEMS.Gateway.App.Service.AAI
 			String targetName = null;
 			switch (type)
 			{
-				case DatasetGrant.TargetType.Dataset:
+				case ContextGrant.TargetType.Dataset:
 					{
 						targetName = this._config.HierarchyDatasetDirectLevelName;
 						grantNames = this._config.SubDirectGrantNames;
 						break;
 					}
-				case DatasetGrant.TargetType.Group:
+				case ContextGrant.TargetType.Group:
 					{
 						targetName = this._config.HierarchyDatasetGroupLevelName;
 						grantNames = this._config.SubGroupGrantNames;
@@ -123,14 +139,31 @@ namespace DataGEMS.Gateway.App.Service.AAI
 			}
 			String topLevelId = await this.EnsureHierarchyTargetLevel(null, this._config.HierarchyDatasetTopLevelName);
 			String targetLevelId = await this.EnsureHierarchyTargetLevel(topLevelId, targetName);
-			String currentLevelId = await this.EnsureHierarchyTargetLevel(targetLevelId, targetName);
-
+			String currentLevelId = await this.EnsureHierarchyTargetLevel(targetLevelId, code);
 
 			foreach (String subGroup in grantNames)
 			{
 				await this.EnsureHierarchyTargetLevel(currentLevelId, subGroup);
 			}
 
+		}
+
+		public async Task DeleteContextGrantGroupsFor(String code)
+		{
+			String token = await this._accessTokenService.GetClientAccessTokenAsync(this._config.Scope);
+			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
+
+			List<ContextGrant> grants = await this.LookupContextGrantGroups(code);
+			if (grants == null || grants.Count == 0) return;
+
+			foreach(ContextGrant grant in grants)
+			{
+				HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Put, $"{this._config.BaseUrl}{this._config.GroupEndpoint.Replace("{groupId}", grant.GroupId)}");
+				httpRequest.Headers.Add(HeaderNames.Accept, "application/json");
+				httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+				await this.SendRequest(httpRequest);
+			}
 		}
 
 		private async Task<String> EnsureHierarchyTargetLevel(String parentId, String target)
@@ -185,7 +218,7 @@ namespace DataGEMS.Gateway.App.Service.AAI
 			return targetId;
 		}
 
-		public async Task AddUserToGroup(String subjectId, String groupId)
+		public async Task AddUserToContextGrantGroup(String subjectId, String groupId)
 		{
 			if (String.IsNullOrEmpty(subjectId) || String.IsNullOrEmpty(groupId)) return;
 
@@ -201,7 +234,7 @@ namespace DataGEMS.Gateway.App.Service.AAI
 			this._eventBroker.EmitUserDatasetGrantTouched(subjectId);
 		}
 
-		public async Task RemoveUserFromGroup(String subjectId, String groupId)
+		public async Task RemoveUserFromContextGrantGroup(String subjectId, String groupId)
 		{
 			if (String.IsNullOrEmpty(subjectId) || String.IsNullOrEmpty(groupId)) return;
 
@@ -217,11 +250,11 @@ namespace DataGEMS.Gateway.App.Service.AAI
 			this._eventBroker.EmitUserDatasetGrantDeleted(subjectId);
 		}
 
-		public async Task<List<DatasetGrant>> UserDatasetGrants(String subjectId)
+		public async Task<List<ContextGrant>> UserContextGrants(String subjectId)
 		{
-			if(String.IsNullOrEmpty(subjectId)) return Enumerable.Empty<DatasetGrant>().ToList();
+			if(String.IsNullOrEmpty(subjectId)) return Enumerable.Empty<ContextGrant>().ToList();
 
-			List<DatasetGrant> cachedGrants = await this._aaiCache.CacheUserDatasetGrantLookup(subjectId);
+			List<ContextGrant> cachedGrants = await this._aaiCache.CacheUserDatasetGrantLookup(subjectId);
 			if(cachedGrants != null) return cachedGrants;
 
 			String token = await this._accessTokenService.GetClientAccessTokenAsync(this._config.Scope);
@@ -240,7 +273,7 @@ namespace DataGEMS.Gateway.App.Service.AAI
 				throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.AAI, this._logCorrelationScope.CorrelationId);
 			}
 
-			List<DatasetGrant> grants = this.ParseDatasetGrants(response.Select(x => new DatasetGrantInfo() { Id = x.Id, Path = x.Path }).ToList());
+			List<ContextGrant> grants = this.ParseDatasetGrants(response.Select(x => new DatasetGrantInfo() { Id = x.Id, Path = x.Path }).ToList());
 			await this._aaiCache.CacheUserDatasetGrantUpdate(subjectId, grants);
 
 			return grants;
@@ -252,9 +285,9 @@ namespace DataGEMS.Gateway.App.Service.AAI
 			public String Path { get; set; }
 		}
 
-		private List<DatasetGrant> ParseDatasetGrants(List<DatasetGrantInfo> items)
+		private List<ContextGrant> ParseDatasetGrants(List<DatasetGrantInfo> items)
 		{
-			List<DatasetGrant> grants = new List<DatasetGrant>();
+			List<ContextGrant> grants = new List<ContextGrant>();
 			foreach (DatasetGrantInfo item in items)
 			{
 				String[] membershipPath = item.Path.Split('/', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
@@ -262,15 +295,15 @@ namespace DataGEMS.Gateway.App.Service.AAI
 					membershipPath.Any(x => String.IsNullOrEmpty(x)) ||
 					!String.Equals(membershipPath[0], "dataset", StringComparison.OrdinalIgnoreCase)) continue;
 
-				DatasetGrant.TargetType type;
+				ContextGrant.TargetType type;
 				switch (membershipPath[1])
 				{
-					case "group": { type = DatasetGrant.TargetType.Group; break; }
-					case "direct": { type = DatasetGrant.TargetType.Dataset; break; }
+					case "group": { type = ContextGrant.TargetType.Group; break; }
+					case "direct": { type = ContextGrant.TargetType.Dataset; break; }
 					default: continue;
 				}
 
-				grants.Add(new DatasetGrant
+				grants.Add(new ContextGrant
 				{
 					GroupId = item.Id,
 					Type = type,

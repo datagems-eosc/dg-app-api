@@ -9,6 +9,7 @@
 			"SubGroupGrantNames": [ "grp-manage", "grp-browse", "grp-delete", "ds-browse", "ds-delete", "ds-download", "ds-edit", "ds-search", "ds-system" ],
 			"SubDirectGrantNames": [ "ds-manage", "ds-browse", "ds-delete", "ds-download", "ds-edit", "ds-search", "ds-system" ],
 			"GroupsEndpoint": "groups",
+			"GroupEndpoint": "groups/{groupId}",
 			"GroupChildrenEndpoint": "groups/{groupId}/children",
 			"UserGroupsEndpoint": "users/{userId}/groups",
 			"UserGroupsChangeEndpoint": "users/{userId}/groups/{groupId}"

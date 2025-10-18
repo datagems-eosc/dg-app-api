@@ -78,19 +78,16 @@ namespace DataGEMS.Gateway.App.Authorization
 			return this._permissionPolicyService.PermissionsOfContext(roles);
 		}
 
-		private async Task<Dictionary<Guid, HashSet<String>>> ContextRolesForDataset(IEnumerable<Guid> datasetIds)
+		private async Task<Dictionary<Guid, HashSet<String>>> ContextRolesForDataset(String subjectId, IEnumerable<Guid> datasetIds)
 		{
 			if (datasetIds == null || !datasetIds.Any()) return new Dictionary<Guid, HashSet<string>>();
 
-			String subjectId = await this.SubjectIdOfCurrentUser();
-			if (String.IsNullOrEmpty(subjectId)) return new Dictionary<Guid, HashSet<string>>();
-
 			HashSet<String> datasetIdsAsString = datasetIds.Select(x => x.ToString()).ToHashSet();
 
-			List<DatasetGrant> grants = await this._aaiService.UserDatasetGrants(subjectId);
-			grants = grants.Where(x => x.Type == DatasetGrant.TargetType.Dataset && datasetIdsAsString.Contains(x.Code)).ToList();
+			List<ContextGrant> grants = await this._aaiService.UserContextGrants(subjectId);
+			grants = grants.Where(x => x.Type == ContextGrant.TargetType.Dataset && datasetIdsAsString.Contains(x.Code)).ToList();
 
-			Dictionary<String, List<DatasetGrant>> grantsByCode = grants.ToDictionaryOfList(x => x.Code);
+			Dictionary<String, List<ContextGrant>> grantsByCode = grants.ToDictionaryOfList(x => x.Code);
 			Dictionary<Guid, HashSet<String>> rolesByDataset = grantsByCode
 				.Where(x => Guid.TryParse(x.Key, out Guid _))
 				.Select(x => new { Key = Guid.Parse(x.Key), Value = x.Value.Select(x => x.Access).ToHashSet() })
@@ -100,24 +97,37 @@ namespace DataGEMS.Gateway.App.Authorization
 
 		public async Task<HashSet<String>> ContextRolesForCollection(Guid collectionId)
 		{
-			Dictionary<Guid, HashSet<String>> rolesByCollection= await this.ContextRolesForCollection([collectionId]);
+			String subjectId = await this.SubjectIdOfCurrentUser();
+			if (String.IsNullOrEmpty(subjectId)) return new HashSet<string>();
+
+			return await this.ContextRolesForCollection(subjectId, collectionId);
+		}
+
+		public async Task<HashSet<String>> ContextRolesForCollection(String subjectId, Guid collectionId)
+		{
+			Dictionary<Guid, HashSet<String>> rolesByCollection= await this.ContextRolesForCollection(subjectId, [collectionId]);
 			if(rolesByCollection == null || !rolesByCollection.ContainsKey(collectionId)) return Enumerable.Empty<String>().ToHashSet();
 			return rolesByCollection[collectionId];
 		}
 
 		public async Task<Dictionary<Guid, HashSet<String>>> ContextRolesForCollection(IEnumerable<Guid> collectionIds)
 		{
-			if (collectionIds == null || !collectionIds.Any()) return new Dictionary<Guid, HashSet<string>>();
-
 			String subjectId = await this.SubjectIdOfCurrentUser();
 			if (String.IsNullOrEmpty(subjectId)) return new Dictionary<Guid, HashSet<string>>();
 
+			return await this.ContextRolesForCollection(subjectId, collectionIds);
+		}
+
+		public async Task<Dictionary<Guid, HashSet<String>>> ContextRolesForCollection(String subjectId, IEnumerable<Guid> collectionIds)
+		{
+			if (collectionIds == null || !collectionIds.Any()) return new Dictionary<Guid, HashSet<string>>();
+
 			HashSet<String> collectionIdsAsString = collectionIds.Select(x => x.ToString()).ToHashSet();
 
-			List<DatasetGrant> grants = await this._aaiService.UserDatasetGrants(subjectId);
-			grants = grants.Where(x => x.Type == DatasetGrant.TargetType.Group && collectionIdsAsString.Contains(x.Code)).ToList();
+			List<ContextGrant> grants = await this._aaiService.UserContextGrants(subjectId);
+			grants = grants.Where(x => x.Type == ContextGrant.TargetType.Group && collectionIdsAsString.Contains(x.Code)).ToList();
 
-			Dictionary<String, List<DatasetGrant>> grantsByCode = grants.ToDictionaryOfList(x => x.Code);
+			Dictionary<String, List<ContextGrant>> grantsByCode = grants.ToDictionaryOfList(x => x.Code);
 			Dictionary<Guid, HashSet<String>> rolesByCollection = grantsByCode
 				.Where(x => Guid.TryParse(x.Key, out Guid _))
 				.Select(x => new { Key = Guid.Parse(x.Key), Value = x.Value.Select(x => x.Access).ToHashSet() })
@@ -125,11 +135,26 @@ namespace DataGEMS.Gateway.App.Authorization
 			return rolesByCollection;
 		}
 
+		public async Task<HashSet<String>> EffectiveContextRolesForDataset(Guid datasetId)
+		{
+			Dictionary<Guid, HashSet<String>> rolesByDataset = await this.EffectiveContextRolesForDataset([datasetId]);
+			if (rolesByDataset == null || !rolesByDataset.ContainsKey(datasetId)) return Enumerable.Empty<String>().ToHashSet();
+			return rolesByDataset[datasetId];
+		}
+
 		public async Task<Dictionary<Guid, HashSet<String>>> EffectiveContextRolesForDataset(IEnumerable<Guid> datasetIds)
+		{
+			String subjectId = await this.SubjectIdOfCurrentUser();
+			if (String.IsNullOrEmpty(subjectId)) return new Dictionary<Guid, HashSet<string>>();
+
+			return await this.EffectiveContextRolesForDataset(subjectId, datasetIds);
+		}
+
+		public async Task<Dictionary<Guid, HashSet<String>>> EffectiveContextRolesForDataset(String subjectId, IEnumerable<Guid> datasetIds)
 		{
 			if (datasetIds == null || !datasetIds.Any()) return new Dictionary<Guid, HashSet<string>>();
 
-			Dictionary<Guid, HashSet<String>> directRoles = await this.ContextRolesForDataset(datasetIds);
+			Dictionary<Guid, HashSet<String>> directRoles = await this.ContextRolesForDataset(subjectId, datasetIds);
 
 			List<DatasetCollection> datasetCollections = await this._queryFactory.Query<DatasetCollectionLocalQuery>()
 				.Authorize(AuthorizationFlags.None)
@@ -141,7 +166,7 @@ namespace DataGEMS.Gateway.App.Authorization
 				.ToDictionary(x => x.DatasetId, x => x.CollectionIds);
 
 			List<Guid> collectionIds = collectionsOfDatasetMap.SelectMany(x => x.Value).Distinct().ToList();
-			Dictionary<Guid, HashSet<String>> collectionRoles = await this.ContextRolesForCollection(collectionIds);
+			Dictionary<Guid, HashSet<String>> collectionRoles = await this.ContextRolesForCollection(subjectId, collectionIds);
 
 			Dictionary<Guid, HashSet<String>> datasetRoles = new Dictionary<Guid, HashSet<string>>();
 			foreach (Guid datasetId in datasetIds.Distinct().ToList())
@@ -162,7 +187,7 @@ namespace DataGEMS.Gateway.App.Authorization
 			String subjectId = await this.SubjectIdOfCurrentUser();
 			if (String.IsNullOrEmpty(subjectId)) return Enumerable.Empty<String>().ToList();
 
-			List<DatasetGrant> grants = await this._aaiService.UserDatasetGrants(subjectId);
+			List<ContextGrant> grants = await this._aaiService.UserContextGrants(subjectId);
 			List<String> accesses = grants.Select(x => x.Access).Distinct().ToList();
 
 			return accesses;
@@ -176,8 +201,8 @@ namespace DataGEMS.Gateway.App.Authorization
 			ISet<String> contextRolesWithPermission = this._permissionPolicyService.ContextRolesHaving(permission);
 			if(contextRolesWithPermission == null || contextRolesWithPermission.Count==0) return Enumerable.Empty<Guid>().ToList();
 
-			List<DatasetGrant> grants = await this._aaiService.UserDatasetGrants(subjectId);
-			List<String> groups = grants.Where(x => x.Type == DatasetGrant.TargetType.Group && contextRolesWithPermission.Contains(x.Access)).Select(x => x.Code).ToList();
+			List<ContextGrant> grants = await this._aaiService.UserContextGrants(subjectId);
+			List<String> groups = grants.Where(x => x.Type == ContextGrant.TargetType.Group && contextRolesWithPermission.Contains(x.Access)).Select(x => x.Code).ToList();
 
 			List<Guid> groupIds = groups.Select(x => Guid.TryParse(x, out Guid parsed) ? (Guid?)parsed : null).Where(x => x.HasValue).Select(x => x.Value).ToList();
 
@@ -192,11 +217,11 @@ namespace DataGEMS.Gateway.App.Authorization
 			ISet<String> contextRolesWithPermission = this._permissionPolicyService.ContextRolesHaving(permission);
 			if (contextRolesWithPermission == null || contextRolesWithPermission.Count == 0) return Enumerable.Empty<Guid>().ToList();
 
-			List<DatasetGrant> grants = await this._aaiService.UserDatasetGrants(subjectId);
-			List<String> directDatasets = grants.Where(x => x.Type == DatasetGrant.TargetType.Dataset && contextRolesWithPermission.Contains(x.Access)).Select(x => x.Code).ToList();
+			List<ContextGrant> grants = await this._aaiService.UserContextGrants(subjectId);
+			List<String> directDatasets = grants.Where(x => x.Type == ContextGrant.TargetType.Dataset && contextRolesWithPermission.Contains(x.Access)).Select(x => x.Code).ToList();
 			List<Guid> directDatasetIds = directDatasets.Select(x => Guid.TryParse(x, out Guid parsed) ? (Guid?)parsed : null).Where(x => x.HasValue).Select(x => x.Value).ToList();
 
-			List<String> collections = grants.Where(x => x.Type == DatasetGrant.TargetType.Group && contextRolesWithPermission.Contains(x.Access)).Select(x => x.Code).ToList();
+			List<String> collections = grants.Where(x => x.Type == ContextGrant.TargetType.Group && contextRolesWithPermission.Contains(x.Access)).Select(x => x.Code).ToList();
 			List<Guid> collectionIds = collections.Select(x => Guid.TryParse(x, out Guid parsed) ? (Guid?)parsed : null).Where(x => x.HasValue).Select(x => x.Value).ToList();
 			List<DatasetCollection> datasetCollections = await this._queryFactory.Query<DatasetCollectionLocalQuery>()
 				.Authorize(AuthorizationFlags.None)

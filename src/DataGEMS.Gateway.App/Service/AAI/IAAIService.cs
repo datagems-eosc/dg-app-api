@@ -1,18 +1,22 @@
 ﻿using DataGEMS.Gateway.App.Common.Auth;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using static DataGEMS.Gateway.App.Common.Auth.ContextGrant;
 
 namespace DataGEMS.Gateway.App.Service.AAI
 {
 	public interface IAAIService
 	{
-		Task<List<DatasetGrant>> LookupDatasetGrantGroups(String code);
-		Task BootstrapDatasetGrant(DatasetGrant.TargetType type, String id);
-		Task AddUserToGroup(String subjectId, String groupId);
-		Task RemoveUserFromGroup(String subjectId, String groupId);
-		Task<List<DatasetGrant>> UserDatasetGrants(String subjectId);
+		Task<ContextGrantGroupTarget> TargetOfContextGrantGroup(String groupId);
+		Task<List<ContextGrant>> LookupContextGrantGroups(String code);
+		Task BootstrapContextGrantGroupsFor(ContextGrant.TargetType type, String code);
+		Task DeleteContextGrantGroupsFor(String code);
+		Task AddUserToContextGrantGroup(String subjectId, String groupId);
+		Task RemoveUserFromContextGrantGroup(String subjectId, String groupId);
+		Task<List<ContextGrant>> UserContextGrants(String subjectId);
+	}
+
+	public class ContextGrantGroupTarget
+	{
+		public ContextGrant.TargetType Type { get; set; }
+		public String Code { get; set; }
 	}
 }

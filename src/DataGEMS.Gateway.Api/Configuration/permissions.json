@@ -2,6 +2,39 @@
 	"Permissions": {
 		"ExtendedClaims": [],
 		"Policies": {
+			//Authorization
+			"LookupContextGrantOther": {
+				"Roles": [ "GLOBAL_dg_admin" ],
+				"ContextRoles": [],
+				"Claims": [],
+				"Clients": [],
+				"AllowAnonymous": false,
+				"AllowAuthenticated": false
+			},
+			"LookupContextGrantGroups": {
+				"Roles": [ "GLOBAL_dg_user" ],
+				"ContextRoles": [],
+				"Claims": [],
+				"Clients": [],
+				"AllowAnonymous": false,
+				"AllowAuthenticated": false
+			},
+			"AddUserToContextGrantGroup": {
+				"Roles": [ "GLOBAL_dg_admin" ],
+				"ContextRoles": [ "grp-manage", "ds-manage" ],
+				"Claims": [],
+				"Clients": [],
+				"AllowAnonymous": false,
+				"AllowAuthenticated": false
+			},
+			"RemoveUserFromContextGrantGroup": {
+				"Roles": [ "GLOBAL_dg_admin" ],
+				"ContextRoles": [ "grp-manage", "ds-manage" ],
+				"Claims": [],
+				"Clients": [],
+				"AllowAnonymous": false,
+				"AllowAuthenticated": false
+			},
 			//Collection
 			"BrowseCollection": {
 				"Roles": [ "GLOBAL_dg_admin" ],

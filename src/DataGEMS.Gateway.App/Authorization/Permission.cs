@@ -3,6 +3,11 @@ namespace DataGEMS.Gateway.App.Authorization
 {
 	public static class Permission
 	{
+		//Authorization
+		public const String LookupContextGrantOther = "LookupContextGrantOther";
+		public const String LookupContextGrantGroups = "LookupContextGrantGroups";
+		public const String AddUserToContextGrantGroup = "AddUserToContextGrantGroup";
+		public const String RemoveUserFromContextGrantGroup = "RemoveUserFromContextGrantGroup";
 		//Collection
 		public const String BrowseCollection = "BrowseCollection";
 		public const String CreateCollection = "CreateCollection";

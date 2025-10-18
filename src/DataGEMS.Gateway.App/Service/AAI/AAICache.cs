@@ -82,31 +82,31 @@ namespace DataGEMS.Gateway.App.Service.AAI
 			await this.PurgeUserDatasetGrantCache(e.Ids);
 		}
 
-		public async Task<List<DatasetGrant>> CacheGroupLookup(String groupId)
+		public async Task<List<ContextGrant>> CacheGroupLookup(String groupId)
 		{
 			String cacheKey = this.CacheGroupKey(groupId);
 			String content = await this._cache.GetStringAsync(cacheKey);
 			if (String.IsNullOrEmpty(content)) return null;
 
-			return _jsonService.FromJsonSafe<List<DatasetGrant>>(content);
+			return _jsonService.FromJsonSafe<List<ContextGrant>>(content);
 		}
 
-		public async Task<List<DatasetGrant>> CacheUserDatasetGrantLookup(String subjectId)
+		public async Task<List<ContextGrant>> CacheUserDatasetGrantLookup(String subjectId)
 		{
 			String cacheKey = this.CacheUserDatasetGrantKey(subjectId);
 			String content = await this._cache.GetStringAsync(cacheKey);
 			if (String.IsNullOrEmpty(content)) return null;
 
-			return _jsonService.FromJsonSafe<List<DatasetGrant>>(content);
+			return _jsonService.FromJsonSafe<List<ContextGrant>>(content);
 		}
 
-		public async Task CacheGroupUpdate(String groupId, List<DatasetGrant> content)
+		public async Task CacheGroupUpdate(String groupId, List<ContextGrant> content)
 		{
 			String cacheKey = this.CacheGroupKey(groupId);
 			await this._cache.SetStringAsync(cacheKey, _jsonService.ToJsonSafe(content), this._config.LookupCache.ToOptions());
 		}
 
-		public async Task CacheUserDatasetGrantUpdate(String subjectId, List<DatasetGrant> content)
+		public async Task CacheUserDatasetGrantUpdate(String subjectId, List<ContextGrant> content)
 		{
 			String cacheKey = this.CacheUserDatasetGrantKey(subjectId);
 			await this._cache.SetStringAsync(cacheKey, _jsonService.ToJsonSafe(content), this._config.LookupCache.ToOptions());

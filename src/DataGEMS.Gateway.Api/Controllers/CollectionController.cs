@@ -246,7 +246,6 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
 		[SwaggerResponse(statusCode: 500, description: "Internal error")]
 		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
-		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
 		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
 		public async Task<App.Model.Collection> AddDatasetInCollection(
 			[FromRoute]
@@ -283,7 +282,6 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
 		[SwaggerResponse(statusCode: 500, description: "Internal error")]
 		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
-		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
 		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
 		public async Task<App.Model.Collection> RemoveDatasetFromCollection(
 			[FromRoute]
