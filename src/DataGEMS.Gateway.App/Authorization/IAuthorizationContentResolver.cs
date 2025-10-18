@@ -7,18 +7,20 @@ namespace DataGEMS.Gateway.App.Authorization
 		String CurrentUser();
 
 		Task<Guid?> CurrentUserId();
+		Task<String> SubjectIdOfCurrentUser();
 		Task<String> SubjectIdOfUserId(Guid? userId);
 
 		Task<Boolean> HasPermission(params String[] permissions);
-		
-		ISet<String> PermissionsOfDatasetRoles(IEnumerable<String> datasetRoles);
 
-		Task<Dictionary<Guid, HashSet<String>>> DatasetRolesForDataset(IEnumerable<Guid> datasetIds);
-		Task<Dictionary<Guid, HashSet<String>>> DatasetRolesForCollection(IEnumerable<Guid> collectionIds);
+		ISet<String> PermissionsOfContextRoles(IEnumerable<String> roles);
 
-		Task<List<String>> DatasetRolesOf();
+		Task<HashSet<String>> ContextRolesForCollection(Guid collectionId);
+		Task<Dictionary<Guid, HashSet<String>>> ContextRolesForCollection(IEnumerable<Guid> collectionIds);
+		Task<Dictionary<Guid, HashSet<String>>> EffectiveContextRolesForDataset(IEnumerable<Guid> datasetIds);
 
-		Task<List<String>> AffiliatedDatasetGroupCodes();
-		Task<List<Guid>> AffiliatedDatasetIds();
+		Task<List<String>> ContextRolesOf();
+
+		Task<List<Guid>> ContextAffiliatedCollections(String permissions);
+		Task<List<Guid>> EffectiveContextAffiliatedDatasets(String permissions);
 	}
 }

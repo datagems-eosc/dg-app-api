@@ -5,7 +5,15 @@
 			//Collection
 			"BrowseCollection": {
 				"Roles": [ "GLOBAL_dg_admin" ],
-				"DatasetRoles": [ "browse" ],
+				"ContextRoles": [ "grp-browse" ],
+				"Claims": [],
+				"Clients": [],
+				"AllowAnonymous": false,
+				"AllowAuthenticated": false
+			},
+			"CreateCollection": {
+				"Roles": [ "GLOBAL_dg_user" ],
+				"ContextRoles": [],
 				"Claims": [],
 				"Clients": [],
 				"AllowAnonymous": false,
@@ -13,7 +21,7 @@
 			},
 			"EditCollection": {
 				"Roles": [ "GLOBAL_dg_admin" ],
-				"DatasetRoles": [],
+				"ContextRoles": [ "grp-manage" ],
 				"Claims": [],
 				"Clients": [],
 				"AllowAnonymous": false,
@@ -21,7 +29,7 @@
 			},
 			"DeleteCollection": {
 				"Roles": [ "GLOBAL_dg_admin" ],
-				"DatasetRoles": [],
+				"ContextRoles": [ "grp-delete" ],
 				"Claims": [],
 				"Clients": [],
 				"AllowAnonymous": false,
@@ -30,7 +38,7 @@
 			//Conversation
 			"BrowseConversation": {
 				"Roles": [ "GLOBAL_dg_admin" ],
-				"DatasetRoles": [],
+				"ContextRoles": [],
 				"Claims": [],
 				"Clients": [],
 				"AllowAnonymous": false,
@@ -38,7 +46,7 @@
 			},
 			"EditConversation": {
 				"Roles": [ "GLOBAL_dg_admin" ],
-				"DatasetRoles": [],
+				"ContextRoles": [],
 				"Claims": [],
 				"Clients": [],
 				"AllowAnonymous": false,
@@ -46,7 +54,7 @@
 			},
 			"DeleteConversation": {
 				"Roles": [ "GLOBAL_dg_admin" ],
-				"DatasetRoles": [],
+				"ContextRoles": [],
 				"Claims": [],
 				"Clients": [],
 				"AllowAnonymous": false,
@@ -55,7 +63,7 @@
 			//ConversationDataset
 			"BrowseConversationDataset": {
 				"Roles": [ "GLOBAL_dg_admin" ],
-				"DatasetRoles": [],
+				"ContextRoles": [],
 				"Claims": [],
 				"Clients": [],
 				"AllowAnonymous": false,
@@ -63,7 +71,7 @@
 			},
 			"EditUserConversationDataset": {
 				"Roles": [ "GLOBAL_dg_admin" ],
-				"DatasetRoles": [],
+				"ContextRoles": [],
 				"Claims": [],
 				"Clients": [],
 				"AllowAnonymous": false,
@@ -71,7 +79,7 @@
 			},
 			"DeleteConversationDataset": {
 				"Roles": [ "GLOBAL_dg_admin" ],
-				"DatasetRoles": [],
+				"ContextRoles": [],
 				"Claims": [],
 				"Clients": [],
 				"AllowAnonymous": false,
@@ -80,7 +88,7 @@
 			//ConversationMessage
 			"BrowseConversationMessage": {
 				"Roles": [ "GLOBAL_dg_admin" ],
-				"DatasetRoles": [],
+				"ContextRoles": [],
 				"Claims": [],
 				"Clients": [],
 				"AllowAnonymous": false,
@@ -88,7 +96,7 @@
 			},
 			"EditUserConversationMessage": {
 				"Roles": [ "GLOBAL_dg_admin" ],
-				"DatasetRoles": [],
+				"ContextRoles": [],
 				"Claims": [],
 				"Clients": [],
 				"AllowAnonymous": false,
@@ -96,7 +104,7 @@
 			},
 			"DeleteConversationMessage": {
 				"Roles": [ "GLOBAL_dg_admin" ],
-				"DatasetRoles": [],
+				"ContextRoles": [],
 				"Claims": [],
 				"Clients": [],
 				"AllowAnonymous": false,
@@ -105,7 +113,7 @@
 			//CrossDatasetDiscovery
 			"CanExecuteCrossDatasetDiscovery": {
 				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_user" ],
-				"DatasetRoles": [],
+				"ContextRoles": [],
 				"Claims": [],
 				"Clients": [],
 				"AllowAnonymous": false,
@@ -114,7 +122,7 @@
 			//InDataExploration
 			"CanExecuteInDataExploration": {
 				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_user" ],
-				"DatasetRoles": [],
+				"ContextRoles": [],
 				"Claims": [],
 				"Clients": [],
 				"AllowAnonymous": false,
@@ -123,7 +131,7 @@
 			//Dataset
 			"BrowseDataset": {
 				"Roles": [ "GLOBAL_dg_admin" ],
-				"DatasetRoles": [ "browse" ],
+				"ContextRoles": [ "ds-browse" ],
 				"Claims": [],
 				"Clients": [],
 				"AllowAnonymous": false,
@@ -132,7 +140,7 @@
 			//DatasetCollection
 			"BrowseDatasetCollection": {
 				"Roles": [ "GLOBAL_dg_admin" ],
-				"DatasetRoles": [ "browse" ],
+				"ContextRoles": [ "grp-browse" ],
 				"Claims": [],
 				"Clients": [],
 				"AllowAnonymous": false,
@@ -141,7 +149,7 @@
 			//User
 			"BrowseUser": {
 				"Roles": [ "GLOBAL_dg_admin" ],
-				"DatasetRoles": [],
+				"ContextRoles": [],
 				"Claims": [],
 				"Clients": [],
 				"AllowAnonymous": false,
@@ -150,7 +158,7 @@
 			//UserCollection
 			"BrowseUserCollection": {
 				"Roles": [ "GLOBAL_dg_admin" ],
-				"DatasetRoles": [],
+				"ContextRoles": [],
 				"Claims": [],
 				"Clients": [],
 				"AllowAnonymous": false,
@@ -158,7 +166,7 @@
 			},
 			"EditUserCollection": {
 				"Roles": [ "GLOBAL_dg_admin" ],
-				"DatasetRoles": [],
+				"ContextRoles": [],
 				"Claims": [],
 				"Clients": [],
 				"AllowAnonymous": false,
@@ -166,7 +174,7 @@
 			},
 			"DeleteUserCollection": {
 				"Roles": [ "GLOBAL_dg_admin" ],
-				"DatasetRoles": [],
+				"ContextRoles": [],
 				"Claims": [],
 				"Clients": [],
 				"AllowAnonymous": false,
@@ -175,7 +183,7 @@
 			//UserDatasetCollection
 			"BrowseUserDatasetCollection": {
 				"Roles": [ "GLOBAL_dg_admin" ],
-				"DatasetRoles": [],
+				"ContextRoles": [],
 				"Claims": [],
 				"Clients": [],
 				"AllowAnonymous": false,
@@ -183,7 +191,7 @@
 			},
 			"EditUserDatasetCollection": {
 				"Roles": [ "GLOBAL_dg_admin" ],
-				"DatasetRoles": [],
+				"ContextRoles": [],
 				"Claims": [],
 				"Clients": [],
 				"AllowAnonymous": false,
@@ -191,7 +199,7 @@
 			},
 			"DeleteUserDatasetCollection": {
 				"Roles": [ "GLOBAL_dg_admin" ],
-				"DatasetRoles": [],
+				"ContextRoles": [],
 				"Claims": [],
 				"Clients": [],
 				"AllowAnonymous": false,
@@ -200,7 +208,7 @@
 			//Vocabulary
 			"BrowseFieldsOfScienceVocabulary": {
 				"Roles": [],
-				"DatasetRoles": [],
+				"ContextRoles": [],
 				"Claims": [],
 				"Clients": [],
 				"AllowAnonymous": false,
@@ -208,7 +216,7 @@
 			},
 			"BrowseLicenseVocabulary": {
 				"Roles": [],
-				"DatasetRoles": [],
+				"ContextRoles": [],
 				"Claims": [],
 				"Clients": [],
 				"AllowAnonymous": false,
@@ -217,7 +225,7 @@
 			//Workflow
 			"BrowseWorkflowDefinition": {
 				"Roles": [ "GLOBAL_dg_admin" ],
-				"DatasetRoles": [],
+				"ContextRoles": [],
 				"Claims": [],
 				"Clients": [],
 				"AllowAnonymous": false,
@@ -225,7 +233,7 @@
 			},
 			"ExecuteWorkflow": {
 				"Roles": [ "GLOBAL_dg_admin" ],
-				"DatasetRoles": [],
+				"ContextRoles": [],
 				"Claims": [],
 				"Clients": [],
 				"AllowAnonymous": false,
@@ -233,7 +241,7 @@
 			},
 			"BrowseWorkflowExecution": {
 				"Roles": [ "GLOBAL_dg_admin" ],
-				"DatasetRoles": [],
+				"ContextRoles": [],
 				"Claims": [],
 				"Clients": [],
 				"AllowAnonymous": false,
@@ -241,7 +249,7 @@
 			},
 			"BrowseWorkflowTask": {
 				"Roles": [ "GLOBAL_dg_admin" ],
-				"DatasetRoles": [],
+				"ContextRoles": [],
 				"Claims": [],
 				"Clients": [],
 				"AllowAnonymous": false,
@@ -249,7 +257,7 @@
 			},
 			"BrowseWorkflowTaskInstance": {
 				"Roles": [ "GLOBAL_dg_admin" ],
-				"DatasetRoles": [],
+				"ContextRoles": [],
 				"Claims": [],
 				"Clients": [],
 				"AllowAnonymous": false,
@@ -257,7 +265,7 @@
 			},
 			"BrowseWorkflowXCom": {
 				"Roles": [ "GLOBAL_dg_admin" ],
-				"DatasetRoles": [],
+				"ContextRoles": [],
 				"Claims": [],
 				"Clients": [],
 				"AllowAnonymous": false,
@@ -265,7 +273,7 @@
 			},
 			"BrowseWorkflowTaskLog": {
 				"Roles": [ "GLOBAL_dg_admin" ],
-				"DatasetRoles": [],
+				"ContextRoles": [],
 				"Claims": [],
 				"Clients": [],
 				"AllowAnonymous": false,

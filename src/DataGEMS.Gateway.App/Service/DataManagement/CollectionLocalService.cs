@@ -11,6 +11,7 @@ using DataGEMS.Gateway.App.Exception;
 using DataGEMS.Gateway.App.Query;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
+using System.Security;
 
 namespace DataGEMS.Gateway.App.Service.DataManagement
 {
@@ -51,30 +52,37 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 			this._eventBroker = eventBroker;
 		}
 
-		private async Task AuthorizeEditForce(Guid? collectionId)
+		private async Task AuthorizeCreateForce()
+		{
+			await this._authorizationService.AuthorizeForce(Permission.CreateCollection);
+		}
+
+		private async Task AuthorizeEditForce(Guid collectionId)
 		{
 			await this.AuthorizeForce(collectionId, Permission.EditCollection);
 		}
 
-		private async Task AuthorizDeleteForce(Guid? collectionId)
+		private async Task AuthorizDeleteForce(Guid collectionId)
 		{
 			await this.AuthorizeForce(collectionId, Permission.DeleteCollection);
 		}
 
-		private async Task AuthorizeForce(Guid? collectionId, String permission)
+		private async Task AuthorizeForce(Guid collectionId, String permission)
 		{
-			//TODO: revisit permissions for this case
-			if (!collectionId.HasValue) return;
-			await this._authorizationService.AuthorizeForce(permission);
+			HashSet<string> userDatasetGroupRoles = await _authorizationContentResolver.ContextRolesForCollection(collectionId);
+			await this._authorizationService.AuthorizeOrAffiliatedContextForce(new AffiliatedContextResource(userDatasetGroupRoles), permission);
 		}
 
 		public async Task<App.Model.Collection> PersistAsync(App.Model.CollectionPersist model, IFieldSet fields = null)
 		{
 			this._logger.Debug(new MapLogEntry("persisting").And("type", nameof(App.Model.CollectionPersist)).And("model", model).And("fields", fields));
 
-			await this.AuthorizeEditForce(model.Id);
+			if (!model.Id.HasValue) await this.AuthorizeCreateForce();
+			else await this.AuthorizeEditForce(model.Id.Value);
 
 			Service.DataManagement.Model.Collection data = await this.PatchAndSave(model);
+
+			this._eventBroker.EmitCollectionTouched(data.Id);
 
 			App.Model.Collection persisted = await this._builderFactory.Builder<App.Model.Builder.CollectionBuilder>().Build(FieldSet.Build(fields, nameof(App.Model.Collection.Id)), data);
 			return persisted;
@@ -84,7 +92,8 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 		{
 			this._logger.Debug(new MapLogEntry("persisting").And("type", nameof(App.Model.CollectionPersistDeep)).And("model", model).And("fields", fields));
 
-			await this.AuthorizeEditForce(model.Id);
+			if (!model.Id.HasValue) await this.AuthorizeCreateForce();
+			else await this.AuthorizeEditForce(model.Id.Value);
 
 			Service.DataManagement.Model.Collection data = await this.PatchAndSave(new App.Model.CollectionPersist()
 			{
@@ -98,6 +107,8 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 				Id = data.Id,
 				Datasets = model.Datasets
 			});
+
+			this._eventBroker.EmitCollectionTouched(data.Id);
 
 			App.Model.Collection persisted = await this._builderFactory.Builder<App.Model.Builder.CollectionBuilder>().Authorize(AuthorizationFlags.Any).Build(FieldSet.Build(fields, nameof(App.Model.Collection.Id)), data);
 			return persisted;
@@ -143,7 +154,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 			Data.Collection data = await this._dbContext.Collections.FindAsync(model.Id.Value);
 			if (data == null) throw new DGNotFoundException(this._localizer["general_notFound", model.Id.Value, nameof(Model.Collection)]);
 
-			await this.AuthorizeEditForce(model.Id);
+			await this.AuthorizeEditForce(model.Id.Value);
 
 			List<Data.DatasetCollection> existingItems = await this._queryFactory.Query<Query.DatasetCollectionLocalQuery>().CollectionIds(model.Id.Value).Authorize(AuthorizationFlags.Any).CollectAsync();
 			this._dbContext.RemoveRange(existingItems);
@@ -158,6 +169,8 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 			this._dbContext.AddRange(newItems);
 
 			await this._dbContext.SaveChangesAsync();
+
+			this._eventBroker.EmitCollectionTouched(data.Id);
 
 			App.Model.Collection persisted = await this._builderFactory.Builder<App.Model.Builder.CollectionBuilder>().Build(FieldSet.Build(fields, nameof(App.Model.Collection.Id)), data.ToModel());
 			return persisted;
@@ -186,6 +199,8 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 			Data.Collection data = await this._queryFactory.Query<CollectionLocalQuery>().DisableTracking().Authorize(AuthorizationFlags.Any).Ids(collectionId).FirstAsync(fieldsToUse);
 			App.Model.Collection persisted = await this._builderFactory.Builder<App.Model.Builder.CollectionBuilder>().Authorize(AuthorizationFlags.Any).Build(fieldsToUse, data.ToModel());
 
+			this._eventBroker.EmitCollectionTouched(data.Id);
+
 			return persisted;
 		}
 
@@ -205,6 +220,8 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 			Data.Collection data = await this._queryFactory.Query<CollectionLocalQuery>().DisableTracking().Authorize(AuthorizationFlags.Any).Ids(collectionId).FirstAsync(fieldsToUse);
 			App.Model.Collection persisted = await this._builderFactory.Builder<App.Model.Builder.CollectionBuilder>().Authorize(AuthorizationFlags.Any).Build(fieldsToUse, data.ToModel());
 
+			this._eventBroker.EmitCollectionTouched(data.Id);
+
 			return persisted;
 		}
 
@@ -221,6 +238,8 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 			this._dbContext.Remove(data);
 
 			await this._dbContext.SaveChangesAsync();
+
+			this._eventBroker.EmitCollectionDeleted(data.Id);
 		}
 	}
 }

@@ -4,20 +4,20 @@ using DataGEMS.Gateway.App.Authorization;
 
 namespace DataGEMS.Gateway.Api.Authorization
 {
-	public class AffiliatedDatasetAuthorizationHandler : AuthorizationHandler<AffiliatedDatasetAuthorizationRequirement, AffiliatedDatasetResource>
+	public class AffiliatedContextAuthorizationHandler : AuthorizationHandler<AffiliatedContextAuthorizationRequirement, AffiliatedContextResource>
 	{
 		private readonly IPermissionPolicyService _permissionPolicyService;
-		private readonly ILogger<AffiliatedDatasetAuthorizationHandler> _logger;
+		private readonly ILogger<AffiliatedContextAuthorizationHandler> _logger;
 
-		public AffiliatedDatasetAuthorizationHandler(
+		public AffiliatedContextAuthorizationHandler(
 			IPermissionPolicyService permissionPolicyService,
-			ILogger<AffiliatedDatasetAuthorizationHandler> logger)
+			ILogger<AffiliatedContextAuthorizationHandler> logger)
 		{
 			this._logger = logger;
 			this._permissionPolicyService = permissionPolicyService;
 		}
 
-		protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, AffiliatedDatasetAuthorizationRequirement requirement, AffiliatedDatasetResource contextResource)
+		protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, AffiliatedContextAuthorizationRequirement requirement, AffiliatedContextResource contextResource)
 		{
 			if (context.User == null || !context.User.Claims.Any())
 			{
@@ -32,7 +32,7 @@ namespace DataGEMS.Gateway.Api.Authorization
 			}
 
 			ISet<String> affiliatedPermissions = null;
-			ISet<String> affiliatedRolePermissions = this._permissionPolicyService.PermissionsOfDataset(contextResource.AffiliatedRoles);
+			ISet<String> affiliatedRolePermissions = this._permissionPolicyService.PermissionsOfContext(contextResource.AffiliatedRoles);
 			if (contextResource.AffiliatedPermissions != null && contextResource.AffiliatedPermissions.Any()) affiliatedPermissions = affiliatedRolePermissions.Union(contextResource.AffiliatedPermissions).ToHashSet();
 			else affiliatedPermissions = affiliatedRolePermissions;
 

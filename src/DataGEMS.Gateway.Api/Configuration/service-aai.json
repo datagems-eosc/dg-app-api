@@ -1,6 +1,28 @@
 {
 	"AAIService": {
-		"BaseUrl": "%{AAIBaseUrl}%"
+		"Service": {
+			"Scope": "dg-app-api-keycloak-admin",
+			"BaseUrl": "%{AAIBaseUrl}%",
+			"HierarchyDatasetTopLevelName": "dataset",
+			"HierarchyDatasetGroupLevelName": "group",
+			"HierarchyDatasetDirectLevelName": "direct",
+			"SubGroupGrantNames": [ "grp-manage", "grp-browse", "grp-delete", "ds-browse", "ds-delete", "ds-download", "ds-edit", "ds-search", "ds-system" ],
+			"SubDirectGrantNames": [ "ds-manage", "ds-browse", "ds-delete", "ds-download", "ds-edit", "ds-search", "ds-system" ],
+			"GroupsEndpoint": "groups",
+			"GroupChildrenEndpoint": "groups/{groupId}/children",
+			"UserGroupsEndpoint": "users/{userId}/groups",
+			"UserGroupsChangeEndpoint": "users/{userId}/groups/{groupId}"
+		},
+		"Cache": {
+			"LookupCache": {
+				"Prefix": "%{CacheDisambiguation}%",
+				"KeyPattern": "{prefix}:AAI:{kind}:{key}:v0",
+				//2 minutes in seconds = 120
+				"SlidingExpirationSeconds": 120,
+				//5 minutes in seconds = 300
+				"AbsoluteExpirationSeconds": 300
+			}
+		}
 	}
 }
  

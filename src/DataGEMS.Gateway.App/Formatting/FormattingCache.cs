@@ -40,7 +40,7 @@ namespace DataGEMS.Gateway.App.Formatting
 			this._eventBroker.UserProfileDeleted += OnUserProfileDeleted;
 		}
 
-		private async void OnUserProfileDeleted(object sender, OnEventArgs e)
+		private async void OnUserProfileDeleted(object sender, OnEventArgs<Guid> e)
 		{
 			this._logger.Debug(new MapLogEntry("received event")
 				.And("event", nameof(OnUserProfileDeleted))
@@ -50,7 +50,7 @@ namespace DataGEMS.Gateway.App.Formatting
 			await this.PurgeCache(e.Ids);
 		}
 
-		private async void OnUserProfileTouched(object sender, OnEventArgs e)
+		private async void OnUserProfileTouched(object sender, OnEventArgs<Guid> e)
 		{
 			this._logger.Debug(new MapLogEntry("received event")
 				.And("event", nameof(OnUserProfileDeleted))
@@ -60,7 +60,7 @@ namespace DataGEMS.Gateway.App.Formatting
 			await this.PurgeCache(e.Ids);
 		}
 
-		private async void OnUserDeleted(object sender, OnEventArgs e)
+		private async void OnUserDeleted(object sender, OnEventArgs<Guid> e)
 		{
 			this._logger.Debug(new MapLogEntry("received event")
 				.And("event", nameof(OnUserDeleted))
@@ -70,7 +70,7 @@ namespace DataGEMS.Gateway.App.Formatting
 			await this.PurgeCache(e.Ids);
 		}
 
-		private async void OnUserTouched(object sender, OnEventArgs e)
+		private async void OnUserTouched(object sender, OnEventArgs<Guid> e)
 		{
 			this._logger.Debug(new MapLogEntry("received event")
 				.And("event", nameof(OnUserTouched))

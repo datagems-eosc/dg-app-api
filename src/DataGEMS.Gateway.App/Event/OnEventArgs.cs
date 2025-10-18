@@ -1,13 +1,13 @@
 ﻿
 namespace DataGEMS.Gateway.App.Event
 {
-	public class OnEventArgs
+	public class OnEventArgs<T>
 	{
-		public OnEventArgs(IEnumerable<Guid> ids)
+		public OnEventArgs(IEnumerable<T> ids)
 		{
 			this.Ids = ids;
 		}
 
-		public IEnumerable<Guid> Ids { get; private set; }
+		public IEnumerable<T> Ids { get; private set; }
 	}
 }

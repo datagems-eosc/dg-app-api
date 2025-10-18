@@ -90,7 +90,7 @@ namespace DataGEMS.Gateway.Api
 				.AddCrossDatasetDiscoveryServices(this._config.GetSection("CrossDatasetDiscoveryService")) //Cross Dataset Discovery API
 				.AddInDataExplorationServices(this._config.GetSection("InDataExplorationService"))  //In Data Exploration API
 				.AddAirflowServices(this._config.GetSection("AirflowService")) //Airflow
-				.AddAAIServices(this._config.GetSection("AAIService")) //AAI Keycloak
+				.AddAAIServices(this._config.GetSection("AAIService:Service"), this._config.GetSection("AAIService:Cache")) //AAI Keycloak
 			;
 
 			services
@@ -161,7 +161,8 @@ namespace DataGEMS.Gateway.Api
 					if (healthCheckConfig.Endpoint?.IsEnabled ?? false) endpoints.ConfigureHealthCheckEndpoint(healthCheckConfig.Endpoint);
 				})
 				.ConfigureUseSwagger(this._config.GetSection("OpenApi"), env.EnvironmentName)
-				.BootstrapFormattingCacheInvalidationServices(); //Formatting
+				.BootstrapFormattingCacheInvalidationServices() //Formatting
+				.BootstrapAAICacheInvalidationServices(); //AAI
 		}
 	}
 }

@@ -13,7 +13,7 @@ namespace DataGEMS.Gateway.App.Authorization
 		{
 			public String Permission { get; set; }
 			public List<String> Roles { get; set; }
-			public List<String> DatasetRoles { get; set; }
+			public List<String> ContextRoles { get; set; }
 			public List<PermissionClaims> Claims { get; set; }
 			public List<String> Clients { get; set; }
 			public Boolean AllowAnonymous { get; set; } = false;

@@ -65,15 +65,15 @@ namespace DataGEMS.Gateway.Api.Authorization
 			return await this.Authorize(force: true, resource: resource, policy: policy);
 		}
 
-		public async Task<Boolean> AuthorizeAffiliatedDataset(AffiliatedDatasetResource resource, params String[] permissions)
+		public async Task<Boolean> AuthorizeAffiliatedContext(AffiliatedContextResource resource, params String[] permissions)
 		{
-			AuthorizationPolicy policy = new AuthorizationPolicyBuilder().AddRequirements(new AffiliatedDatasetAuthorizationRequirement(requiredPermissions: permissions.ToList(), matchAll: false)).Build();
+			AuthorizationPolicy policy = new AuthorizationPolicyBuilder().AddRequirements(new AffiliatedContextAuthorizationRequirement(requiredPermissions: permissions.ToList(), matchAll: false)).Build();
 			return await this.Authorize(force: false, resource: resource, policy: policy);
 		}
 
-		public async Task<Boolean> AuthorizeAffiliatedDatasetForce(AffiliatedDatasetResource resource, params String[] permissions)
+		public async Task<Boolean> AuthorizeAffiliatedContextForce(AffiliatedContextResource resource, params String[] permissions)
 		{
-			AuthorizationPolicy policy = new AuthorizationPolicyBuilder().AddRequirements(new AffiliatedDatasetAuthorizationRequirement(requiredPermissions: permissions.ToList(), matchAll: false)).Build();
+			AuthorizationPolicy policy = new AuthorizationPolicyBuilder().AddRequirements(new AffiliatedContextAuthorizationRequirement(requiredPermissions: permissions.ToList(), matchAll: false)).Build();
 			return await this.Authorize(force: true, resource: resource, policy: policy);
 		}
 
@@ -92,38 +92,19 @@ namespace DataGEMS.Gateway.Api.Authorization
 			return await this.AuthorizeOwnerForce(resource);
 		}
 
-		public async Task<Boolean> AuthorizeOrAffiliatedDataset(AffiliatedDatasetResource contextResource, params String[] permissions)
+		public async Task<Boolean> AuthorizeOrAffiliatedContext(AffiliatedContextResource contextResource, params String[] permissions)
 		{
 			Boolean isAuthorized = await this.Authorize(permissions);
-			if (!isAuthorized && contextResource != null) isAuthorized = await this.AuthorizeAffiliatedDataset(contextResource, permissions);
+			if (!isAuthorized && contextResource != null) isAuthorized = await this.AuthorizeAffiliatedContext(contextResource, permissions);
 			return isAuthorized;
 		}
 
-		public async Task<Boolean> AuthorizeOrAffiliatedDatasetForce(AffiliatedDatasetResource contextResource, params String[] permissions)
+		public async Task<Boolean> AuthorizeOrAffiliatedContextForce(AffiliatedContextResource contextResource, params String[] permissions)
 		{
 			if (contextResource == null) return await this.AuthorizeForce(permissions);
 			Boolean isAuthorized = await this.Authorize(permissions);
 			if (isAuthorized) return true;
-			return await this.AuthorizeAffiliatedDatasetForce(contextResource, permissions);
-		}
-
-		public async Task<Boolean> AuthorizeOrOwnerOrAffiliatedDataset(OwnedResource ownerResource, AffiliatedDatasetResource affiliatedResource, params String[] permissions)
-		{
-			Boolean isAuthorized = await this.Authorize(permissions);
-			if (!isAuthorized && ownerResource != null) isAuthorized = await this.AuthorizeOwner(ownerResource);
-			if (!isAuthorized && affiliatedResource != null) isAuthorized = await this.AuthorizeAffiliatedDataset(affiliatedResource, permissions);
-			return isAuthorized;
-		}
-
-		public async Task<Boolean> AuthorizeOrOwnerOrAffiliatedDatasetForce(OwnedResource ownerResource, AffiliatedDatasetResource affiliatedResource, params String[] permissions)
-		{
-			if (ownerResource == null && affiliatedResource == null) return await this.AuthorizeForce(permissions);
-			Boolean isAuthorized = await this.Authorize(permissions);
-			if (isAuthorized) return true;
-			if (affiliatedResource == null) return await this.AuthorizeOwnerForce(ownerResource);
-			isAuthorized = await this.AuthorizeOwner(ownerResource);
-			if (isAuthorized) return true;
-			return await this.AuthorizeAffiliatedDatasetForce(affiliatedResource, permissions);
+			return await this.AuthorizeAffiliatedContextForce(contextResource, permissions);
 		}
 
 		private async Task<Boolean> Authorize(Boolean force, Object resource, AuthorizationPolicy policy)

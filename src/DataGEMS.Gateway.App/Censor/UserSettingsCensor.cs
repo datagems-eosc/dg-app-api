@@ -7,7 +7,6 @@ using Cite.Tools.Logging.Extensions;
 using Cite.WebTools.CurrentPrincipal;
 using DataGEMS.Gateway.App.Authorization;
 using DataGEMS.Gateway.App.Common;
-using DataGEMS.Gateway.App.Exception;
 using Microsoft.Extensions.Logging;
 
 namespace DataGEMS.Gateway.App.Censor

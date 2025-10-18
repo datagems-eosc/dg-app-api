@@ -5,6 +5,7 @@ namespace DataGEMS.Gateway.App.Common.Auth
 {
 	public class DatasetGrant
 	{
+		public String GroupId { get; set; }
 		public TargetType Type { get; set; }
 		public String Code { get; set; }
 		public String Access {  get; set; }

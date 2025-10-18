@@ -51,8 +51,6 @@ namespace DataGEMS.Gateway.Api.Controllers
 				nameof(Account.Permissions),
 				nameof(Account.DeferredPermissions),
 				nameof(Account.More),
-				nameof(Account.Datasets),
-				nameof(Account.DatasetGrants),
 				new String[] { nameof(Account.Principal), nameof(Account.PrincipalInfo.Subject) }.AsIndexer(),
 				new String[] { nameof(Account.Principal), nameof(Account.PrincipalInfo.Name) }.AsIndexer(),
 				new String[] { nameof(Account.Principal), nameof(Account.PrincipalInfo.Username) }.AsIndexer(),

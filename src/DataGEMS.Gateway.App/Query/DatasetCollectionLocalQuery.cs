@@ -61,15 +61,7 @@ namespace DataGEMS.Gateway.App.Query
 			List<IQueryable<Guid>> predicates = new List<IQueryable<Guid>>();
 			if (this._authorize.HasFlag(AuthorizationFlags.Context))
 			{
-				HashSet<Guid> permittedGroupIds = new HashSet<Guid>();
-
-				List<String> affiliatedDatasetGroups = await this._authorizationContentResolver.AffiliatedDatasetGroupCodes();
-				if (affiliatedDatasetGroups.Count > 0)
-				{
-					List<Guid> groupIds = await this._dbContext.Collections.Where(x => affiliatedDatasetGroups.Contains(x.Code)).Select(x => x.Id).Distinct().ToListAsync();
-					if (groupIds != null) permittedGroupIds.AddRange(groupIds);
-				}
-
+				List<Guid> permittedGroupIds = await this._authorizationContentResolver.ContextAffiliatedCollections(Permission.BrowseDatasetCollection);
 				if (permittedGroupIds != null && permittedGroupIds.Count > 0)
 				{
 					predicates.Add(System.Linq.Queryable.Where(this._dbContext.DatasetCollections, x =>

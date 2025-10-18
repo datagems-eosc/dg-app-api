@@ -43,8 +43,6 @@ namespace DataGEMS.Gateway.Api.Model
 		public List<String> Roles { get; set; }
 		public List<String> Permissions { get; set; }
 		public List<String> DeferredPermissions { get; set; }
-		public List<String> Datasets { get; set; }
-		public List<DatasetGrant> DatasetGrants { get; set; }
 		[LogSensitive]
 		public Dictionary<String, List<String>> More { get; set; }
 	}
@@ -99,13 +97,11 @@ namespace DataGEMS.Gateway.Api.Model
 				Guid? userId = _extractor.SubjectGuid(principal);
 				if (userId.HasValue)
 				{
-					List<string> datasetRoles = await _authorizationContentResolver.DatasetRolesOf();
-					model.DeferredPermissions = new List<string>(_permissionPolicyService.PermissionsOfDataset(datasetRoles));
+					List<string> datasetRoles = await _authorizationContentResolver.ContextRolesOf();
+					model.DeferredPermissions = new List<string>(_permissionPolicyService.PermissionsOfContext(datasetRoles));
 				}
 			}
 			if (fields.HasField(nameof(Account.Roles))) model.Roles = this._extractor.Roles(principal);
-			if (fields.HasField(nameof(Account.Datasets))) model.Datasets = this._extractor.Datasets(principal);
-			if (fields.HasField(nameof(Account.DatasetGrants))) model.DatasetGrants = this._extractor.DatasetGrants(principal);
 
 			return model;
 		}
