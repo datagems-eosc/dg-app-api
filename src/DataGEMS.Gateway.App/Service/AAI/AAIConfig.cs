@@ -10,6 +10,7 @@ namespace DataGEMS.Gateway.App.Service.AAI
 		public String HierarchyDatasetDirectLevelName { get; set; }
 		public List<String> SubGroupGrantNames { get; set; }
 		public List<String> SubDirectGrantNames { get; set; }
+		public List<String> AutoAssignGrantsOnNewCollection { get; set; }
 		public String GroupsEndpoint { get; set; }
 		public String GroupEndpoint { get; set; }
 		public String GroupChildrenEndpoint { get; set; }

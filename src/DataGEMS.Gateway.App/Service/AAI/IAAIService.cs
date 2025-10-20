@@ -7,7 +7,7 @@ namespace DataGEMS.Gateway.App.Service.AAI
 	{
 		Task<ContextGrantGroupTarget> TargetOfContextGrantGroup(String groupId);
 		Task<List<ContextGrant>> LookupContextGrantGroups(String code);
-		Task BootstrapContextGrantGroupsFor(ContextGrant.TargetType type, String code);
+		Task<List<ContextGrant>> BootstrapContextGrantGroupsFor(ContextGrant.TargetType type, String code);
 		Task DeleteContextGrantGroupsFor(String code);
 		Task AddUserToContextGrantGroup(String subjectId, String groupId);
 		Task RemoveUserFromContextGrantGroup(String subjectId, String groupId);

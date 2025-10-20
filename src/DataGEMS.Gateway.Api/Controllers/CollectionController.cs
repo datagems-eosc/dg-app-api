@@ -153,7 +153,8 @@ namespace DataGEMS.Gateway.Api.Controllers
 		{
 			this._logger.Debug(new MapLogEntry("persisting").And("type", nameof(App.Model.CollectionPersist)).And("fields", fieldSet));
 
-			IFieldSet censoredFields = await this._censorFactory.Censor<CollectionCensor>().Censor(fieldSet, CensorContext.AsCensor());
+			//GOTCHA: Ommiting browse permission check in case of new
+			IFieldSet censoredFields = await this._censorFactory.Censor<CollectionCensor>().Censor(fieldSet, CensorContext.AsCensor(), !model.Id.HasValue);
 			if (fieldSet.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
 
 			App.Model.Collection persisted = await this._collectionService.PersistAsync(model, censoredFields);
@@ -189,7 +190,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		{
 			this._logger.Debug(new MapLogEntry("persisting").And("type", nameof(App.Model.CollectionPersistDeep)).And("fields", fieldSet));
 
-			IFieldSet censoredFields = await this._censorFactory.Censor<CollectionCensor>().Censor(fieldSet, CensorContext.AsCensor());
+			IFieldSet censoredFields = await this._censorFactory.Censor<CollectionCensor>().Censor(fieldSet, CensorContext.AsCensor(), !model.Id.HasValue);
 			if (fieldSet.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
 
 			App.Model.Collection persisted = await this._collectionService.PersistAsync(model, censoredFields);

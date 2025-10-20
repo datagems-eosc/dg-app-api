@@ -91,7 +91,9 @@ namespace DataGEMS.Gateway.App.Service.AAI
 				throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.AAI, this._logCorrelationScope.CorrelationId);
 			}
 			if(groups == null || groups.Count != 1 || String.IsNullOrEmpty(groups[0].Id)) throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.AAI, this._logCorrelationScope.CorrelationId);
-			String codeGroupId = groups[0].Id;
+			Model.Group foundGroup = groups[0].LocateNameDeep(code);
+			String codeGroupId = foundGroup?.Id;
+			if(String.IsNullOrEmpty(codeGroupId)) throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.AAI, this._logCorrelationScope.CorrelationId);
 
 			HttpRequestMessage lookupGrantsHttpRequest = new HttpRequestMessage(HttpMethod.Get, $"{this._config.BaseUrl}{this._config.GroupChildrenEndpoint.Replace("{groupId}", codeGroupId)}");
 			lookupGrantsHttpRequest.Headers.Add(HeaderNames.Accept, "application/json");
@@ -112,7 +114,7 @@ namespace DataGEMS.Gateway.App.Service.AAI
 			return grants;
 		}
 
-		public async Task BootstrapContextGrantGroupsFor(ContextGrant.TargetType type, String code)
+		public async Task<List<ContextGrant>> BootstrapContextGrantGroupsFor(ContextGrant.TargetType type, String code)
 		{
 			if (String.IsNullOrEmpty(code)) throw new DGApplicationException(this._errors.ModelValidation.Code, this._errors.ModelValidation.Message);
 
@@ -146,6 +148,8 @@ namespace DataGEMS.Gateway.App.Service.AAI
 				await this.EnsureHierarchyTargetLevel(currentLevelId, subGroup);
 			}
 
+			List<ContextGrant> grantGroups = await this.LookupContextGrantGroups(code);
+			return grantGroups;
 		}
 
 		public async Task DeleteContextGrantGroupsFor(String code)

@@ -5,6 +5,7 @@ using Cite.Tools.FieldSet;
 using Cite.Tools.Logging;
 using Cite.Tools.Logging.Extensions;
 using DataGEMS.Gateway.App.Authorization;
+using DataGEMS.Gateway.App.Common.Auth;
 using DataGEMS.Gateway.App.ErrorCode;
 using DataGEMS.Gateway.App.Event;
 using DataGEMS.Gateway.App.Exception;
@@ -25,6 +26,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 		private readonly IAuthorizationService _authorizationService;
 		private readonly IAuthorizationContentResolver _authorizationContentResolver;
 		private readonly ILogger<CollectionLocalService> _logger;
+		private readonly AAIConfig _aaiConfig;
 		private readonly ErrorThesaurus _errors;
 		private readonly EventBroker _eventBroker;
 		private readonly IAAIService _aaiService;
@@ -36,6 +38,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 			DeleterFactory deleterFactory,
 			QueryFactory queryFactory,
 			IAAIService aaiService,
+			AAIConfig aaiConfig,
 			IAuthorizationService authorizationService,
 			IAuthorizationContentResolver authorizationContentResolver,
 			IStringLocalizer<Resources.MySharedResources> localizer,
@@ -48,6 +51,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 			this._deleterFactory = deleterFactory;
 			this._queryFactory = queryFactory;
 			this._aaiService = aaiService;
+			this._aaiConfig = aaiConfig;
 			this._authorizationService = authorizationService;
 			this._authorizationContentResolver = authorizationContentResolver;
 			this._localizer = localizer;
@@ -85,7 +89,17 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 
 			Service.DataManagement.Model.Collection data = await this.PatchAndSave(model);
 
-			await this._aaiService.BootstrapContextGrantGroupsFor(Common.Auth.ContextGrant.TargetType.Group, data.Id.ToString().ToLowerInvariant());
+			List<Common.Auth.ContextGrant> contextGrants = await this._aaiService.BootstrapContextGrantGroupsFor(Common.Auth.ContextGrant.TargetType.Group, data.Id.ToString().ToLowerInvariant());
+			if (!model.Id.HasValue && this._aaiConfig.AutoAssignGrantsOnNewCollection != null && this._aaiConfig.AutoAssignGrantsOnNewCollection.Count > 0)
+			{
+				String subjectId = await this._authorizationContentResolver.SubjectIdOfCurrentUser();
+				List<String> autoAssignGroups = contextGrants.Where(x => this._aaiConfig.AutoAssignGrantsOnNewCollection.Contains(x.Access)).Select(x => x.GroupId).ToList();
+				foreach (String groupId in autoAssignGroups)
+				{
+					await this._aaiService.AddUserToContextGrantGroup(subjectId, groupId);
+				}
+				this._eventBroker.EmitUserDatasetGrantTouched(subjectId);
+			}
 			this._eventBroker.EmitCollectionTouched(data.Id);
 
 			App.Model.Collection persisted = await this._builderFactory.Builder<App.Model.Builder.CollectionBuilder>().Build(FieldSet.Build(fields, nameof(App.Model.Collection.Id)), data);
@@ -112,7 +126,17 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 				Datasets = model.Datasets
 			});
 
-			await this._aaiService.BootstrapContextGrantGroupsFor(Common.Auth.ContextGrant.TargetType.Group, data.Id.ToString().ToLowerInvariant());
+			List<Common.Auth.ContextGrant> contextGrants = await this._aaiService.BootstrapContextGrantGroupsFor(Common.Auth.ContextGrant.TargetType.Group, data.Id.ToString().ToLowerInvariant());
+			if (!model.Id.HasValue && this._aaiConfig.AutoAssignGrantsOnNewCollection != null && this._aaiConfig.AutoAssignGrantsOnNewCollection.Count > 0)
+			{
+				String subjectId = await this._authorizationContentResolver.SubjectIdOfCurrentUser();
+				List<String> autoAssignGroups = contextGrants.Where(x => this._aaiConfig.AutoAssignGrantsOnNewCollection.Contains(x.Access)).Select(x => x.GroupId).ToList();
+				foreach(String groupId in autoAssignGroups)
+				{
+					await this._aaiService.AddUserToContextGrantGroup(subjectId, groupId);
+				}
+				this._eventBroker.EmitUserDatasetGrantTouched(subjectId);
+			}
 			this._eventBroker.EmitCollectionTouched(data.Id);
 
 			App.Model.Collection persisted = await this._builderFactory.Builder<App.Model.Builder.CollectionBuilder>().Authorize(AuthorizationFlags.Any).Build(FieldSet.Build(fields, nameof(App.Model.Collection.Id)), data);

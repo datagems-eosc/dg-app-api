@@ -14,5 +14,19 @@ namespace DataGEMS.Gateway.App.Service.AAI.Model
 		public int SubGroupCount { get; set; }
 		[JsonProperty("subGroups")]
 		public List<Group> SubGroups { get; set; }
+
+		public Group LocateNameDeep(String name)
+		{
+			if (this.Name.Equals(name, StringComparison.OrdinalIgnoreCase)) return this;
+			if (this.SubGroups != null)
+			{
+				foreach (Group child in this.SubGroups)
+				{
+					Group found = child.LocateNameDeep(name);
+					if (found != null) return found;
+				}
+			}
+			return null;
+		}
 	}
 }
