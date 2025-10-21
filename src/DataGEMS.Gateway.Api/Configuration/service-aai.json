@@ -3,17 +3,19 @@
 		"Service": {
 			"Scope": "dg-app-api-keycloak-admin",
 			"BaseUrl": "%{AAIBaseUrl}%",
-			"HierarchyDatasetTopLevelName": "dataset",
-			"HierarchyDatasetGroupLevelName": "group",
-			"HierarchyDatasetDirectLevelName": "direct",
-			"SubGroupGrantNames": [ "grp-manage", "grp-edit", "grp-delete", "grp-browse" ],
-			"SubDirectGrantNames": [ "ds-manage", "ds-edit", "ds-delete", "ds-browse", "ds-download", "ds-search" ],
-			"AutoAssignGrantsOnNewCollection": [ "grp-manage", "grp-edit", "grp-delete", "grp-browse" ],
+			"ContextGrantGroupPrefix": "ctx-grant",
+			"ContextGrantTypeAttributeName": "target-type",
+			"ContextGrantTypeDatasetAttributeValue": "ds",
+			"ContextGrantTypeCollectionAttributeValue": "col",
+			"ContextGrantTypeUserAttributeValue": "usr",
+			"ContextGrantTypeGroupAttributeValue": "grp",
+			"AutoAssignGrantsOnNewCollection": [ "dg_col-manage", "dg_col-edit", "dg_col-delete", "dg_col-browse" ],
 			"GroupsEndpoint": "groups",
+			"GroupRoleMappingsEndpoint": "groups/{groupId}/role-mappings/realm",
 			"GroupEndpoint": "groups/{groupId}",
 			"GroupChildrenEndpoint": "groups/{groupId}/children",
-			"UserGroupsEndpoint": "users/{userId}/groups",
-			"UserGroupsChangeEndpoint": "users/{userId}/groups/{groupId}"
+			"RolesEndpoint": "roles/{roleName}",
+			"UserGroupsEndpoint": "users/{userId}/groups"
 		},
 		"Cache": {
 			"LookupCache": {

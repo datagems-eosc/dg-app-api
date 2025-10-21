@@ -80,6 +80,17 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 			await this._authorizationService.AuthorizeOrAffiliatedContextForce(new AffiliatedContextResource(userDatasetGroupRoles), permission);
 		}
 
+		private async Task AutoAssignNewCollectionRoles(Guid collectionId)
+		{
+			if (this._aaiConfig.AutoAssignGrantsOnNewCollection == null || this._aaiConfig.AutoAssignGrantsOnNewCollection.Count == 0) return;
+
+			String subjectId = await this._authorizationContentResolver.SubjectIdOfCurrentUser();
+			await this._aaiService.BootstrapUserContextGrants(subjectId);
+			await this._aaiService.AssignCollectionGrantTo(subjectId, collectionId, this._aaiConfig.AutoAssignGrantsOnNewCollection);
+
+			this._eventBroker.EmitUserDatasetGrantTouched(subjectId);
+		}
+
 		public async Task<App.Model.Collection> PersistAsync(App.Model.CollectionPersist model, IFieldSet fields = null)
 		{
 			this._logger.Debug(new MapLogEntry("persisting").And("type", nameof(App.Model.CollectionPersist)).And("model", model).And("fields", fields));
@@ -89,17 +100,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 
 			Service.DataManagement.Model.Collection data = await this.PatchAndSave(model);
 
-			List<Common.Auth.ContextGrant> contextGrants = await this._aaiService.BootstrapContextGrantGroupsFor(Common.Auth.ContextGrant.TargetType.Group, data.Id.ToString().ToLowerInvariant());
-			if (!model.Id.HasValue && this._aaiConfig.AutoAssignGrantsOnNewCollection != null && this._aaiConfig.AutoAssignGrantsOnNewCollection.Count > 0)
-			{
-				String subjectId = await this._authorizationContentResolver.SubjectIdOfCurrentUser();
-				List<String> autoAssignGroups = contextGrants.Where(x => this._aaiConfig.AutoAssignGrantsOnNewCollection.Contains(x.Access)).Select(x => x.GroupId).ToList();
-				foreach (String groupId in autoAssignGroups)
-				{
-					await this._aaiService.AddUserToContextGrantGroup(subjectId, groupId);
-				}
-				this._eventBroker.EmitUserDatasetGrantTouched(subjectId);
-			}
+			if (!model.Id.HasValue) await this.AutoAssignNewCollectionRoles(data.Id);
 			this._eventBroker.EmitCollectionTouched(data.Id);
 
 			App.Model.Collection persisted = await this._builderFactory.Builder<App.Model.Builder.CollectionBuilder>().Build(FieldSet.Build(fields, nameof(App.Model.Collection.Id)), data);
@@ -126,17 +127,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 				Datasets = model.Datasets
 			});
 
-			List<Common.Auth.ContextGrant> contextGrants = await this._aaiService.BootstrapContextGrantGroupsFor(Common.Auth.ContextGrant.TargetType.Group, data.Id.ToString().ToLowerInvariant());
-			if (!model.Id.HasValue && this._aaiConfig.AutoAssignGrantsOnNewCollection != null && this._aaiConfig.AutoAssignGrantsOnNewCollection.Count > 0)
-			{
-				String subjectId = await this._authorizationContentResolver.SubjectIdOfCurrentUser();
-				List<String> autoAssignGroups = contextGrants.Where(x => this._aaiConfig.AutoAssignGrantsOnNewCollection.Contains(x.Access)).Select(x => x.GroupId).ToList();
-				foreach(String groupId in autoAssignGroups)
-				{
-					await this._aaiService.AddUserToContextGrantGroup(subjectId, groupId);
-				}
-				this._eventBroker.EmitUserDatasetGrantTouched(subjectId);
-			}
+			if (!model.Id.HasValue) await this.AutoAssignNewCollectionRoles(data.Id);
 			this._eventBroker.EmitCollectionTouched(data.Id);
 
 			App.Model.Collection persisted = await this._builderFactory.Builder<App.Model.Builder.CollectionBuilder>().Authorize(AuthorizationFlags.Any).Build(FieldSet.Build(fields, nameof(App.Model.Collection.Id)), data);
@@ -268,7 +259,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 
 			await this._dbContext.SaveChangesAsync();
 
-			await this._aaiService.DeleteContextGrantGroupsFor(data.Id.ToString().ToLowerInvariant());
+			await this._aaiService.DeleteCollectionGrants(data.Id);
 			this._eventBroker.EmitCollectionDeleted(data.Id);
 		}
 	}

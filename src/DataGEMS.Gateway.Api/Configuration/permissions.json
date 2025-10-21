@@ -21,7 +21,7 @@
 			},
 			"AddUserToContextGrantGroup": {
 				"Roles": [ "GLOBAL_dg_admin" ],
-				"ContextRoles": [ "grp-manage", "ds-manage" ],
+				"ContextRoles": [ "dg_col-manage", "dg_ds-manage" ],
 				"Claims": [],
 				"Clients": [],
 				"AllowAnonymous": false,
@@ -29,7 +29,7 @@
 			},
 			"RemoveUserFromContextGrantGroup": {
 				"Roles": [ "GLOBAL_dg_admin" ],
-				"ContextRoles": [ "grp-manage", "ds-manage" ],
+				"ContextRoles": [ "dg_col-manage", "dg_ds-manage" ],
 				"Claims": [],
 				"Clients": [],
 				"AllowAnonymous": false,
@@ -38,7 +38,7 @@
 			//Collection
 			"BrowseCollection": {
 				"Roles": [ "GLOBAL_dg_admin" ],
-				"ContextRoles": [ "grp-browse" ],
+				"ContextRoles": [ "dg_col-browse" ],
 				"Claims": [],
 				"Clients": [],
 				"AllowAnonymous": false,
@@ -54,7 +54,7 @@
 			},
 			"EditCollection": {
 				"Roles": [ "GLOBAL_dg_admin" ],
-				"ContextRoles": [ "grp-manage" ],
+				"ContextRoles": [ "dg_col-manage" ],
 				"Claims": [],
 				"Clients": [],
 				"AllowAnonymous": false,
@@ -62,7 +62,7 @@
 			},
 			"DeleteCollection": {
 				"Roles": [ "GLOBAL_dg_admin" ],
-				"ContextRoles": [ "grp-delete" ],
+				"ContextRoles": [ "dg_col-delete" ],
 				"Claims": [],
 				"Clients": [],
 				"AllowAnonymous": false,
@@ -164,7 +164,7 @@
 			//Dataset
 			"BrowseDataset": {
 				"Roles": [ "GLOBAL_dg_admin" ],
-				"ContextRoles": [ "ds-browse" ],
+				"ContextRoles": [ "dg_ds-browse" ],
 				"Claims": [],
 				"Clients": [],
 				"AllowAnonymous": false,
@@ -173,7 +173,7 @@
 			//DatasetCollection
 			"BrowseDatasetCollection": {
 				"Roles": [ "GLOBAL_dg_admin" ],
-				"ContextRoles": [ "grp-browse" ],
+				"ContextRoles": [ "dg_col-browse" ],
 				"Claims": [],
 				"Clients": [],
 				"AllowAnonymous": false,

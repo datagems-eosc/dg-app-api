@@ -5,7 +5,6 @@ using DataGEMS.Gateway.App.Event;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using Cite.Tools.Cache;
-using DataGEMS.Gateway.App.Common.Auth;
 
 namespace DataGEMS.Gateway.App.Service.AAI
 {
@@ -34,92 +33,68 @@ namespace DataGEMS.Gateway.App.Service.AAI
 			this._serviceProvider = serviceProvider;
 		}
 
+		//TODO: Work on cache invalidation
 		public void RegisterListener()
 		{
-			this._eventBroker.CollectionTouched += OnCollectionTouched;
-			this._eventBroker.CollectionDeleted += OnCollectionDeleted;
-			this._eventBroker.UserDatasetGrantTouched += OnUserDatasetGrantTouched;
-			this._eventBroker.UserDatasetGrantDeleted += OnUserDatasetGrantDeleted;
+			this._eventBroker.UserTouched += OnUserTouched;
+			this._eventBroker.UserDeleted += OnUserDeleted;
 		}
 
-		private async void OnCollectionDeleted(object sender, OnEventArgs<Guid> e)
+		private async void OnUserDeleted(object sender, OnUserEventArgs e)
 		{
 			this._logger.Debug(new MapLogEntry("received event")
-				.And("event", nameof(OnCollectionDeleted))
+				.And("event", nameof(OnUserDeleted))
 				.And("prefix", this._config.LookupCache?.Prefix)
 				.And("pattern", this._config.LookupCache?.KeyPattern)
 				.And("groupIds", e.Ids));
-			await this.PurgeGroupCache(e.Ids?.Select(x => x.ToString()).ToList());
+			await this.PurgePrincipalGroupCache(e.Ids?.Select(x => x.SubjectId).ToList());
 		}
 
-		private async void OnCollectionTouched(object sender, OnEventArgs<Guid> e)
+		private async void OnUserTouched(object sender, OnUserEventArgs e)
 		{
 			this._logger.Debug(new MapLogEntry("received event")
-				.And("event", nameof(OnCollectionTouched))
+				.And("event", nameof(OnUserTouched))
 				.And("prefix", this._config.LookupCache?.Prefix)
 				.And("pattern", this._config.LookupCache?.KeyPattern)
 				.And("groupIds", e.Ids));
-			await this.PurgeGroupCache(e.Ids?.Select(x => x.ToString()).ToList());
+			await this.PurgePrincipalGroupCache(e.Ids?.Select(x => x.SubjectId).ToList());
 		}
 
-		private async void OnUserDatasetGrantDeleted(object sender, OnEventArgs<String> e)
+		#region Principal Group
+
+		private String CachePrincipalGroupKey(String principalId)
 		{
-			this._logger.Debug(new MapLogEntry("received event")
-				.And("event", nameof(OnUserDatasetGrantDeleted))
-				.And("prefix", this._config.LookupCache?.Prefix)
-				.And("pattern", this._config.LookupCache?.KeyPattern)
-				.And("userIds", e.Ids));
-			await this.PurgeUserDatasetGrantCache(e.Ids);
+			String cacheKey = this._config.LookupCache.ToKey(new KeyValuePair<String, String>[] {
+				new KeyValuePair<string, string>("{prefix}", this._config.LookupCache.Prefix),
+				new KeyValuePair<string, string>("{kind}", "principal-group"),
+				new KeyValuePair<string, string>("{key}", principalId)
+			});
+			return cacheKey;
 		}
 
-		private async void OnUserDatasetGrantTouched(object sender, OnEventArgs<String> e)
+		public async Task<Model.Group> PrincipalGroupLookup(String principalId)
 		{
-			this._logger.Debug(new MapLogEntry("received event")
-				.And("event", nameof(OnUserDatasetGrantTouched))
-				.And("prefix", this._config.LookupCache?.Prefix)
-				.And("pattern", this._config.LookupCache?.KeyPattern)
-				.And("userIds", e.Ids));
-			await this.PurgeUserDatasetGrantCache(e.Ids);
-		}
-
-		public async Task<List<ContextGrant>> CacheGroupLookup(String groupId)
-		{
-			String cacheKey = this.CacheGroupKey(groupId);
+			String cacheKey = this.CachePrincipalGroupKey(principalId);
 			String content = await this._cache.GetStringAsync(cacheKey);
 			if (String.IsNullOrEmpty(content)) return null;
 
-			return _jsonService.FromJsonSafe<List<ContextGrant>>(content);
+			return _jsonService.FromJsonSafe<Model.Group>(content);
 		}
 
-		public async Task<List<ContextGrant>> CacheUserDatasetGrantLookup(String subjectId)
+		public async Task PrincipalGroupUpdate(String principalId, Model.Group content)
 		{
-			String cacheKey = this.CacheUserDatasetGrantKey(subjectId);
-			String content = await this._cache.GetStringAsync(cacheKey);
-			if (String.IsNullOrEmpty(content)) return null;
-
-			return _jsonService.FromJsonSafe<List<ContextGrant>>(content);
-		}
-
-		public async Task CacheGroupUpdate(String groupId, List<ContextGrant> content)
-		{
-			String cacheKey = this.CacheGroupKey(groupId);
+			String cacheKey = this.CachePrincipalGroupKey(principalId);
 			await this._cache.SetStringAsync(cacheKey, _jsonService.ToJsonSafe(content), this._config.LookupCache.ToOptions());
 		}
 
-		public async Task CacheUserDatasetGrantUpdate(String subjectId, List<ContextGrant> content)
+		private async Task PurgePrincipalGroupCache(IEnumerable<String> principalIds)
 		{
-			String cacheKey = this.CacheUserDatasetGrantKey(subjectId);
-			await this._cache.SetStringAsync(cacheKey, _jsonService.ToJsonSafe(content), this._config.LookupCache.ToOptions());
-		}
-
-		private async Task PurgeGroupCache(IEnumerable<String> groupIds)
-		{
-			if (groupIds == null) return;
+			if (principalIds == null) return;
 			try
 			{
-				foreach (String groupId in groupIds)
+				foreach (String principalId in principalIds)
 				{
-					String cacheKey = this.CacheGroupKey(groupId);
+					String cacheKey = this.CachePrincipalGroupKey(principalId);
 					await this._cache.RemoveAsync(cacheKey);
 				}
 			}
@@ -128,18 +103,47 @@ namespace DataGEMS.Gateway.App.Service.AAI
 				this._logger.Error(ex, new MapLogEntry("problem invalidating cache entry. skipping")
 					.And("prefix", this._config.LookupCache?.Prefix)
 					.And("pattern", this._config.LookupCache?.KeyPattern)
-					.And("groups", groupIds));
+					.And("principals", principalIds));
 			}
 		}
 
-		private async Task PurgeUserDatasetGrantCache(IEnumerable<String> subjectIds)
+		#endregion
+
+		#region Subgroups
+
+		private String CacheSubGroupsKey(String parentId)
 		{
-			if (subjectIds == null) return;
+			String cacheKey = this._config.LookupCache.ToKey(new KeyValuePair<String, String>[] {
+				new KeyValuePair<string, string>("{prefix}", this._config.LookupCache.Prefix),
+				new KeyValuePair<string, string>("{kind}", "sub-groups"),
+				new KeyValuePair<string, string>("{key}", parentId)
+			});
+			return cacheKey;
+		}
+
+		public async Task<List<Model.Group>> SubGroupsLookup(String parentId)
+		{
+			String cacheKey = this.CacheSubGroupsKey(parentId);
+			String content = await this._cache.GetStringAsync(cacheKey);
+			if (String.IsNullOrEmpty(content)) return null;
+
+			return _jsonService.FromJsonSafe<List<Model.Group>>(content);
+		}
+
+		public async Task SubGroupsUpdate(String parentId, List<Model.Group> content)
+		{
+			String cacheKey = this.CacheSubGroupsKey(parentId);
+			await this._cache.SetStringAsync(cacheKey, _jsonService.ToJsonSafe(content), this._config.LookupCache.ToOptions());
+		}
+
+		private async Task PurgeSubGroupsCache(IEnumerable<String> parentIds)
+		{
+			if (parentIds == null) return;
 			try
 			{
-				foreach (String subjectId in subjectIds)
+				foreach (String parentId in parentIds)
 				{
-					String cacheKey = this.CacheUserDatasetGrantKey(subjectId);
+					String cacheKey = this.CacheSubGroupsKey(parentId);
 					await this._cache.RemoveAsync(cacheKey);
 				}
 			}
@@ -148,28 +152,59 @@ namespace DataGEMS.Gateway.App.Service.AAI
 				this._logger.Error(ex, new MapLogEntry("problem invalidating cache entry. skipping")
 					.And("prefix", this._config.LookupCache?.Prefix)
 					.And("pattern", this._config.LookupCache?.KeyPattern)
-					.And("users", subjectIds));
+					.And("parents", parentIds));
 			}
 		}
 
-		private String CacheGroupKey(String groupId)
+		#endregion
+
+		#region User Groups
+
+		private String CacheUserGroupsKey(String userSubjectId)
 		{
 			String cacheKey = this._config.LookupCache.ToKey(new KeyValuePair<String, String>[] {
 				new KeyValuePair<string, string>("{prefix}", this._config.LookupCache.Prefix),
-				new KeyValuePair<string, string>("{kind}", "group-dataset-grant"),
-				new KeyValuePair<string, string>("{key}", groupId.ToString())
+				new KeyValuePair<string, string>("{kind}", "user-groups"),
+				new KeyValuePair<string, string>("{key}", userSubjectId)
 			});
 			return cacheKey;
 		}
 
-		private String CacheUserDatasetGrantKey(String subjectId)
+		public async Task<List<Model.Group>> UserGroupsLookup(String userSubjectId)
 		{
-			String cacheKey = this._config.LookupCache.ToKey(new KeyValuePair<String, String>[] {
-				new KeyValuePair<string, string>("{prefix}", this._config.LookupCache.Prefix),
-				new KeyValuePair<string, string>("{kind}", "user-dataset-grant"),
-				new KeyValuePair<string, string>("{key}", subjectId)
-			});
-			return cacheKey;
+			String cacheKey = this.CacheUserGroupsKey(userSubjectId);
+			String content = await this._cache.GetStringAsync(cacheKey);
+			if (String.IsNullOrEmpty(content)) return null;
+
+			return _jsonService.FromJsonSafe<List<Model.Group>>(content);
 		}
+
+		public async Task UserGroupsUpdate(String userSubjectId, List<Model.Group> content)
+		{
+			String cacheKey = this.CacheUserGroupsKey(userSubjectId);
+			await this._cache.SetStringAsync(cacheKey, _jsonService.ToJsonSafe(content), this._config.LookupCache.ToOptions());
+		}
+
+		private async Task PurgeUserGroupsCache(IEnumerable<String> userSubjectIds)
+		{
+			if (userSubjectIds == null) return;
+			try
+			{
+				foreach (String userSubjectId in userSubjectIds)
+				{
+					String cacheKey = this.CacheUserGroupsKey(userSubjectId);
+					await this._cache.RemoveAsync(cacheKey);
+				}
+			}
+			catch (System.Exception ex)
+			{
+				this._logger.Error(ex, new MapLogEntry("problem invalidating cache entry. skipping")
+					.And("prefix", this._config.LookupCache?.Prefix)
+					.And("pattern", this._config.LookupCache?.KeyPattern)
+					.And("userSubjects", userSubjectIds));
+			}
+		}
+
+		#endregion
 	}
 }

@@ -60,24 +60,24 @@ namespace DataGEMS.Gateway.App.Formatting
 			await this.PurgeCache(e.Ids);
 		}
 
-		private async void OnUserDeleted(object sender, OnEventArgs<Guid> e)
+		private async void OnUserDeleted(object sender, OnUserEventArgs e)
 		{
 			this._logger.Debug(new MapLogEntry("received event")
 				.And("event", nameof(OnUserDeleted))
 				.And("prefix", this._config.LookupCache?.Prefix)
 				.And("pattern", this._config.LookupCache?.KeyPattern)
 				.And("userIds", e.Ids));
-			await this.PurgeCache(e.Ids);
+			await this.PurgeCache(e.Ids.Select(x=> x.UserId).ToList());
 		}
 
-		private async void OnUserTouched(object sender, OnEventArgs<Guid> e)
+		private async void OnUserTouched(object sender, OnUserEventArgs e)
 		{
 			this._logger.Debug(new MapLogEntry("received event")
 				.And("event", nameof(OnUserTouched))
 				.And("prefix", this._config.LookupCache?.Prefix)
 				.And("pattern", this._config.LookupCache?.KeyPattern)
 				.And("userIds", e.Ids));
-			await this.PurgeCache(e.Ids);
+			await this.PurgeCache(e.Ids.Select(x => x.UserId).ToList());
 		}
 
 		public async Task<UserFormattingProfile> CacheLookup(Guid userId)

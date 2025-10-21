@@ -1,22 +1,20 @@
 ﻿using DataGEMS.Gateway.App.Common.Auth;
-using static DataGEMS.Gateway.App.Common.Auth.ContextGrant;
 
 namespace DataGEMS.Gateway.App.Service.AAI
 {
 	public interface IAAIService
 	{
-		Task<ContextGrantGroupTarget> TargetOfContextGrantGroup(String groupId);
-		Task<List<ContextGrant>> LookupContextGrantGroups(String code);
-		Task<List<ContextGrant>> BootstrapContextGrantGroupsFor(ContextGrant.TargetType type, String code);
-		Task DeleteContextGrantGroupsFor(String code);
-		Task AddUserToContextGrantGroup(String subjectId, String groupId);
-		Task RemoveUserFromContextGrantGroup(String subjectId, String groupId);
-		Task<List<ContextGrant>> UserContextGrants(String subjectId);
-	}
-
-	public class ContextGrantGroupTarget
-	{
-		public ContextGrant.TargetType Type { get; set; }
-		public String Code { get; set; }
+		Task BootstrapUserContextGrants(String userSubjectId);
+		Task BootstrapGroupContextGrants(String userGroupId);
+		Task<List<ContextGrant>> LookupPrincipalContextGrants(String principalId);
+		Task<List<ContextGrant>> LookupUserEffectiveContextGrants(String userSubjectId);
+		Task AssignCollectionGrantTo(String principalId, Guid collectionId, String role);
+		Task AssignCollectionGrantTo(String principalId, Guid collectionId, List<String> roles);
+		Task UnassignCollectionGrantFrom(String principalId, Guid collectionId, String role);
+		Task AssignDatasetGrantTo(String principalId, Guid datasetId, String role);
+		Task AssignDatasetGrantTo(String principalId, Guid datasetId, List<String> roles);
+		Task UnassignDatasetGrantFrom(String principalId, Guid datasetId, String role);
+		Task DeleteCollectionGrants(Guid collectionId);
+		Task DeleteDatasetGrants(Guid datasetId);
 	}
 }

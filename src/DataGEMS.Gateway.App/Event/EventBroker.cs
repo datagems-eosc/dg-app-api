@@ -5,74 +5,74 @@ namespace DataGEMS.Gateway.App.Event
 	{
 		#region User Deleted
 
-		private EventHandler<OnEventArgs<Guid>> _userDeleted;
-		public event EventHandler<OnEventArgs<Guid>> UserDeleted
+		private EventHandler<OnUserEventArgs> _userDeleted;
+		public event EventHandler<OnUserEventArgs> UserDeleted
 		{
 			add { this._userDeleted += value; }
 			remove { this._userDeleted -= value; }
 		}
 
-		public void EmitUserDeleted(Guid id)
+		public void EmitUserDeleted(OnUserEventArgs.UserIdentifier id)
 		{
-			this.EmitUserDeleted(this, new List<Guid>() { id });
+			this.EmitUserDeleted(this, new List<OnUserEventArgs.UserIdentifier>() { id });
 		}
 
-		public void EmitUserDeleted(IEnumerable<Guid> ids)
+		public void EmitUserDeleted(IEnumerable<OnUserEventArgs.UserIdentifier> ids)
 		{
 			this.EmitUserDeleted(this, ids);
 		}
 
-		public void EmitUserDeleted(IEnumerable<OnEventArgs<Guid>> events)
+		public void EmitUserDeleted(IEnumerable<OnUserEventArgs> events)
 		{
 			this.EmitUserDeleted(this, events);
 		}
 
-		public void EmitUserDeleted(Object sender, IEnumerable<Guid> ids)
+		public void EmitUserDeleted(Object sender, IEnumerable<OnUserEventArgs.UserIdentifier> ids)
 		{
-			this._userDeleted?.Invoke(sender, new OnEventArgs<Guid>(ids));
+			this._userDeleted?.Invoke(sender, new OnUserEventArgs(ids));
 		}
 
-		public void EmitUserDeleted(Object sender, IEnumerable<OnEventArgs<Guid>> events)
+		public void EmitUserDeleted(Object sender, IEnumerable<OnUserEventArgs> events)
 		{
 			if (events == null) return;
-			foreach (OnEventArgs<Guid> ev in events) this._userDeleted?.Invoke(sender, ev);
+			foreach (OnUserEventArgs ev in events) this._userDeleted?.Invoke(sender, ev);
 		}
 
 		#endregion
 
 		#region User Touched
 
-		private EventHandler<OnEventArgs<Guid>> _userTouched;
-		public event EventHandler<OnEventArgs<Guid>> UserTouched
+		private EventHandler<OnUserEventArgs> _userTouched;
+		public event EventHandler<OnUserEventArgs> UserTouched
 		{
 			add { this._userTouched += value; }
 			remove { this._userTouched -= value; }
 		}
 
-		public void EmitUserTouched(Guid id)
+		public void EmitUserTouched(OnUserEventArgs.UserIdentifier id)
 		{
-			this.EmitUserTouched(this, new List<Guid>() { id });
+			this.EmitUserTouched(this, new List<OnUserEventArgs.UserIdentifier>() { id });
 		}
 
-		public void EmitUserTouched(IEnumerable<Guid> ids)
+		public void EmitUserTouched(IEnumerable<OnUserEventArgs.UserIdentifier> ids)
 		{
 			this.EmitUserTouched(this, ids);
 		}
 
-		public void EmitUserTouched(IEnumerable<OnEventArgs<Guid>> events)
+		public void EmitUserTouched(IEnumerable<OnUserEventArgs> events)
 		{
 			this.EmitUserTouched(this, events);
 		}
 
-		public void EmitUserTouched(Object sender, IEnumerable<Guid> ids)
+		public void EmitUserTouched(Object sender, IEnumerable<OnUserEventArgs.UserIdentifier> ids)
 		{
-			this._userTouched?.Invoke(sender, new OnEventArgs<Guid>(ids));
+			this._userTouched?.Invoke(sender, new OnUserEventArgs(ids));
 		}
 
-		public void EmitUserTouched(Object sender, IEnumerable<OnEventArgs<Guid>> events)
+		public void EmitUserTouched(Object sender, IEnumerable<OnUserEventArgs> events)
 		{
 			if (events == null) return;
-			foreach (OnEventArgs<Guid> ev in events) this._userTouched?.Invoke(sender, ev);
+			foreach (OnUserEventArgs ev in events) this._userTouched?.Invoke(sender, ev);
 		}
 
 		#endregion

@@ -115,7 +115,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			this._logger.Debug(new MapLogEntry("context-grants").And("subject", "me"));
 
 			String subjectId = await this._authorizationContentResolver.SubjectIdOfCurrentUser();
-			List<App.Common.Auth.ContextGrant> grants = await this._aaiService.UserContextGrants(subjectId);
+			List<App.Common.Auth.ContextGrant> grants = await this._aaiService.LookupUserEffectiveContextGrants(subjectId);
 
 			this._accountingService.AccountFor(KnownActions.Query, KnownResources.ContextGroupAssignment.AsAccountable());
 
@@ -189,7 +189,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 
 			await this._authorizationService.AuthorizeForce(Permission.LookupContextGrantOther);
 
-			List<App.Common.Auth.ContextGrant> grants = await this._aaiService.UserContextGrants(subjectId);
+			List<App.Common.Auth.ContextGrant> grants = await this._aaiService.LookupUserEffectiveContextGrants(subjectId);
 
 			this._accountingService.AccountFor(KnownActions.Query, KnownResources.ContextGroupAssignment.AsAccountable());
 
@@ -256,37 +256,11 @@ namespace DataGEMS.Gateway.Api.Controllers
 			return grants;
 		}
 
-		[HttpGet("context-grants/of/{code}")]
-		[Authorize]
-		[ModelStateValidationFilter]
-		[SwaggerOperation(Summary = "Retrieve the available context grants for the provided code (collection or dataset id)")]
-		[SwaggerResponse(statusCode: 200, description: "The context grants available for the provided code", type: typeof(List<App.Common.Auth.ContextGrant>))]
-		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
-		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
-		[SwaggerResponse(statusCode: 500, description: "Internal error")]
-		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
-		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
-		public async Task<List<App.Common.Auth.ContextGrant>> ContextGrantsMe(
-			[FromRoute]
-			[SwaggerParameter(description: "The subject id of the user to retrieve context grants for", Required = true)]
-			String code)
-		{
-			this._logger.Debug(new MapLogEntry("context-grants").And("of", code));
-
-			await this._authorizationService.AuthorizeForce(Permission.LookupContextGrantGroups);
-
-			List<App.Common.Auth.ContextGrant> grants = await this._aaiService.LookupContextGrantGroups(code);
-
-			this._accountingService.AccountFor(KnownActions.Query, KnownResources.ContextGroup.AsAccountable());
-
-			return grants;
-		}
-
-		[HttpPost("context-grants/user/{userId}/group/{groupId}")]
+		[HttpPost("context-grants/user/{userId}/dataset/{datasetId}/role/{role}")]
 		[Authorize]
 		[ModelStateValidationFilter]
 		[ServiceFilter(typeof(AppTransactionFilter))]
-		[SwaggerOperation(Summary = "Add user to context grant group")]
+		[SwaggerOperation(Summary = "Add user to dataset context grant group")]
 		[SwaggerResponse(statusCode: 200, description: "The user was added to the context grant group")]
 		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
 		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
@@ -294,42 +268,70 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[SwaggerResponse(statusCode: 500, description: "Internal error")]
 		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
 		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
-		public async Task AddUserToContextGrantGroup(
+		public async Task AddUserToDatasetContextGrant(
 			[FromRoute]
 			[SwaggerParameter(description: "The user id to add to the provided context grant group", Required = true)]
 			Guid userId,
 			[FromRoute]
-			[SwaggerParameter(description: "The context grant group to add", Required = true)]
-			String groupId)
+			[SwaggerParameter(description: "The context grant dataset to add", Required = true)]
+			Guid datasetId,
+			[FromRoute]
+			[SwaggerParameter(description: "The context grant role to add", Required = true)]
+			String role)
 		{
-			this._logger.Debug(new MapLogEntry("adding").And("userId", userId).And("groupId", groupId));
+			this._logger.Debug(new MapLogEntry("adding").And("userId", userId).And("datasetId", datasetId).And("role", role));
 
 			String subjectId = await this._authorizationContentResolver.SubjectIdOfUserId(userId);
 			if (String.IsNullOrEmpty(subjectId)) throw new DGValidationException(this._errors.UserSync.Code, this._errors.UserSync.Message);
 
-			ContextGrantGroupTarget assignmentTarget = await this._aaiService.TargetOfContextGrantGroup(groupId);
-			if (assignmentTarget == null) throw new DGNotFoundException(this._localizer["general_notFound", groupId, nameof(ContextGrant)]);
-
-			if (!Guid.TryParse(assignmentTarget.Code, out var targetId)) throw new DGValidationException(this._errors.ModelValidation.Code, this._errors.ModelValidation.Message);
-			HashSet<string> contextRoles = null;
-			switch (assignmentTarget.Type)
-			{
-				case ContextGrant.TargetType.Dataset: { contextRoles = await _authorizationContentResolver.EffectiveContextRolesForDataset(targetId); break; }
-				case ContextGrant.TargetType.Group: { contextRoles = await _authorizationContentResolver.ContextRolesForCollection(targetId); break; }
-				default: throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.AAI);
-			}
+			HashSet<string> contextRoles = await _authorizationContentResolver.EffectiveContextRolesForDataset(datasetId);
 			await this._authorizationService.AuthorizeOrAffiliatedContextForce(new AffiliatedContextResource(contextRoles), Permission.AddUserToContextGrantGroup);
 
-			await this._aaiService.AddUserToContextGrantGroup(subjectId, groupId);
-
+			await this._aaiService.AssignDatasetGrantTo(subjectId, datasetId, role);
 			this._accountingService.AccountFor(KnownActions.Persist, KnownResources.ContextGroupAssignment.AsAccountable());
 		}
 
-		[HttpDelete("context-grants/user/{userId}/group/{groupId}")]
+		[HttpPost("context-grants/user/{userId}/collection/{collectionId}/role/{role}")]
 		[Authorize]
 		[ModelStateValidationFilter]
 		[ServiceFilter(typeof(AppTransactionFilter))]
-		[SwaggerOperation(Summary = "Remove user from context grant group")]
+		[SwaggerOperation(Summary = "Add user to collection context grant group")]
+		[SwaggerResponse(statusCode: 200, description: "The user was added to the context grant group")]
+		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
+		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
+		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
+		[SwaggerResponse(statusCode: 500, description: "Internal error")]
+		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
+		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
+		public async Task AddUserToCollectionContextGrant(
+			[FromRoute]
+			[SwaggerParameter(description: "The user id to add to the provided context grant group", Required = true)]
+			Guid userId,
+			[FromRoute]
+			[SwaggerParameter(description: "The context grant collection to add", Required = true)]
+			Guid collectionId,
+			[FromRoute]
+			[SwaggerParameter(description: "The context grant role to add", Required = true)]
+			String role)
+		{
+			this._logger.Debug(new MapLogEntry("adding").And("userId", userId).And("collectionId", collectionId).And("role", role));
+
+			String subjectId = await this._authorizationContentResolver.SubjectIdOfUserId(userId);
+			if (String.IsNullOrEmpty(subjectId)) throw new DGValidationException(this._errors.UserSync.Code, this._errors.UserSync.Message);
+
+			HashSet<string> contextRoles = await _authorizationContentResolver.ContextRolesForCollection(collectionId);
+			await this._authorizationService.AuthorizeOrAffiliatedContextForce(new AffiliatedContextResource(contextRoles), Permission.AddUserToContextGrantGroup);
+
+			await this._aaiService.AssignCollectionGrantTo(subjectId, collectionId, role);
+			this._accountingService.AccountFor(KnownActions.Persist, KnownResources.ContextGroupAssignment.AsAccountable());
+		}
+
+
+		[HttpDelete("context-grants/user/{userId}/dataset/{datasetId}/role/{role}")]
+		[Authorize]
+		[ModelStateValidationFilter]
+		[ServiceFilter(typeof(AppTransactionFilter))]
+		[SwaggerOperation(Summary = "Remove user from dataset context grant group")]
 		[SwaggerResponse(statusCode: 200, description: "The user was removed from the context grant group")]
 		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
 		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
@@ -337,34 +339,61 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[SwaggerResponse(statusCode: 500, description: "Internal error")]
 		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
 		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
-		public async Task RemoveUserFromContextGrantGroup(
+		public async Task RemoveUserFromDatasetContextGrant(
 			[FromRoute]
 			[SwaggerParameter(description: "The user id to remove from the provided context grant group", Required = true)]
 			Guid userId,
 			[FromRoute]
-			[SwaggerParameter(description: "The context grant group to remove from", Required = true)]
-			String groupId)
+			[SwaggerParameter(description: "The context grant dataset to remove", Required = true)]
+			Guid datasetId,
+			[FromRoute]
+			[SwaggerParameter(description: "The context grant role to add", Required = true)]
+			String role)
 		{
-			this._logger.Debug(new MapLogEntry("removing").And("userId", userId).And("groupId", groupId));
+			this._logger.Debug(new MapLogEntry("removing").And("userId", userId).And("datasetId", datasetId).And("role", role));
 
 			String subjectId = await this._authorizationContentResolver.SubjectIdOfUserId(userId);
 			if (String.IsNullOrEmpty(subjectId)) throw new DGValidationException(this._errors.UserSync.Code, this._errors.UserSync.Message);
 
-			ContextGrantGroupTarget assignmentTarget = await this._aaiService.TargetOfContextGrantGroup(groupId);
-			if (assignmentTarget == null) throw new DGNotFoundException(this._localizer["general_notFound", groupId, nameof(ContextGrant)]);
-
-			if (!Guid.TryParse(assignmentTarget.Code, out var targetId)) throw new DGValidationException(this._errors.ModelValidation.Code, this._errors.ModelValidation.Message);
-			HashSet<string> contextRoles = null;
-			switch (assignmentTarget.Type)
-			{
-				case ContextGrant.TargetType.Dataset: { contextRoles = await _authorizationContentResolver.EffectiveContextRolesForDataset(targetId); break; }
-				case ContextGrant.TargetType.Group: { contextRoles = await _authorizationContentResolver.ContextRolesForCollection(targetId); break; }
-				default: throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.AAI);
-			}
+			HashSet<string> contextRoles = await _authorizationContentResolver.EffectiveContextRolesForDataset(datasetId);
 			await this._authorizationService.AuthorizeOrAffiliatedContextForce(new AffiliatedContextResource(contextRoles), Permission.RemoveUserFromContextGrantGroup);
 
-			await this._aaiService.RemoveUserFromContextGrantGroup(subjectId, groupId);
+			await this._aaiService.UnassignDatasetGrantFrom(subjectId, datasetId, role);
+			this._accountingService.AccountFor(KnownActions.Delete, KnownResources.ContextGroupAssignment.AsAccountable());
+		}
 
+		[HttpDelete("context-grants/user/{userId}/collection/{collectionId}/role/{role}")]
+		[Authorize]
+		[ModelStateValidationFilter]
+		[ServiceFilter(typeof(AppTransactionFilter))]
+		[SwaggerOperation(Summary = "Remove user from collection context grant group")]
+		[SwaggerResponse(statusCode: 200, description: "The user was removed from the context grant group")]
+		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
+		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
+		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
+		[SwaggerResponse(statusCode: 500, description: "Internal error")]
+		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
+		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
+		public async Task RemoveUserFromCollectionContextGrant(
+			[FromRoute]
+			[SwaggerParameter(description: "The user id to remove from the provided context grant group", Required = true)]
+			Guid userId,
+			[FromRoute]
+			[SwaggerParameter(description: "The context grant collection to remove", Required = true)]
+			Guid collectionId,
+			[FromRoute]
+			[SwaggerParameter(description: "The context grant role to add", Required = true)]
+			String role)
+		{
+			this._logger.Debug(new MapLogEntry("removing").And("userId", userId).And("collectionId", collectionId).And("role", role));
+
+			String subjectId = await this._authorizationContentResolver.SubjectIdOfUserId(userId);
+			if (String.IsNullOrEmpty(subjectId)) throw new DGValidationException(this._errors.UserSync.Code, this._errors.UserSync.Message);
+
+			HashSet<string> contextRoles = await _authorizationContentResolver.ContextRolesForCollection(collectionId);
+			await this._authorizationService.AuthorizeOrAffiliatedContextForce(new AffiliatedContextResource(contextRoles), Permission.RemoveUserFromContextGrantGroup);
+
+			await this._aaiService.UnassignCollectionGrantFrom(subjectId, collectionId, role);
 			this._accountingService.AccountFor(KnownActions.Delete, KnownResources.ContextGroupAssignment.AsAccountable());
 		}
 	}
