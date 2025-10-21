@@ -121,5 +121,38 @@ namespace DataGEMS.Gateway.Api.Controllers
 
 			return model;
 		}
+
+		[HttpPost("group/query")]
+		[Authorize]
+		[ModelStateValidationFilter]
+		[ValidationFilter(typeof(UserGroupLookup.QueryValidator), "lookup")]
+		[SwaggerOperation(Summary = "Query user groups")]
+		[SwaggerResponse(statusCode: 200, description: "The list of matching user groups along with the count", type: typeof(QueryResult<App.Model.UserGroup>))]
+		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
+		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
+		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
+		[SwaggerResponse(statusCode: 500, description: "Internal error")]
+		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
+		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
+		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
+		public async Task<QueryResult<App.Model.UserGroup>> Query(
+			[FromBody]
+			[SwaggerRequestBody(description: "The query predicates", Required = true)]
+			UserGroupLookup lookup)
+		{
+			this._logger.Debug(new MapLogEntry("querying").And("type", nameof(App.Model.UserGroup)).And("lookup", lookup));
+
+			IFieldSet censoredFields = await this._censorFactory.Censor<UserGroupCensor>().Censor(lookup.Project, CensorContext.AsCensor());
+			if (lookup.Project.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+
+			UserGroupHttpQuery query = lookup.Enrich(this._queryFactory).Authorize(AuthorizationFlags.Any);
+			List<App.Service.AAI.Model.Group> datas = await query.CollectAsync();
+			List<App.Model.UserGroup> models = await this._builderFactory.Builder<UserGroupBuilder>().Authorize(AuthorizationFlags.Any).Build(censoredFields, datas);
+			int count = models.Count;
+
+			this._accountingService.AccountFor(KnownActions.Query, KnownResources.UserGroup.AsAccountable());
+
+			return new QueryResult<App.Model.UserGroup>(models, count);
+		}
 	}
 }

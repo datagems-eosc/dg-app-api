@@ -114,19 +114,31 @@ namespace DataGEMS.Gateway.App.Service.AAI
 			String token = await this._accessTokenService.GetClientAccessTokenAsync(this._config.Scope);
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
 
-			HttpRequestMessage lookupSubjectGroupsHttpRequest = new HttpRequestMessage(HttpMethod.Get, $"{this._config.BaseUrl}{this._config.UserGroupsEndpoint.Replace("{groupId}", userSubjectIdToUse)}?briefRepresentation=false");
-			lookupSubjectGroupsHttpRequest.Headers.Add(HeaderNames.Accept, "application/json");
-			lookupSubjectGroupsHttpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+			List<Service.AAI.Model.Group> groups = new List<Service.AAI.Model.Group>();
+			int first = 0;
+			int max = 100;
 
-			String groupsContent = await this.SendRequest(lookupSubjectGroupsHttpRequest);
-			List<Model.Group> groups = null;
-			try { groups = String.IsNullOrEmpty(groupsContent) ? new List<Model.Group>() : this._jsonHandlingService.FromJson<List<Model.Group>>(groupsContent); }
-			catch (System.Exception ex)
+			while (true)
 			{
-				this._logger.LogError(ex, "Failed to parse response: {content}", groupsContent);
-				throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.AAI, this._logCorrelationScope.CorrelationId);
+				HttpRequestMessage lookupSubjectGroupsHttpRequest = new HttpRequestMessage(HttpMethod.Get, $"{this._config.BaseUrl}{this._config.UserGroupsEndpoint.Replace("{groupId}", userSubjectIdToUse)}?briefRepresentation=false&first={first}&max={max}");
+				lookupSubjectGroupsHttpRequest.Headers.Add(HeaderNames.Accept, "application/json");
+				lookupSubjectGroupsHttpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+				String groupsContent = await this.SendRequest(lookupSubjectGroupsHttpRequest);
+				List<Model.Group> pageGroups = null;
+				try { pageGroups = String.IsNullOrEmpty(groupsContent) ? new List<Model.Group>() : this._jsonHandlingService.FromJson<List<Model.Group>>(groupsContent); }
+				catch (System.Exception ex)
+				{
+					this._logger.LogError(ex, "Failed to parse response: {content}", groupsContent);
+					throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.AAI, this._logCorrelationScope.CorrelationId);
+				}
+				if (pageGroups.Count == 0) break;
+
+				pageGroups = pageGroups.Where(x => x.Path.StartsWith($"/{this._config.ContextGrantGroupPrefix}") && x.Path.Split('/', StringSplitOptions.RemoveEmptyEntries).Length == 2).ToList();
+
+				groups.AddRange(pageGroups);
+				first += max;
 			}
-			groups = groups.Where(x => x.Path.StartsWith($"/{this._config.ContextGrantGroupPrefix}") && x.Path.Split('/', StringSplitOptions.RemoveEmptyEntries).Length == 2).ToList();
 
 			await this._aaiCache.UserGroupsUpdate(userSubjectIdToUse, groups);
 			return groups;

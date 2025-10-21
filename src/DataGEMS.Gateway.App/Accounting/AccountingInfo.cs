@@ -39,6 +39,7 @@ namespace DataGEMS.Gateway.App.Accounting
 		UserSettings = 9,
 		ContextGroup = 10,
 		ContextGroupAssignment = 11,
+		UserGroup = 12,
 	}
 
 	public class AccountingInfo
