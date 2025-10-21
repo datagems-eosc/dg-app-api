@@ -669,6 +669,80 @@ namespace DataGEMS.Gateway.App.Event
 
 		#endregion
 
+		#region Dataset Deleted
+
+		private EventHandler<OnEventArgs<Guid>> _datasetDeleted;
+		public event EventHandler<OnEventArgs<Guid>> DatasetDeleted
+		{
+			add { this._datasetDeleted += value; }
+			remove { this._datasetDeleted -= value; }
+		}
+
+		public void EmitDatasetDeleted(Guid id)
+		{
+			this.EmitDatasetDeleted(this, new List<Guid>() { id });
+		}
+
+		public void EmitDatasetDeleted(IEnumerable<Guid> ids)
+		{
+			this.EmitDatasetDeleted(this, ids);
+		}
+
+		public void EmitDatasetDeleted(IEnumerable<OnEventArgs<Guid>> events)
+		{
+			this.EmitDatasetDeleted(this, events);
+		}
+
+		public void EmitDatasetDeleted(Object sender, IEnumerable<Guid> ids)
+		{
+			this._datasetDeleted?.Invoke(sender, new OnEventArgs<Guid>(ids));
+		}
+
+		public void EmitDatasetDeleted(Object sender, IEnumerable<OnEventArgs<Guid>> events)
+		{
+			if (events == null) return;
+			foreach (OnEventArgs<Guid> ev in events) this._datasetDeleted?.Invoke(sender, ev);
+		}
+
+		#endregion
+
+		#region Dataset Touched
+
+		private EventHandler<OnEventArgs<Guid>> _datasetTouched;
+		public event EventHandler<OnEventArgs<Guid>> DatasetTouched
+		{
+			add { this._datasetTouched += value; }
+			remove { this._datasetTouched -= value; }
+		}
+
+		public void EmitDatasetTouched(Guid id)
+		{
+			this.EmitDatasetTouched(this, new List<Guid>() { id });
+		}
+
+		public void EmitDatasetTouched(IEnumerable<Guid> ids)
+		{
+			this.EmitDatasetTouched(this, ids);
+		}
+
+		public void EmitDatasetTouched(IEnumerable<OnEventArgs<Guid>> events)
+		{
+			this.EmitDatasetTouched(this, events);
+		}
+
+		public void EmitDatasetTouched(Object sender, IEnumerable<Guid> ids)
+		{
+			this._datasetTouched?.Invoke(sender, new OnEventArgs<Guid>(ids));
+		}
+
+		public void EmitDatasetTouched(Object sender, IEnumerable<OnEventArgs<Guid>> events)
+		{
+			if (events == null) return;
+			foreach (OnEventArgs<Guid> ev in events) this._datasetTouched?.Invoke(sender, ev);
+		}
+
+		#endregion
+
 		#region UserDatasetGrant Deleted
 
 		private EventHandler<OnEventArgs<String>> _userDatasetGrantDeleted;

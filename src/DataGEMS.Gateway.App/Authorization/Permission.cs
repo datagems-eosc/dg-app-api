@@ -31,6 +31,9 @@ namespace DataGEMS.Gateway.App.Authorization
 		public const String CanExecuteInDataExploration = "CanExecuteInDataExploration";
 		//Dataset
 		public const String BrowseDataset = "BrowseDataset";
+		public const String OnboardDataset = "OnboardDataset";
+		public const String EditDataset = "EditDataset";
+		public const String DeleteDataset = "DeleteDataset";
 		//DatasetCollection
 		public const String BrowseDatasetCollection = "BrowseDatasetCollection";
 		//User

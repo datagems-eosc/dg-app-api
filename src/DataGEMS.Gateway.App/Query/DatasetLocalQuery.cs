@@ -1,6 +1,7 @@
 ﻿using Cite.Tools.Common.Extensions;
 using DataGEMS.Gateway.App.Authorization;
 using DataGEMS.Gateway.App.Common;
+using DataGEMS.Gateway.App.Service.DataManagement;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataGEMS.Gateway.App.Query
@@ -172,39 +173,15 @@ namespace DataGEMS.Gateway.App.Query
 		public async Task<List<Service.DataManagement.Model.Dataset>> CollectAsyncAsModels()
 		{
 			List<Service.DataManagement.Data.Dataset> datas = await this.CollectAsync();
-			List<Service.DataManagement.Model.Dataset> models = datas.Select(x => DatasetLocalQuery.ToModel(x)).ToList();
+			List<Service.DataManagement.Model.Dataset> models = datas.Select(x => x.ToModel()).ToList();
 			return models;
 		}
 
 		public async Task<Service.DataManagement.Model.Dataset> FirstAsyncAsModel()
 		{
 			Service.DataManagement.Data.Dataset datas = await this.FirstAsync();
-			Service.DataManagement.Model.Dataset models = DatasetLocalQuery.ToModel(datas);
+			Service.DataManagement.Model.Dataset models = datas.ToModel();
 			return models;
-		}
-
-		private static Service.DataManagement.Model.Dataset ToModel(Service.DataManagement.Data.Dataset data)
-		{
-			if(data == null) return null;
-			return new Service.DataManagement.Model.Dataset()
-			{
-				Id = data.Id,
-				Code = data.Code,
-				Name = data.Name,
-				Description = data.Description,
-				License = data.License,
-				MimeType = data.MimeType,
-				Size = data.Size,
-				Url = data.Url,
-				Version = data.Version,
-				Headline = data.Headline,
-				Keywords = data.Keywords.ParseCsv(),
-				FieldOfScience = data.FieldOfScience.ParseCsv(),
-				Language = data.Language.ParseCsv(),
-				Country = data.Country.ParseCsv(),
-				DatePublished = data.DatePublished,
-				ProfileRaw = data.Profile
-			};
 		}
 	}
 }

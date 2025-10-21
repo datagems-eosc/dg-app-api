@@ -5,7 +5,6 @@ using Cite.Tools.FieldSet;
 using Cite.Tools.Logging;
 using Cite.Tools.Logging.Extensions;
 using DataGEMS.Gateway.App.Authorization;
-using DataGEMS.Gateway.App.Common.Auth;
 using DataGEMS.Gateway.App.ErrorCode;
 using DataGEMS.Gateway.App.Event;
 using DataGEMS.Gateway.App.Exception;

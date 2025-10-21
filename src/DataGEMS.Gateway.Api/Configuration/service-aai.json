@@ -10,6 +10,7 @@
 			"ContextGrantTypeUserAttributeValue": "usr",
 			"ContextGrantTypeGroupAttributeValue": "grp",
 			"AutoAssignGrantsOnNewCollection": [ "dg_col-manage", "dg_col-edit", "dg_col-delete", "dg_col-browse" ],
+			"AutoAssignGrantsOnNewDataset": [ "dg_ds-manage", "dg_ds-edit", "dg_ds-delete", "dg_col-browse", "dg_col-search", "dg_col-download" ],
 			"GroupsEndpoint": "groups",
 			"GroupRoleMappingsEndpoint": "groups/{groupId}/role-mappings/realm",
 			"GroupEndpoint": "groups/{groupId}",
