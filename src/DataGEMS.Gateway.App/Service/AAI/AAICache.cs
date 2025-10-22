@@ -33,11 +33,12 @@ namespace DataGEMS.Gateway.App.Service.AAI
 			this._serviceProvider = serviceProvider;
 		}
 
-		//TODO: Work on cache invalidation
+		//GOTCHA: There are cases for external modifications / group membership changes where direct cache invalidation will not work. In these cases we rely on time based cache evication
 		public void RegisterListener()
 		{
 			this._eventBroker.UserTouched += OnUserTouched;
 			this._eventBroker.UserDeleted += OnUserDeleted;
+			this._eventBroker.HierarchyContextGrantTouched += OnHierarhcyContextGrantTouched;
 		}
 
 		private async void OnUserDeleted(object sender, OnUserEventArgs e)
@@ -46,8 +47,12 @@ namespace DataGEMS.Gateway.App.Service.AAI
 				.And("event", nameof(OnUserDeleted))
 				.And("prefix", this._config.LookupCache?.Prefix)
 				.And("pattern", this._config.LookupCache?.KeyPattern)
-				.And("groupIds", e.Ids));
-			await this.PurgePrincipalGroupCache(e.Ids?.Select(x => x.SubjectId).ToList());
+				.And("userIds", e.Ids));
+			List<String> subjectIds = e.Ids?.Select(x => x.SubjectId).ToList();
+			await this.PurgeUserGroupsCache(subjectIds);
+			await this.PurgeSubGroupsCache(subjectIds);
+			await PurgeUserGroupPrincipalGroupCache(subjectIds);
+			await PurgeUserPrincipalGroupCache(subjectIds);
 		}
 
 		private async void OnUserTouched(object sender, OnUserEventArgs e)
@@ -56,45 +61,62 @@ namespace DataGEMS.Gateway.App.Service.AAI
 				.And("event", nameof(OnUserTouched))
 				.And("prefix", this._config.LookupCache?.Prefix)
 				.And("pattern", this._config.LookupCache?.KeyPattern)
-				.And("groupIds", e.Ids));
-			await this.PurgePrincipalGroupCache(e.Ids?.Select(x => x.SubjectId).ToList());
+				.And("userIds", e.Ids));
+			List<String> subjectIds = e.Ids?.Select(x => x.SubjectId).ToList();
+			await this.PurgeUserGroupsCache(subjectIds);
+			await this.PurgeSubGroupsCache(subjectIds);
+			await PurgeUserGroupPrincipalGroupCache(subjectIds);
+			await PurgeUserPrincipalGroupCache(subjectIds);
 		}
 
-		#region Principal Group
+		private async void OnHierarhcyContextGrantTouched(object sender, OnEventArgs<String> e)
+		{
+			this._logger.Debug(new MapLogEntry("received event")
+				.And("event", nameof(OnUserTouched))
+				.And("prefix", this._config.LookupCache?.Prefix)
+				.And("pattern", this._config.LookupCache?.KeyPattern)
+				.And("subjectIds", e.Ids));
+			await this.PurgeUserGroupsCache(e.Ids);
+			await this.PurgeSubGroupsCache(e.Ids);
+			await PurgeUserGroupPrincipalGroupCache(e.Ids);
+			await PurgeUserPrincipalGroupCache(e.Ids);
+		}
 
-		private String CachePrincipalGroupKey(String principalId)
+		#region User Principal Group
+
+		private String CacheUserPrincipalGroupKey(String subjectId)
 		{
 			String cacheKey = this._config.LookupCache.ToKey(new KeyValuePair<String, String>[] {
 				new KeyValuePair<string, string>("{prefix}", this._config.LookupCache.Prefix),
-				new KeyValuePair<string, string>("{kind}", "principal-group"),
-				new KeyValuePair<string, string>("{key}", principalId)
+				new KeyValuePair<string, string>("{kind}", "user-principal-group"),
+				new KeyValuePair<string, string>("{key}", subjectId)
 			});
 			return cacheKey;
 		}
 
-		public async Task<Model.Group> PrincipalGroupLookup(String principalId)
+		public async Task<Model.Group> UserPrincipalGroupLookup(String subjectId)
 		{
-			String cacheKey = this.CachePrincipalGroupKey(principalId);
+			String cacheKey = this.CacheUserPrincipalGroupKey(subjectId);
 			String content = await this._cache.GetStringAsync(cacheKey);
 			if (String.IsNullOrEmpty(content)) return null;
 
 			return _jsonService.FromJsonSafe<Model.Group>(content);
 		}
 
-		public async Task PrincipalGroupUpdate(String principalId, Model.Group content)
+		public async Task UserPrincipalGroupUpdate(String subjectId, Model.Group content)
 		{
-			String cacheKey = this.CachePrincipalGroupKey(principalId);
+			String cacheKey = this.CacheUserPrincipalGroupKey(subjectId);
 			await this._cache.SetStringAsync(cacheKey, _jsonService.ToJsonSafe(content), this._config.LookupCache.ToOptions());
 		}
 
-		private async Task PurgePrincipalGroupCache(IEnumerable<String> principalIds)
+		private async Task PurgeUserPrincipalGroupCache(IEnumerable<String> subjectIds)
 		{
-			if (principalIds == null) return;
+			if (subjectIds == null) return;
 			try
 			{
-				foreach (String principalId in principalIds)
+				foreach (String subjectId in subjectIds)
 				{
-					String cacheKey = this.CachePrincipalGroupKey(principalId);
+					String cacheKey = this.CacheUserPrincipalGroupKey(subjectId);
 					await this._cache.RemoveAsync(cacheKey);
 				}
 			}
@@ -103,7 +125,56 @@ namespace DataGEMS.Gateway.App.Service.AAI
 				this._logger.Error(ex, new MapLogEntry("problem invalidating cache entry. skipping")
 					.And("prefix", this._config.LookupCache?.Prefix)
 					.And("pattern", this._config.LookupCache?.KeyPattern)
-					.And("principals", principalIds));
+					.And("subjects", subjectIds));
+			}
+		}
+
+		#endregion
+
+		#region UserGroup Principal Group
+
+		private String CacheUserGroupPrincipalGroupKey(String groupId)
+		{
+			String cacheKey = this._config.LookupCache.ToKey(new KeyValuePair<String, String>[] {
+				new KeyValuePair<string, string>("{prefix}", this._config.LookupCache.Prefix),
+				new KeyValuePair<string, string>("{kind}", "userGroup-principal-group"),
+				new KeyValuePair<string, string>("{key}", groupId)
+			});
+			return cacheKey;
+		}
+
+		public async Task<Model.Group> UserGroupPrincipalGroupLookup(String groupId)
+		{
+			String cacheKey = this.CacheUserGroupPrincipalGroupKey(groupId);
+			String content = await this._cache.GetStringAsync(cacheKey);
+			if (String.IsNullOrEmpty(content)) return null;
+
+			return _jsonService.FromJsonSafe<Model.Group>(content);
+		}
+
+		public async Task UserGroupPrincipalGroupUpdate(String groupId, Model.Group content)
+		{
+			String cacheKey = this.CacheUserGroupPrincipalGroupKey(groupId);
+			await this._cache.SetStringAsync(cacheKey, _jsonService.ToJsonSafe(content), this._config.LookupCache.ToOptions());
+		}
+
+		private async Task PurgeUserGroupPrincipalGroupCache(IEnumerable<String> groupIds)
+		{
+			if (groupIds == null) return;
+			try
+			{
+				foreach (String groupId in groupIds)
+				{
+					String cacheKey = this.CacheUserGroupPrincipalGroupKey(groupId);
+					await this._cache.RemoveAsync(cacheKey);
+				}
+			}
+			catch (System.Exception ex)
+			{
+				this._logger.Error(ex, new MapLogEntry("problem invalidating cache entry. skipping")
+					.And("prefix", this._config.LookupCache?.Prefix)
+					.And("pattern", this._config.LookupCache?.KeyPattern)
+					.And("groups", groupIds));
 			}
 		}
 

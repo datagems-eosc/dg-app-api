@@ -164,7 +164,7 @@ namespace DataGEMS.Gateway.App.Query
 
 			while (true)
 			{
-				HttpRequestMessage lookupSubjectGroupsHttpRequest = new HttpRequestMessage(HttpMethod.Get, $"{this._config.BaseUrl}{this._config.UserGroupsEndpoint.Replace("{groupId}", subjectId.ToLowerInvariant())}?briefRepresentation=false&first={first}&max={max}");
+				HttpRequestMessage lookupSubjectGroupsHttpRequest = new HttpRequestMessage(HttpMethod.Get, $"{this._config.BaseUrl}{this._config.UserGroupsEndpoint.Replace("{userId}", subjectId.ToLowerInvariant())}?briefRepresentation=false&first={first}&max={max}");
 				lookupSubjectGroupsHttpRequest.Headers.Add(HeaderNames.Accept, "application/json");
 				lookupSubjectGroupsHttpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 

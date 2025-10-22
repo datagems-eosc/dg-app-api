@@ -43,7 +43,7 @@ namespace DataGEMS.Gateway.App.Model.Builder
 
 			IFieldSet permissionFields = fields.ExtractPrefixed(this.AsPrefix(nameof(Model.Dataset.Permissions)));
 			Dictionary<Guid, HashSet<String>> datasetAffiliatedRoles = null;
-			if (!permissionFields.IsEmpty()) datasetAffiliatedRoles = await this._authorizationContentResolver.EffectiveContextRolesForDataset(datas.Select(x => x.Id).Distinct().ToList());
+			if (!permissionFields.IsEmpty()) datasetAffiliatedRoles = await this._authorizationContentResolver.EffectiveContextRolesForDatasetOfUser(datas.Select(x => x.Id).Distinct().ToList());
 
 			List<Model.Dataset> models = new List<Model.Dataset>();
 			foreach(Service.DataManagement.Model.Dataset d in datas ?? Enumerable.Empty<Service.DataManagement.Model.Dataset>())

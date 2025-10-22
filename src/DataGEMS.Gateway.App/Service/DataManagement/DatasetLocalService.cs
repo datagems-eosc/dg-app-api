@@ -75,7 +75,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 
 		private async Task AuthorizeForce(Guid datasetId, String permission)
 		{
-			HashSet<string> userDatasetGroupRoles = await _authorizationContentResolver.EffectiveContextRolesForDataset(datasetId);
+			HashSet<string> userDatasetGroupRoles = await _authorizationContentResolver.EffectiveContextRolesForDatasetOfUser(datasetId);
 			await this._authorizationService.AuthorizeOrAffiliatedContextForce(new AffiliatedContextResource(userDatasetGroupRoles), permission);
 		}
 
@@ -85,9 +85,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 
 			String subjectId = await this._authorizationContentResolver.SubjectIdOfCurrentUser();
 			await this._aaiService.BootstrapUserContextGrants(subjectId);
-			await this._aaiService.AssignDatasetGrantTo(subjectId, datasetId, this._aaiConfig.AutoAssignGrantsOnNewDataset);
-
-			this._eventBroker.EmitUserDatasetGrantTouched(subjectId);
+			await this._aaiService.AssignDatasetGrantToUser(subjectId, datasetId, this._aaiConfig.AutoAssignGrantsOnNewDataset);
 		}
 
 		public async Task<App.Model.Dataset> OnboardAsync(App.Model.DatasetPersist model, IFieldSet fields = null)

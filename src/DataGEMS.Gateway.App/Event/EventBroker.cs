@@ -743,76 +743,39 @@ namespace DataGEMS.Gateway.App.Event
 
 		#endregion
 
-		#region UserDatasetGrant Deleted
+		#region Hierarchy Context Grant Touched
 
-		private EventHandler<OnEventArgs<String>> _userDatasetGrantDeleted;
-		public event EventHandler<OnEventArgs<String>> UserDatasetGrantDeleted
+		private EventHandler<OnEventArgs<String>> _hierarchyContextGrantTouched;
+		public event EventHandler<OnEventArgs<String>> HierarchyContextGrantTouched
 		{
-			add { this._userDatasetGrantDeleted += value; }
-			remove { this._userDatasetGrantDeleted -= value; }
+			add { this._hierarchyContextGrantTouched += value; }
+			remove { this._hierarchyContextGrantTouched -= value; }
 		}
 
-		public void EmitUserDatasetGrantDeleted(String id)
+		public void EmitHierarchyContextGrantTouched(String id)
 		{
-			this.EmitUserDatasetGrantDeleted(this, new List<String>() { id });
+			this.EmitHierarchyContextGrantTouched(this, new List<String>() { id });
 		}
 
-		public void EmitUserDatasetGrantDeleted(IEnumerable<String> ids)
+		public void EmitHierarchyContextGrantTouched(IEnumerable<String> ids)
 		{
-			this.EmitUserDatasetGrantDeleted(this, ids);
+			this.EmitHierarchyContextGrantTouched(this, ids);
 		}
 
-		public void EmitUserDatasetGrantDeleted(IEnumerable<OnEventArgs<String>> events)
+		public void EmitHierarchyContextGrantTouched(IEnumerable<OnEventArgs<String>> events)
 		{
-			this.EmitUserDatasetGrantDeleted(this, events);
+			this.EmitHierarchyContextGrantTouched(this, events);
 		}
 
-		public void EmitUserDatasetGrantDeleted(Object sender, IEnumerable<String> ids)
+		public void EmitHierarchyContextGrantTouched(Object sender, IEnumerable<String> ids)
 		{
-			this._userDatasetGrantDeleted?.Invoke(sender, new OnEventArgs<String>(ids));
+			this._hierarchyContextGrantTouched?.Invoke(sender, new OnEventArgs<String>(ids));
 		}
 
-		public void EmitUserDatasetGrantDeleted(Object sender, IEnumerable<OnEventArgs<String>> events)
+		public void EmitHierarchyContextGrantTouched(Object sender, IEnumerable<OnEventArgs<String>> events)
 		{
 			if (events == null) return;
-			foreach (OnEventArgs<String> ev in events) this._userDatasetGrantDeleted?.Invoke(sender, ev);
-		}
-
-		#endregion
-
-		#region UserDatasetGrant Touched
-
-		private EventHandler<OnEventArgs<String>> _userDatasetGrantTouched;
-		public event EventHandler<OnEventArgs<String>> UserDatasetGrantTouched
-		{
-			add { this._userDatasetGrantTouched += value; }
-			remove { this._userDatasetGrantTouched -= value; }
-		}
-
-		public void EmitUserDatasetGrantTouched(String id)
-		{
-			this.EmitUserDatasetGrantTouched(this, new List<String>() { id });
-		}
-
-		public void EmitUserDatasetGrantTouched(IEnumerable<String> ids)
-		{
-			this.EmitUserDatasetGrantTouched(this, ids);
-		}
-
-		public void EmitUserDatasetGrantTouched(IEnumerable<OnEventArgs<String>> events)
-		{
-			this.EmitUserDatasetGrantTouched(this, events);
-		}
-
-		public void EmitUserDatasetGrantTouched(Object sender, IEnumerable<String> ids)
-		{
-			this._userDatasetGrantTouched?.Invoke(sender, new OnEventArgs<String>(ids));
-		}
-
-		public void EmitUserDatasetGrantTouched(Object sender, IEnumerable<OnEventArgs<String>> events)
-		{
-			if (events == null) return;
-			foreach (OnEventArgs<String> ev in events) this._userDatasetGrantTouched?.Invoke(sender, ev);
+			foreach (OnEventArgs<String> ev in events) this._hierarchyContextGrantTouched?.Invoke(sender, ev);
 		}
 
 		#endregion

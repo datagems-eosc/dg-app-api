@@ -43,7 +43,7 @@ namespace DataGEMS.Gateway.App.Model.Builder
 
 			IFieldSet permissionFields = fields.ExtractPrefixed(this.AsPrefix(nameof(Model.Collection.Permissions)));
 			Dictionary<Guid, HashSet<String>> collectionAffiliatedRoles = null;
-			if (!permissionFields.IsEmpty()) collectionAffiliatedRoles = await this._authorizationContentResolver.ContextRolesForCollection(datas.Select(x => x.Id).Distinct().ToList());
+			if (!permissionFields.IsEmpty()) collectionAffiliatedRoles = await this._authorizationContentResolver.ContextRolesForCollectionOfUser(datas.Select(x => x.Id).Distinct().ToList());
 
 			List<Model.Collection> models = new List<Model.Collection>();
 			foreach(Service.DataManagement.Model.Collection d in datas ?? Enumerable.Empty<Service.DataManagement.Model.Collection>())
