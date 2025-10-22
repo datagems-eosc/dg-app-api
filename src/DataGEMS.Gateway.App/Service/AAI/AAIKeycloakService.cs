@@ -115,17 +115,27 @@ namespace DataGEMS.Gateway.App.Service.AAI
 			String token = await this._accessTokenService.GetClientAccessTokenAsync(this._config.Scope);
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
 
-			HttpRequestMessage lookupChildrenHttpRequest = new HttpRequestMessage(HttpMethod.Get, $"{this._config.BaseUrl}{this._config.GroupChildrenEndpoint.Replace("{groupId}", parentId)}");
-			lookupChildrenHttpRequest.Headers.Add(HeaderNames.Accept, "application/json");
-			lookupChildrenHttpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+			List<Service.AAI.Model.Group> children = new List<Service.AAI.Model.Group>();
+			int first = 0;
+			int max = 100;
 
-			String childrenContent = await this.SendRequest(lookupChildrenHttpRequest);
-			List<Model.Group> children = null;
-			try { children = String.IsNullOrEmpty(childrenContent) ? new List<Model.Group>() : this._jsonHandlingService.FromJson<List<Model.Group>>(childrenContent); }
-			catch (System.Exception ex)
+			while (true)
 			{
-				this._logger.LogError(ex, "Failed to parse response: {content}", childrenContent);
-				throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.AAI, this._logCorrelationScope.CorrelationId);
+				HttpRequestMessage lookupChildrenHttpRequest = new HttpRequestMessage(HttpMethod.Get, $"{this._config.BaseUrl}{this._config.GroupChildrenEndpoint.Replace("{groupId}", parentId)}?first={first}&max={max}");
+				lookupChildrenHttpRequest.Headers.Add(HeaderNames.Accept, "application/json");
+				lookupChildrenHttpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+				String childrenContent = await this.SendRequest(lookupChildrenHttpRequest);
+				List<Model.Group> pageChildren = null;
+				try { pageChildren = String.IsNullOrEmpty(childrenContent) ? new List<Model.Group>() : this._jsonHandlingService.FromJson<List<Model.Group>>(childrenContent); }
+				catch (System.Exception ex)
+				{
+					this._logger.LogError(ex, "Failed to parse response: {content}", childrenContent);
+					throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.AAI, this._logCorrelationScope.CorrelationId);
+				}
+				children.AddRange(pageChildren);
+				if (pageChildren.Count < max) break;
+				first += max;
 			}
 
 			await this._aaiCache.SubGroupsUpdate(parentId, children);
@@ -160,11 +170,9 @@ namespace DataGEMS.Gateway.App.Service.AAI
 					this._logger.LogError(ex, "Failed to parse response: {content}", groupsContent);
 					throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.AAI, this._logCorrelationScope.CorrelationId);
 				}
-				if (pageGroups.Count == 0) break;
-
-				pageGroups = pageGroups.Where(x => x.Path.StartsWith($"/{this._config.ContextGrantGroupPrefix}") && x.Path.Split('/', StringSplitOptions.RemoveEmptyEntries).Length == 2).ToList();
-
-				groups.AddRange(pageGroups);
+				List<Model.Group> filteredGroups = pageGroups.Where(x => x.Path.StartsWith($"/{this._config.ContextGrantGroupPrefix}") && x.Path.Split('/', StringSplitOptions.RemoveEmptyEntries).Length == 2).ToList();
+				groups.AddRange(filteredGroups);
+				if (pageGroups.Count < max) break;
 				first += max;
 			}
 

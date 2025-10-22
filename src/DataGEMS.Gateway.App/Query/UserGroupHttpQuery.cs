@@ -10,6 +10,7 @@ using DataGEMS.Gateway.App.Exception;
 using DataGEMS.Gateway.App.LogTracking;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
+using System.Collections.Generic;
 using System.Net.Http.Headers;
 
 namespace DataGEMS.Gateway.App.Query
@@ -139,14 +140,12 @@ namespace DataGEMS.Gateway.App.Query
 					this._logger.LogError(ex, "Failed to parse response: {content}", groupsContent);
 					throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.AAI, this._logCorrelationScope.CorrelationId);
 				}
-				if (pageGroups.Count == 0) break;
-
-				pageGroups = pageGroups.Where(x => 
-					x.Attributes != null && 
-					x.Attributes.ContainsKey(this._config.ContextGrantTypeAttributeName) && 
+				List<Service.AAI.Model.Group> filteredGroups = pageGroups.Where(x =>
+					x.Attributes != null &&
+					x.Attributes.ContainsKey(this._config.ContextGrantTypeAttributeName) &&
 					x.Attributes[this._config.ContextGrantTypeAttributeName].Contains(this._config.ContextGrantTypeGroupAttributeValue)).ToList();
-
-				groups.AddRange(pageGroups);
+				groups.AddRange(filteredGroups);
+				if (pageGroups.Count < max) break;
 				first += max;
 			}
 
@@ -176,16 +175,15 @@ namespace DataGEMS.Gateway.App.Query
 					this._logger.LogError(ex, "Failed to parse response: {content}", groupsContent);
 					throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.AAI, this._logCorrelationScope.CorrelationId);
 				}
-				if (pageGroups.Count == 0) break;
-
-				pageGroups = pageGroups.Where(x => 
-					x.Path.StartsWith($"/{this._config.ContextGrantGroupPrefix}") && 
+				List<String> filteredGroupIds = pageGroups.Where(x =>
+					x.Path.StartsWith($"/{this._config.ContextGrantGroupPrefix}") &&
 					x.Path.Split('/', StringSplitOptions.RemoveEmptyEntries).Length == 2 &&
 					x.Attributes != null &&
 					x.Attributes.ContainsKey(this._config.ContextGrantTypeAttributeName) &&
-					x.Attributes[this._config.ContextGrantTypeAttributeName].Contains(this._config.ContextGrantTypeGroupAttributeValue)).ToList();
-
-				groups.AddRange(pageGroups.Select(x => x.Id).ToList());
+					x.Attributes[this._config.ContextGrantTypeAttributeName].Contains(this._config.ContextGrantTypeGroupAttributeValue))
+					.Select(x=> x.Id).ToList();
+				groups.AddRange(filteredGroupIds);
+				if (pageGroups.Count < max) break;
 				first += max;
 			}
 			return groups.ToHashSet();
