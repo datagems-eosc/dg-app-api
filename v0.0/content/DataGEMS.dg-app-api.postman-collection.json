@@ -25,7 +25,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"project\": { \"fields\": [\"id\", \"code\", \"name\", \"permissions.browseDataset\", \"permissions.editDataset\", \"datasetCount\", \"datasets.id\", \"datasets.code\", \"datasets.name\" ] },\r\n    \"page\":{\r\n        \"Offset\": 0,\r\n        \"Size\": 10\r\n    },\r\n    \"Order\":{\r\n        \"Items\": [\"+code\"]\r\n    },\r\n    \"Metadata\":{\r\n        \"CountAll\": true\r\n    },\r\n    \"like\": \"math%\"\r\n}",
+									"raw": "{\r\n    \"project\": { \"fields\": [\"id\", \"code\", \"name\", \"permissions.browseCollection\", \"permissions.editCollection\", \"datasetCount\", \"datasets.id\", \"datasets.code\", \"datasets.name\", \"datasets.permissions.browseDataset\" ] },\r\n    \"page\":{\r\n        \"Offset\": 0,\r\n        \"Size\": 10\r\n    },\r\n    \"Order\":{\r\n        \"Items\": [\"+code\"]\r\n    },\r\n    \"Metadata\":{\r\n        \"CountAll\": true\r\n    }//,\r\n    //\"ids\": [\"d30d5eae-013c-4c03-908f-6a0c3db0a3d2\"]\r\n    //,\r\n    //\"like\": \"test%\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -70,14 +70,14 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/api/collection/c09b4ca6-f435-485e-acfe-537e92413039?f=id&f=code",
+									"raw": "{{baseUrl}}/api/collection/a085cd9f-4666-4349-a63a-42f7f9d24293?f=id&f=code",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
 										"api",
 										"collection",
-										"c09b4ca6-f435-485e-acfe-537e92413039"
+										"a085cd9f-4666-4349-a63a-42f7f9d24293"
 									],
 									"query": [
 										{
@@ -88,6 +88,346 @@
 											"key": "f",
 											"value": "code"
 										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Collection - Persist",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": null,\r\n    \"code\": \"collection-test-1\",\r\n    \"name\": \"collection-test-1\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/collection/persist?f=id&f=name&f=code&f=datasetCount&f=datasets.Id&f=datasets.name",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"collection",
+										"persist"
+									],
+									"query": [
+										{
+											"key": "f",
+											"value": "id"
+										},
+										{
+											"key": "f",
+											"value": "name"
+										},
+										{
+											"key": "f",
+											"value": "code"
+										},
+										{
+											"key": "f",
+											"value": "datasetCount"
+										},
+										{
+											"key": "f",
+											"value": "datasets.Id"
+										},
+										{
+											"key": "f",
+											"value": "datasets.name"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Collection - Persist Deep",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": null,\r\n    \"code\": \"test-persist-5\",\r\n    \"name\": \"test-persist-5\",\r\n    \"datasets\":[ \"9af7373e-9593-414e-ba31-bc4b573a392b\", \"07382b91-5bc5-42f9-8391-33adc2460c19\" ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/collection/persist/deep?f=id&f=name&f=code&f=datasetCount&f=datasets.Id&f=datasets.name",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"collection",
+										"persist",
+										"deep"
+									],
+									"query": [
+										{
+											"key": "f",
+											"value": "id"
+										},
+										{
+											"key": "f",
+											"value": "name"
+										},
+										{
+											"key": "f",
+											"value": "code"
+										},
+										{
+											"key": "f",
+											"value": "datasetCount"
+										},
+										{
+											"key": "f",
+											"value": "datasets.Id"
+										},
+										{
+											"key": "f",
+											"value": "datasets.name"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Collection - Patch Dataset",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": \"d30d5eae-013c-4c03-908f-6a0c3db0a3d2\",\r\n    \"datasets\": [\"58a99483-1a50-45a7-b8da-6c036b4235ad\"]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/collection/patch/dataset?f=id&f=name&f=code&f=datasetCount&f=datasets.Id&f=datasets.name",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"collection",
+										"patch",
+										"dataset"
+									],
+									"query": [
+										{
+											"key": "f",
+											"value": "id"
+										},
+										{
+											"key": "f",
+											"value": "name"
+										},
+										{
+											"key": "f",
+											"value": "code"
+										},
+										{
+											"key": "f",
+											"value": "datasetCount"
+										},
+										{
+											"key": "f",
+											"value": "datasets.Id"
+										},
+										{
+											"key": "f",
+											"value": "datasets.name"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Collection - Add Dataset",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": null,\r\n    \"code\": \"test-persist-1\",\r\n    \"name\": \"test-persist-1\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/collection/a085cd9f-4666-4349-a63a-42f7f9d24293/dataset/1f6fba0c-9aea-4345-b5a3-457c924f9e0c?f=id&f=name&f=code&f=datasetCount&f=datasets.Id&f=datasets.name",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"collection",
+										"a085cd9f-4666-4349-a63a-42f7f9d24293",
+										"dataset",
+										"1f6fba0c-9aea-4345-b5a3-457c924f9e0c"
+									],
+									"query": [
+										{
+											"key": "f",
+											"value": "id"
+										},
+										{
+											"key": "f",
+											"value": "name"
+										},
+										{
+											"key": "f",
+											"value": "code"
+										},
+										{
+											"key": "f",
+											"value": "datasetCount"
+										},
+										{
+											"key": "f",
+											"value": "datasets.Id"
+										},
+										{
+											"key": "f",
+											"value": "datasets.name"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Collection - Delete Dataset",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": null,\r\n    \"code\": \"test-persist-1\",\r\n    \"name\": \"test-persist-1\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/collection/a085cd9f-4666-4349-a63a-42f7f9d24293/dataset/1f6fba0c-9aea-4345-b5a3-457c924f9e0c?f=id&f=name&f=code&f=datasetCount&f=datasets.Id&f=datasets.name",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"collection",
+										"a085cd9f-4666-4349-a63a-42f7f9d24293",
+										"dataset",
+										"1f6fba0c-9aea-4345-b5a3-457c924f9e0c"
+									],
+									"query": [
+										{
+											"key": "f",
+											"value": "id"
+										},
+										{
+											"key": "f",
+											"value": "name"
+										},
+										{
+											"key": "f",
+											"value": "code"
+										},
+										{
+											"key": "f",
+											"value": "datasetCount"
+										},
+										{
+											"key": "f",
+											"value": "datasets.Id"
+										},
+										{
+											"key": "f",
+											"value": "datasets.name"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Collection - Delete",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": null,\r\n    \"code\": \"test-persist-1\",\r\n    \"name\": \"test-persist-1\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/collection/a085cd9f-4666-4349-a63a-42f7f9d24293",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"collection",
+										"a085cd9f-4666-4349-a63a-42f7f9d24293"
 									]
 								}
 							},
@@ -334,7 +674,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"name\": \"online testing\"\r\n}",
+									"raw": "{\r\n    \"id\": \"d975cc04-d2b2-42b1-b956-a420aacac1c0\",\r\n    \"eTag\": \"1756396396\",\r\n    \"name\": \"my chat 1.1\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -342,7 +682,7 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/api/conversation/me/persist?f=id&f=etag",
+									"raw": "{{baseUrl}}/api/conversation/me/persist?f=id&f=etag&f=name",
 									"host": [
 										"{{baseUrl}}"
 									],
@@ -360,6 +700,10 @@
 										{
 											"key": "f",
 											"value": "etag"
+										},
+										{
+											"key": "f",
+											"value": "name"
 										}
 									]
 								}
@@ -776,7 +1120,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"project\": { \"fields\": [\"id\", \"code\", \"name\", \"size\", \"collections.id\", \"collections.code\", \"collections.name\", \"collections.datasetCount\", \"permissions.browseDataset\", \"permissions.editDataset\" ] },\r\n    \"page\":{\r\n        \"Offset\": 0,\r\n        \"Size\": 5\r\n    },\r\n    \"Order\":{\r\n        //\"Items\": [\"-size\"]\r\n    },\r\n    \"Metadata\":{\r\n        \"CountAll\": true\r\n    }\r\n}",
+									"raw": "{\r\n    \"project\": { \"fields\": [\"id\", \"code\", \"name\", \"size\", \"collections.id\", \"collections.code\", \"collections.name\", \"collections.datasetCount\", \"permissions.browseDataset\", \"permissions.editDataset\" ] },\r\n    \"page\":{\r\n        \"Offset\": 0,\r\n        \"Size\": 5\r\n    },\r\n    \"Order\":{\r\n        \"Items\": [\"-size\"]\r\n    },\r\n    \"Metadata\":{\r\n        \"CountAll\": true\r\n    }\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -862,7 +1206,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"conversationOptions\":{\r\n        //\"conversationId\": \"90f41f6e-8940-409d-a3a3-7a18eb0ab08a\",\r\n        \"autoCreateConversation\": false\r\n    },\r\n    \"project\": { \"fields\": [\"maxSimilarity\", \"dataset.id\", \"dataset.collections.id\", \"dataset.collections.name\", \"dataset.code\", \"dataset.name\", \"hits.content\", \"hits.objectId\", \"hits.similarity\" ] },\r\n    \"query\": \"What is the fundamental theorem of calculus?\",\r\n    //\"query\": \"I want to know more about pythagoras\",\r\n   // \"datasetIds\": [\"d84d1a2e-127d-4393-91d0-afb7e4fd9c68\"],\r\n    \"collectionIds\": [\"c09b4ca6-f435-485e-acfe-537e92413039\"],\r\n    \"resultCount\": 10\r\n}",
+									"raw": "{\r\n    \"conversationOptions\":{\r\n        //\"conversationId\": \"90f41f6e-8940-409d-a3a3-7a18eb0ab08a\",\r\n        \"autoCreateConversation\": false\r\n    },\r\n    \"project\": { \"fields\": [\"maxSimilarity\", \"dataset.id\", \"dataset.collections.id\", \"dataset.collections.name\", \"dataset.code\", \"dataset.name\", \"hits.content\", \"hits.objectId\", \"hits.similarity\" ] },\r\n    \"query\": \"What is the fundamental theorem of calculus?\",\r\n    //\"query\": \"I want to know more about pythagoras\",\r\n   // \"datasetIds\": [\"d84d1a2e-127d-4393-91d0-afb7e4fd9c68\"],\r\n    //\"collectionIds\": [\"c09b4ca6-f435-485e-acfe-537e92413039\"],\r\n    \"resultCount\": 1\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -916,6 +1260,136 @@
 								}
 							},
 							"response": []
+						}
+					]
+				},
+				{
+					"name": "User",
+					"item": [
+						{
+							"name": "Admin",
+							"item": [
+								{
+									"name": "User - Query",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "Bearer {{userAccessToken}}",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"project\": { \"fields\": [\"id\", \"name\", \"email\" ] },\r\n    \"page\":{\r\n        \"Offset\": 0,\r\n        \"Size\": 10\r\n    },\r\n    \"Order\":{\r\n        \"Items\": [\"+code\"]\r\n    },\r\n    \"Metadata\":{\r\n        \"CountAll\": true\r\n    }\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/api/user/query",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"user",
+												"query"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "User - Get",
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "Bearer {{userAccessToken}}",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/api/user/a85c61b0-fc46-4e31-9ee8-b7e0670a1471?f=id&f=name&f=email",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"user",
+												"a85c61b0-fc46-4e31-9ee8-b7e0670a1471"
+											],
+											"query": [
+												{
+													"key": "f",
+													"value": "id"
+												},
+												{
+													"key": "f",
+													"value": "name"
+												},
+												{
+													"key": "f",
+													"value": "email"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "User Group - Query",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "Bearer {{userAccessToken}}",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"project\": { \"fields\": [\"id\", \"name\" ] }\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/api/user/group/query",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"user",
+												"group",
+												"query"
+											]
+										}
+									},
+									"response": []
+								}
+							]
 						}
 					]
 				},
@@ -1058,7 +1532,7 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/api/user/collection/cfad3536-1648-4b5c-8bfa-49bdc60759e0?f=id&f=name&f=user.id&f=user.name&f=UserDatasetCollections.id&f=UserDatasetCollections.dataset.Id&f=UserDatasetCollections.dataset.name&f=etag",
+									"raw": "{{baseUrl}}/api/user/collection/f3a0b92b-d4a7-46fe-a866-f0c717273f2f?f=id&f=name&f=user.id&f=user.name&f=UserDatasetCollections.id&f=UserDatasetCollections.dataset.Id&f=UserDatasetCollections.dataset.name&f=etag",
 									"host": [
 										"{{baseUrl}}"
 									],
@@ -1066,7 +1540,7 @@
 										"api",
 										"user",
 										"collection",
-										"cfad3536-1648-4b5c-8bfa-49bdc60759e0"
+										"f3a0b92b-d4a7-46fe-a866-f0c717273f2f"
 									],
 									"query": [
 										{
@@ -1119,7 +1593,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"name\": \"my favorite collection\"\r\n}",
+									"raw": "{\r\n    \"id\": \"f3a0b92b-d4a7-46fe-a866-f0c717273f2f\",\r\n    \"eTag\": \"1756394459\",\r\n    \"name\": \"my collection 1.1\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1127,7 +1601,7 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/api/user/collection/me/persist?f=id&f=name&f=user.id&f=user.name&f=userDatasetCollections.id&f=userDatasetCollections.dataset.Id&f=userDatasetCollections.dataset.name",
+									"raw": "{{baseUrl}}/api/user/collection/me/persist?f=id&f=name&f=user.id&f=user.name&f=userDatasetCollections.id&f=userDatasetCollections.dataset.Id&f=userDatasetCollections.dataset.name&f=etag",
 									"host": [
 										"{{baseUrl}}"
 									],
@@ -1166,6 +1640,10 @@
 										{
 											"key": "f",
 											"value": "userDatasetCollections.dataset.name"
+										},
+										{
+											"key": "f",
+											"value": "etag"
 										}
 									]
 								}
@@ -1327,7 +1805,7 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/api/user/collection/dataset/me/289c3346-287e-4eff-a357-abb1d0b7441f/8930240b-a0e8-46e7-ace8-aab2b42fcc01?f=id&f=UserDatasetCollections.id&f=UserDatasetCollections.dataset.id&f=name&f=user.id&f=user.name&f=UserDatasetCollections.dataset.name",
+									"raw": "{{baseUrl}}/api/user/collection/dataset/me/f3a0b92b-d4a7-46fe-a866-f0c717273f2f/8930240b-a0e8-46e7-ace8-aab2b42fcc01?f=id&f=UserDatasetCollections.id&f=UserDatasetCollections.dataset.id&f=name&f=user.id&f=user.name&f=UserDatasetCollections.dataset.name",
 									"host": [
 										"{{baseUrl}}"
 									],
@@ -1337,7 +1815,7 @@
 										"collection",
 										"dataset",
 										"me",
-										"289c3346-287e-4eff-a357-abb1d0b7441f",
+										"f3a0b92b-d4a7-46fe-a866-f0c717273f2f",
 										"8930240b-a0e8-46e7-ace8-aab2b42fcc01"
 									],
 									"query": [
@@ -1395,7 +1873,7 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/api/user/collection/dataset/me/cfad3536-1648-4b5c-8bfa-49bdc60759e0/8930240b-a0e8-46e7-ace8-aab2b42fcc01?f=id&f=UserDatasetCollections.id&f=UserDatasetCollections.dataset.id&f=name&f=user.id&f=user.name&f=UserDatasetCollections.dataset.name&f=UserDatasetCollections.isActive",
+									"raw": "{{baseUrl}}/api/user/collection/dataset/me/f3a0b92b-d4a7-46fe-a866-f0c717273f2f/8930240b-a0e8-46e7-ace8-aab2b42fcc01?f=id&f=UserDatasetCollections.id&f=UserDatasetCollections.dataset.id&f=name&f=user.id&f=user.name&f=UserDatasetCollections.dataset.name&f=UserDatasetCollections.isActive",
 									"host": [
 										"{{baseUrl}}"
 									],
@@ -1405,7 +1883,7 @@
 										"collection",
 										"dataset",
 										"me",
-										"cfad3536-1648-4b5c-8bfa-49bdc60759e0",
+										"f3a0b92b-d4a7-46fe-a866-f0c717273f2f",
 										"8930240b-a0e8-46e7-ace8-aab2b42fcc01"
 									],
 									"query": [
@@ -1582,6 +2060,298 @@
 					]
 				},
 				{
+					"name": "User Settings",
+					"item": [
+						{
+							"name": "User Settings - Get by Key",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/user/settings/key/setting_key_test?f=id&f=key&f=user.id&f=user.name&f=value&f=createdAt&f=updatedAt&f=etag",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"user",
+										"settings",
+										"key",
+										"setting_key_test"
+									],
+									"query": [
+										{
+											"key": "f",
+											"value": "id"
+										},
+										{
+											"key": "f",
+											"value": "key"
+										},
+										{
+											"key": "f",
+											"value": "user.id"
+										},
+										{
+											"key": "f",
+											"value": "user.name"
+										},
+										{
+											"key": "f",
+											"value": "value"
+										},
+										{
+											"key": "f",
+											"value": "createdAt"
+										},
+										{
+											"key": "f",
+											"value": "updatedAt"
+										},
+										{
+											"key": "f",
+											"value": "etag"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "User Settings - Get by Id",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/user/settings/id/e3127507-9726-42b3-9d55-72aa300be60b?f=id&f=key&f=user.id&f=user.name&f=value&f=createdAt&f=updatedAt&f=etag",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"user",
+										"settings",
+										"id",
+										"e3127507-9726-42b3-9d55-72aa300be60b"
+									],
+									"query": [
+										{
+											"key": "f",
+											"value": "id"
+										},
+										{
+											"key": "f",
+											"value": "key"
+										},
+										{
+											"key": "f",
+											"value": "user.id"
+										},
+										{
+											"key": "f",
+											"value": "user.name"
+										},
+										{
+											"key": "f",
+											"value": "value"
+										},
+										{
+											"key": "f",
+											"value": "createdAt"
+										},
+										{
+											"key": "f",
+											"value": "updatedAt"
+										},
+										{
+											"key": "f",
+											"value": "etag"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "User Settings - Persist",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": null,\r\n    \"eTag\": null,\r\n    \"key\": \"setting_key_test\",\r\n    \"value\": \"another test value\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/user/settings/persist?f=id&f=key&f=user.id&f=user.name&f=value&f=createdAt&f=updatedAt&f=etag",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"user",
+										"settings",
+										"persist"
+									],
+									"query": [
+										{
+											"key": "f",
+											"value": "id"
+										},
+										{
+											"key": "f",
+											"value": "key"
+										},
+										{
+											"key": "f",
+											"value": "user.id"
+										},
+										{
+											"key": "f",
+											"value": "user.name"
+										},
+										{
+											"key": "f",
+											"value": "value"
+										},
+										{
+											"key": "f",
+											"value": "createdAt"
+										},
+										{
+											"key": "f",
+											"value": "updatedAt"
+										},
+										{
+											"key": "f",
+											"value": "etag"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "User Settings - Delete by Id",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/user/settings/id/a3c636c1-86e7-402e-92cf-a8e2f4c3f843",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"user",
+										"settings",
+										"id",
+										"a3c636c1-86e7-402e-92cf-a8e2f4c3f843"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "User Settings - Delete by key",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/user/settings/key/setting_key_test",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"user",
+										"settings",
+										"key",
+										"setting_key_test"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
 					"name": "Misc",
 					"item": [
 						{
@@ -1655,101 +2425,6 @@
 					]
 				},
 				{
-					"name": "User",
-					"item": [
-						{
-							"name": "Admin",
-							"item": [
-								{
-									"name": "User - Query",
-									"request": {
-										"method": "POST",
-										"header": [
-											{
-												"key": "Authorization",
-												"value": "Bearer {{userAccessToken}}",
-												"type": "text"
-											}
-										],
-										"body": {
-											"mode": "raw",
-											"raw": "{\r\n    \"project\": { \"fields\": [\"id\", \"name\", \"email\" ] },\r\n    \"page\":{\r\n        \"Offset\": 0,\r\n        \"Size\": 10\r\n    },\r\n    \"Order\":{\r\n        \"Items\": [\"+code\"]\r\n    },\r\n    \"Metadata\":{\r\n        \"CountAll\": true\r\n    }\r\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "{{baseUrl}}/api/user/query",
-											"host": [
-												"{{baseUrl}}"
-											],
-											"path": [
-												"api",
-												"user",
-												"query"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "User - Get",
-									"protocolProfileBehavior": {
-										"disableBodyPruning": true
-									},
-									"request": {
-										"method": "GET",
-										"header": [
-											{
-												"key": "Authorization",
-												"value": "Bearer {{userAccessToken}}",
-												"type": "text"
-											}
-										],
-										"body": {
-											"mode": "raw",
-											"raw": "",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "{{baseUrl}}/api/user/a85c61b0-fc46-4e31-9ee8-b7e0670a1471?f=id&f=name&f=email",
-											"host": [
-												"{{baseUrl}}"
-											],
-											"path": [
-												"api",
-												"user",
-												"a85c61b0-fc46-4e31-9ee8-b7e0670a1471"
-											],
-											"query": [
-												{
-													"key": "f",
-													"value": "id"
-												},
-												{
-													"key": "f",
-													"value": "name"
-												},
-												{
-													"key": "f",
-													"value": "email"
-												}
-											]
-										}
-									},
-									"response": []
-								}
-							]
-						}
-					]
-				},
-				{
 					"name": "Vocabulary",
 					"item": [
 						{
@@ -1817,6 +2492,358 @@
 											"key": "like",
 											"value": "eupl"
 										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Workflow",
+					"item": [
+						{
+							"name": "Workflow - Definition - Query",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"project\": { \"fields\": [\"id\", \"name\", \"isPaused\", \"IsStale\", \"LastParsedTime\", \"LastExpired\", \"BundleName\", \"BundleVersion\", \"RelativeFileLocation\", \"FileLocation\", \"FileToken\", \"Description\", \"TimetableSummary\", \"TimetableDescription\", \"Tags\", \"MaxActiveTasks\", \"MaxActiveRuns\", \"MaxConsecutiveFailedRuns\", \"HasTaskConcurrencyLimits\", \"HasImportErrors\", \"NextLogicalDate\", \"NextDataIntervalStart\", \"NextDataIntervalEnd\", \"NextRunAfter\", \"Owners\", \"tasks.Id\", \"tasks.TaskDisplayName\", \"tasks.Owner\", \"tasks.Start\", \"tasks.End\", \"tasks.TriggerRule\", \"tasks.DependsOnPast\", \"tasks.WaitForDownstream\", \"tasks.Retries\", \"tasks.Queue\", \"tasks.Pool\", \"tasks.PoolSlots\", \"tasks.ExecutionTimeout\", \"tasks.RetryDelay\", \"tasks.RetryExponentialBackoff\", \"tasks.PriorityWeight\", \"tasks.WeightRule\", \"tasks.UIColor\", \"tasks.UIFGColor\", \"tasks.TemplateFields\", \"tasks.DownstreamTaskIds\", \"tasks.DocMd\", \"tasks.OperatorName\", \"tasks.Params\", \"tasks.ClassRef\", \"tasks.IsMapped\", \"tasks.ExtraLinks\" ] },\r\n    \"page\":{\r\n        \"Offset\": 0,\r\n        \"Size\": 10\r\n    },\r\n    //\"like\": \"hello\",\r\n    \"Order\":{\r\n        \"Items\": [\"+name\"]\r\n    },\r\n    \"Metadata\":{\r\n        \"CountAll\": true\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/workflow/definition/query",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"workflow",
+										"definition",
+										"query"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Workflow - Definition - Get",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/workflow/definition/hello_world?f=id&f=name",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"workflow",
+										"definition",
+										"hello_world"
+									],
+									"query": [
+										{
+											"key": "f",
+											"value": "id"
+										},
+										{
+											"key": "f",
+											"value": "name"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Workflow - Execute",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"workflowId\": \"hello_world\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/workflow/execute?f=id&f=WorkflowId&f=LogicalDate",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"workflow",
+										"execute"
+									],
+									"query": [
+										{
+											"key": "f",
+											"value": "id"
+										},
+										{
+											"key": "f",
+											"value": "WorkflowId"
+										},
+										{
+											"key": "f",
+											"value": "LogicalDate"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Workflow - Execution - Query",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"project\": { \"fields\": [\"id\", \"WorkflowId\", \"LogicalDate\", \"QueuedAt\", \"Start\", \"End\", \"DataIntervalStart\", \"DataIntervalEnd\", \"RunAfter\", \"LastSchedulingDecision\", \"RunType\", \"TriggeredBy\", \"State\", \"Note\", \"BundleVersion\",\"Workflow.id\",\"Workflow.name\",\"Workflow.tasks.id\",\"Workflow.tasks.TaskDisplayName\", \"TaskInstances.id\", \"TaskInstances.start\", \"TaskInstances.end\", \"TaskInstances.duration\", \"TaskInstances.workflow.id\", \"TaskInstances.workflow.name\", \"TaskInstances.WorkflowExecution.id\", \"TaskInstances.WorkflowExecution.logicalData\", \"TaskInstances.Task.id\", \"TaskInstances.Task.TaskDisplayName\", \"TaskInstances.Task.owner\", \"TaskInstances.Task.start\" ] },\r\n    \"page\":{\r\n        \"Offset\": 0,\r\n        \"Size\": 10\r\n    },\r\n    \"Order\":{\r\n        \"Items\": [\"+id\"]\r\n    },\r\n    \"Metadata\":{\r\n        \"CountAll\": true\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/workflow/execution/query",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"workflow",
+										"execution",
+										"query"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Workflow - Execution - Get",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"project\": { \"fields\": [\"id\", \"WorkflowId\", \"LogicalDate\", \"QueuedAt\", \"Start\", \"End\", \"DataIntervalStart\", \"DataIntervalEnd\", \"RunAfter\", \"LastSchedulingDecision\", \"RunType\", \"TriggeredBy\", \"State\", \"Note\", \"BundleVersion\" ] },\r\n    \"page\":{\r\n        \"Offset\": 0,\r\n        \"Size\": 10\r\n    },\r\n    \"Order\":{\r\n        \"Items\": [\"+id\"]\r\n    },\r\n    \"Metadata\":{\r\n        \"CountAll\": true\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/workflow/definition/hello_world/execution/434246c2-a396-40a0-8a04-8b5d8814cda8?f=id&f=workflowId",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"workflow",
+										"definition",
+										"hello_world",
+										"execution",
+										"434246c2-a396-40a0-8a04-8b5d8814cda8"
+									],
+									"query": [
+										{
+											"key": "f",
+											"value": "id"
+										},
+										{
+											"key": "f",
+											"value": "workflowId"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Context Grants",
+					"item": [
+						{
+							"name": "Context Grants - Me - Assigned",
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"user-agent": true,
+									"accept-encoding": true,
+									"connection": true
+								}
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/principal/me/context-grants",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"principal",
+										"me",
+										"context-grants"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Context Grants - Me - Collections",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/principal/me/context-grants/collection?id=d30d5eae-013c-4c03-908f-6a0c3db0a3d2",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"principal",
+										"me",
+										"context-grants",
+										"collection"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "d30d5eae-013c-4c03-908f-6a0c3db0a3d2"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Context Grants - Me - Datasets",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/principal/me/context-grants/dataset?id=58a99483-1a50-45a7-b8da-6c036b4235ad",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"principal",
+										"me",
+										"context-grants",
+										"dataset"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "58a99483-1a50-45a7-b8da-6c036b4235ad"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Context Grants - Other User - Assigned",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/principal/user/c7cb567a-3dc4-4a68-8b89-9b90ad86ae25/context-grants",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"principal",
+										"user",
+										"c7cb567a-3dc4-4a68-8b89-9b90ad86ae25",
+										"context-grants"
 									]
 								}
 							},
