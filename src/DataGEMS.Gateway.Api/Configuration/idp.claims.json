@@ -27,8 +27,7 @@
 						"Path": "dg-app-api.roles",
 						"Prefix": "dg-app-api_"
 					}
-				],
-				"Datasets": [ { "Type": "datasets" } ]
+				]
 			}
 		}
 	}

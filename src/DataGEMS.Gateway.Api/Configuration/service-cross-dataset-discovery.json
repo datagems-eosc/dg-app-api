@@ -1,6 +1,6 @@
 {
   "CrossDatasetDiscoveryService": {
-    "Scope": "cross-dataset-discovery-api datasets",
+    "Scope": "cross-dataset-discovery-api",
     "BaseUrl": "%{CrossDatasetDiscoveryBaseUrl}%",
     "SearchEndpoint": "search/",
     "DefaultResultCount": 5

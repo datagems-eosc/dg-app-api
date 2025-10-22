@@ -24,7 +24,6 @@
 				"openid": "OpenID Connect",
 				"profile": "User profile",
 				"email": "Email",
-				"datasets": "Datasets",
 				"dg-app-api": "DataGEMS Gateway API"
 			},
 			"ClientId": "swagger-client",
