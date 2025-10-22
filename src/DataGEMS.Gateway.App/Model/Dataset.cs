@@ -133,19 +133,19 @@ namespace DataGEMS.Gateway.App.Model
 						.FailOn(nameof(DatasetPersist.Headline)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.Headline)]),
 					//Keywords must always be set
 					this.Spec()
-						.Must(() => item.Keywords == null || item.Keywords.Count == 0)
+						.Must(() => item.Keywords != null && item.Keywords.Count > 0)
 						.FailOn(nameof(DatasetPersist.Keywords)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.Keywords)]),
 					//FieldOfScience must always be set
 					this.Spec()
-						.Must(() => item.FieldOfScience == null || item.FieldOfScience.Count == 0)
+						.Must(() => item.FieldOfScience != null || item.FieldOfScience.Count > 0)
 						.FailOn(nameof(DatasetPersist.FieldOfScience)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.FieldOfScience)]),
 					//Language must always be set
 					this.Spec()
-						.Must(() => item.Language == null || item.Language.Count == 0)
+						.Must(() => item.Language != null || item.Language.Count > 0)
 						.FailOn(nameof(DatasetPersist.Language)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.Language)]),
 					//Country must always be set
 					this.Spec()
-						.Must(() => item.Country == null || item.Country.Count == 0)
+						.Must(() => item.Country != null || item.Country.Count > 0)
 						.FailOn(nameof(DatasetPersist.Country)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.Country)]),
 					//DatePublished must always be set
 					this.Spec()
@@ -177,10 +177,10 @@ namespace DataGEMS.Gateway.App.Model
 			protected override IEnumerable<ISpecification> Specifications(DatasetPersist item)
 			{
 				return new ISpecification[]{
-					//id must not be set
+					//id must be set
 					this.Spec()
-						.Must(() => !this.IsValidGuid(item.Id))
-						.FailOn(nameof(DatasetPersist.Id)).FailWith(this._localizer["validation_overPosting", nameof(DatasetPersist.Id)]),
+						.Must(() => this.IsValidGuid(item.Id))
+						.FailOn(nameof(DatasetPersist.Id)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.Id)]),
 					//code must always be set
 					this.Spec()
 						.Must(() => !this.IsEmpty(item.Code))
@@ -240,19 +240,19 @@ namespace DataGEMS.Gateway.App.Model
 						.FailOn(nameof(DatasetPersist.Headline)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.Headline)]),
 					//Keywords must always be set
 					this.Spec()
-						.Must(() => item.Keywords == null || item.Keywords.Count == 0)
+						.Must(() => item.Keywords != null && item.Keywords.Count > 0)
 						.FailOn(nameof(DatasetPersist.Keywords)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.Keywords)]),
 					//FieldOfScience must always be set
 					this.Spec()
-						.Must(() => item.FieldOfScience == null || item.FieldOfScience.Count == 0)
+						.Must(() => item.FieldOfScience != null || item.FieldOfScience.Count > 0)
 						.FailOn(nameof(DatasetPersist.FieldOfScience)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.FieldOfScience)]),
 					//Language must always be set
 					this.Spec()
-						.Must(() => item.Language == null || item.Language.Count == 0)
+						.Must(() => item.Language != null || item.Language.Count > 0)
 						.FailOn(nameof(DatasetPersist.Language)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.Language)]),
 					//Country must always be set
 					this.Spec()
-						.Must(() => item.Country == null || item.Country.Count == 0)
+						.Must(() => item.Country != null || item.Country.Count > 0)
 						.FailOn(nameof(DatasetPersist.Country)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.Country)]),
 					//DatePublished must always be set
 					this.Spec()

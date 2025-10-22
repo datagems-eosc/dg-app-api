@@ -72,7 +72,7 @@ namespace DataGEMS.Gateway.App.Query
 			List<Service.AAI.Model.Group> items = await this.CollectBaseAsync();
 			if (this._ids != null) items = items.Where(x => this._ids.Contains(x.Id)).ToList();
 			if (this._excludedIds != null) items = items.Where(x => !this._excludedIds.Contains(x.Id)).ToList();
-			if (String.IsNullOrEmpty(this._like)) items = items.Where(x => x.Name.Contains(this._like)).ToList();
+			if (!String.IsNullOrEmpty(this._like)) items = items.Where(x => x.Name.Contains(this._like)).ToList();
 			return items;
 		}
 
@@ -84,7 +84,7 @@ namespace DataGEMS.Gateway.App.Query
 			}
 			if (this._authorize.HasFlag(AuthorizationFlags.Permission))
 			{
-				if (await this._authorizationContentResolver.HasPermission(Permission.BrowseUser)) return await this.CollectAllGroups();
+				if (await this._authorizationContentResolver.HasPermission(Permission.BrowseUserGroup)) return await this.CollectAllGroups();
 			}
 			if (this._authorize.HasFlag(AuthorizationFlags.Owner))
 			{
@@ -144,7 +144,7 @@ namespace DataGEMS.Gateway.App.Query
 				pageGroups = pageGroups.Where(x => 
 					x.Attributes != null && 
 					x.Attributes.ContainsKey(this._config.ContextGrantTypeAttributeName) && 
-					x.Attributes[this._config.ContextGrantTypeAttributeName].Contains(this._config.ContextGrantTypeUserAttributeValue)).ToList();
+					x.Attributes[this._config.ContextGrantTypeAttributeName].Contains(this._config.ContextGrantTypeGroupAttributeValue)).ToList();
 
 				groups.AddRange(pageGroups);
 				first += max;
@@ -183,7 +183,7 @@ namespace DataGEMS.Gateway.App.Query
 					x.Path.Split('/', StringSplitOptions.RemoveEmptyEntries).Length == 2 &&
 					x.Attributes != null &&
 					x.Attributes.ContainsKey(this._config.ContextGrantTypeAttributeName) &&
-					x.Attributes[this._config.ContextGrantTypeAttributeName].Contains(this._config.ContextGrantTypeUserAttributeValue)).ToList();
+					x.Attributes[this._config.ContextGrantTypeAttributeName].Contains(this._config.ContextGrantTypeGroupAttributeValue)).ToList();
 
 				groups.AddRange(pageGroups.Select(x => x.Id).ToList());
 				first += max;

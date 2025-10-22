@@ -9,6 +9,8 @@ using DataGEMS.Gateway.App.Exception;
 using DataGEMS.Gateway.App.LogTracking;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
+using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
 using System.Net.Http.Headers;
 using System.Text;
 
@@ -120,7 +122,7 @@ namespace DataGEMS.Gateway.App.Service.AAI
 
 			while (true)
 			{
-				HttpRequestMessage lookupSubjectGroupsHttpRequest = new HttpRequestMessage(HttpMethod.Get, $"{this._config.BaseUrl}{this._config.UserGroupsEndpoint.Replace("{groupId}", userSubjectIdToUse)}?briefRepresentation=false&first={first}&max={max}");
+				HttpRequestMessage lookupSubjectGroupsHttpRequest = new HttpRequestMessage(HttpMethod.Get, $"{this._config.BaseUrl}{this._config.UserGroupsEndpoint.Replace("{userId}", userSubjectIdToUse)}?briefRepresentation=false&first={first}&max={max}");
 				lookupSubjectGroupsHttpRequest.Headers.Add(HeaderNames.Accept, "application/json");
 				lookupSubjectGroupsHttpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
@@ -144,9 +146,24 @@ namespace DataGEMS.Gateway.App.Service.AAI
 			return groups;
 		}
 
+		public async Task AddUserToGroup(String userSubjectId, String userGroupId)
+		{
+			String userSubjectIdToUse = userSubjectId.ToLowerInvariant();
+
+			String token = await this._accessTokenService.GetClientAccessTokenAsync(this._config.Scope);
+			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
+
+			HttpRequestMessage addMembershipGroupsHttpRequest = new HttpRequestMessage(HttpMethod.Put, $"{this._config.BaseUrl}{this._config.UserGroupMembershipEndpoint.Replace("{userId}", userSubjectIdToUse).Replace("{groupId}", userGroupId)}");
+			addMembershipGroupsHttpRequest.Headers.Add(HeaderNames.Accept, "application/json");
+			addMembershipGroupsHttpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+			await this.SendRequest(addMembershipGroupsHttpRequest);
+		}
+
 		public async Task BootstrapUserContextGrants(String userSubjectId)
 		{
-			await this.BootstrapPrincipalContextGrants(userSubjectId, this._config.ContextGrantTypeUserAttributeValue);
+			BootstrapPrincipalContextGrantsInfo info = await this.BootstrapPrincipalContextGrants(userSubjectId, this._config.ContextGrantTypeUserAttributeValue);
+			if (!info.GroupExisted) await this.AddUserToGroup(userSubjectId, info.PrincipalGroupId);
 		}
 
 		public async Task BootstrapGroupContextGrants(String userGroupId)
@@ -154,16 +171,22 @@ namespace DataGEMS.Gateway.App.Service.AAI
 			await this.BootstrapPrincipalContextGrants(userGroupId, this._config.ContextGrantTypeGroupAttributeValue);
 		}
 
-		private async Task BootstrapPrincipalContextGrants(String principalId, String attributeValue)
+		private class BootstrapPrincipalContextGrantsInfo
+		{
+			public String PrincipalGroupId { get; set; }
+			public Boolean GroupExisted { get; set; }
+		}
+
+		private async Task<BootstrapPrincipalContextGrantsInfo> BootstrapPrincipalContextGrants(String principalId, String attributeValue)
 		{
 			String principalIdToUse = principalId.ToLowerInvariant();
 
 			Model.Group principalGroup = await this.FindPrincipalGroup(principalIdToUse);
-			if (principalGroup != null) return;
+			if (principalGroup != null) return new BootstrapPrincipalContextGrantsInfo() { PrincipalGroupId = principalGroup.Id, GroupExisted = true };
 
 			String topLevel = await this.EnsureHierarchyLevel(null, this._config.ContextGrantGroupPrefix, null);
 			String principalLevel = await this.EnsureHierarchyLevel(topLevel, principalIdToUse, new Dictionary<string, List<string>>() { { this._config.ContextGrantTypeAttributeName, [attributeValue] } });
-			return;
+			return new BootstrapPrincipalContextGrantsInfo() { PrincipalGroupId = principalLevel, GroupExisted = false };
 		}
 
 		private async Task<String> EnsureHierarchyLevel(String parentId, String name, Dictionary<string, List<string>> attributes)
@@ -263,7 +286,7 @@ namespace DataGEMS.Gateway.App.Service.AAI
 			HttpRequestMessage removeRoleHttpRequest = null;
 			removeRoleHttpRequest = new HttpRequestMessage(HttpMethod.Delete, $"{this._config.BaseUrl}{this._config.GroupRoleMappingsEndpoint.Replace("{groupId}", groupId)}")
 			{
-				Content = new StringContent(this._jsonHandlingService.ToJson(roles), Encoding.UTF8, "application/json")
+				Content = new StringContent(this._jsonHandlingService.ToJson(new Model.RoleMapping[] { roles }), Encoding.UTF8, "application/json")
 			};
 			removeRoleHttpRequest.Headers.Add(HeaderNames.Accept, "application/json");
 			removeRoleHttpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);

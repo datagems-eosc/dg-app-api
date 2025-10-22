@@ -49,7 +49,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement.Data
         public DateOnly? DatePublished
         {
             get { return DatePublishedRaw.HasValue ? DateOnly.FromDateTime(DatePublishedRaw.Value) : null; }
-            set { DatePublishedRaw = value.HasValue ? value.Value.ToDateTime(TimeOnly.MinValue) : null; }
+            set { DatePublishedRaw = value.HasValue ? value.Value.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc) : null; }
         }
         public DateTime? DatePublishedRaw { get; set; }
 

@@ -38,6 +38,7 @@ namespace DataGEMS.Gateway.App.Authorization
 		public const String BrowseDatasetCollection = "BrowseDatasetCollection";
 		//User
 		public const String BrowseUser = "BrowseUser";
+		public const String BrowseUserGroup = "BrowseUserGroup";
 		//UserCollection
 		public const String BrowseUserCollection = "BrowseUserCollection";
 		public const String EditUserCollection = "EditUserCollection";

@@ -212,6 +212,14 @@
 				"AllowAnonymous": false,
 				"AllowAuthenticated": false
 			},
+			"BrowseUserGroup": {
+				"Roles": [ "GLOBAL_dg_admin" ],
+				"ContextRoles": [],
+				"Claims": [],
+				"Clients": [],
+				"AllowAnonymous": false,
+				"AllowAuthenticated": false
+			},
 			//UserCollection
 			"BrowseUserCollection": {
 				"Roles": [ "GLOBAL_dg_admin" ],

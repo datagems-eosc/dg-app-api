@@ -10,13 +10,14 @@
 			"ContextGrantTypeUserAttributeValue": "usr",
 			"ContextGrantTypeGroupAttributeValue": "grp",
 			"AutoAssignGrantsOnNewCollection": [ "dg_col-manage", "dg_col-edit", "dg_col-delete", "dg_col-browse" ],
-			"AutoAssignGrantsOnNewDataset": [ "dg_ds-manage", "dg_ds-edit", "dg_ds-delete", "dg_col-browse", "dg_col-search", "dg_col-download" ],
+			"AutoAssignGrantsOnNewDataset": [ "dg_ds-manage", "dg_ds-edit", "dg_ds-delete", "dg_ds-browse", "dg_ds-search", "dg_ds-download" ],
 			"GroupsEndpoint": "groups",
 			"GroupRoleMappingsEndpoint": "groups/{groupId}/role-mappings/realm",
 			"GroupEndpoint": "groups/{groupId}",
 			"GroupChildrenEndpoint": "groups/{groupId}/children",
 			"RolesEndpoint": "roles/{roleName}",
-			"UserGroupsEndpoint": "users/{userId}/groups"
+			"UserGroupsEndpoint": "users/{userId}/groups",
+			"UserGroupMembershipEndpoint": "users/{userId}/groups/{groupId}"
 		},
 		"Cache": {
 			"LookupCache": {

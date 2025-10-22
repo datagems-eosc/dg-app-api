@@ -6,6 +6,7 @@ namespace DataGEMS.Gateway.App.Service.AAI
 	{
 		Task BootstrapUserContextGrants(String userSubjectId);
 		Task BootstrapGroupContextGrants(String userGroupId);
+		Task AddUserToGroup(String userSubjectId, String userGroupId);
 		Task<List<ContextGrant>> LookupPrincipalContextGrants(String principalId);
 		Task<List<ContextGrant>> LookupUserEffectiveContextGrants(String userSubjectId);
 		Task AssignCollectionGrantTo(String principalId, Guid collectionId, String role);

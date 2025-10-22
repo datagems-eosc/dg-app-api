@@ -19,5 +19,6 @@ namespace DataGEMS.Gateway.App.Service.AAI
 		public String GroupChildrenEndpoint { get; set; }
 		public String RolesEndpoint { get; set; }
 		public String UserGroupsEndpoint { get; set; }
+		public String UserGroupMembershipEndpoint { get; set; }
 	}
 }
