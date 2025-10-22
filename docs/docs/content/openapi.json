@@ -14,11 +14,6 @@
     },
     "version": "v1"
   },
-  "servers": [
-    {
-      "url": "/gw"
-    }
-  ],
   "paths": {
     "/api/collection/query": {
       "post": {
@@ -120,6 +115,402 @@
           },
           "404": {
             "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Collection"
+        ],
+        "summary": "Deletes the collection by id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the item to delete",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Collection deleted"
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "404": {
+            "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/collection/persist": {
+      "post": {
+        "tags": [
+          "Collection"
+        ],
+        "summary": "Persist collection",
+        "parameters": [
+          {
+            "name": "f",
+            "in": "query",
+            "schema": {
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "example": "f=id&f=name&f=foo.id&f=foo.br.id"
+          }
+        ],
+        "requestBody": {
+          "description": "The model to persist",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CollectionPersist"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The persisted collection",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Collection"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "404": {
+            "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/collection/persist/deep": {
+      "post": {
+        "tags": [
+          "Collection"
+        ],
+        "summary": "Persist collection along with details provided",
+        "parameters": [
+          {
+            "name": "f",
+            "in": "query",
+            "schema": {
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "example": "f=id&f=name&f=foo.id&f=foo.br.id"
+          }
+        ],
+        "requestBody": {
+          "description": "The model to persist",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CollectionPersistDeep"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The persisted collection",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Collection"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "404": {
+            "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/collection/patch/dataset": {
+      "post": {
+        "tags": [
+          "Collection"
+        ],
+        "summary": "Patch collection with updated datasets",
+        "parameters": [
+          {
+            "name": "f",
+            "in": "query",
+            "schema": {
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "example": "f=id&f=name&f=foo.id&f=foo.br.id"
+          }
+        ],
+        "requestBody": {
+          "description": "The model to persist",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CollectionDatasetPatch"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The persisted collection",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Collection"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "404": {
+            "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/collection/{collectionId}/dataset/{datasetId}": {
+      "post": {
+        "tags": [
+          "Collection"
+        ],
+        "summary": "Add dataset in collection",
+        "parameters": [
+          {
+            "name": "collectionId",
+            "in": "path",
+            "description": "The collection id to add the provided dataset",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "datasetId",
+            "in": "path",
+            "description": "The dataset id to add the provided collection",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "f",
+            "in": "query",
+            "schema": {
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "example": "f=id&f=name&f=foo.id&f=foo.br.id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The dataset was added and returns the updated collection",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Collection"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Collection"
+        ],
+        "summary": "Remove dataset from collection",
+        "parameters": [
+          {
+            "name": "collectionId",
+            "in": "path",
+            "description": "The collection id from which to remove the provided dataset",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "datasetId",
+            "in": "path",
+            "description": "The dataset id to remove from the provided collection",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "f",
+            "in": "query",
+            "schema": {
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "example": "f=id&f=name&f=foo.id&f=foo.br.id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The dataset was removed and returns the updated collection",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Collection"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
           },
           "403": {
             "description": "The requested operation is not permitted based on granted permissions"
@@ -1090,6 +1481,188 @@
             "oauth2": [ ]
           }
         ]
+      },
+      "delete": {
+        "tags": [
+          "Dataset"
+        ],
+        "summary": "Deletes the dataset by id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the item to delete",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "dataset deleted"
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "404": {
+            "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/dataset/onboard": {
+      "post": {
+        "tags": [
+          "Dataset"
+        ],
+        "summary": "Onboard dataset",
+        "parameters": [
+          {
+            "name": "f",
+            "in": "query",
+            "schema": {
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "example": "f=id&f=name&f=foo.id&f=foo.br.id"
+          }
+        ],
+        "requestBody": {
+          "description": "The model to onboard",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DatasetPersist"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The onboarded dataset",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Dataset"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "404": {
+            "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/dataset/persist": {
+      "post": {
+        "tags": [
+          "Dataset"
+        ],
+        "summary": "Persist dataset",
+        "parameters": [
+          {
+            "name": "f",
+            "in": "query",
+            "schema": {
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "example": "f=id&f=name&f=foo.id&f=foo.br.id"
+          }
+        ],
+        "requestBody": {
+          "description": "The model to persist",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DatasetPersist"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The persisted dataset",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Dataset"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "404": {
+            "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
       }
     },
     "/api/principal/me": {
@@ -1128,6 +1701,1032 @@
           },
           "500": {
             "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/principal/me/context-grants": {
+      "get": {
+        "tags": [
+          "Principal"
+        ],
+        "summary": "Retrieve the assigned context grants for the logged in user",
+        "responses": {
+          "200": {
+            "description": "The context grants available for the logged in user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ContextGrant"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/principal/me/context-grants/collection": {
+      "get": {
+        "tags": [
+          "Principal"
+        ],
+        "summary": "Retrieve the assigned context grants for the logged in user relevant to the provided collections",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "The collection id to retrieve context grants for",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The context grants available for the logged in user for the provided collection",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "uniqueItems": true,
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/principal/me/context-grants/dataset": {
+      "get": {
+        "tags": [
+          "Principal"
+        ],
+        "summary": "Retrieve the assigned context grants for the logged in user relevant to the provided datasets",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "The dataset id to retrieve context grants for",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The context grants available for the logged in user for the provided dataset",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "uniqueItems": true,
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/principal/user/{subjectId}/context-grants": {
+      "get": {
+        "tags": [
+          "Principal"
+        ],
+        "summary": "Retrieve the assigned context grants for the provided user",
+        "parameters": [
+          {
+            "name": "subjectId",
+            "in": "path",
+            "description": "The subject id of the user to retrieve context grants for",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The context grants available for the logged in user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ContextGrant"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/principal/group/{groupId}/context-grants": {
+      "get": {
+        "tags": [
+          "Principal"
+        ],
+        "summary": "Retrieve the assigned context grants for the provided group",
+        "parameters": [
+          {
+            "name": "groupId",
+            "in": "path",
+            "description": "The group id of the user to retrieve context grants for",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The context grants available for the logged in user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ContextGrant"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/principal/user/{subjectId}/context-grants/collection": {
+      "get": {
+        "tags": [
+          "Principal"
+        ],
+        "summary": "Retrieve the assigned context grants for the provided user relevant to the provided collections",
+        "parameters": [
+          {
+            "name": "subjectId",
+            "in": "path",
+            "description": "The subject id of the user to retrieve context grants for",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "description": "The collection id to retrieve context grants for",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The context grants available for the provided user for the provided collection",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "uniqueItems": true,
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/principal/group/{groupId}/context-grants/collection": {
+      "get": {
+        "tags": [
+          "Principal"
+        ],
+        "summary": "Retrieve the assigned context grants for the provided user group relevant to the provided collections",
+        "parameters": [
+          {
+            "name": "groupId",
+            "in": "path",
+            "description": "The group id of the group to retrieve context grants for",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "description": "The collection id to retrieve context grants for",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The context grants available for the provided user group for the provided collection",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "uniqueItems": true,
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/principal/user/{subjectId}/context-grants/dataset": {
+      "get": {
+        "tags": [
+          "Principal"
+        ],
+        "summary": "Retrieve the assigned context grants for the provided user relevant to the provided datasets",
+        "parameters": [
+          {
+            "name": "subjectId",
+            "in": "path",
+            "description": "The subject id of the user to retrieve context grants for",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "description": "The dataset id to retrieve context grants for",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The context grants available for the provided user for the provided dataset",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "uniqueItems": true,
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/principal/group/{groupId}/context-grants/dataset": {
+      "get": {
+        "tags": [
+          "Principal"
+        ],
+        "summary": "Retrieve the assigned context grants for the provided user group relevant to the provided datasets",
+        "parameters": [
+          {
+            "name": "groupId",
+            "in": "path",
+            "description": "The group id of the user group to retrieve context grants for",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "description": "The dataset id to retrieve context grants for",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The context grants available for the provided user group for the provided dataset",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "uniqueItems": true,
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/principal/context-grants/user/{userId}/dataset/{datasetId}/role/{role}": {
+      "post": {
+        "tags": [
+          "Principal"
+        ],
+        "summary": "Add user to dataset context grant group",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "The user id to add to the provided context grant group",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "datasetId",
+            "in": "path",
+            "description": "The context grant dataset to add",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "role",
+            "in": "path",
+            "description": "The context grant role to add",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The user was added to the context grant group"
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Principal"
+        ],
+        "summary": "Remove user from dataset context grant group",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "The user id to remove from the provided context grant group",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "datasetId",
+            "in": "path",
+            "description": "The context grant dataset to remove",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "role",
+            "in": "path",
+            "description": "The context grant role to add",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The user was removed from the context grant group"
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/principal/context-grants/group/{groupId}/dataset/{datasetId}/role/{role}": {
+      "post": {
+        "tags": [
+          "Principal"
+        ],
+        "summary": "Add user group to dataset context grant group",
+        "parameters": [
+          {
+            "name": "groupId",
+            "in": "path",
+            "description": "The user group id to add to the provided context grant group",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "datasetId",
+            "in": "path",
+            "description": "The context grant dataset to add",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "role",
+            "in": "path",
+            "description": "The context grant role to add",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The user group was added to the context grant group"
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Principal"
+        ],
+        "summary": "Remove user group from dataset context grant group",
+        "parameters": [
+          {
+            "name": "groupId",
+            "in": "path",
+            "description": "The user group id to remove from the provided context grant group",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "datasetId",
+            "in": "path",
+            "description": "The context grant dataset to remove",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "role",
+            "in": "path",
+            "description": "The context grant role to add",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The user group was removed from the context grant group"
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/principal/context-grants/user/{userId}/collection/{collectionId}/role/{role}": {
+      "post": {
+        "tags": [
+          "Principal"
+        ],
+        "summary": "Add user to collection context grant group",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "The user id to add to the provided context grant group",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "collectionId",
+            "in": "path",
+            "description": "The context grant collection to add",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "role",
+            "in": "path",
+            "description": "The context grant role to add",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The user was added to the context grant group"
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Principal"
+        ],
+        "summary": "Remove user from collection context grant group",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "The user id to remove from the provided context grant group",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "collectionId",
+            "in": "path",
+            "description": "The context grant collection to remove",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "role",
+            "in": "path",
+            "description": "The context grant role to add",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The user was removed from the context grant group"
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/principal/context-grants/group/{groupId}/collection/{collectionId}/role/{role}": {
+      "post": {
+        "tags": [
+          "Principal"
+        ],
+        "summary": "Add user group to collection context grant group",
+        "parameters": [
+          {
+            "name": "groupId",
+            "in": "path",
+            "description": "The user group id to add to the provided context grant group",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "collectionId",
+            "in": "path",
+            "description": "The context grant collection to add",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "role",
+            "in": "path",
+            "description": "The context grant role to add",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The user group was added to the context grant group"
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Principal"
+        ],
+        "summary": "Remove user group from collection context grant group",
+        "parameters": [
+          {
+            "name": "groupId",
+            "in": "path",
+            "description": "The user group id to remove from the provided context grant group",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "collectionId",
+            "in": "path",
+            "description": "The context grant collection to remove",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "role",
+            "in": "path",
+            "description": "The context grant role to add",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The user group was removed from the context grant group"
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
           }
         },
         "security": [
@@ -1326,7 +2925,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserQueryResult"
+                  "$ref": "#/components/schemas/User"
                 }
               }
             }
@@ -1339,6 +2938,57 @@
           },
           "404": {
             "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/user/group/query": {
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Query user groups",
+        "requestBody": {
+          "description": "The query predicates",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserGroupLookup"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The list of matching user groups along with the count",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserGroupQueryResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
           },
           "403": {
             "description": "The requested operation is not permitted based on granted permissions"
@@ -1544,7 +3194,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Use collection deleted"
+            "description": "User collection deleted"
           },
           "400": {
             "description": "Validation problem with the request"
@@ -2091,6 +3741,301 @@
         ]
       }
     },
+    "/api/user/settings/id/{id}": {
+      "get": {
+        "tags": [
+          "UserSettings"
+        ],
+        "summary": "Lookup user settings by id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the item to lookup",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "f",
+            "in": "query",
+            "schema": {
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "example": "f=id&f=name&f=foo.id&f=foo.br.id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The matching user settings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserSettings"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "404": {
+            "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "UserSettings"
+        ],
+        "summary": "Deletes the user settings by id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the item to delete",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User settings deleted"
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "404": {
+            "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/user/settings/key/{key}": {
+      "get": {
+        "tags": [
+          "UserSettings"
+        ],
+        "summary": "Lookup user settings by key",
+        "parameters": [
+          {
+            "name": "key",
+            "in": "path",
+            "description": "The key of the item to lookup",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "f",
+            "in": "query",
+            "schema": {
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "example": "f=id&f=name&f=foo.id&f=foo.br.id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The matching user settings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserSettings"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "404": {
+            "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "UserSettings"
+        ],
+        "summary": "Deletes the user settings by key",
+        "parameters": [
+          {
+            "name": "key",
+            "in": "path",
+            "description": "The id of the item to delete",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User settings deleted"
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "404": {
+            "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/user/settings/persist": {
+      "post": {
+        "tags": [
+          "UserSettings"
+        ],
+        "summary": "Persist user settings",
+        "parameters": [
+          {
+            "name": "f",
+            "in": "query",
+            "schema": {
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "example": "f=id&f=name&f=foo.id&f=foo.br.id"
+          }
+        ],
+        "requestBody": {
+          "description": "The model to persist",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserSettingsPersist"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The persisted user settings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserSettings"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "404": {
+            "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
     "/api/version-info/current": {
       "get": {
         "tags": [
@@ -2198,7 +4143,7 @@
       }
     },
     "/api/workflow/definition/query": {
-      "get": {
+      "post": {
         "tags": [
           "Workflow"
         ],
@@ -2240,10 +4185,15 @@
           "503": {
             "description": "An underpinning service indicated failure"
           }
-        }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
       }
     },
-    "/api/workflow/{id}": {
+    "/api/workflow/definition/{id}": {
       "get": {
         "tags": [
           "Workflow"
@@ -2279,6 +4229,394 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/WorkflowDefinitionQueryResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "404": {
+            "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/workflow/execute": {
+      "post": {
+        "tags": [
+          "Workflow"
+        ],
+        "summary": "Lookup workflow definition by id",
+        "parameters": [
+          {
+            "name": "f",
+            "in": "query",
+            "schema": {
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "example": "f=id&f=name&f=foo.id&f=foo.br.id"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json-patch+json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkflowExecutionArgs"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkflowExecutionArgs"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkflowExecutionArgs"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkflowExecutionArgs"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Trigger a workflow run",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkflowDefinitionQueryResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "404": {
+            "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/workflow/definition/{workflowId}/execution/{executionId}": {
+      "get": {
+        "tags": [
+          "Workflow"
+        ],
+        "summary": "Lookup workflow exection by id of definition by id",
+        "parameters": [
+          {
+            "name": "workflowId",
+            "in": "path",
+            "description": "The workflow id of the item to lookup",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "executionId",
+            "in": "path",
+            "description": "The execution id of the item to lookup",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "f",
+            "in": "query",
+            "schema": {
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "example": "f=id&f=name&f=foo.id&f=foo.br.id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The matching workflow execution",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkflowExecutionQueryResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "404": {
+            "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/workflow/execution/query": {
+      "post": {
+        "tags": [
+          "Workflow"
+        ],
+        "summary": "Retrieve the available workflow executions",
+        "requestBody": {
+          "description": "The query predicates",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkflowExecutionLookup"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The list of matching workflow executions along with the count",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkflowExecutionQueryResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/workflow/definition/{workflowId}/execution/{executionId}/task/{taskId}": {
+      "get": {
+        "tags": [
+          "Workflow"
+        ],
+        "summary": "Lookup workflow task instance by id",
+        "parameters": [
+          {
+            "name": "workflowId",
+            "in": "path",
+            "description": "The workflow id of the item to lookup",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "executionId",
+            "in": "path",
+            "description": "The execution id of the item to lookup",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "taskId",
+            "in": "path",
+            "description": "The task id of the item to lookup",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "f",
+            "in": "query",
+            "schema": {
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "example": "f=id&f=name&f=foo.id&f=foo.br.id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The matching workflow task instance",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkflowTaskInstanceQueryResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "404": {
+            "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/workflow/definition/{workflowId}/execution/{workflowExecutionId}/taskinstance/{workflowTaskId}/logs/{tryNumber}": {
+      "get": {
+        "tags": [
+          "Workflow"
+        ],
+        "summary": " The workflow log by taskid, workflowid, executionid and tryNumber",
+        "parameters": [
+          {
+            "name": "workflowExecutionId",
+            "in": "path",
+            "description": "The workflow id of the item to lookup",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "workflowId",
+            "in": "path",
+            "description": "The workflow execution id of the item to lookup",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "workflowTaskId",
+            "in": "path",
+            "description": "The workflow task id of the item to lookup",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tryNumber",
+            "in": "path",
+            "description": "The execution try number of the item to lookup",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "f",
+            "in": "query",
+            "schema": {
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "example": "f=id&f=name&f=foo.id&f=foo.br.id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The matching workflow task log",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WorkflowTaskLog"
+                  }
                 }
               }
             }
@@ -2346,20 +4684,6 @@
             },
             "nullable": true
           },
-          "datasets": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "nullable": true
-          },
-          "datasetGrants": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/DatasetGrant"
-            },
-            "nullable": true
-          },
           "more": {
             "type": "object",
             "additionalProperties": {
@@ -2406,6 +4730,25 @@
             "type": "array",
             "items": {
               "type": "string"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CollectionDatasetPatch": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "datasets": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
             },
             "nullable": true
           }
@@ -2462,6 +4805,52 @@
         },
         "additionalProperties": false
       },
+      "CollectionPersist": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CollectionPersistDeep": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "datasets": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "CollectionQueryResult": {
         "type": "object",
         "properties": {
@@ -2475,6 +4864,30 @@
           "count": {
             "type": "integer",
             "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ContextGrant": {
+        "type": "object",
+        "properties": {
+          "principalId": {
+            "type": "string",
+            "nullable": true
+          },
+          "principalType": {
+            "$ref": "#/components/schemas/PrincipalKind"
+          },
+          "targetType": {
+            "$ref": "#/components/schemas/TargetKind"
+          },
+          "targetId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "role": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -3014,6 +5427,33 @@
             "format": "int32",
             "nullable": true
           },
+          "datasetIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Limit lookup to datasets from the specific ids. If set, the list of ids must not be empty",
+            "nullable": true
+          },
+          "collectionIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Limit lookup to datasets from the specific collections Ids. If set, the list of ids must not be empty",
+            "nullable": true
+          },
+          "userCollectionIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Limit lookup to datasets from the specific user collections Ids. If set, the list of ids must not be empty",
+            "nullable": true
+          },
           "conversationOptions": {
             "$ref": "#/components/schemas/ConversationOptions"
           },
@@ -3122,23 +5562,6 @@
         },
         "additionalProperties": false
       },
-      "DatasetGrant": {
-        "type": "object",
-        "properties": {
-          "type": {
-            "$ref": "#/components/schemas/TargetType"
-          },
-          "code": {
-            "type": "string",
-            "nullable": true
-          },
-          "access": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
       "DatasetHits": {
         "type": "object",
         "properties": {
@@ -3228,6 +5651,87 @@
           },
           "project": {
             "$ref": "#/components/schemas/FieldSet"
+          }
+        },
+        "additionalProperties": false
+      },
+      "DatasetPersist": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "license": {
+            "type": "string",
+            "nullable": true
+          },
+          "mimeType": {
+            "type": "string",
+            "nullable": true
+          },
+          "size": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "url": {
+            "type": "string",
+            "nullable": true
+          },
+          "version": {
+            "type": "string",
+            "nullable": true
+          },
+          "headline": {
+            "type": "string",
+            "nullable": true
+          },
+          "keywords": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "fieldOfScience": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "language": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "country": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "datePublished": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -3633,6 +6137,23 @@
         },
         "additionalProperties": false
       },
+      "PrincipalKind": {
+        "enum": [
+          0,
+          1
+        ],
+        "type": "integer",
+        "description": "  (0 - User = 0 - Grant assigned at the user level, 1 - Group = 1 - Grant assigned at the user group level)",
+        "format": "int32",
+        "x-enum-varnames": [
+          "0 - User",
+          "1 - Group"
+        ],
+        "x-enum-descriptions": [
+          "0 - Grant assigned at the user level",
+          "1 - Grant assigned at the user group level"
+        ]
+      },
       "ResponseStatus": {
         "enum": [
           0,
@@ -3650,21 +6171,21 @@
           "1 - Problem in evaluation"
         ]
       },
-      "TargetType": {
+      "TargetKind": {
         "enum": [
           0,
           1
         ],
         "type": "integer",
-        "description": "  (0 - Dataset = 0 - Grant assigned at the dataset level, 1 - Group = 1 - Grant assigned at the group level)",
+        "description": "  (0 - Dataset = 0 - Grant assigned at the dataset level, 1 - Collection = 1 - Grant assigned at the collection level)",
         "format": "int32",
         "x-enum-varnames": [
           "0 - Dataset",
-          "1 - Group"
+          "1 - Collection"
         ],
         "x-enum-descriptions": [
           "0 - Grant assigned at the dataset level",
-          "1 - Grant assigned at the group level"
+          "1 - Grant assigned at the collection level"
         ]
       },
       "TokenInfo": {
@@ -4107,6 +6628,76 @@
         },
         "additionalProperties": false
       },
+      "UserGroup": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserGroupLookup": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Limit lookup to items with specific ids. If set, the list of ids must not be empty",
+            "nullable": true
+          },
+          "excludedIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Exclude from the lookup items with specific ids. If set, the list of ids must not be empty",
+            "nullable": true
+          },
+          "like": {
+            "type": "string",
+            "description": "Limit lookup to items whose name matches the pattern",
+            "nullable": true
+          },
+          "page": {
+            "$ref": "#/components/schemas/Paging"
+          },
+          "order": {
+            "$ref": "#/components/schemas/Ordering"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/Header"
+          },
+          "project": {
+            "$ref": "#/components/schemas/FieldSet"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserGroupQueryResult": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserGroup"
+            },
+            "nullable": true
+          },
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
       "UserLookup": {
         "type": "object",
         "properties": {
@@ -4169,6 +6760,65 @@
           "count": {
             "type": "integer",
             "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserSettings": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "key": {
+            "type": "string",
+            "nullable": true
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
+          },
+          "value": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "eTag": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserSettingsPersist": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "key": {
+            "type": "string",
+            "nullable": true
+          },
+          "value": {
+            "type": "string",
+            "nullable": true
+          },
+          "eTag": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -4360,6 +7010,13 @@
               "type": "string"
             },
             "nullable": true
+          },
+          "tasks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkflowTask"
+            },
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -4453,6 +7110,169 @@
         },
         "additionalProperties": false
       },
+      "WorkflowExecution": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true
+          },
+          "workflowId": {
+            "type": "string",
+            "nullable": true
+          },
+          "logicalDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "queuedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "start": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "end": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "dataIntervalStart": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "dataIntervalEnd": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "runAfter": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "lastSchedulingDecision": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "runType": {
+            "$ref": "#/components/schemas/WorkflowRunType"
+          },
+          "triggeredBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "state": {
+            "$ref": "#/components/schemas/WorkflowRunState"
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          },
+          "bundleVersion": {
+            "type": "string",
+            "nullable": true
+          },
+          "workflow": {
+            "$ref": "#/components/schemas/WorkflowDefinition"
+          },
+          "taskInstances": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkflowTaskInstance"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "WorkflowExecutionArgs": {
+        "type": "object",
+        "properties": {
+          "workflowId": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "WorkflowExecutionLookup": {
+        "type": "object",
+        "properties": {
+          "workflowIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Limit lookup to items that are in the Workflow Id List",
+            "nullable": true
+          },
+          "logicalDateRange": {
+            "$ref": "#/components/schemas/DateOnlyNullableRangeOf"
+          },
+          "startDateRange": {
+            "$ref": "#/components/schemas/DateOnlyNullableRangeOf"
+          },
+          "endDateRange": {
+            "$ref": "#/components/schemas/DateOnlyNullableRangeOf"
+          },
+          "runAfterRange": {
+            "$ref": "#/components/schemas/DateOnlyNullableRangeOf"
+          },
+          "runType": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkflowRunType"
+            },
+            "description": "Limit lookup to items that are specifically triggered by that exact run type",
+            "nullable": true
+          },
+          "state": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkflowRunState"
+            },
+            "description": "Limit lookup to items who are at a specific state. If set, the list of values must not be empty",
+            "nullable": true
+          },
+          "page": {
+            "$ref": "#/components/schemas/Paging"
+          },
+          "order": {
+            "$ref": "#/components/schemas/Ordering"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/Header"
+          },
+          "project": {
+            "$ref": "#/components/schemas/FieldSet"
+          }
+        },
+        "additionalProperties": false
+      },
+      "WorkflowExecutionQueryResult": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkflowExecution"
+            },
+            "nullable": true
+          },
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
       "WorkflowRunState": {
         "enum": [
           0,
@@ -4475,6 +7295,382 @@
           "2 - Success",
           "3 - Failed"
         ]
+      },
+      "WorkflowRunType": {
+        "enum": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "type": "integer",
+        "description": "  (0 - Backfill = 0 - Backfill, 1 - Scheduled = 1 - Scheduled, 2 - Manual = 2 - Manual, 3 - Asset_triggered = 3 - Asset_triggered)",
+        "format": "int32",
+        "x-enum-varnames": [
+          "0 - Backfill",
+          "1 - Scheduled",
+          "2 - Manual",
+          "3 - Asset_triggered"
+        ],
+        "x-enum-descriptions": [
+          "0 - Backfill",
+          "1 - Scheduled",
+          "2 - Manual",
+          "3 - Asset_triggered"
+        ]
+      },
+      "WorkflowTask": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true
+          },
+          "taskDisplayName": {
+            "type": "string",
+            "nullable": true
+          },
+          "owner": {
+            "type": "string",
+            "nullable": true
+          },
+          "start": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "end": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "triggerRule": {
+            "type": "string",
+            "nullable": true
+          },
+          "dependsOnPast": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "waitForDownstream": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "retries": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "queue": {
+            "type": "string",
+            "nullable": true
+          },
+          "pool": {
+            "type": "string",
+            "nullable": true
+          },
+          "poolSlots": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "executionTimeout": {
+            "nullable": true
+          },
+          "retryDelay": {
+            "nullable": true
+          },
+          "retryExponentialBackoff": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "priorityWeight": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "weightRule": {
+            "type": "string",
+            "nullable": true
+          },
+          "uiColor": {
+            "type": "string",
+            "nullable": true
+          },
+          "uifgColor": {
+            "type": "string",
+            "nullable": true
+          },
+          "templateFields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "downstreamTaskIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "docMd": {
+            "type": "string",
+            "nullable": true
+          },
+          "operatorName": {
+            "type": "string",
+            "nullable": true
+          },
+          "params": {
+            "nullable": true
+          },
+          "classRef": {
+            "nullable": true
+          },
+          "isMapped": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "extraLinks": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "WorkflowTaskInstance": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true
+          },
+          "workflowId": {
+            "type": "string",
+            "nullable": true
+          },
+          "workflowTaskId": {
+            "type": "string",
+            "nullable": true
+          },
+          "workflowExecutionId": {
+            "type": "string",
+            "nullable": true
+          },
+          "mapIndex": {
+            "type": "string",
+            "nullable": true
+          },
+          "logicalDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "runAfter": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "start": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "end": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "duration": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "state": {
+            "$ref": "#/components/schemas/WorkflowTaskInstanceState"
+          },
+          "tryNumber": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "maxTries": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "taskDisplayName": {
+            "type": "string",
+            "nullable": true
+          },
+          "hostname": {
+            "type": "string",
+            "nullable": true
+          },
+          "unixname": {
+            "type": "string",
+            "nullable": true
+          },
+          "pool": {
+            "type": "string",
+            "nullable": true
+          },
+          "poolSlots": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "queue": {
+            "type": "string",
+            "nullable": true
+          },
+          "queuedWhen": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "scheduledWhen": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "priorityWeight": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "operator": {
+            "type": "string",
+            "nullable": true
+          },
+          "pid": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "executor": {
+            "type": "string",
+            "nullable": true
+          },
+          "executorConfig": {
+            "type": "string",
+            "nullable": true
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          },
+          "renderedMapIndex": {
+            "type": "string",
+            "nullable": true
+          },
+          "renderedFields": {
+            "nullable": true
+          },
+          "trigger": {
+            "nullable": true
+          },
+          "triggererJob": {
+            "nullable": true
+          },
+          "dagVersion": {
+            "nullable": true
+          },
+          "workflow": {
+            "$ref": "#/components/schemas/WorkflowDefinition"
+          },
+          "task": {
+            "$ref": "#/components/schemas/WorkflowTask"
+          },
+          "workflowExecution": {
+            "$ref": "#/components/schemas/WorkflowExecution"
+          }
+        },
+        "additionalProperties": false
+      },
+      "WorkflowTaskInstanceQueryResult": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkflowTaskInstance"
+            },
+            "nullable": true
+          },
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "WorkflowTaskInstanceState": {
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11
+        ],
+        "type": "integer",
+        "description": "  (0 - Removed = 0 - Removed, 1 - Scheduled = 1 - Scheduled, 2 - Queued = 2 - Queued, 3 - Running = 3 - Running, 4 - Success = 4 - Success, 5 - Restarting = 5 - Restarting, 6 - Failed = 6 - Failed, 7 - Up_for_retry = 7 - Up_for_retry, 8 - Up_for_reschedule = 8 - Up_for_reschedule, 9 - Upstream_failed = 9 - Upstream_failed, 10 - Skipped = 10 - Skipped, 11 - Deferred = 11 - Deferred)",
+        "format": "int32",
+        "x-enum-varnames": [
+          "0 - Removed",
+          "1 - Scheduled",
+          "2 - Queued",
+          "3 - Running",
+          "4 - Success",
+          "5 - Restarting",
+          "6 - Failed",
+          "7 - Up_for_retry",
+          "8 - Up_for_reschedule",
+          "9 - Upstream_failed",
+          "10 - Skipped",
+          "11 - Deferred"
+        ],
+        "x-enum-descriptions": [
+          "0 - Removed",
+          "1 - Scheduled",
+          "2 - Queued",
+          "3 - Running",
+          "4 - Success",
+          "5 - Restarting",
+          "6 - Failed",
+          "7 - Up_for_retry",
+          "8 - Up_for_reschedule",
+          "9 - Upstream_failed",
+          "10 - Skipped",
+          "11 - Deferred"
+        ]
+      },
+      "WorkflowTaskLog": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "event": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
       }
     },
     "securitySchemes": {
@@ -4485,7 +7681,6 @@
             "authorizationUrl": "https://datagems-dev.scayle.es/oauth/realms/dev/protocol/openid-connect/auth",
             "tokenUrl": "https://datagems-dev.scayle.es/oauth/realms/dev/protocol/openid-connect/token",
             "scopes": {
-              "datasets": "Datasets",
               "dg-app-api": "DataGEMS Gateway API",
               "email": "Email",
               "openid": "OpenID Connect",
