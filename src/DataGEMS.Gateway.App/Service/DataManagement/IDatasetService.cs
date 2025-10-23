@@ -4,8 +4,12 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 {
 	public interface IDatasetService
 	{
-		Task<App.Model.Dataset> OnboardAsync(App.Model.DatasetPersist model, IFieldSet fields = null);
+		Task<Guid> OnboardAsync(App.Model.DatasetPersist model, IFieldSet fields = null);
+		Task<Guid> ProfileAsync(Guid id);
 		Task<App.Model.Dataset> PersistAsync(App.Model.DatasetPersist model, IFieldSet fields = null);
 		Task DeleteAsync(Guid id);
+
+		Task<Guid> OnboardAsDataManagementAsync(App.Model.DatasetPersist model);
+		Task<Guid> UpdateProfileAsDataManagementAsync(Guid id, String profile);
 	}
 }

@@ -8,6 +8,8 @@ namespace DataGEMS.Gateway.App.Accounting
 		Persist = 2,
 		Delete = 3,
 		Invoke = 4,
+		Onboard = 5,
+		Profile = 6,
 	}
 
 	public enum KnownUnits : short

@@ -178,6 +178,14 @@
 				"AllowAnonymous": false,
 				"AllowAuthenticated": false
 			},
+			"ProfileDataset": {
+				"Roles": [ "GLOBAL_dg_admin" ],
+				"ContextRoles": [],
+				"Claims": [],
+				"Clients": [],
+				"AllowAnonymous": false,
+				"AllowAuthenticated": false
+			},
 			"EditDataset": {
 				"Roles": [ "GLOBAL_dg_admin" ],
 				"ContextRoles": [ "dg_ds-edit" ],

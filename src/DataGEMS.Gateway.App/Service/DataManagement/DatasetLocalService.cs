@@ -58,9 +58,19 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 			this._eventBroker = eventBroker;
 		}
 
+		private async Task AuthorizeExecuteWorkflowForce()
+		{
+			await this._authorizationService.AuthorizeForce(Permission.ExecuteWorkflow);
+		}
+
 		private async Task AuthorizeCreateForce()
 		{
 			await this._authorizationService.AuthorizeForce(Permission.OnboardDataset);
+		}
+
+		private async Task AuthorizeProfileForce()
+		{
+			await this._authorizationService.AuthorizeForce(Permission.ProfileDataset);
 		}
 
 		private async Task AuthorizeEditForce(Guid datasetId)
@@ -88,26 +98,106 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 			await this._aaiService.AssignDatasetGrantToUser(subjectId, datasetId, this._aaiConfig.AutoAssignGrantsOnNewDataset);
 		}
 
-		public async Task<App.Model.Dataset> OnboardAsync(App.Model.DatasetPersist model, IFieldSet fields = null)
+		public async Task<Guid> OnboardAsync(App.Model.DatasetPersist model, IFieldSet fields = null)
 		{
 			this._logger.Debug(new MapLogEntry("onboarding").And("type", nameof(App.Model.DatasetPersist)).And("model", model).And("fields", fields));
+
+			await this.AuthorizeCreateForce();
+			await this.AuthorizeExecuteWorkflowForce();
+
+			model.Id = Guid.NewGuid();
+
+			await this.ExecuteOnboardingFlow(model);
+
+			await this.AutoAssignNewDatasetRoles(model.Id.Value);
+			this._eventBroker.EmitDatasetTouched(model.Id.Value);
+
+			return model.Id.Value;
+		}
+
+		private Task ExecuteOnboardingFlow(App.Model.DatasetPersist model)
+		{
+			this._logger.Debug(new MapLogEntry("executing").And("type", nameof(ExecuteOnboardingFlow)).And("model", model));
+
+			//TODO: retrieve proper workflow and execute
+
+			return Task.CompletedTask;
+		}
+
+		public async Task<Guid> OnboardAsDataManagementAsync(App.Model.DatasetPersist model)
+		{
+			this._logger.Debug(new MapLogEntry("onboarding as data management").And("type", nameof(App.Model.DatasetPersist)).And("model", model));
 
 			await this.AuthorizeCreateForce();
 
 			Service.DataManagement.Model.Dataset data = await this.PatchAndSave(model);
 
-			await this.AutoAssignNewDatasetRoles(data.Id);
-			this._eventBroker.EmitDatasetTouched(data.Id);
+			return data.Id;
+		}
 
-			App.Model.Dataset persisted = await this._builderFactory.Builder<App.Model.Builder.DatasetBuilder>().Build(FieldSet.Build(fields, nameof(App.Model.Dataset.Id)), data);
-			return persisted;
+		public async Task<Guid> ProfileAsync(Guid id)
+		{
+			this._logger.Debug(new MapLogEntry("profiling").And("id", id));
+
+			await this.AuthorizeProfileForce();
+			await this.AuthorizeExecuteWorkflowForce();
+
+			Data.Dataset data = await this._dbContext.Datasets.FindAsync(id);
+			if (data == null) throw new DGNotFoundException(this._localizer["general_notFound", id, nameof(App.Model.Dataset)]);
+			FieldSet fields = new FieldSet(
+				nameof(App.Model.Dataset.Id),
+				nameof(App.Model.Dataset.Code),
+				nameof(App.Model.Dataset.Name),
+				nameof(App.Model.Dataset.Description),
+				nameof(App.Model.Dataset.License),
+				nameof(App.Model.Dataset.MimeType),
+				nameof(App.Model.Dataset.Size),
+				nameof(App.Model.Dataset.Url),
+				nameof(App.Model.Dataset.Version),
+				nameof(App.Model.Dataset.Headline),
+				nameof(App.Model.Dataset.Keywords),
+				nameof(App.Model.Dataset.FieldOfScience),
+				nameof(App.Model.Dataset.Language),
+				nameof(App.Model.Dataset.Country),
+				nameof(App.Model.Dataset.DatePublished));
+			App.Model.Dataset model = await this._builderFactory.Builder<App.Model.Builder.DatasetBuilder>().Build(fields, data.ToModel());
+
+			await this.ExecuteProfilingFlow(model);
+
+			return id;
+		}
+
+		private Task ExecuteProfilingFlow(App.Model.Dataset model)
+		{
+			this._logger.Debug(new MapLogEntry("executing").And("type", nameof(ExecuteProfilingFlow)).And("model", model));
+
+			//TODO: retrieve proper workflow and execute
+
+			return Task.CompletedTask;
+		}
+
+		public async Task<Guid> UpdateProfileAsDataManagementAsync(Guid id, String profile)
+		{
+			this._logger.Debug(new MapLogEntry("updating profile as data management").And("type", nameof(App.Model.DatasetPersist)).And("id", id).And("profile", profile));
+
+			await this.AuthorizeEditForce(id);
+
+			Data.Dataset data = await this._dbContext.Datasets.FindAsync(id);
+			if (data == null) throw new DGNotFoundException(this._localizer["general_notFound", id, nameof(App.Model.Dataset)]);
+
+			data.Profile = profile;
+
+			this._dbContext.Update(data);
+
+			await this._dbContext.SaveChangesAsync();
+
+			return id;
 		}
 
 		public async Task<App.Model.Dataset> PersistAsync(App.Model.DatasetPersist model, IFieldSet fields = null)
 		{
 			this._logger.Debug(new MapLogEntry("persisting").And("type", nameof(App.Model.DatasetPersist)).And("model", model).And("fields", fields));
 
-			await this.AuthorizeCreateForce();
 			await this.AuthorizeEditForce(model.Id.Value);
 
 			Service.DataManagement.Model.Dataset data = await this.PatchAndSave(model);
