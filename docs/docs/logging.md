@@ -92,7 +92,7 @@ An prettified example of a log entry is:
 
 ## Accounting Logs
 
-The service generates accounting entries that ustilize the same logging mechanism but are differentiated by troubleshooting logs through the "SourceContext" property which is set to "accounting".
+The service generates accounting entries that utilize the same logging mechanism but are differentiated by troubleshooting logs through the "SourceContext" property which is set to "accounting".
 
 These accounting log entries are harvested and processed by the [Accounting Service](https://datagems-eosc.github.io/dg-accounting-service)
 

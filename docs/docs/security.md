@@ -31,7 +31,7 @@ Possible authorization policies include:
 * **Authenticated**: Authenticated user, regardless of any other characteristic vcan be granted or not granted the specific permission
 * **Anonymous**: Anonymous users be be granted or not granted the specific permission
 
-For context based authorization policies with a Dataset affiliation bearer, the evaluation of the kind of operations that the user can perfomr is done by interpreting the respective JWT "datasets" claim. The context is provided either directly by dataset id or indirectly through the memberhip of a dataset to a group that bears the granted permissions. The inclusion of a dataset to such a group is retrieved by the respective underpinning [Data Management](https://datagems-eosc.github.io/data-model-management/) service.
+For context based authorization policies with a Dataset affiliation bearer, the evaluation of the kind of operations that the user can perfomr is done by interpreting the respective JWT "datasets" claim. The context is provided through the interpretation of the context grant model detailed in the [DataGEMS AAI](https://datagems-eosc.github.io/dg-aai/).
 
 For each of affiliation bearing datasets, the following actions (verbs) are interpreted to grant needed access:
 * browse - Grants permission to browse the dataset in a listing view and see dataset metadata
@@ -39,7 +39,6 @@ For each of affiliation bearing datasets, the following actions (verbs) are inte
 * download - Grants permission to download the dataset
 * edit - Grants permission to edit dataset data and metadata
 * search - Grants permission to perform a search using the data and metadata of the dataset. This does not refer to listing / browsing operations but advanced search capabilities offered by DataGEMS
-* system - Grants permission for ETL, maintenance and other system level operations that may need to be performed on the dataset
 
 ## Token exchange
 

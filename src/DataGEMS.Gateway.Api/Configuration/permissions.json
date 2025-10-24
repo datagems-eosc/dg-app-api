@@ -171,10 +171,10 @@
 				"AllowAuthenticated": false
 			},
 			"OnboardDataset": {
-				"Roles": [ "GLOBAL_dg_user" ],
+				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_user" ],
 				"ContextRoles": [],
 				"Claims": [],
-				"Clients": [],
+				"Clients": [ "airflow" ],
 				"AllowAnonymous": false,
 				"AllowAuthenticated": false
 			},
@@ -190,7 +190,7 @@
 				"Roles": [ "GLOBAL_dg_admin" ],
 				"ContextRoles": [ "dg_ds-edit" ],
 				"Claims": [],
-				"Clients": [],
+				"Clients": [ "airflow" ],
 				"AllowAnonymous": false,
 				"AllowAuthenticated": false
 			},
