@@ -130,7 +130,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 
 			await this.AuthorizeCreateForce();
 
-			Service.DataManagement.Model.Dataset data = await this.PatchAndSave(model);
+			Service.DataManagement.Model.Dataset data = await this.PatchAndSave(model, false);
 
 			return data.Id;
 		}
@@ -200,7 +200,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 
 			await this.AuthorizeEditForce(model.Id.Value);
 
-			Service.DataManagement.Model.Dataset data = await this.PatchAndSave(model);
+			Service.DataManagement.Model.Dataset data = await this.PatchAndSave(model, true);
 
 			this._eventBroker.EmitDatasetTouched(data.Id);
 
@@ -208,10 +208,9 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 			return persisted;
 		}
 
-		private async Task<Service.DataManagement.Model.Dataset> PatchAndSave(App.Model.DatasetPersist model)
+		private async Task<Service.DataManagement.Model.Dataset> PatchAndSave(App.Model.DatasetPersist model, Boolean isUpdate)
 		{
-			Boolean isUpdate = model.Id.HasValue && model.Id.Value != Guid.Empty;
-
+			//model id always has vault. in case of edit or onboard
 			Data.Dataset data = null;
 			if (isUpdate)
 			{
@@ -222,7 +221,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 			{
 				data = new Data.Dataset
 				{
-					Id = Guid.NewGuid(),
+					Id = model.Id.Value,
 				};
 			}
 
