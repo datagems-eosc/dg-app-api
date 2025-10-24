@@ -8,5 +8,7 @@ namespace DataGEMS.Gateway.App.Service.Airflow.Model
 		public string DagRunId { get; set; }
 		[JsonProperty("logical_date")]
 		public DateTime? LogicalDate { get; set; }
-	}
+		[JsonProperty("conf")]
+		public object Configurations { get; set; }
+    }
 }

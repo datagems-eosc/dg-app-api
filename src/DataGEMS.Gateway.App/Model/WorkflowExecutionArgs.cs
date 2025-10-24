@@ -15,8 +15,9 @@ namespace DataGEMS.Gateway.App.Model
 	public class WorkflowExecutionArgs
 	{
 		public String WorkflowId { get; set; }
+        public object Configurations { get; set; }
 
-		public class WorkflowExecutionArgsValidator : BaseValidator<WorkflowExecutionArgs>
+        public class WorkflowExecutionArgsValidator : BaseValidator<WorkflowExecutionArgs>
 		{
 			private static int NameMaxLength = typeof(Data.Conversation).MaxLengthOf(nameof(Data.Conversation.Name));
 
