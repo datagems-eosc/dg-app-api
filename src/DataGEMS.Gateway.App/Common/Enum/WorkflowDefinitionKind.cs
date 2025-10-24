@@ -5,7 +5,7 @@ namespace DataGEMS.Gateway.App.Common
 {
 	public enum WorkflowDefinitionKind : short
 	{
-		[Description("Dataset Ingestion")]
-		DatasetIngestion = 0,
+		[Description("Dataset Onboarding")]
+		DatasetOnboarding = 0,
 	}
 }

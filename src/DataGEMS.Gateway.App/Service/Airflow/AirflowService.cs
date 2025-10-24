@@ -59,8 +59,9 @@ namespace DataGEMS.Gateway.App.Service.Airflow
 			Service.Airflow.Model.AirflowExecutionRequest httpRequestModel = new Service.Airflow.Model.AirflowExecutionRequest
 			{
 				DagRunId = Guid.NewGuid().ToString(),
-				LogicalDate = DateTime.UtcNow
-			};
+				LogicalDate = DateTime.UtcNow,
+				Configurations = args.Configurations
+            };
 
 			HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, $"{this._airflowConfig.BaseUrl}{this._airflowConfig.DagRunEndpoint.Replace("{id}", args.WorkflowId)}")
 			{
