@@ -23,6 +23,7 @@ When an authenticated call reaches the service, the caller may be authorized to 
 Within the service, all data access operations as well as individual actions pass authorization checks. The permissions that are checked along with the policies attached to each one is managed in a configuration file that the respective [Configuration](configuration.md) section describes.
 
 Possible authorization policies include:
+
 * **Context-less assignment**: such as an administrator that can perform action X on entity Y, regardless of the kind of affiliation they have with the entity
 * **Context**: An affiliation of the calling user with the entity over which the action is to be performed. The context policy it tied to an anchor entity that is treated as the affiliation bearer. In the context of DataGEMS, this entity is the Dataset
 * **Owner**: Specific kind of affiliation between the calling user and the entity over which the action is to be performed, indicating ownership of the entity. An example is a User Collection that is owned by a specific user
