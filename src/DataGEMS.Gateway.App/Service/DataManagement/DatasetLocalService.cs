@@ -10,261 +10,297 @@ using DataGEMS.Gateway.App.Event;
 using DataGEMS.Gateway.App.Exception;
 using DataGEMS.Gateway.App.Query;
 using DataGEMS.Gateway.App.Service.AAI;
+using DataGEMS.Gateway.App.Service.Airflow;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 
 namespace DataGEMS.Gateway.App.Service.DataManagement
 {
-	public class DatasetLocalService : IDatasetService
-	{
-		private readonly Data.DataManagementDbContext _dbContext;
-		private readonly BuilderFactory _builderFactory;
-		private readonly DeleterFactory _deleterFactory;
-		private readonly QueryFactory _queryFactory;
-		private readonly IStringLocalizer<Resources.MySharedResources> _localizer;
-		private readonly IAuthorizationService _authorizationService;
-		private readonly IAuthorizationContentResolver _authorizationContentResolver;
-		private readonly ILogger<DatasetLocalService> _logger;
-		private readonly AAIConfig _aaiConfig;
-		private readonly ErrorThesaurus _errors;
-		private readonly EventBroker _eventBroker;
-		private readonly IAAIService _aaiService;
+    public class DatasetLocalService : IDatasetService
+    {
+        private readonly Data.DataManagementDbContext _dbContext;
+        private readonly BuilderFactory _builderFactory;
+        private readonly DeleterFactory _deleterFactory;
+        private readonly QueryFactory _queryFactory;
+        private readonly IStringLocalizer<Resources.MySharedResources> _localizer;
+        private readonly IAuthorizationService _authorizationService;
+        private readonly IAuthorizationContentResolver _authorizationContentResolver;
+        private readonly ILogger<DatasetLocalService> _logger;
+        private readonly AAIConfig _aaiConfig;
+        private readonly ErrorThesaurus _errors;
+        private readonly EventBroker _eventBroker;
+        private readonly IAAIService _aaiService;
+        private readonly IAirflowService _airflowService;
 
-		public DatasetLocalService(
-			ILogger<DatasetLocalService> logger,
-			Data.DataManagementDbContext dbContext,
-			BuilderFactory builderFactory,
-			DeleterFactory deleterFactory,
-			QueryFactory queryFactory,
-			IAAIService aaiService,
-			AAIConfig aaiConfig,
-			IAuthorizationService authorizationService,
-			IAuthorizationContentResolver authorizationContentResolver,
-			IStringLocalizer<Resources.MySharedResources> localizer,
-			ErrorThesaurus errors,
-			EventBroker eventBroker)
-		{
-			this._logger = logger;
-			this._dbContext = dbContext;
-			this._builderFactory = builderFactory;
-			this._deleterFactory = deleterFactory;
-			this._queryFactory = queryFactory;
-			this._aaiService = aaiService;
-			this._aaiConfig = aaiConfig;
-			this._authorizationService = authorizationService;
-			this._authorizationContentResolver = authorizationContentResolver;
-			this._localizer = localizer;
-			this._errors = errors;
-			this._eventBroker = eventBroker;
-		}
+        public DatasetLocalService(
+            ILogger<DatasetLocalService> logger,
+            Data.DataManagementDbContext dbContext,
+            BuilderFactory builderFactory,
+            DeleterFactory deleterFactory,
+            QueryFactory queryFactory,
+            IAAIService aaiService,
+            AAIConfig aaiConfig,
+            IAuthorizationService authorizationService,
+            IAuthorizationContentResolver authorizationContentResolver,
+            IStringLocalizer<Resources.MySharedResources> localizer,
+            ErrorThesaurus errors,
+            EventBroker eventBroker,
+            IAirflowService airflowService)
+        {
+            this._logger = logger;
+            this._dbContext = dbContext;
+            this._builderFactory = builderFactory;
+            this._deleterFactory = deleterFactory;
+            this._queryFactory = queryFactory;
+            this._aaiService = aaiService;
+            this._aaiConfig = aaiConfig;
+            this._authorizationService = authorizationService;
+            this._authorizationContentResolver = authorizationContentResolver;
+            this._localizer = localizer;
+            this._errors = errors;
+            this._eventBroker = eventBroker;
+            this._airflowService = airflowService;
+        }
 
-		private async Task AuthorizeExecuteWorkflowForce()
-		{
-			await this._authorizationService.AuthorizeForce(Permission.ExecuteWorkflow);
-		}
+        private async Task AuthorizeExecuteWorkflowForce()
+        {
+            await this._authorizationService.AuthorizeForce(Permission.ExecuteWorkflow);
+        }
 
-		private async Task AuthorizeCreateForce()
-		{
-			await this._authorizationService.AuthorizeForce(Permission.OnboardDataset);
-		}
+        private async Task AuthorizeCreateForce()
+        {
+            await this._authorizationService.AuthorizeForce(Permission.OnboardDataset);
+        }
 
-		private async Task AuthorizeProfileForce()
-		{
-			await this._authorizationService.AuthorizeForce(Permission.ProfileDataset);
-		}
+        private async Task AuthorizeProfileForce()
+        {
+            await this._authorizationService.AuthorizeForce(Permission.ProfileDataset);
+        }
 
-		private async Task AuthorizeEditForce(Guid datasetId)
-		{
-			await this.AuthorizeForce(datasetId, Permission.EditDataset);
-		}
+        private async Task AuthorizeEditForce(Guid datasetId)
+        {
+            await this.AuthorizeForce(datasetId, Permission.EditDataset);
+        }
 
-		private async Task AuthorizDeleteForce(Guid datasetId)
-		{
-			await this.AuthorizeForce(datasetId, Permission.DeleteDataset);
-		}
+        private async Task AuthorizDeleteForce(Guid datasetId)
+        {
+            await this.AuthorizeForce(datasetId, Permission.DeleteDataset);
+        }
 
-		private async Task AuthorizeForce(Guid datasetId, String permission)
-		{
-			HashSet<string> userDatasetGroupRoles = await _authorizationContentResolver.EffectiveContextRolesForDatasetOfUser(datasetId);
-			await this._authorizationService.AuthorizeOrAffiliatedContextForce(new AffiliatedContextResource(userDatasetGroupRoles), permission);
-		}
+        private async Task AuthorizeForce(Guid datasetId, String permission)
+        {
+            HashSet<string> userDatasetGroupRoles = await _authorizationContentResolver.EffectiveContextRolesForDatasetOfUser(datasetId);
+            await this._authorizationService.AuthorizeOrAffiliatedContextForce(new AffiliatedContextResource(userDatasetGroupRoles), permission);
+        }
 
-		private async Task AutoAssignNewDatasetRoles(Guid datasetId)
-		{
-			if (this._aaiConfig.AutoAssignGrantsOnNewDataset == null || this._aaiConfig.AutoAssignGrantsOnNewDataset.Count == 0) return;
+        private async Task AutoAssignNewDatasetRoles(Guid datasetId)
+        {
+            if (this._aaiConfig.AutoAssignGrantsOnNewDataset == null || this._aaiConfig.AutoAssignGrantsOnNewDataset.Count == 0) return;
 
-			String subjectId = await this._authorizationContentResolver.SubjectIdOfCurrentUser();
-			await this._aaiService.BootstrapUserContextGrants(subjectId);
-			await this._aaiService.AssignDatasetGrantToUser(subjectId, datasetId, this._aaiConfig.AutoAssignGrantsOnNewDataset);
-		}
+            String subjectId = await this._authorizationContentResolver.SubjectIdOfCurrentUser();
+            await this._aaiService.BootstrapUserContextGrants(subjectId);
+            await this._aaiService.AssignDatasetGrantToUser(subjectId, datasetId, this._aaiConfig.AutoAssignGrantsOnNewDataset);
+        }
 
-		public async Task<Guid> OnboardAsync(App.Model.DatasetPersist model, IFieldSet fields = null)
-		{
-			this._logger.Debug(new MapLogEntry("onboarding").And("type", nameof(App.Model.DatasetPersist)).And("model", model).And("fields", fields));
+        public async Task<Guid> OnboardAsync(App.Model.DatasetPersist model, IFieldSet fields = null)
+        {
+            this._logger.Debug(new MapLogEntry("onboarding").And("type", nameof(App.Model.DatasetPersist)).And("model", model).And("fields", fields));
 
-			await this.AuthorizeCreateForce();
-			await this.AuthorizeExecuteWorkflowForce();
+            await this.AuthorizeCreateForce();
+            await this.AuthorizeExecuteWorkflowForce();
 
-			model.Id = Guid.NewGuid();
+            model.Id = Guid.NewGuid();
 
-			await this.ExecuteOnboardingFlow(model);
+            await this.ExecuteOnboardingFlow(model);
 
-			await this.AutoAssignNewDatasetRoles(model.Id.Value);
-			this._eventBroker.EmitDatasetTouched(model.Id.Value);
+            await this.AutoAssignNewDatasetRoles(model.Id.Value);
+            this._eventBroker.EmitDatasetTouched(model.Id.Value);
 
-			return model.Id.Value;
-		}
+            return model.Id.Value;
+        }
 
-		private Task ExecuteOnboardingFlow(App.Model.DatasetPersist model)
-		{
-			this._logger.Debug(new MapLogEntry("executing").And("type", nameof(ExecuteOnboardingFlow)).And("model", model));
+        private async Task ExecuteOnboardingFlow(App.Model.DatasetPersist model)
+        {
+            this._logger.Debug(new MapLogEntry("executing").And("type", nameof(ExecuteOnboardingFlow)).And("model", model));
 
-			//TODO: retrieve proper workflow and execute
+            List<Airflow.Model.AirflowDag> definitions = await this._queryFactory.Query<WorkflowDefinitionHttpQuery>()
+                .Kinds(Common.WorkflowDefinitionKind.DatasetOnboarding)
+                .ExcludeStaled(true)
+                .CollectAsync();
+            Airflow.Model.AirflowDag selectedDefinition = definitions.FirstOrDefault();
+            App.Model.WorkflowExecution execution = await this._airflowService.ExecuteWorkflowAsync(new App.Model.WorkflowExecutionArgs
+            {
+                WorkflowId = selectedDefinition.Id,
+                Configurations = new
+                {
+                    id = model.Id,
+                    name = model.Name,
+                    description = model.Description,
+                    headline = model.Headline,
+                    fields_of_science = model.FieldOfScience,
+                    languages = model.Language,
+                    keywords = model.Keywords,
+                    country = model.Country.FirstOrDefault(),
+                    publishedUrl = model.Url,
+                    doi = "https://doi.org/10.1234/example.doi",
+                    citeAs = $"{model.Name}, {model.License}, {DateTime.UtcNow}",
+                    license = model.License,
+                    dataLocation = new
+                    {
+                        kind = "File",
+                        url = model.Url
+                    }
+                }
+            }, new FieldSet
+            {
+                Fields = [
+                nameof(App.Model.WorkflowExecution.Id),
+                nameof(App.Model.WorkflowExecution.WorkflowId),
+                ]
+            });
+        }
 
-			return Task.CompletedTask;
-		}
+        public async Task<Guid> OnboardAsDataManagementAsync(App.Model.DatasetPersist model)
+        {
+            this._logger.Debug(new MapLogEntry("onboarding as data management").And("type", nameof(App.Model.DatasetPersist)).And("model", model));
 
-		public async Task<Guid> OnboardAsDataManagementAsync(App.Model.DatasetPersist model)
-		{
-			this._logger.Debug(new MapLogEntry("onboarding as data management").And("type", nameof(App.Model.DatasetPersist)).And("model", model));
+            await this.AuthorizeCreateForce();
 
-			await this.AuthorizeCreateForce();
+            Service.DataManagement.Model.Dataset data = await this.PatchAndSave(model);
 
-			Service.DataManagement.Model.Dataset data = await this.PatchAndSave(model);
+            return data.Id;
+        }
 
-			return data.Id;
-		}
+        public async Task<Guid> ProfileAsync(Guid id)
+        {
+            this._logger.Debug(new MapLogEntry("profiling").And("id", id));
 
-		public async Task<Guid> ProfileAsync(Guid id)
-		{
-			this._logger.Debug(new MapLogEntry("profiling").And("id", id));
+            await this.AuthorizeProfileForce();
+            await this.AuthorizeExecuteWorkflowForce();
 
-			await this.AuthorizeProfileForce();
-			await this.AuthorizeExecuteWorkflowForce();
+            Data.Dataset data = await this._dbContext.Datasets.FindAsync(id);
+            if (data == null) throw new DGNotFoundException(this._localizer["general_notFound", id, nameof(App.Model.Dataset)]);
+            FieldSet fields = new FieldSet(
+                nameof(App.Model.Dataset.Id),
+                nameof(App.Model.Dataset.Code),
+                nameof(App.Model.Dataset.Name),
+                nameof(App.Model.Dataset.Description),
+                nameof(App.Model.Dataset.License),
+                nameof(App.Model.Dataset.MimeType),
+                nameof(App.Model.Dataset.Size),
+                nameof(App.Model.Dataset.Url),
+                nameof(App.Model.Dataset.Version),
+                nameof(App.Model.Dataset.Headline),
+                nameof(App.Model.Dataset.Keywords),
+                nameof(App.Model.Dataset.FieldOfScience),
+                nameof(App.Model.Dataset.Language),
+                nameof(App.Model.Dataset.Country),
+                nameof(App.Model.Dataset.DatePublished));
+            App.Model.Dataset model = await this._builderFactory.Builder<App.Model.Builder.DatasetBuilder>().Build(fields, data.ToModel());
 
-			Data.Dataset data = await this._dbContext.Datasets.FindAsync(id);
-			if (data == null) throw new DGNotFoundException(this._localizer["general_notFound", id, nameof(App.Model.Dataset)]);
-			FieldSet fields = new FieldSet(
-				nameof(App.Model.Dataset.Id),
-				nameof(App.Model.Dataset.Code),
-				nameof(App.Model.Dataset.Name),
-				nameof(App.Model.Dataset.Description),
-				nameof(App.Model.Dataset.License),
-				nameof(App.Model.Dataset.MimeType),
-				nameof(App.Model.Dataset.Size),
-				nameof(App.Model.Dataset.Url),
-				nameof(App.Model.Dataset.Version),
-				nameof(App.Model.Dataset.Headline),
-				nameof(App.Model.Dataset.Keywords),
-				nameof(App.Model.Dataset.FieldOfScience),
-				nameof(App.Model.Dataset.Language),
-				nameof(App.Model.Dataset.Country),
-				nameof(App.Model.Dataset.DatePublished));
-			App.Model.Dataset model = await this._builderFactory.Builder<App.Model.Builder.DatasetBuilder>().Build(fields, data.ToModel());
+            await this.ExecuteProfilingFlow(model);
 
-			await this.ExecuteProfilingFlow(model);
+            return id;
+        }
 
-			return id;
-		}
+        private Task ExecuteProfilingFlow(App.Model.Dataset model)
+        {
+            this._logger.Debug(new MapLogEntry("executing").And("type", nameof(ExecuteProfilingFlow)).And("model", model));
 
-		private Task ExecuteProfilingFlow(App.Model.Dataset model)
-		{
-			this._logger.Debug(new MapLogEntry("executing").And("type", nameof(ExecuteProfilingFlow)).And("model", model));
+            //TODO: retrieve proper workflow and execute
 
-			//TODO: retrieve proper workflow and execute
+            return Task.CompletedTask;
+        }
 
-			return Task.CompletedTask;
-		}
+        public async Task<Guid> UpdateProfileAsDataManagementAsync(Guid id, String profile)
+        {
+            this._logger.Debug(new MapLogEntry("updating profile as data management").And("type", nameof(App.Model.DatasetPersist)).And("id", id).And("profile", profile));
 
-		public async Task<Guid> UpdateProfileAsDataManagementAsync(Guid id, String profile)
-		{
-			this._logger.Debug(new MapLogEntry("updating profile as data management").And("type", nameof(App.Model.DatasetPersist)).And("id", id).And("profile", profile));
+            await this.AuthorizeEditForce(id);
 
-			await this.AuthorizeEditForce(id);
+            Data.Dataset data = await this._dbContext.Datasets.FindAsync(id);
+            if (data == null) throw new DGNotFoundException(this._localizer["general_notFound", id, nameof(App.Model.Dataset)]);
 
-			Data.Dataset data = await this._dbContext.Datasets.FindAsync(id);
-			if (data == null) throw new DGNotFoundException(this._localizer["general_notFound", id, nameof(App.Model.Dataset)]);
+            data.Profile = profile;
 
-			data.Profile = profile;
+            this._dbContext.Update(data);
 
-			this._dbContext.Update(data);
+            await this._dbContext.SaveChangesAsync();
 
-			await this._dbContext.SaveChangesAsync();
+            return id;
+        }
 
-			return id;
-		}
+        public async Task<App.Model.Dataset> PersistAsync(App.Model.DatasetPersist model, IFieldSet fields = null)
+        {
+            this._logger.Debug(new MapLogEntry("persisting").And("type", nameof(App.Model.DatasetPersist)).And("model", model).And("fields", fields));
 
-		public async Task<App.Model.Dataset> PersistAsync(App.Model.DatasetPersist model, IFieldSet fields = null)
-		{
-			this._logger.Debug(new MapLogEntry("persisting").And("type", nameof(App.Model.DatasetPersist)).And("model", model).And("fields", fields));
+            await this.AuthorizeEditForce(model.Id.Value);
 
-			await this.AuthorizeEditForce(model.Id.Value);
+            Service.DataManagement.Model.Dataset data = await this.PatchAndSave(model);
 
-			Service.DataManagement.Model.Dataset data = await this.PatchAndSave(model);
+            this._eventBroker.EmitDatasetTouched(data.Id);
 
-			this._eventBroker.EmitDatasetTouched(data.Id);
+            App.Model.Dataset persisted = await this._builderFactory.Builder<App.Model.Builder.DatasetBuilder>().Build(FieldSet.Build(fields, nameof(App.Model.Dataset.Id)), data);
+            return persisted;
+        }
 
-			App.Model.Dataset persisted = await this._builderFactory.Builder<App.Model.Builder.DatasetBuilder>().Build(FieldSet.Build(fields, nameof(App.Model.Dataset.Id)), data);
-			return persisted;
-		}
+        private async Task<Service.DataManagement.Model.Dataset> PatchAndSave(App.Model.DatasetPersist model)
+        {
+            Boolean isUpdate = model.Id.HasValue && model.Id.Value != Guid.Empty;
 
-		private async Task<Service.DataManagement.Model.Dataset> PatchAndSave(App.Model.DatasetPersist model)
-		{
-			Boolean isUpdate = model.Id.HasValue && model.Id.Value != Guid.Empty;
+            Data.Dataset data = null;
+            if (isUpdate)
+            {
+                data = await this._dbContext.Datasets.FindAsync(model.Id.Value);
+                if (data == null) throw new DGNotFoundException(this._localizer["general_notFound", model.Id.Value, nameof(App.Model.Dataset)]);
+            }
+            else
+            {
+                data = new Data.Dataset
+                {
+                    Id = Guid.NewGuid(),
+                };
+            }
 
-			Data.Dataset data = null;
-			if (isUpdate)
-			{
-				data = await this._dbContext.Datasets.FindAsync(model.Id.Value);
-				if (data == null) throw new DGNotFoundException(this._localizer["general_notFound", model.Id.Value, nameof(App.Model.Dataset)]);
-			}
-			else
-			{
-				data = new Data.Dataset
-				{
-					Id = Guid.NewGuid(),
-				};
-			}
+            data.Name = model.Name;
+            data.Code = model.Code;
+            data.Description = model.Description;
+            data.License = model.License;
+            data.Url = model.Url;
+            data.Version = model.Version;
+            data.MimeType = model.MimeType;
+            data.Size = model.Size;
+            data.Headline = model.Headline;
+            data.Keywords = model.Keywords == null ? null : String.Join(',', model.Keywords);
+            data.FieldOfScience = model.FieldOfScience == null ? null : String.Join(',', model.FieldOfScience);
+            data.Language = model.Language == null ? null : String.Join(',', model.Language);
+            data.Country = model.Country == null ? null : String.Join(',', model.Country);
+            data.DatePublished = model.DatePublished;
 
-			data.Name = model.Name;
-			data.Code = model.Code;
-			data.Description = model.Description;
-			data.License = model.License;
-			data.Url = model.Url;
-			data.Version = model.Version;
-			data.MimeType = model.MimeType;
-			data.Size = model.Size;
-			data.Headline = model.Headline;
-			data.Keywords = model.Keywords == null ? null : String.Join(',', model.Keywords);
-			data.FieldOfScience = model.FieldOfScience == null ? null : String.Join(',', model.FieldOfScience);
-			data.Language = model.Language == null ? null : String.Join(',', model.Language);
-			data.Country = model.Country == null ? null : String.Join(',', model.Country);
-			data.DatePublished = model.DatePublished;
+            if (isUpdate) this._dbContext.Update(data);
+            else this._dbContext.Add(data);
 
-			if (isUpdate) this._dbContext.Update(data);
-			else this._dbContext.Add(data);
+            await this._dbContext.SaveChangesAsync();
 
-			await this._dbContext.SaveChangesAsync();
+            return data.ToModel();
+        }
 
-			return data.ToModel();
-		}
+        public async Task DeleteAsync(Guid id)
+        {
+            await this.AuthorizDeleteForce(id);
 
-		public async Task DeleteAsync(Guid id)
-		{
-			await this.AuthorizDeleteForce(id);
+            Data.Dataset data = await this._queryFactory.Query<DatasetLocalQuery>().Authorize(AuthorizationFlags.None).Ids(id).FirstAsync();
+            if (data == null) return;
 
-			Data.Dataset data = await this._queryFactory.Query<DatasetLocalQuery>().Authorize(AuthorizationFlags.None).Ids(id).FirstAsync();
-			if (data == null) return;
+            List<Data.DatasetCollection> existingItems = await this._queryFactory.Query<Query.DatasetCollectionLocalQuery>().DatasetIds(id).Authorize(AuthorizationFlags.None).CollectAsync();
+            this._dbContext.RemoveRange(existingItems);
 
-			List<Data.DatasetCollection> existingItems = await this._queryFactory.Query<Query.DatasetCollectionLocalQuery>().DatasetIds(id).Authorize(AuthorizationFlags.None).CollectAsync();
-			this._dbContext.RemoveRange(existingItems);
+            this._dbContext.Remove(data);
 
-			this._dbContext.Remove(data);
+            await this._dbContext.SaveChangesAsync();
 
-			await this._dbContext.SaveChangesAsync();
-
-			await this._aaiService.DeleteDatasetGrants(data.Id);
-			this._eventBroker.EmitDatasetDeleted(data.Id);
-		}
-	}
+            await this._aaiService.DeleteDatasetGrants(data.Id);
+            this._eventBroker.EmitDatasetDeleted(data.Id);
+        }
+    }
 }
