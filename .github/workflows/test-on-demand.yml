@@ -30,7 +30,7 @@ jobs:
       - name: Run Newman CLI reporter
         run: |
           set -o pipefail
-          docker run --rm -it \
+          docker run --rm \
             -v "${{ github.workspace }}:/etc/newman" \
             postman/newman:6-ubuntu \
             run tests/DataGEMS-GatewayApi-Tests.postman_collection.json \
