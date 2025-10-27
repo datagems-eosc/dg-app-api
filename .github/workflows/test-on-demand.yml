@@ -1,0 +1,41 @@
+name: "Test Scenario (On-Demand)"
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Repository tag to test'
+        required: true
+        default: 'main'
+
+jobs:
+  api-tests:
+    name: API Test Scenario
+    runs-on: ubuntu-latest
+
+    env:
+      TEST_DEV_BASEURL: ${{ secrets.TEST_DEV_BASEURL }}
+      TEST_DEV_BASEURLIDP: ${{ secrets.TEST_DEV_BASEURLIDP }}
+      TEST_DEV_CLIENTID: ${{ secrets.TEST_DEV_CLIENTID }}
+      TEST_DEV_SCOPE: ${{ secrets.TEST_DEV_SCOPE }}
+      TEST_DEV_USERNAME: ${{ secrets.TEST_DEV_USERNAME }}
+      TEST_DEV_USERPASS: ${{ secrets.TEST_DEV_USERPASS }}
+      
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag }}
+
+      - name: Run Newman CLI reporter
+        uses: matt-ball/newman-action@v2
+        with:
+          collection: ./tests/DataGEMS-GatewayApi-Tests.postman_collection.json
+          reporters: cli
+          envVar: |
+            baseUrl=${{ env.TEST_DEV_BASEURL }}
+            baseUrlIdp=${{ env.TEST_DEV_BASEURLIDP }}
+            userName=${{ env.TEST_DEV_CLIENTID }}
+            userPass=${{ env.TEST_DEV_SCOPE }}
+            clientId=${{ env.TEST_DEV_USERNAME }}
+            scope=${{ env.TEST_DEV_USERPASS }}

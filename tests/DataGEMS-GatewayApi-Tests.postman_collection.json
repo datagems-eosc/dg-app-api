@@ -1,0 +1,242 @@
+{
+	"info": {
+		"_postman_id": "e1d3e80f-d4bc-4781-a9f1-78d46f96e76b",
+		"name": "DataGEMS-GatewayApi-Tests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "654785"
+	},
+	"item": [
+		{
+			"name": "Health check",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code === 200) {\r",
+							"    var resp = pm.response.json();\r",
+							"    pm.test(\"Successful healthcheck\", () => {\r",
+							"        pm.expect(pm.response.code).to.eql(200);\r",
+							"    });\r",
+							"    \r",
+							"    pm.execution.setNextRequest(\"Version Info\");\r",
+							"}\r",
+							"else {\r",
+							"    pm.test(\"Failed in healthcheck\", () => {\r",
+							"        pm.expect(pm.response.code).to.eql(200);\r",
+							"    })\r",
+							"    pm.execution.setNextRequest(null);\r",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/health-check",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"health-check"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Version Info",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code === 200) {\r",
+							"    var resp = pm.response.json();\r",
+							"    pm.test(\"Successful version info\", () => {\r",
+							"        pm.expect(pm.response.code).to.eql(200);\r",
+							"    });\r",
+							"    \r",
+							"    pm.execution.setNextRequest(\"User Access Token\");\r",
+							"}\r",
+							"else {\r",
+							"    pm.test(\"Failed in version info\", () => {\r",
+							"        pm.expect(pm.response.code).to.eql(200);\r",
+							"    })\r",
+							"    pm.execution.setNextRequest(null);\r",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/version-info/current",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"version-info",
+						"current"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "User Access Token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code === 200) {\r",
+							"    var resp = pm.response.json();\r",
+							"    pm.test(\"Successfully acquired access token\", () => {\r",
+							"        pm.expect(pm.response.code).to.eql(200);\r",
+							"    });\r",
+							"\r",
+							"    pm.collectionVariables.set(\"userAccessToken\", resp.access_token);\r",
+							"    \r",
+							"    pm.execution.setNextRequest(\"me\");\r",
+							"}\r",
+							"else {\r",
+							"    pm.test(\"Failed to acquire access token\", () => {\r",
+							"        pm.expect(pm.response.code).to.eql(200);\r",
+							"    })\r",
+							"    pm.execution.setNextRequest(null);\r",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "grant_type",
+							"value": "password",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "{{clientId}}",
+							"type": "text"
+						},
+						{
+							"key": "username",
+							"value": "{{userName}}",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "{{userPass}}",
+							"type": "text"
+						},
+						{
+							"key": "scope",
+							"value": "{{scope}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseUrlIdp}}/oauth/realms/dev/protocol/openid-connect/token",
+					"host": [
+						"{{baseUrlIdp}}"
+					],
+					"path": [
+						"oauth",
+						"realms",
+						"dev",
+						"protocol",
+						"openid-connect",
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "me",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code === 200) {\r",
+							"    var resp = pm.response.json();\r",
+							"    pm.test(\"Successful me\", () => {\r",
+							"        pm.expect(pm.response.code).to.eql(200);\r",
+							"    });\r",
+							"    \r",
+							"    pm.execution.setNextRequest(null);\r",
+							"}\r",
+							"else {\r",
+							"    pm.test(\"Failed in me\", () => {\r",
+							"        pm.expect(pm.response.code).to.eql(200);\r",
+							"    })\r",
+							"    pm.execution.setNextRequest(null);\r",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"user-agent": true,
+					"accept-encoding": true,
+					"connection": true
+				}
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{userAccessToken}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/principal/me",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"principal",
+						"me"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "userAccessToken",
+			"value": ""
+		}
+	]
+}
