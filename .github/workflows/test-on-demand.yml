@@ -32,10 +32,9 @@ jobs:
         with:
           collection: ./tests/DataGEMS-GatewayApi-Tests.postman_collection.json
           reporters: cli
-          envVar: |
-            baseUrl=${{ env.TEST_DEV_BASEURL }}
-            baseUrlIdp=${{ env.TEST_DEV_BASEURLIDP }}
-            userName=${{ env.TEST_DEV_CLIENTID }}
-            userPass=${{ env.TEST_DEV_SCOPE }}
-            clientId=${{ env.TEST_DEV_USERNAME }}
-            scope=${{ env.TEST_DEV_USERPASS }}
+          envVar: '[{ "key": "baseUrl", "value": "${{ env.TEST_DEV_BASEURL }}" },
+              { "key": "baseUrlIdp", "value": "${{ env.TEST_DEV_BASEURLIDP }}" },
+              { "key": "userName", "value": "${{ env.TEST_DEV_USERNAME }}" },
+              { "key": "userPass", "value": "${{ env.TEST_DEV_USERPASS }}" },
+              { "key": "clientId", "value": "${{ env.TEST_DEV_CLIENTID }}" },
+              { "key": "scope", "value": "${{ env.TEST_DEV_SCOPE }}" }]'
