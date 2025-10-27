@@ -935,7 +935,6 @@
 <h2 id="relational-database">Relational Database<a class="headerlink" href="#relational-database" title="Permanent link">&para;</a></h2>
 <p>The primary data store for the service is a PostgreSQL hosted relational database. </p>
 <p>The schema of the relational database can be found in the service repository under the <a href="https://github.com/datagems-eosc/dg-app-api/tree/main/db">db</a> folder.</p>
-<p><strong>TODO: database schema diagram</strong></p>
 <h2 id="change-scripts">Change scripts<a class="headerlink" href="#change-scripts" title="Permanent link">&para;</a></h2>
 <p>The evolution of the database is managed through ordered database change scripts. The scripts incrimentaly update the database schema to target the desired version. The change scripts are numbered and versioned in the service repository under the <a href="https://github.com/datagems-eosc/dg-app-api/tree/main/db">db</a> folder.</p>
 <p>Intermediate "XX.XX.XXX-Seed.Scema.sql" scripts can be used to initialize the database in the sepecific version so that previous change scripts do not need to be applied.</p>
