@@ -14,12 +14,9 @@
 					"script": {
 						"exec": [
 							"if (pm.response.code === 200) {\r",
-							"    var resp = pm.response.json();\r",
 							"    pm.test(\"Successful healthcheck\", () => {\r",
 							"        pm.expect(pm.response.code).to.eql(200);\r",
 							"    });\r",
-							"    \r",
-							"    pm.execution.setNextRequest(\"Version Info\");\r",
 							"}\r",
 							"else {\r",
 							"    pm.test(\"Failed in healthcheck\", () => {\r",
@@ -57,12 +54,9 @@
 					"script": {
 						"exec": [
 							"if (pm.response.code === 200) {\r",
-							"    var resp = pm.response.json();\r",
 							"    pm.test(\"Successful version info\", () => {\r",
 							"        pm.expect(pm.response.code).to.eql(200);\r",
 							"    });\r",
-							"    \r",
-							"    pm.execution.setNextRequest(\"User Access Token\");\r",
 							"}\r",
 							"else {\r",
 							"    pm.test(\"Failed in version info\", () => {\r",
@@ -102,14 +96,13 @@
 					"script": {
 						"exec": [
 							"if (pm.response.code === 200) {\r",
-							"    var resp = pm.response.json();\r",
 							"    pm.test(\"Successfully acquired access token\", () => {\r",
 							"        pm.expect(pm.response.code).to.eql(200);\r",
 							"    });\r",
 							"\r",
+							"    var resp = pm.response.json();\r",
+							"\r",
 							"    pm.collectionVariables.set(\"userAccessToken\", resp.access_token);\r",
-							"    \r",
-							"    pm.execution.setNextRequest(\"me\");\r",
 							"}\r",
 							"else {\r",
 							"    pm.test(\"Failed to acquire access token\", () => {\r",
@@ -182,12 +175,9 @@
 					"script": {
 						"exec": [
 							"if (pm.response.code === 200) {\r",
-							"    var resp = pm.response.json();\r",
 							"    pm.test(\"Successful me\", () => {\r",
 							"        pm.expect(pm.response.code).to.eql(200);\r",
 							"    });\r",
-							"    \r",
-							"    pm.execution.setNextRequest(null);\r",
 							"}\r",
 							"else {\r",
 							"    pm.test(\"Failed in me\", () => {\r",
@@ -231,11 +221,932 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "User Settings - Get by Key",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code === 200) {\r",
+							"    pm.test(\"Successful user settings by key\", () => {\r",
+							"        pm.expect(pm.response.code).to.eql(200);\r",
+							"    });\r",
+							"}\r",
+							"else {\r",
+							"    pm.test(\"Failed in user settings by key\", () => {\r",
+							"        pm.expect(pm.response.code).to.eql(200);\r",
+							"    })\r",
+							"    pm.execution.setNextRequest(null);\r",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{userAccessToken}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/user/settings/key/setting_key_test?f=id&f=key&f=user.id&f=user.name&f=value&f=createdAt&f=updatedAt&f=etag",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"user",
+						"settings",
+						"key",
+						"setting_key_test"
+					],
+					"query": [
+						{
+							"key": "f",
+							"value": "id"
+						},
+						{
+							"key": "f",
+							"value": "key"
+						},
+						{
+							"key": "f",
+							"value": "user.id"
+						},
+						{
+							"key": "f",
+							"value": "user.name"
+						},
+						{
+							"key": "f",
+							"value": "value"
+						},
+						{
+							"key": "f",
+							"value": "createdAt"
+						},
+						{
+							"key": "f",
+							"value": "updatedAt"
+						},
+						{
+							"key": "f",
+							"value": "etag"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Context Grants - Me - Assigned",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code === 200) {\r",
+							"    pm.test(\"Successful Context Grants - Me - Assigned\", () => {\r",
+							"        pm.expect(pm.response.code).to.eql(200);\r",
+							"    });\r",
+							"\r",
+							"    var resp = pm.response.json();\r",
+							"\r",
+							"    let browsableDatasetIds = resp.filter(item => \r",
+							"        item.targetType === 0 &&\r",
+							"        item.role === \"dg_ds-browse\"\r",
+							"    );\r",
+							"\r",
+							"    let browsableCollectionIds = resp.filter(item => \r",
+							"        item.targetType === 1 &&\r",
+							"        item.role === \"dg_col-browse\"\r",
+							"    );\r",
+							"\r",
+							"    if (browsableDatasetIds.length > 0) {\r",
+							"        console.log(\"found browsable dataset:\", browsableDatasetIds[0].targetId);\r",
+							"        pm.collectionVariables.set(\"browsableDatasetId\", browsableDatasetIds[0].targetId);\r",
+							"    } else {\r",
+							"        console.log(\"no browsable datasets found\");\r",
+							"        pm.collectionVariables.set(\"browsableDatasetId\", null);\r",
+							"    }\r",
+							"\r",
+							"    if (browsableCollectionIds.length > 0) {\r",
+							"        console.log(\"found browsable collection:\", browsableCollectionIds[0].targetId);\r",
+							"        pm.collectionVariables.set(\"browsableCollectionId\", browsableCollectionIds[0].targetId);\r",
+							"    } else {\r",
+							"        console.log(\"no browsable collections found\");\r",
+							"        pm.collectionVariables.set(\"browsableCollectionId\", null);\r",
+							"    }\r",
+							"}\r",
+							"else {\r",
+							"    pm.test(\"Failed in Context Grants - Me - Assigned\", () => {\r",
+							"        pm.expect(pm.response.code).to.eql(200);\r",
+							"    })\r",
+							"    console.log(\"stopping execution\");\r",
+							"    pm.execution.setNextRequest(null);\r",
+							"}\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"user-agent": true,
+					"accept-encoding": true,
+					"connection": true
+				}
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{userAccessToken}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/principal/me/context-grants",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"principal",
+						"me",
+						"context-grants"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Context Grants - Me - Collections",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"console.log(\"checking for browsable collections\");\r",
+							"\r",
+							"let browsableCollectionId = pm.collectionVariables.get(\"browsableCollectionId\");\r",
+							"\r",
+							"if (!browsableCollectionId) {\r",
+							"    pm.execution.setNextRequest(null);\r",
+							"} else{\r",
+							"    pm.request.url.addQueryParams( { key: \"id\", value: browsableCollectionId } );\r",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code === 200) {\r",
+							"    pm.test(\"Successful Context Grants - Me - Collections\", () => {\r",
+							"        pm.expect(pm.response.code).to.eql(200);\r",
+							"    });\r",
+							"}\r",
+							"else {\r",
+							"    pm.test(\"Failed in Context Grants - Me - Collections\", () => {\r",
+							"        pm.expect(pm.response.code).to.eql(200);\r",
+							"    })\r",
+							"    pm.execution.setNextRequest(null);\r",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{userAccessToken}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/principal/me/context-grants/collection",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"principal",
+						"me",
+						"context-grants",
+						"collection"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Context Grants - Me - Datasets",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"console.log(\"checking for browsable datasets\");\r",
+							"\r",
+							"let browsableDatasetId = pm.collectionVariables.get(\"browsableDatasetId\");\r",
+							"\r",
+							"if (!browsableDatasetId) {\r",
+							"    pm.execution.setNextRequest(null);\r",
+							"} else {\r",
+							"    pm.request.url.addQueryParams( { key: \"id\", value: browsableDatasetId } );\r",
+							"}\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code === 200) {\r",
+							"    pm.test(\"Successful Context Grants - Me - Datasets\", () => {\r",
+							"        pm.expect(pm.response.code).to.eql(200);\r",
+							"    });\r",
+							"}\r",
+							"else {\r",
+							"    pm.test(\"Failed in Context Grants - Me - Datasets\", () => {\r",
+							"        pm.expect(pm.response.code).to.eql(200);\r",
+							"    })\r",
+							"    pm.execution.setNextRequest(null);\r",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{userAccessToken}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/principal/me/context-grants/dataset",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"principal",
+						"me",
+						"context-grants",
+						"dataset"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Vocabulary - Fields of Science",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code === 200) {\r",
+							"    pm.test(\"Successful Vocabulary - Fields of Science\", () => {\r",
+							"        pm.expect(pm.response.code).to.eql(200);\r",
+							"    });\r",
+							"}\r",
+							"else {\r",
+							"    pm.test(\"Failed in Vocabulary - Fields of Science\", () => {\r",
+							"        pm.expect(pm.response.code).to.eql(200);\r",
+							"    })\r",
+							"    pm.execution.setNextRequest(null);\r",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"user-agent": true,
+					"accept-encoding": true,
+					"connection": true
+				}
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{userAccessToken}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/vocabulary/fields-of-science",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"vocabulary",
+						"fields-of-science"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Vocabulary - License",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code === 200) {\r",
+							"    pm.test(\"Successful Vocabulary - License\", () => {\r",
+							"        pm.expect(pm.response.code).to.eql(200);\r",
+							"    });\r",
+							"}\r",
+							"else {\r",
+							"    pm.test(\"Failed in Vocabulary - License\", () => {\r",
+							"        pm.expect(pm.response.code).to.eql(200);\r",
+							"    })\r",
+							"    pm.execution.setNextRequest(null);\r",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"user-agent": true,
+					"accept-encoding": true,
+					"connection": true
+				}
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{userAccessToken}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/vocabulary/license?like=eupl",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"vocabulary",
+						"license"
+					],
+					"query": [
+						{
+							"key": "like",
+							"value": "eupl"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Collection - Query",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code === 200) {\r",
+							"    pm.test(\"Successful Collection - Query\", () => {\r",
+							"        pm.expect(pm.response.code).to.eql(200);\r",
+							"    });\r",
+							"    \r",
+							"    var resp = pm.response.json();\r",
+							"\r",
+							"    if(resp.items && resp.items.length > 0 && resp.items[0].id){\r",
+							"         pm.collectionVariables.set(\"collectionId\", resp.items[0].id);\r",
+							"    } else {\r",
+							"        pm.collectionVariables.set(\"collectionId\", null);\r",
+							"    }\r",
+							"}\r",
+							"else {\r",
+							"    pm.test(\"Failed in Collection - Query\", () => {\r",
+							"        pm.expect(pm.response.code).to.eql(200);\r",
+							"    })\r",
+							"    pm.execution.setNextRequest(null);\r",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{userAccessToken}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"project\": { \"fields\": [\"id\", \"code\", \"name\", \"permissions.browseCollection\", \"permissions.editCollection\", \"datasetCount\", \"datasets.id\", \"datasets.code\", \"datasets.name\", \"datasets.permissions.browseDataset\" ] },\r\n    \"page\":{\r\n        \"Offset\": 0,\r\n        \"Size\": 10\r\n    },\r\n    \"Order\":{\r\n        \"Items\": [\"+code\"]\r\n    },\r\n    \"Metadata\":{\r\n        \"CountAll\": true\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/collection/query",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"collection",
+						"query"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Collection - Get",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"console.log(\"checking for collection\");\r",
+							"\r",
+							"let collectionId = pm.collectionVariables.get(\"collectionId\");\r",
+							"\r",
+							"if (!collectionId) {\r",
+							"    pm.execution.setNextRequest(null);\r",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code === 200) {\r",
+							"    pm.test(\"Successful Collection - Get\", () => {\r",
+							"        pm.expect(pm.response.code).to.eql(200);\r",
+							"    });\r",
+							"}\r",
+							"else {\r",
+							"    pm.test(\"Failed in Collection - Get\", () => {\r",
+							"        pm.expect(pm.response.code).to.eql(200);\r",
+							"    })\r",
+							"    pm.execution.setNextRequest(null);\r",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{userAccessToken}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/collection/{{collectionId}}?f=id&f=code",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"collection",
+						"{{collectionId}}"
+					],
+					"query": [
+						{
+							"key": "f",
+							"value": "id"
+						},
+						{
+							"key": "f",
+							"value": "code"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Dataset - Query",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code === 200) {\r",
+							"    pm.test(\"Successful Dataset - Query\", () => {\r",
+							"        pm.expect(pm.response.code).to.eql(200);\r",
+							"    });\r",
+							"    \r",
+							"    var resp = pm.response.json();\r",
+							"\r",
+							"    if(resp.items && resp.items.length > 0 && resp.items[0].id){\r",
+							"         pm.collectionVariables.set(\"datasetId\", resp.items[0].id);\r",
+							"    } else {\r",
+							"        pm.collectionVariables.set(\"datasetId\", null);\r",
+							"    }\r",
+							"}\r",
+							"else {\r",
+							"    pm.test(\"Failed in Dataset - Query\", () => {\r",
+							"        pm.expect(pm.response.code).to.eql(200);\r",
+							"    })\r",
+							"    pm.execution.setNextRequest(null);\r",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{userAccessToken}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"project\": { \"fields\": [\"id\", \"code\", \"name\", \"size\", \"collections.id\", \"collections.code\", \"collections.name\", \"collections.datasetCount\", \"permissions.browseDataset\", \"permissions.editDataset\" ] },\r\n    \"page\":{\r\n        \"Offset\": 0,\r\n        \"Size\": 20\r\n    },\r\n    \"Order\":{\r\n        \"Items\": [\"-size\"]\r\n    },\r\n    \"Metadata\":{\r\n        \"CountAll\": true\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/dataset/query",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"dataset",
+						"query"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Dataset - Get",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"console.log(\"checking for dataset\");\r",
+							"\r",
+							"let datasetId = pm.collectionVariables.get(\"datasetId\");\r",
+							"\r",
+							"if (!datasetId) {\r",
+							"    pm.execution.setNextRequest(null);\r",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code === 200) {\r",
+							"    pm.test(\"Successful Dataset - Get\", () => {\r",
+							"        pm.expect(pm.response.code).to.eql(200);\r",
+							"    });\r",
+							"}\r",
+							"else {\r",
+							"    pm.test(\"Failed in Dataset - Get\", () => {\r",
+							"        pm.expect(pm.response.code).to.eql(200);\r",
+							"    })\r",
+							"    pm.execution.setNextRequest(null);\r",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{userAccessToken}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/dataset/{{datasetId}}?f=id&f=code",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"dataset",
+						"{{datasetId}}"
+					],
+					"query": [
+						{
+							"key": "f",
+							"value": "id"
+						},
+						{
+							"key": "f",
+							"value": "code"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Conversation - Me - Query",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code === 200) {\r",
+							"    pm.test(\"Successful Conversation - Me - Query\", () => {\r",
+							"        pm.expect(pm.response.code).to.eql(200);\r",
+							"    });\r",
+							"    \r",
+							"    var resp = pm.response.json();\r",
+							"\r",
+							"    if(resp.items && resp.items.length > 0 && resp.items[0].id){\r",
+							"         pm.collectionVariables.set(\"conversationId\", resp.items[0].id);\r",
+							"    } else {\r",
+							"        pm.collectionVariables.set(\"conversationId\", null);\r",
+							"    }\r",
+							"}\r",
+							"else {\r",
+							"    pm.test(\"Failed in Conversation - Me - Query\", () => {\r",
+							"        pm.expect(pm.response.code).to.eql(200);\r",
+							"    })\r",
+							"    pm.execution.setNextRequest(null);\r",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{userAccessToken}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"project\": { \"fields\": [\"id\", \"name\", \"user.id\", \"user.name\", \"datasets.dataset.id\", \"datasets.dataset.code\", \"messages.kind\", \"messages.data\", \"messages.createdAt\" ] },\r\n    \"page\":{\r\n        \"Offset\": 0,\r\n        \"Size\": 10\r\n    },\r\n    \"Order\":{\r\n        \"Items\": [\"+name\"]\r\n    },\r\n    \"Metadata\":{\r\n        \"CountAll\": true\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/conversation/me/query",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"conversation",
+						"me",
+						"query"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Conversation - Get",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"console.log(\"checking for conversation\");\r",
+							"\r",
+							"let conversationId = pm.collectionVariables.get(\"conversationId\");\r",
+							"\r",
+							"if (!conversationId) {\r",
+							"    pm.execution.setNextRequest(null);\r",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code === 200) {\r",
+							"    pm.test(\"Successful Conversation - Get\", () => {\r",
+							"        pm.expect(pm.response.code).to.eql(200);\r",
+							"    });\r",
+							"}\r",
+							"else {\r",
+							"    pm.test(\"Failed in Conversation - Get\", () => {\r",
+							"        pm.expect(pm.response.code).to.eql(200);\r",
+							"    })\r",
+							"    pm.execution.setNextRequest(null);\r",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{userAccessToken}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/conversation/{{conversationId}}?f=id&f=isActive&f=name&f=user.id&f=user.name&f=datasets.dataset.id&f=datasets.dataset.code&f=messages.kind&f=messages.data&f=messages.createdAt",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"conversation",
+						"{{conversationId}}"
+					],
+					"query": [
+						{
+							"key": "f",
+							"value": "id"
+						},
+						{
+							"key": "f",
+							"value": "isActive"
+						},
+						{
+							"key": "f",
+							"value": "name"
+						},
+						{
+							"key": "f",
+							"value": "user.id"
+						},
+						{
+							"key": "f",
+							"value": "user.name"
+						},
+						{
+							"key": "f",
+							"value": "datasets.dataset.id"
+						},
+						{
+							"key": "f",
+							"value": "datasets.dataset.code"
+						},
+						{
+							"key": "f",
+							"value": "messages.kind"
+						},
+						{
+							"key": "f",
+							"value": "messages.data"
+						},
+						{
+							"key": "f",
+							"value": "messages.createdAt"
+						}
+					]
+				}
+			},
+			"response": []
 		}
 	],
 	"variable": [
 		{
 			"key": "userAccessToken",
+			"value": ""
+		},
+		{
+			"key": "browsableDatasetId",
+			"value": ""
+		},
+		{
+			"key": "browsableCollectionId",
+			"value": ""
+		},
+		{
+			"key": "collectionId",
+			"value": ""
+		},
+		{
+			"key": "datasetId",
+			"value": ""
+		},
+		{
+			"key": "conversationId",
 			"value": ""
 		}
 	]
