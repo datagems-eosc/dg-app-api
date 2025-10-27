@@ -31,7 +31,7 @@ jobs:
         uses: matt-ball/newman-action@v2.0.0
         with:
           collection: ./tests/DataGEMS-GatewayApi-Tests.postman_collection.json
-         reporters: '["cli", "emojitrain"]'
+          reporters: '["cli", "emojitrain"]'
           envVar: '[{ "key": "baseUrl", "value": "${{ env.TEST_DEV_BASEURL }}" },
               { "key": "baseUrlIdp", "value": "${{ env.TEST_DEV_BASEURLIDP }}" },
               { "key": "userName", "value": "${{ env.TEST_DEV_USERNAME }}" },
