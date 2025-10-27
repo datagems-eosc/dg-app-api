@@ -8,8 +8,6 @@ The primary data store for the service is a PostgreSQL hosted relational databas
 
 The schema of the relational database can be found in the service repository under the [db](https://github.com/datagems-eosc/dg-app-api/tree/main/db) folder.
 
-**TODO: database schema diagram**
-
 ## Change scripts
 
 The evolution of the database is managed through ordered database change scripts. The scripts incrimentaly update the database schema to target the desired version. The change scripts are numbered and versioned in the service repository under the [db](https://github.com/datagems-eosc/dg-app-api/tree/main/db) folder.

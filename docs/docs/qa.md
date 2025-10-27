@@ -22,4 +22,40 @@ The service has configured an automated GitHub Actions workflow, as described in
 
 ## Testing
 
-**TODO: Describe the process**
+As the Gateway API mainly provides proxying, aggregation and transformation logic over the underpinning DataGEMS services, an API testing approach has been choosen to perform smoke testing on existing installations of the API, be it in local development environemnt or deployed instances. The testing approach allows the usage of the same testing scenarios while in development as well as in deployed installations. It reuses the internal integration mechanisms provided to facilitate development and communication by reusing Postman request collections.
+
+The testing collections can be found in the service [code repository](https://github.com/datagems-eosc/dg-app-api) in the [tests folder](https://github.com/datagems-eosc/dg-app-api/tree/main/tests).
+
+The test collections can be executed locally using the [Postman](https://www.postman.com/) application, or by command line using the [Newman CLI](https://github.com/postmanlabs/newman). To run the tests locally, one can use the following command using docker with a terminal inside the tests folder. It can also be run without docker after installing the newman library locally.
+
+```console
+docker run --rm -v "${PWD}:/etc/newman" postman/newman:6-ubuntu run DataGEMS-GatewayApi-Tests.postman_collection.json --env-var "baseUrl=<...>" --env-var "..." --reporters cli
+```
+
+A test user must be used in order to login and permorm the authenticated operations.
+
+The testing collection can also be executed through the CI pipelines as described in the relevant [Automations](automations.md) section.
+
+The output of the test run presents a summary of the requests performed and any errors that may have been observed.
+
+```
+┌─────────────────────────┬─────────────────────┬────────────────────┐
+│                         │            executed │             failed │
+├─────────────────────────┼─────────────────────┼────────────────────┤
+│              iterations │                   1 │                  0 │
+├─────────────────────────┼─────────────────────┼────────────────────┤
+│                requests │                  16 │                  0 │
+├─────────────────────────┼─────────────────────┼────────────────────┤
+│            test-scripts │                  16 │                  0 │
+├─────────────────────────┼─────────────────────┼────────────────────┤
+│      prerequest-scripts │                   6 │                  0 │
+├─────────────────────────┼─────────────────────┼────────────────────┤
+│              assertions │                  16 │                  0 │
+├─────────────────────────┴─────────────────────┴────────────────────┤
+│ total run duration: 3.3s                                           │
+├────────────────────────────────────────────────────────────────────┤
+│ total data received: 29.96kB (approx)                              │
+├────────────────────────────────────────────────────────────────────┤
+│ average response time: 193ms [min: 103ms, max: 358ms, s.d.: 100ms] │
+└────────────────────────────────────────────────────────────────────┘
+```

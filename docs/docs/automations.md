@@ -46,3 +46,9 @@ A GitHub Action workflow is available to [generate documentation](https://github
 The documentation is build using the [mkdocs](https://www.mkdocs.org/) library and specifically using the [Material for mkdocs](https://squidfunk.github.io/mkdocs-material/) plugin. A number of additional tools are ustilized, such as [mike](https://github.com/jimporter/mike) to support versioning, [neoteroi.mkdocsoad](https://www.neoteroi.dev/mkdocs-plugins/web/oad/) to support OpenAPI specification rendering, and others.
 
 The documentation is generated and tagged with the provided version. It is uploaded to a dedicated documentation branch that is configured to be used as the base branch over which the repository GitHub Page presents its contents.
+
+## Testing
+
+A GitHub Action workflow is available to [perform API smoke testing](https://github.com/datagems-eosc/dg-app-api/blob/main/.github/workflows/test-on-demand.yml) any configured installation of the service. The action is triggered manually and expects as input the version tag that contain the version of the tests that are compatible with the version of the deployed installation under test.
+
+Smoke testing of the APIs is perfomed using a [Postman](https://www.postman.com/) collection of requests. Configuration that needs to be passed in a protected way is maintained as GitHub Secrets. The request collection is axecuted using the [Newman CLI](https://github.com/postmanlabs/newman). The output of the test run presents a summary of the requests performed and any errors that may have been observed.
