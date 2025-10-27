@@ -28,13 +28,16 @@ jobs:
           ref: ${{ github.event.inputs.tag }}
 
       - name: Run Newman CLI reporter
-        uses: matt-ball/newman-action@v2.0.0
-        with:
-          collection: ./tests/DataGEMS-GatewayApi-Tests.postman_collection.json
-          reporters: '["cli", "emojitrain"]'
-          envVar: '[{ "key": "baseUrl", "value": "${{ env.TEST_DEV_BASEURL }}" },
-              { "key": "baseUrlIdp", "value": "${{ env.TEST_DEV_BASEURLIDP }}" },
-              { "key": "userName", "value": "${{ env.TEST_DEV_USERNAME }}" },
-              { "key": "userPass", "value": "${{ env.TEST_DEV_USERPASS }}" },
-              { "key": "clientId", "value": "${{ env.TEST_DEV_CLIENTID }}" },
-              { "key": "scope", "value": "${{ env.TEST_DEV_SCOPE }}" }]'
+        run: |
+          set -o pipefail
+          docker run --rm -it \
+            -v "${{ github.workspace }}:/etc/newman" \
+            postman/newman:6-ubuntu \
+            run tests/DataGEMS-GatewayApi-Tests.postman_collection.json \
+            --env-var "baseUrl=${{ env.TEST_DEV_BASEURL }}" \
+            --env-var "baseUrlIdp=${{ env.TEST_DEV_BASEURLIDP }}" \
+            --env-var "userName=${{ env.TEST_DEV_USERNAME }}" \
+            --env-var "userPass=${{ env.TEST_DEV_USERPASS }}" \
+            --env-var "clientId=${{ env.TEST_DEV_CLIENTID }}" \
+            --env-var "scope=${{ env.TEST_DEV_SCOPE }}" \
+            --reporters cli,emojitrain
