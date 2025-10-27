@@ -28,7 +28,7 @@ jobs:
           ref: ${{ github.event.inputs.tag }}
 
       - name: Run Newman CLI reporter
-        uses: matt-ball/newman-action@v2
+        uses: matt-ball/newman-action@v2.0.0
         with:
           collection: ./tests/DataGEMS-GatewayApi-Tests.postman_collection.json
           reporters: cli
