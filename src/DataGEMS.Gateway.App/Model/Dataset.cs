@@ -1,6 +1,7 @@
 ﻿
 using Cite.Tools.Common.Extensions;
 using Cite.Tools.Validation;
+using DataGEMS.Gateway.App.Common;
 using DataGEMS.Gateway.App.Common.Validation;
 using DataGEMS.Gateway.App.ErrorCode;
 using Microsoft.Extensions.Localization;
@@ -17,7 +18,7 @@ namespace DataGEMS.Gateway.App.Model
 		public String License { get; set; }
 		public String MimeType { get; set; }
 		public long? Size { get; set; }
-		public String Url { get; set; }
+		public DataLocation DataLocation { get; set; }
 		public String Version { get; set; }
 		public String Headline { get; set; }
 		public List<String> Keywords { get; set; }
@@ -39,7 +40,7 @@ namespace DataGEMS.Gateway.App.Model
 		public String License { get; set; }
 		public String MimeType { get; set; }
 		public long? Size { get; set; }
-		public String Url { get; set; }
+		public DataLocation DataLocation { get; set; }
 		public String Version { get; set; }
 		public String Headline { get; set; }
 		public List<String> Keywords { get; set; }
@@ -52,7 +53,6 @@ namespace DataGEMS.Gateway.App.Model
 		{
 			private static int CodeMaxLength = typeof(Service.DataManagement.Data.Dataset).MaxLengthOf(nameof(Service.DataManagement.Data.Dataset.Code));
 			private static int NameMaxLength = typeof(Service.DataManagement.Data.Dataset).MaxLengthOf(nameof(Service.DataManagement.Data.Dataset.Name));
-			private static int UrlMaxLength = typeof(Service.DataManagement.Data.Dataset).MaxLengthOf(nameof(Service.DataManagement.Data.Dataset.Url));
 			private static int VersionMaxLength = typeof(Service.DataManagement.Data.Dataset).MaxLengthOf(nameof(Service.DataManagement.Data.Dataset.Version));
 			private static int MimeTypeMaxLength = typeof(Service.DataManagement.Data.Dataset).MaxLengthOf(nameof(Service.DataManagement.Data.Dataset.MimeType));
 
@@ -113,15 +113,16 @@ namespace DataGEMS.Gateway.App.Model
 					this.Spec()
 						.Must(() => item.Size.HasValue)
 						.FailOn(nameof(DatasetPersist.Size)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.Size)]),
-					//Url must always be set
+					//data location must be set
 					this.Spec()
-						.Must(() => !this.IsEmpty(item.Url))
-						.FailOn(nameof(DatasetPersist.Url)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.Url)]),
-					//Url max length
-					this.Spec()
-						.If(() => !this.IsEmpty(item.Url))
-						.Must(() => this.LessEqual(item.Url, OnboardValidator.UrlMaxLength))
-						.FailOn(nameof(DatasetPersist.Url)).FailWith(this._localizer["validation_maxLength", nameof(DatasetPersist.Url)]),
+						.Must(() => item.DataLocation != null)
+						.FailOn(nameof(DatasetPersist.DataLocation)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.DataLocation)]),
+					//data location must be valid if set
+					this.RefSpec()
+						.If(() => item.DataLocation != null)
+						.On(nameof(DatasetPersist.DataLocation))
+						.Over(item.DataLocation)
+						.Using(()=>_validatorFactory[typeof(DataLocationPersistValidator)]),
 					//Version max length
 					this.Spec()
 						.If(() => !this.IsEmpty(item.Version))
@@ -159,7 +160,6 @@ namespace DataGEMS.Gateway.App.Model
 		{
 			private static int CodeMaxLength = typeof(Service.DataManagement.Data.Dataset).MaxLengthOf(nameof(Service.DataManagement.Data.Dataset.Code));
 			private static int NameMaxLength = typeof(Service.DataManagement.Data.Dataset).MaxLengthOf(nameof(Service.DataManagement.Data.Dataset.Name));
-			private static int UrlMaxLength = typeof(Service.DataManagement.Data.Dataset).MaxLengthOf(nameof(Service.DataManagement.Data.Dataset.Url));
 			private static int VersionMaxLength = typeof(Service.DataManagement.Data.Dataset).MaxLengthOf(nameof(Service.DataManagement.Data.Dataset.Version));
 			private static int MimeTypeMaxLength = typeof(Service.DataManagement.Data.Dataset).MaxLengthOf(nameof(Service.DataManagement.Data.Dataset.MimeType));
 
@@ -220,15 +220,16 @@ namespace DataGEMS.Gateway.App.Model
 					this.Spec()
 						.Must(() => item.Size.HasValue)
 						.FailOn(nameof(DatasetPersist.Size)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.Size)]),
-					//Url must always be set
+					//data location must be set
 					this.Spec()
-						.Must(() => !this.IsEmpty(item.Url))
-						.FailOn(nameof(DatasetPersist.Url)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.Url)]),
-					//Url max length
-					this.Spec()
-						.If(() => !this.IsEmpty(item.Url))
-						.Must(() => this.LessEqual(item.Url, PersistValidator.UrlMaxLength))
-						.FailOn(nameof(DatasetPersist.Url)).FailWith(this._localizer["validation_maxLength", nameof(DatasetPersist.Url)]),
+						.Must(() => item.DataLocation != null)
+						.FailOn(nameof(DatasetPersist.DataLocation)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.DataLocation)]),
+					//data location must be valid if set
+					this.RefSpec()
+						.If(() => item.DataLocation != null)
+						.On(nameof(DatasetPersist.DataLocation))
+						.Over(item.DataLocation)
+						.Using(()=>_validatorFactory[typeof(DataLocationPersistValidator)]),
 					//Version max length
 					this.Spec()
 						.If(() => !this.IsEmpty(item.Version))
@@ -259,6 +260,48 @@ namespace DataGEMS.Gateway.App.Model
 						.Must(() => item.DatePublished.HasValue)
 						.FailOn(nameof(DatasetPersist.DatePublished)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.DatePublished)]),
 				};
+			}
+		}
+
+		public class DataLocationPersistValidator : BaseValidator<DataLocation>
+		{
+			public DataLocationPersistValidator(
+				IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> localizer,
+				ValidatorFactory validatorFactory,
+				ILogger<DataLocationPersistValidator> logger,
+				ErrorThesaurus errors) : base(validatorFactory, logger, errors)
+			{
+				this._localizer = localizer;
+			}
+			private readonly IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> _localizer;
+			private static int UrlMaxLength = typeof(Service.DataManagement.Data.Dataset).MaxLengthOf(nameof(Service.DataManagement.Data.Dataset.Url));
+
+			protected override IEnumerable<ISpecification> Specifications(DataLocation item)
+			{
+				return [
+					//Url must always be set
+					this.Spec()
+						.Must(() => !this.IsEmpty(item.Url))
+						.FailOn(nameof(DataLocation.Url)).FailWith(this._localizer["validation_required", nameof(DataLocation.Url)]),
+					//Url max length
+					this.Spec()
+						.If(() => !this.IsEmpty(item.Url))
+						.Must(() => this.LessEqual(item.Url, DataLocationPersistValidator.UrlMaxLength))
+						.FailOn(nameof(DataLocation.Url)).FailWith(this._localizer["validation_maxLength", nameof(DataLocation.Url)]),
+					// if kind is File, then string must be a valid path; if Kind is Http, then string must be a valid Url; If kind is Ftp, likewise.
+					this.Spec()
+						.If(() => item.Kind == DataLocationKind.File)
+						.Must(() => item.Url.IsValidPath())
+						.FailOn(nameof(DataLocation.Url)).FailWith(this._localizer["validation_invalidValue", nameof(DataLocation.Url)]),
+					this.Spec()
+						.If(() => item.Kind == DataLocationKind.Http)
+						.Must(() => item.Url.IsValidUrl())
+						.FailOn(nameof(DataLocation.Url)).FailWith(this._localizer["validation_invalidValue", nameof(DataLocation.Url)]),
+					this.Spec()
+						.If(() => item.Kind == DataLocationKind.Ftp)
+						.Must(() => item.Url.IsValidFtp())
+						.FailOn(nameof(DataLocation.Url)).FailWith(this._localizer["validation_invalidValue", nameof(DataLocation.Url)]),
+				];
 			}
 		}
 	}
