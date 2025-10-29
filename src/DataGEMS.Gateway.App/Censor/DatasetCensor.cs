@@ -8,7 +8,6 @@ using Cite.WebTools.CurrentPrincipal;
 using DataGEMS.Gateway.App.Authorization;
 using DataGEMS.Gateway.App.Common;
 using Microsoft.Extensions.Logging;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace DataGEMS.Gateway.App.Censor
 {
@@ -65,7 +64,6 @@ namespace DataGEMS.Gateway.App.Censor
 			{
 				censored = censored.Merge(fields.ExtractNonPrefixed());
 				censored = censored.MergeAsPrefixed(fields.ExtractPrefixed(nameof(Model.Dataset.Permissions).AsIndexerPrefix()), nameof(Model.Dataset.Permissions));
-				censored = censored.MergeAsPrefixed(fields.ExtractPrefixed(nameof(Model.Dataset.DataLocation).AsIndexerPrefix()), nameof(Model.Dataset.DataLocation));
 			}
 
 			censored = censored.MergeAsPrefixed(await this._censorFactory.Censor<CollectionCensor>().Censor(fields.ExtractPrefixed(nameof(Model.Dataset.Collections).AsIndexerPrefix()), context), nameof(Model.Dataset.Collections));

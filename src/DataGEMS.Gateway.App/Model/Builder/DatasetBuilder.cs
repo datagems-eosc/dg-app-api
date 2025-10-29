@@ -48,13 +48,7 @@ namespace DataGEMS.Gateway.App.Model.Builder
 			List<Model.Dataset> models = new List<Model.Dataset>();
 			foreach(Service.DataManagement.Model.Dataset d in datas ?? Enumerable.Empty<Service.DataManagement.Model.Dataset>())
 			{
-				Model.Dataset m = new Model.Dataset
-				{
-					DataLocation = new DataLocation
-					{
-						Kind = DataLocationKind.File,
-					}
-				};
+				Model.Dataset m = new Model.Dataset();
 				if (fields.HasField(nameof(Model.Dataset.Id))) m.Id = d.Id;
 				if (fields.HasField(nameof(Model.Dataset.Code))) m.Code = d.Code;
 				if (fields.HasField(nameof(Model.Dataset.Name))) m.Name = d.Name;
@@ -62,7 +56,7 @@ namespace DataGEMS.Gateway.App.Model.Builder
 				if (fields.HasField(nameof(Model.Dataset.License))) m.License = d.License;
 				if (fields.HasField(nameof(Model.Dataset.MimeType))) m.MimeType = d.MimeType;
 				if (fields.HasField(nameof(Model.Dataset.Size))) m.Size = d.Size;
-				if (fields.HasField(nameof(Model.Dataset.DataLocation.Url))) m.DataLocation.Url = d.Url; //TODO: convert model urls to DataLocation properly
+				if (fields.HasField(nameof(Model.Dataset.Url))) m.Url = d.Url;
 				if (fields.HasField(nameof(Model.Dataset.Version))) m.Version = d.Version;
 				if (fields.HasField(nameof(Model.Dataset.Headline))) m.Headline = d.Headline;
 				if (fields.HasField(nameof(Model.Dataset.Keywords))) m.Keywords = d.Keywords;

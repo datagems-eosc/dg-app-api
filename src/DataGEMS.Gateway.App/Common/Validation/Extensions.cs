@@ -30,23 +30,5 @@ namespace DataGEMS.Gateway.App.Common.Validation
 				return false;
 			}
 		}
-
-		public static bool IsValidUrl(this string value)
-		{
-			if (string.IsNullOrWhiteSpace(value)) return false;
-			return Uri.TryCreate(value, UriKind.Absolute, out Uri uriResult) && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps || uriResult.Scheme == "s3");
-		}
-
-		public static bool IsValidFtp(this string value)
-		{
-			if (string.IsNullOrWhiteSpace(value)) return false;
-			return Uri.TryCreate(value, UriKind.Absolute, out Uri uriResult) && (uriResult.Scheme == Uri.UriSchemeFtp || uriResult.Scheme == Uri.UriSchemeFtps);
-		}
-
-		public static bool IsValidPath(this string path)
-		{
-			if (string.IsNullOrWhiteSpace(path)) return false;
-			return !path.Any(c => Path.GetInvalidPathChars().Contains(c));
-		}
 	}
 }
