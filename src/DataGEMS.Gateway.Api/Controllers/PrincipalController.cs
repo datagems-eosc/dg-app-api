@@ -1,9 +1,12 @@
 ﻿using Cite.Tools.Common.Extensions;
+using Cite.Tools.Data.Query;
 using Cite.Tools.FieldSet;
 using Cite.Tools.Logging;
 using Cite.Tools.Logging.Extensions;
 using Cite.WebTools.CurrentPrincipal;
+using Cite.WebTools.Validation;
 using DataGEMS.Gateway.Api.Model;
+using DataGEMS.Gateway.Api.Model.Lookup;
 using DataGEMS.Gateway.Api.OpenApi;
 using DataGEMS.Gateway.Api.Transaction;
 using DataGEMS.Gateway.Api.Validation;
@@ -12,6 +15,7 @@ using DataGEMS.Gateway.App.Authorization;
 using DataGEMS.Gateway.App.ErrorCode;
 using DataGEMS.Gateway.App.Event;
 using DataGEMS.Gateway.App.Exception;
+using DataGEMS.Gateway.App.Query;
 using DataGEMS.Gateway.App.Service.AAI;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -34,6 +38,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		private readonly IAccountingService _accountingService;
 		private readonly IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> _localizer;
 		private readonly EventBroker _eventBroker;
+		private readonly QueryFactory _queryFactory;
 
 		public PrincipalController(
 			ILogger<PrincipalController> logger,
@@ -42,6 +47,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			App.Authorization.IAuthorizationService authorizationService,
 			IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> localizer,
 			IAccountingService accountingService,
+			QueryFactory queryFactory,
 			IAAIService aaiService,
 			ErrorThesaurus errors,
 			EventBroker eventBroker,
@@ -53,6 +59,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			this._authorizationService = authorizationService;
 			this._accountingService = accountingService;
 			this._accountBuilder = accountBuilder;
+			this._queryFactory = queryFactory;
 			this._aaiService = aaiService;
 			this._errors = errors;
 			this._localizer = localizer;
@@ -103,6 +110,34 @@ namespace DataGEMS.Gateway.Api.Controllers
 			return me;
 		}
 
+		[HttpPost("context-grants/query")]
+		[Authorize]
+		[ModelStateValidationFilter]
+		[ValidationFilter(typeof(ContextGrantLookup.QueryValidator), "lookup")]
+		[SwaggerOperation(Summary = "Query context grants")]
+		[SwaggerResponse(statusCode: 200, description: "The list of matching context grants", type: typeof(App.Common.Auth.ContextGrant))]
+		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
+		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
+		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
+		[SwaggerResponse(statusCode: 500, description: "Internal error")]
+		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
+		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
+		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
+		public async Task<List<App.Common.Auth.ContextGrant>> Query(
+			[FromBody]
+			[SwaggerRequestBody(description: "The query predicates", Required = true)]
+			ContextGrantLookup lookup)
+		{
+			this._logger.Debug(new MapLogEntry("querying").And("type", nameof(App.Common.Auth.ContextGrant)).And("lookup", lookup));
+
+			ContextGrantQuery query = lookup.Enrich(this._queryFactory);
+			List<App.Common.Auth.ContextGrant> datas = await query.CollectAsync();
+
+			this._accountingService.AccountFor(KnownActions.Query, KnownResources.ContextGrantAssignment.AsAccountable());
+
+			return datas;
+		}
+
 		[HttpGet("me/context-grants")]
 		[Authorize]
 		[ModelStateValidationFilter]
@@ -119,7 +154,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			String subjectId = await this._authorizationContentResolver.SubjectIdOfCurrentUser();
 			List<App.Common.Auth.ContextGrant> grants = await this._aaiService.LookupUserContextGrants(subjectId);
 
-			this._accountingService.AccountFor(KnownActions.Query, KnownResources.ContextGroupAssignment.AsAccountable());
+			this._accountingService.AccountFor(KnownActions.Query, KnownResources.ContextGrantAssignment.AsAccountable());
 
 			return grants;
 		}
@@ -143,7 +178,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			if (id == null || id.Length == 0) return new Dictionary<Guid, HashSet<string>>();
 			Dictionary<Guid, HashSet<String>> grants = await this._authorizationContentResolver.ContextRolesForCollectionOfUser(id);
 
-			this._accountingService.AccountFor(KnownActions.Query, KnownResources.ContextGroupAssignment.AsAccountable());
+			this._accountingService.AccountFor(KnownActions.Query, KnownResources.ContextGrantAssignment.AsAccountable());
 
 			return grants;
 		}
@@ -167,7 +202,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			if (id == null || id.Length == 0) return new Dictionary<Guid, HashSet<string>>();
 			Dictionary<Guid, HashSet<String>> grants = await this._authorizationContentResolver.EffectiveContextRolesForDatasetOfUser(id);
 
-			this._accountingService.AccountFor(KnownActions.Query, KnownResources.ContextGroupAssignment.AsAccountable());
+			this._accountingService.AccountFor(KnownActions.Query, KnownResources.ContextGrantAssignment.AsAccountable());
 
 			return grants;
 		}
@@ -193,7 +228,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 
 			List<App.Common.Auth.ContextGrant> grants = await this._aaiService.LookupUserContextGrants(subjectId);
 
-			this._accountingService.AccountFor(KnownActions.Query, KnownResources.ContextGroupAssignment.AsAccountable());
+			this._accountingService.AccountFor(KnownActions.Query, KnownResources.ContextGrantAssignment.AsAccountable());
 
 			return grants;
 		}
@@ -219,7 +254,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 
 			List<App.Common.Auth.ContextGrant> grants = await this._aaiService.LookupUserGroupContextGrants(groupId);
 
-			this._accountingService.AccountFor(KnownActions.Query, KnownResources.ContextGroupAssignment.AsAccountable());
+			this._accountingService.AccountFor(KnownActions.Query, KnownResources.ContextGrantAssignment.AsAccountable());
 
 			return grants;
 		}
@@ -249,7 +284,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			if (id == null || id.Length == 0) return new Dictionary<Guid, HashSet<string>>();
 			Dictionary<Guid, HashSet<String>> grants = await this._authorizationContentResolver.ContextRolesForCollectionOfUser(subjectId, id);
 
-			this._accountingService.AccountFor(KnownActions.Query, KnownResources.ContextGroupAssignment.AsAccountable());
+			this._accountingService.AccountFor(KnownActions.Query, KnownResources.ContextGrantAssignment.AsAccountable());
 
 			return grants;
 		}
@@ -279,7 +314,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			if (id == null || id.Length == 0) return new Dictionary<Guid, HashSet<string>>();
 			Dictionary<Guid, HashSet<String>> grants = await this._authorizationContentResolver.ContextRolesForCollectionOfUserGroup(groupId, id);
 
-			this._accountingService.AccountFor(KnownActions.Query, KnownResources.ContextGroupAssignment.AsAccountable());
+			this._accountingService.AccountFor(KnownActions.Query, KnownResources.ContextGrantAssignment.AsAccountable());
 
 			return grants;
 		}
@@ -309,7 +344,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			if (id == null || id.Length == 0) return new Dictionary<Guid, HashSet<string>>();
 			Dictionary<Guid, HashSet<String>> grants = await this._authorizationContentResolver.EffectiveContextRolesForDatasetOfUser(subjectId, id);
 
-			this._accountingService.AccountFor(KnownActions.Query, KnownResources.ContextGroupAssignment.AsAccountable());
+			this._accountingService.AccountFor(KnownActions.Query, KnownResources.ContextGrantAssignment.AsAccountable());
 
 			return grants;
 		}
@@ -339,7 +374,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			if (id == null || id.Length == 0) return new Dictionary<Guid, HashSet<string>>();
 			Dictionary<Guid, HashSet<String>> grants = await this._authorizationContentResolver.EffectiveContextRolesForDatasetOfUserGroup(groupId, id);
 
-			this._accountingService.AccountFor(KnownActions.Query, KnownResources.ContextGroupAssignment.AsAccountable());
+			this._accountingService.AccountFor(KnownActions.Query, KnownResources.ContextGrantAssignment.AsAccountable());
 
 			return grants;
 		}
@@ -376,7 +411,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			await this._authorizationService.AuthorizeOrAffiliatedContextForce(new AffiliatedContextResource(contextRoles), Permission.AddUserToContextGrantGroup);
 
 			await this._aaiService.AssignDatasetGrantToUser(subjectId, datasetId, role);
-			this._accountingService.AccountFor(KnownActions.Persist, KnownResources.ContextGroupAssignment.AsAccountable());
+			this._accountingService.AccountFor(KnownActions.Persist, KnownResources.ContextGrantAssignment.AsAccountable());
 		}
 
 		[HttpPost("context-grants/group/{groupId}/dataset/{datasetId}/role/{role}")]
@@ -408,7 +443,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			await this._authorizationService.AuthorizeOrAffiliatedContextForce(new AffiliatedContextResource(contextRoles), Permission.AddUserToContextGrantGroup);
 
 			await this._aaiService.AssignDatasetGrantToUserGroup(groupId, datasetId, role);
-			this._accountingService.AccountFor(KnownActions.Persist, KnownResources.ContextGroupAssignment.AsAccountable());
+			this._accountingService.AccountFor(KnownActions.Persist, KnownResources.ContextGrantAssignment.AsAccountable());
 		}
 
 		[HttpPost("context-grants/user/{userId}/collection/{collectionId}/role/{role}")]
@@ -443,7 +478,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			await this._authorizationService.AuthorizeOrAffiliatedContextForce(new AffiliatedContextResource(contextRoles), Permission.AddUserToContextGrantGroup);
 
 			await this._aaiService.AssignCollectionGrantToUser(subjectId, collectionId, role);
-			this._accountingService.AccountFor(KnownActions.Persist, KnownResources.ContextGroupAssignment.AsAccountable());
+			this._accountingService.AccountFor(KnownActions.Persist, KnownResources.ContextGrantAssignment.AsAccountable());
 		}
 
 		[HttpPost("context-grants/group/{groupId}/collection/{collectionId}/role/{role}")]
@@ -475,7 +510,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			await this._authorizationService.AuthorizeOrAffiliatedContextForce(new AffiliatedContextResource(contextRoles), Permission.AddUserToContextGrantGroup);
 
 			await this._aaiService.AssignCollectionGrantToUserGroup(groupId, collectionId, role);
-			this._accountingService.AccountFor(KnownActions.Persist, KnownResources.ContextGroupAssignment.AsAccountable());
+			this._accountingService.AccountFor(KnownActions.Persist, KnownResources.ContextGrantAssignment.AsAccountable());
 		}
 
 		[HttpDelete("context-grants/user/{userId}/dataset/{datasetId}/role/{role}")]
@@ -510,7 +545,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			await this._authorizationService.AuthorizeOrAffiliatedContextForce(new AffiliatedContextResource(contextRoles), Permission.RemoveUserFromContextGrantGroup);
 
 			await this._aaiService.UnassignDatasetGrantFromUser(subjectId, datasetId, role);
-			this._accountingService.AccountFor(KnownActions.Delete, KnownResources.ContextGroupAssignment.AsAccountable());
+			this._accountingService.AccountFor(KnownActions.Delete, KnownResources.ContextGrantAssignment.AsAccountable());
 		}
 
 		[HttpDelete("context-grants/group/{groupId}/dataset/{datasetId}/role/{role}")]
@@ -542,7 +577,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			await this._authorizationService.AuthorizeOrAffiliatedContextForce(new AffiliatedContextResource(contextRoles), Permission.RemoveUserFromContextGrantGroup);
 
 			await this._aaiService.UnassignDatasetGrantFromUserGroup(groupId, datasetId, role);
-			this._accountingService.AccountFor(KnownActions.Delete, KnownResources.ContextGroupAssignment.AsAccountable());
+			this._accountingService.AccountFor(KnownActions.Delete, KnownResources.ContextGrantAssignment.AsAccountable());
 		}
 
 		[HttpDelete("context-grants/user/{userId}/collection/{collectionId}/role/{role}")]
@@ -577,7 +612,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			await this._authorizationService.AuthorizeOrAffiliatedContextForce(new AffiliatedContextResource(contextRoles), Permission.RemoveUserFromContextGrantGroup);
 
 			await this._aaiService.UnassignCollectionGrantFromUser(subjectId, collectionId, role);
-			this._accountingService.AccountFor(KnownActions.Delete, KnownResources.ContextGroupAssignment.AsAccountable());
+			this._accountingService.AccountFor(KnownActions.Delete, KnownResources.ContextGrantAssignment.AsAccountable());
 		}
 
 		[HttpDelete("context-grants/group/{groupId}/collection/{collectionId}/role/{role}")]
@@ -609,7 +644,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			await this._authorizationService.AuthorizeOrAffiliatedContextForce(new AffiliatedContextResource(contextRoles), Permission.RemoveUserFromContextGrantGroup);
 
 			await this._aaiService.UnassignCollectionGrantFromUserGroup(groupId, collectionId, role);
-			this._accountingService.AccountFor(KnownActions.Delete, KnownResources.ContextGroupAssignment.AsAccountable());
+			this._accountingService.AccountFor(KnownActions.Delete, KnownResources.ContextGrantAssignment.AsAccountable());
 		}
 	}
 }
