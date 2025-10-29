@@ -142,13 +142,13 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
                     keywords = model.Keywords,
                     country = model.Country.FirstOrDefault(),
                     publishedUrl = model.Url,
-                    doi = "https://doi.org/10.1234/example.doi",
+                    doi = "",
                     citeAs = $"{model.Name}, {model.License}, {DateTime.UtcNow}",
                     license = model.License,
                     dataLocation = new
                     {
-                        kind = "File",
-                        url = model.Url
+                        kind = model.DataLocation?.Kind.ToString(),
+                        url = model.DataLocation?.Url,
                     }
                 }
             }, new FieldSet

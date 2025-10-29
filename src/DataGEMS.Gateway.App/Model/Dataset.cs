@@ -1,6 +1,7 @@
 ﻿
 using Cite.Tools.Common.Extensions;
 using Cite.Tools.Validation;
+using DataGEMS.Gateway.App.Common;
 using DataGEMS.Gateway.App.Common.Validation;
 using DataGEMS.Gateway.App.ErrorCode;
 using Microsoft.Extensions.Localization;
@@ -47,6 +48,7 @@ namespace DataGEMS.Gateway.App.Model
 		public List<String> Language { get; set; }
 		public List<String> Country { get; set; }
 		public DateOnly? DatePublished { get; set; }
+		public Common.DataLocation DataLocation { get; set; }
 
 		public class OnboardValidator : BaseValidator<DatasetPersist>
 		{
@@ -151,6 +153,16 @@ namespace DataGEMS.Gateway.App.Model
 					this.Spec()
 						.Must(() => item.DatePublished.HasValue)
 						.FailOn(nameof(DatasetPersist.DatePublished)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.DatePublished)]),
+					//data location must be set
+					this.Spec()
+						.Must(() => item.DataLocation != null)
+						.FailOn(nameof(DatasetPersist.DataLocation)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.DataLocation)]),
+					//data location must be valid
+					this.RefSpec()
+						.If(() => item.DataLocation != null)
+						.On(nameof(DatasetPersist.DataLocation))
+						.Over(item.DataLocation)
+						.Using(()=>_validatorFactory[typeof(DataLocationPersistValidator)]),
 				};
 			}
 		}
@@ -260,6 +272,42 @@ namespace DataGEMS.Gateway.App.Model
 						.FailOn(nameof(DatasetPersist.DatePublished)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.DatePublished)]),
 				};
 			}
+		}
+	}
+
+	public class DataLocationPersistValidator : BaseValidator<DataLocation>
+	{
+		public DataLocationPersistValidator(
+			IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> localizer,
+			ValidatorFactory validatorFactory,
+			ILogger<DataLocationPersistValidator> logger,
+			ErrorThesaurus errors) : base(validatorFactory, logger, errors)
+		{
+			this._localizer = localizer;
+		}
+		private readonly IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> _localizer;
+
+		protected override IEnumerable<ISpecification> Specifications(DataLocation item)
+		{
+			return [
+				//Url must always be set
+				this.Spec()
+						.Must(() => !this.IsEmpty(item.Url))
+						.FailOn(nameof(DataLocation.Url)).FailWith(this._localizer["validation_required", nameof(DataLocation.Url)]),
+					// if kind is File, then string must be a valid path; if Kind is Http, then string must be a valid Url; If kind is Ftp, likewise.
+					this.Spec()
+						.If(() => item.Kind == DataLocationKind.File)
+						.Must(() => item.Url.IsValidPath())
+						.FailOn(nameof(DataLocation.Url)).FailWith(this._localizer["validation_invalidValue", nameof(DataLocation.Url)]),
+					this.Spec()
+						.If(() => item.Kind == DataLocationKind.Http)
+						.Must(() => item.Url.IsValidUrl())
+						.FailOn(nameof(DataLocation.Url)).FailWith(this._localizer["validation_invalidValue", nameof(DataLocation.Url)]),
+					this.Spec()
+						.If(() => item.Kind == DataLocationKind.Ftp)
+						.Must(() => item.Url.IsValidFtp())
+						.FailOn(nameof(DataLocation.Url)).FailWith(this._localizer["validation_invalidValue", nameof(DataLocation.Url)]),
+				];
 		}
 	}
 }
