@@ -165,7 +165,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			return id;
 		}
 
-		[HttpPost("profile")]
+		[HttpPost("profile/{id}")]
 		[Authorize]
 		[ModelStateValidationFilter]
 		[ServiceFilter(typeof(AppTransactionFilter))]

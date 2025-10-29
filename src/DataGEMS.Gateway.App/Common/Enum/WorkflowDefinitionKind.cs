@@ -7,5 +7,7 @@ namespace DataGEMS.Gateway.App.Common
 	{
 		[Description("Dataset Onboarding")]
 		DatasetOnboarding = 0,
+		[Description("Dataset Profiling")]
+		DatasetProfiling = 1,
 	}
 }
