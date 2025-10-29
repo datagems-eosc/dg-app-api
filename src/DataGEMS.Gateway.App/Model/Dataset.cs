@@ -48,7 +48,7 @@ namespace DataGEMS.Gateway.App.Model
 		public List<String> Language { get; set; }
 		public List<String> Country { get; set; }
 		public DateOnly? DatePublished { get; set; }
-		public Common.DataLocation DataLocation { get; set; }
+		public List<DataLocation> DataLocations { get; set; }
 
 		public class OnboardValidator : BaseValidator<DatasetPersist>
 		{
@@ -155,13 +155,13 @@ namespace DataGEMS.Gateway.App.Model
 						.FailOn(nameof(DatasetPersist.DatePublished)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.DatePublished)]),
 					//data location must be set
 					this.Spec()
-						.Must(() => item.DataLocation != null)
-						.FailOn(nameof(DatasetPersist.DataLocation)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.DataLocation)]),
+						.Must(() => item.DataLocations != null && item.DataLocations.Count > 0)
+						.FailOn(nameof(DatasetPersist.DataLocations)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.DataLocations)]),
 					//data location must be valid
-					this.RefSpec()
-						.If(() => item.DataLocation != null)
-						.On(nameof(DatasetPersist.DataLocation))
-						.Over(item.DataLocation)
+					this.NavSpec()
+						.If(() => item.DataLocations != null)
+						.On(nameof(DatasetPersist.DataLocations))
+						.Over(item.DataLocations)
 						.Using(()=>_validatorFactory[typeof(DataLocationPersistValidator)]),
 				};
 			}

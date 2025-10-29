@@ -2,6 +2,7 @@
 using Cite.Tools.Data.Deleter;
 using Cite.Tools.Data.Query;
 using Cite.Tools.FieldSet;
+using Cite.Tools.Json;
 using Cite.Tools.Logging;
 using Cite.Tools.Logging.Extensions;
 using DataGEMS.Gateway.App.Authorization;
@@ -31,6 +32,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
         private readonly EventBroker _eventBroker;
         private readonly IAAIService _aaiService;
         private readonly IAirflowService _airflowService;
+        private readonly JsonHandlingService _jsonHandlingService;
 
         public DatasetLocalService(
             ILogger<DatasetLocalService> logger,
@@ -45,7 +47,8 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
             IStringLocalizer<Resources.MySharedResources> localizer,
             ErrorThesaurus errors,
             EventBroker eventBroker,
-            IAirflowService airflowService)
+            IAirflowService airflowService,
+            JsonHandlingService jsonHandlingService)
         {
             this._logger = logger;
             this._dbContext = dbContext;
@@ -60,6 +63,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
             this._errors = errors;
             this._eventBroker = eventBroker;
             this._airflowService = airflowService;
+            this._jsonHandlingService = jsonHandlingService;
         }
 
         private async Task AuthorizeExecuteWorkflowForce()
@@ -145,11 +149,11 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
                     doi = "",
                     citeAs = $"{model.Name}, {model.License}, {DateTime.UtcNow}",
                     license = model.License,
-                    dataLocation = new
+                    dataLocations = this._jsonHandlingService.ToJsonSafe(model.DataLocations.Select(x => new
                     {
-                        kind = model.DataLocation?.Kind.ToString(),
-                        url = model.DataLocation?.Url,
-                    }
+                        kind = x.Kind.ToString(),
+                        url = x.Url,
+                    }))
                 }
             }, new FieldSet
             {
