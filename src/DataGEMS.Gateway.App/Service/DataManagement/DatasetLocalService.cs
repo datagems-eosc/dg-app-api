@@ -179,6 +179,10 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 			await this.AuthorizeCreateForce();
 
 			Service.DataManagement.Model.Dataset data = await this.PatchAndSave(model, false);
+
+			String datasetPath = await this._storageService.DirectoryOf(Common.StorageType.DatasetOnboardStaging, data.Id.ToString());
+			await this._storageService.MoveToStorage(datasetPath, Common.StorageType.Dataset);
+
 			return data.Id;
 		}
 

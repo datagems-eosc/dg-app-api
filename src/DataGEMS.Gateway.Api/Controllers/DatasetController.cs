@@ -257,7 +257,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[HttpPost("as/data-management/onboard")]
 		[Authorize]
 		[ModelStateValidationFilter]
-		[ValidationFilter(typeof(App.Model.DatasetPersist.PersistValidator), "model")]
+		[ValidationFilter(typeof(App.Model.DatasetPersist.OnboardAsDataManagementValidator), "model")]
 		[ServiceFilter(typeof(AppTransactionFilter))]
 		[SwaggerOperation(Summary = "Persist dataset as data management service")]
 		[SwaggerResponse(statusCode: 200, description: "The persisted dataset id", type: typeof(Guid))]

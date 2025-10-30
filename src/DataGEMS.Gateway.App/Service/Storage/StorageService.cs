@@ -159,6 +159,12 @@ namespace DataGEMS.Gateway.App.Service.Storage
 			}
 		}
 
+		public Task<String> DirectoryOf(StorageType type, String subDirectory)
+		{
+			String path = this.DirectoryPath(type, subDirectory);
+			return Task.FromResult(path);
+		}
+
 		private String FilePath(StorageFile model, String subDirectory = null)
 		{
 			StorageTypeConfig storageTypeConfig = this._config.Storages.FirstOrDefault(x => x.Type == model.StorageType);
