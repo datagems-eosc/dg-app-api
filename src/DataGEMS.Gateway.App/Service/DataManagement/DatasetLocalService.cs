@@ -222,7 +222,10 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 				.Kinds(Common.WorkflowDefinitionKind.DatasetProfiling)
 				.ExcludeStaled(true)
 				.CollectAsync();
+
+			if (definitions == null || definitions.Count != 1) throw new DGNotFoundException(this._localizer["general_notFound", Common.WorkflowDefinitionKind.DatasetProfiling.ToString(), nameof(App.Model.WorkflowDefinition)]);
 			Airflow.Model.AirflowDag selectedDefinition = definitions.FirstOrDefault();
+
 			_ = await this._airflowService.ExecuteWorkflowAsync(new App.Model.WorkflowExecutionArgs
 			{
 				WorkflowId = selectedDefinition.Id,
