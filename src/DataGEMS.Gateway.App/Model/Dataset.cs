@@ -162,7 +162,7 @@ namespace DataGEMS.Gateway.App.Model
 						.If(() => item.DataLocations != null)
 						.On(nameof(DatasetPersist.DataLocations))
 						.Over(item.DataLocations)
-						.Using(()=>_validatorFactory[typeof(DataLocationPersistValidator)]),
+						.Using(()=>_validatorFactory[typeof(DataLocationValidator)]),
 				};
 			}
 		}
@@ -270,44 +270,12 @@ namespace DataGEMS.Gateway.App.Model
 					this.Spec()
 						.Must(() => item.DatePublished.HasValue)
 						.FailOn(nameof(DatasetPersist.DatePublished)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.DatePublished)]),
+					//data location must not set
+					this.Spec()
+						.Must(() => item.DataLocations == null)
+						.FailOn(nameof(DatasetPersist.DataLocations)).FailWith(this._localizer["validation_overPosting", nameof(DatasetPersist.DataLocations)]),
 				};
 			}
-		}
-	}
-
-	public class DataLocationPersistValidator : BaseValidator<DataLocation>
-	{
-		public DataLocationPersistValidator(
-			IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> localizer,
-			ValidatorFactory validatorFactory,
-			ILogger<DataLocationPersistValidator> logger,
-			ErrorThesaurus errors) : base(validatorFactory, logger, errors)
-		{
-			this._localizer = localizer;
-		}
-		private readonly IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> _localizer;
-
-		protected override IEnumerable<ISpecification> Specifications(DataLocation item)
-		{
-			return [
-				//Url must always be set
-				this.Spec()
-						.Must(() => !this.IsEmpty(item.Url))
-						.FailOn(nameof(DataLocation.Url)).FailWith(this._localizer["validation_required", nameof(DataLocation.Url)]),
-					// if kind is File, then string must be a valid path; if Kind is Http, then string must be a valid Url; If kind is Ftp, likewise.
-					this.Spec()
-						.If(() => item.Kind == DataLocationKind.File)
-						.Must(() => item.Url.IsValidPath())
-						.FailOn(nameof(DataLocation.Url)).FailWith(this._localizer["validation_invalidValue", nameof(DataLocation.Url)]),
-					this.Spec()
-						.If(() => item.Kind == DataLocationKind.Http)
-						.Must(() => item.Url.IsValidUrl())
-						.FailOn(nameof(DataLocation.Url)).FailWith(this._localizer["validation_invalidValue", nameof(DataLocation.Url)]),
-					this.Spec()
-						.If(() => item.Kind == DataLocationKind.Ftp)
-						.Must(() => item.Url.IsValidFtp())
-						.FailOn(nameof(DataLocation.Url)).FailWith(this._localizer["validation_invalidValue", nameof(DataLocation.Url)]),
-				];
 		}
 	}
 }

@@ -10,7 +10,7 @@ namespace DataGEMS.Gateway.App.Common
 		Http = 1,
 		[Description("Data is accessible via an FTP or FTPS server.")]
 		Ftp = 2,
-		[Description("Date is accesible via a repote location")]
+		[Description("Data is accesible via a repote location")]
 		Remote = 3,
 	}
 }
