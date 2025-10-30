@@ -12,5 +12,6 @@ namespace DataGEMS.Gateway.App.ErrorCode
 		public ErrorDescription UserSync { get; set; }
 		public ErrorDescription ETagConflict { get; set; }
 		public ErrorDescription ImmutableItem { get; set; }
+		public ErrorDescription UploadRestricted { get; set; }
 	}
 }

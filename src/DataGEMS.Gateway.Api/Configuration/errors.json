@@ -35,6 +35,10 @@
     "ImmutableItem": {
       "Code": 108,
       "Message": "you are trying to modify an immutable item or property"
+    },
+    "UploadRestricted": {
+      "Code": 109,
+      "Message": "upload not allowed based on restrictions"
     }
   }
 }

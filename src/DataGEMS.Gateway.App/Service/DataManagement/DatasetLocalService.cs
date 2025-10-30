@@ -12,6 +12,7 @@ using DataGEMS.Gateway.App.Exception;
 using DataGEMS.Gateway.App.Query;
 using DataGEMS.Gateway.App.Service.AAI;
 using DataGEMS.Gateway.App.Service.Airflow;
+using DataGEMS.Gateway.App.Service.Storage;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 
@@ -26,6 +27,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 		private readonly IStringLocalizer<Resources.MySharedResources> _localizer;
 		private readonly IAuthorizationService _authorizationService;
 		private readonly IAuthorizationContentResolver _authorizationContentResolver;
+		private readonly IStorageService _storageService;
 		private readonly ILogger<DatasetLocalService> _logger;
 		private readonly AAIConfig _aaiConfig;
 		private readonly ErrorThesaurus _errors;
@@ -42,6 +44,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 			QueryFactory queryFactory,
 			IAAIService aaiService,
 			AAIConfig aaiConfig,
+			IStorageService storageService,
 			IAuthorizationService authorizationService,
 			IAuthorizationContentResolver authorizationContentResolver,
 			IStringLocalizer<Resources.MySharedResources> localizer,
@@ -56,6 +59,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 			this._deleterFactory = deleterFactory;
 			this._queryFactory = queryFactory;
 			this._aaiService = aaiService;
+			this._storageService = storageService;
 			this._aaiConfig = aaiConfig;
 			this._authorizationService = authorizationService;
 			this._authorizationContentResolver = authorizationContentResolver;
@@ -114,6 +118,12 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 			await this.AuthorizeExecuteWorkflowForce();
 
 			model.Id = Guid.NewGuid();
+
+			foreach(Common.DataLocation location in model.DataLocations.Where(x=> x.Kind == Common.DataLocationKind.File))
+			{
+				String stagedPath = await this._storageService.MoveToStorage(location.Url, Common.StorageType.DatasetOnboardStaging, model.Id.ToString());
+				location.Url = stagedPath;
+			}
 
 			await this.ExecuteOnboardingFlow(model);
 

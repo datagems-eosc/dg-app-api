@@ -38,6 +38,7 @@ using DataGEMS.Gateway.App.Service.Airflow;
 using DataGEMS.Gateway.App.Service.UserSettings;
 using DataGEMS.Gateway.App.Service.DataManagement;
 using DataGEMS.Gateway.App.Service.AAI;
+using DataGEMS.Gateway.App.Service.Storage;
 
 namespace DataGEMS.Gateway.Api
 {
@@ -100,6 +101,7 @@ namespace DataGEMS.Gateway.Api
 				.AddConversationServices(this._config.GetSection("Conversation"))
 				.AddScoped<IConversationDatasetService, ConversationDatasetService>()
 				.AddVocabularyServices(this._config.GetSection("Vocabulary:FieldsOfScience"), this._config.GetSection("Vocabulary:License"))
+				.AddStorageServices(this._config.GetSection("Storage"))
 			;
 
 

@@ -1,0 +1,42 @@
+{
+	"Storage": {
+		"Storages": [
+			{
+				"Type": "Temp",
+				"BasePath": "%{MyStorageBasePath}%",
+				"SubPath": "temp",
+				"NamingConventions": {
+					"NamePattern": "{filename}.{nonce}.{extension}"
+				}
+			},
+			{
+				"Type": "DatasetFileUpload",
+				"BasePath": "%{MyStorageBasePath}%",
+				"SubPath": "dataset_upload",
+				"NamingConventions": {
+					"NamePattern": "{filename}.{nonce}.{extension}"
+				}
+			},
+			{
+				"Type": "DatasetOnboardStaging",
+				"BasePath": "%{MyStorageBasePath}%",
+				"SubPath": "dataset_onboard_staging",
+				"NamingConventions": {
+					"NamePattern": "{filename}.{extension}"
+				}
+			},
+			{
+				"Type": "Dataset",
+				"BasePath": "%{DatasetBasePath}%",
+				"SubPath": "dataset",
+				"NamingConventions": {
+					"NamePattern": "{filename}.{extension}"
+				}
+			}
+		],
+		"UploadRules": {
+			"MaxFileSize": 1000,
+			"AllowedExtensions": [ ".csv", ".xlsx", ".txt", ".pdf", ".png", ".jpeg", ".jpg", ".md" ]
+		}
+	}
+}

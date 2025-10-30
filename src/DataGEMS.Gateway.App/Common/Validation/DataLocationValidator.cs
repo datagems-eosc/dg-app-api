@@ -31,7 +31,7 @@ namespace DataGEMS.Gateway.App.Common.Validation
 					.FailOn(nameof(DataLocation.Url)).FailWith(this._localizer["validation_invalidValue", nameof(DataLocation.Url)]),
 				this.Spec()
 					.If(() => item.Kind == DataLocationKind.Http)
-					.Must(() => item.Url.IsValidUrl())
+					.Must(() => item.Url.IsValidHttp())
 					.FailOn(nameof(DataLocation.Url)).FailWith(this._localizer["validation_invalidValue", nameof(DataLocation.Url)]),
 				this.Spec()
 					.If(() => item.Kind == DataLocationKind.Ftp)

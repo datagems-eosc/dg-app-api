@@ -10,6 +10,7 @@ namespace DataGEMS.Gateway.App.Accounting
 		Invoke = 4,
 		Onboard = 5,
 		Profile = 6,
+		Upload = 7,
 	}
 
 	public enum KnownUnits : short

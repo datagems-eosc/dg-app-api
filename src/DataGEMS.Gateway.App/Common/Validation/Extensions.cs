@@ -31,10 +31,10 @@ namespace DataGEMS.Gateway.App.Common.Validation
 			}
 		}
 
-		public static bool IsValidUrl(this string value)
+		public static bool IsValidHttp(this string value)
 		{
 			if (string.IsNullOrWhiteSpace(value)) return false;
-			return Uri.TryCreate(value, UriKind.Absolute, out Uri uriResult) && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps || uriResult.Scheme == "s3");
+			return Uri.TryCreate(value, UriKind.Absolute, out Uri uriResult) && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
 		}
 
 		public static bool IsValidFtp(this string value)
@@ -43,10 +43,10 @@ namespace DataGEMS.Gateway.App.Common.Validation
 			return Uri.TryCreate(value, UriKind.Absolute, out Uri uriResult) && (uriResult.Scheme == Uri.UriSchemeFtp || uriResult.Scheme == Uri.UriSchemeFtps);
 		}
 
-		public static bool IsValidPath(this string path)
+		public static bool IsValidPath(this string value)
 		{
-			if (string.IsNullOrWhiteSpace(path)) return false;
-			return !path.Any(c => Path.GetInvalidPathChars().Contains(c));
+			if (string.IsNullOrWhiteSpace(value)) return false;
+			return !value.Any(c => Path.GetInvalidPathChars().Contains(c));
 		}
 	}
 }
