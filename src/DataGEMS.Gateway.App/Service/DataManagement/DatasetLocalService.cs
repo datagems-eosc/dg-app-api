@@ -204,13 +204,43 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 			return id;
 		}
 
-		private Task ExecuteProfilingFlow(App.Model.Dataset model)
+		private async Task ExecuteProfilingFlow(App.Model.Dataset model)
 		{
 			this._logger.Debug(new MapLogEntry("executing").And("type", nameof(ExecuteProfilingFlow)).And("model", model));
 
-			//TODO: retrieve proper workflow and execute
-
-			return Task.CompletedTask;
+			List<Airflow.Model.AirflowDag> definitions = await this._queryFactory.Query<WorkflowDefinitionHttpQuery>()
+				.Kinds(Common.WorkflowDefinitionKind.DatasetProfiling)
+				.ExcludeStaled(true)
+				.CollectAsync();
+			Airflow.Model.AirflowDag selectedDefinition = definitions.FirstOrDefault();
+			_ = await this._airflowService.ExecuteWorkflowAsync(new App.Model.WorkflowExecutionArgs
+			{
+				WorkflowId = selectedDefinition.Id,
+				Configurations = new
+				{
+					id = model.Id,
+					code = model.Code,
+					name = model.Name,
+					description = model.Description,
+					license = model.License,
+					mime_type = model.MimeType,
+					size = model.Size,
+					url = model.Url,
+					version = model.Version,
+					headline = model.Headline,
+					keywords = model.Keywords,
+					fields_of_science = model.FieldOfScience,
+					languages = model.Language,
+					countries = model.Country,
+					date_published = model.DatePublished,
+				}
+			}, new FieldSet
+			{
+				Fields = [
+				nameof(App.Model.WorkflowExecution.Id),
+				nameof(App.Model.WorkflowExecution.WorkflowId),
+				]
+			});
 		}
 
 		public async Task<Guid> UpdateProfileAsDataManagementAsync(Guid id, String profile)
