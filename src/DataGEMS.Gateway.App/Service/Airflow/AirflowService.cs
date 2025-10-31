@@ -51,7 +51,7 @@ namespace DataGEMS.Gateway.App.Service.Airflow
 
 		public async Task<WorkflowExecution> ExecuteWorkflowAsync(WorkflowExecutionArgs args, IFieldSet fieldset)
 		{
-			await this._authorizationService.AuthorizeForce(Permission.ExecuteWorkflow);
+			//GOTCHA: No authorization applied at this level. Permissions must be checked prior to calling airflow execute
 
 			String token = await this._airflowAccessTokenService.GetAirflowAccessTokenAsync();
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);

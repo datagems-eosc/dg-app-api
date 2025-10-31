@@ -171,7 +171,7 @@
 				"AllowAuthenticated": false
 			},
 			"OnboardDataset": {
-				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_user" ],
+				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_dataset-uploader" ],
 				"ContextRoles": [],
 				"Claims": [],
 				"Clients": [ "airflow" ],
@@ -179,7 +179,7 @@
 				"AllowAuthenticated": false
 			},
 			"ProfileDataset": {
-				"Roles": [ "GLOBAL_dg_admin" ],
+				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_dataset-curator" ],
 				"ContextRoles": [],
 				"Claims": [],
 				"Clients": [],
@@ -304,8 +304,16 @@
 				"AllowAnonymous": false,
 				"AllowAuthenticated": false
 			},
-			"ExecuteWorkflow": {
-				"Roles": [ "GLOBAL_dg_admin" ],
+			"CanExecuteDatasetOnboarding": {
+				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_dataset-uploader" ],
+				"ContextRoles": [],
+				"Claims": [],
+				"Clients": [],
+				"AllowAnonymous": false,
+				"AllowAuthenticated": false
+			},
+			"CanExecuteDatasetProfiling": {
+				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_dataset-curator" ],
 				"ContextRoles": [],
 				"Claims": [],
 				"Clients": [],

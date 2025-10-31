@@ -130,40 +130,6 @@ namespace DataGEMS.Gateway.Api.Controllers
 
 		[Authorize]
 		[ModelStateValidationFilter]
-		[ValidationFilter(typeof(WorkflowExecutionArgs.WorkflowExecutionArgsValidator), "model")]
-		[SwaggerOperation(Summary = "Lookup workflow definition by id")]
-		[SwaggerResponse(statusCode: 200, description: "Trigger a workflow run", type: typeof(QueryResult<App.Model.WorkflowDefinition>))]
-		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
-		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
-		[SwaggerResponse(statusCode: 404, description: "Could not locate item with the provided id")]
-		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
-		[SwaggerResponse(statusCode: 500, description: "Internal error")]
-		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
-		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
-		[HttpPost("execute")]
-		public async Task<App.Model.WorkflowExecution> Post(
-			[FromBody]
-			[SwaggerParameter(description: "The model describing the execution parameters", Required = true)]
-			WorkflowExecutionArgs model,
-			[ModelBinder(Name = "f")]
-			[SwaggerParameter(description: "The fields to include in the response model", Required = true)]
-			[LookupFieldSetQueryStringOpenApi]
-			IFieldSet fieldSet)
-		{
-			this._logger.Debug(new MapLogEntry("execute").And("type", nameof(App.Model.WorkflowExecution)).And("model", model).And("fields", fieldSet));
-
-			IFieldSet censoredFields = await this._censorFactory.Censor<WorkflowExecutionCensor>().Censor(fieldSet, CensorContext.AsCensor());
-			if (fieldSet.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
-
-			WorkflowExecution execution = await this._airflowService.ExecuteWorkflowAsync(model, censoredFields);
-
-			this._accountingService.AccountFor(KnownActions.Persist, KnownResources.Workflow.AsAccountable());
-
-			return execution;
-		}
-
-		[Authorize]
-		[ModelStateValidationFilter]
 		[SwaggerOperation(Summary = "Lookup workflow exection by id of definition by id")]
 		[SwaggerResponse(statusCode: 200, description: "The matching workflow execution", type: typeof(QueryResult<App.Model.WorkflowExecution>))]
 		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]

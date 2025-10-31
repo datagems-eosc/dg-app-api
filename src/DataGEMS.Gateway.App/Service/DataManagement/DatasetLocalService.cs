@@ -70,9 +70,14 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 			this._jsonHandlingService = jsonHandlingService;
 		}
 
-		private async Task AuthorizeExecuteWorkflowForce()
+		private async Task AuthorizeExecuteOnboardingWorkflowForce()
 		{
-			await this._authorizationService.AuthorizeForce(Permission.ExecuteWorkflow);
+			await this._authorizationService.AuthorizeForce(Permission.CanExecuteDatasetOnboarding);
+		}
+
+		private async Task AuthorizeExecuteProfilingWorkflowForce()
+		{
+			await this._authorizationService.AuthorizeForce(Permission.CanExecuteDatasetProfiling);
 		}
 
 		private async Task AuthorizeCreateForce()
@@ -115,7 +120,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 			this._logger.Debug(new MapLogEntry("onboarding").And("type", nameof(App.Model.DatasetPersist)).And("model", model).And("fields", fields));
 
 			await this.AuthorizeCreateForce();
-			await this.AuthorizeExecuteWorkflowForce();
+			await this.AuthorizeExecuteOnboardingWorkflowForce();
 
 			model.Id = Guid.NewGuid();
 
@@ -191,7 +196,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 			this._logger.Debug(new MapLogEntry("profiling").And("id", id));
 
 			await this.AuthorizeProfileForce();
-			await this.AuthorizeExecuteWorkflowForce();
+			await this.AuthorizeExecuteProfilingWorkflowForce();
 
 			Data.Dataset data = await this._dbContext.Datasets.FindAsync(id);
 			if (data == null) throw new DGNotFoundException(this._localizer["general_notFound", id, nameof(App.Model.Dataset)]);

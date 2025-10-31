@@ -53,7 +53,8 @@ namespace DataGEMS.Gateway.App.Authorization
 		public const String BrowseLicenseVocabulary = "BrowseLicenseVocabulary";
 		//Workflow
 		public const String BrowseWorkflowDefinition = "BrowseWorkflowDefinition";
-		public const String ExecuteWorkflow = "ExecuteWorkflow";
+		public const String CanExecuteDatasetOnboarding = "CanExecuteDatasetOnboarding";
+		public const String CanExecuteDatasetProfiling = "CanExecuteDatasetProfiling";
 		public const String BrowseWorkflowExecution = "BrowseWorkflowExecution";
 		public const String BrowseWorkflowTask = "BrowseWorkflowTask";
 		public const String BrowseWorkflowTaskInstance = "BrowseWorkflowTaskInstance";
