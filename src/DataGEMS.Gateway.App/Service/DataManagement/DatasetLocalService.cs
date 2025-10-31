@@ -172,7 +172,11 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 					{
 						kind = x.Kind.ToString(),
 						url = x.Url,
-					}))
+					})),
+					version = model.Version,
+					mime_type = model.MimeType,
+					date_published = model.DatePublished,
+					code = model.Code,
 				}
 			}, new FieldSet(nameof(App.Model.WorkflowExecution.Id), nameof(App.Model.WorkflowExecution.WorkflowId)));
 		}
