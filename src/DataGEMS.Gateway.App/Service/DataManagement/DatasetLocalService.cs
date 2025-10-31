@@ -186,7 +186,9 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 			Service.DataManagement.Model.Dataset data = await this.PatchAndSave(model, false);
 
 			String datasetPath = await this._storageService.DirectoryOf(Common.StorageType.DatasetOnboardStaging, data.Id.ToString());
-			await this._storageService.MoveToStorage(datasetPath, Common.StorageType.Dataset);
+			String fullPath = Path.Combine(datasetPath, 
+				Path.GetFileName(model.DataLocations?.FirstOrDefault(x => x.Kind == Common.DataLocationKind.File)?.Url));
+			await this._storageService.MoveToStorage(fullPath, Common.StorageType.Dataset);
 
 			return data.Id;
 		}
