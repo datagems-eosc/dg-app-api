@@ -170,7 +170,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 					license = model.License,
 					dataLocations = this._jsonHandlingService.ToJsonSafe(model.DataLocations.Select(x => new
 					{
-						kind = x.Kind.ToString(),
+						kind = x.Kind,
 						url = x.Url,
 					})),
 					version = model.Version,
