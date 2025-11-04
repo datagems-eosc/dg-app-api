@@ -136,10 +136,10 @@ namespace DataGEMS.Gateway.App.Service.Storage
 
 			String targetDirectoryPath = this.DirectoryPath(type, subDirectory);
 
-			FileInfo targetDirectoryInfo = new FileInfo(targetDirectoryPath);
-			targetDirectoryInfo.Create();
+			DirectoryInfo targetDirectoryInfo = new DirectoryInfo(targetDirectoryPath);
 
-			sourceDir.MoveTo(targetDirectoryPath);
+			if (!targetDirectoryInfo.Exists) targetDirectoryInfo.Create();
+			sourceDir.MoveTo(Path.Combine(targetDirectoryPath, Path.GetFileName(sourceDir.Name)));
 
 			return Task.FromResult(targetDirectoryPath);
 		}
