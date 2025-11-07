@@ -10,6 +10,336 @@
 			"name": "Gateway-Api",
 			"item": [
 				{
+					"name": "Access Tokens",
+					"item": [
+						{
+							"name": "user-A Access Token swagger client",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"var resp = JSON.parse(responseBody);\r",
+											"postman.setEnvironmentVariable(\"userAccessToken\", resp.access_token);\r",
+											"postman.setEnvironmentVariable(\"userRefreshToken\", resp.refresh_token);"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "grant_type",
+											"value": "password",
+											"type": "text"
+										},
+										{
+											"key": "client_id",
+											"value": "swagger-client",
+											"type": "text"
+										},
+										{
+											"key": "username",
+											"value": "{{user-A-username}}",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "{{user-A-pass}}",
+											"type": "text"
+										},
+										{
+											"key": "scope",
+											"value": "in-data-exploration",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{baseUrlIdp}}/oauth/realms/dev/protocol/openid-connect/token",
+									"host": [
+										"{{baseUrlIdp}}"
+									],
+									"path": [
+										"oauth",
+										"realms",
+										"dev",
+										"protocol",
+										"openid-connect",
+										"token"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "user-A Access Token",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"var resp = JSON.parse(responseBody);\r",
+											"postman.setEnvironmentVariable(\"userAccessToken\", resp.access_token);\r",
+											"postman.setEnvironmentVariable(\"userRefreshToken\", resp.refresh_token);"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "grant_type",
+											"value": "password",
+											"type": "text"
+										},
+										{
+											"key": "client_id",
+											"value": "dg-app-ui",
+											"type": "text"
+										},
+										{
+											"key": "username",
+											"value": "{{user-A-username}}",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "{{user-A-pass}}",
+											"type": "text"
+										},
+										{
+											"key": "scope",
+											"value": "openid dg-app-api offline_access",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{baseUrlIdp}}/oauth/realms/dev/protocol/openid-connect/token",
+									"host": [
+										"{{baseUrlIdp}}"
+									],
+									"path": [
+										"oauth",
+										"realms",
+										"dev",
+										"protocol",
+										"openid-connect",
+										"token"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "user-B Access Token",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"var resp = JSON.parse(responseBody);\r",
+											"postman.setEnvironmentVariable(\"userAccessToken\", resp.access_token);\r",
+											"postman.setEnvironmentVariable(\"userRefreshToken\", resp.refresh_token);"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "grant_type",
+											"value": "password",
+											"type": "text"
+										},
+										{
+											"key": "client_id",
+											"value": "dg-app-ui",
+											"type": "text"
+										},
+										{
+											"key": "username",
+											"value": "{{user-B-username}}",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "{{user-B-pass}}",
+											"type": "text"
+										},
+										{
+											"key": "scope",
+											"value": "dg-app-api",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{baseUrlIdp}}/oauth/realms/dev/protocol/openid-connect/token",
+									"host": [
+										"{{baseUrlIdp}}"
+									],
+									"path": [
+										"oauth",
+										"realms",
+										"dev",
+										"protocol",
+										"openid-connect",
+										"token"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "user-Admin Access Token",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"var resp = JSON.parse(responseBody);\r",
+											"postman.setEnvironmentVariable(\"userAccessToken\", resp.access_token);\r",
+											"postman.setEnvironmentVariable(\"userRefreshToken\", resp.refresh_token);"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "grant_type",
+											"value": "password",
+											"type": "text"
+										},
+										{
+											"key": "client_id",
+											"value": "dg-app-ui",
+											"type": "text"
+										},
+										{
+											"key": "username",
+											"value": "{{user-Admin-username}}",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "{{user-Admin-pass}}",
+											"type": "text"
+										},
+										{
+											"key": "scope",
+											"value": "dg-app-api",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{baseUrlIdp}}/oauth/realms/dev/protocol/openid-connect/token",
+									"host": [
+										"{{baseUrlIdp}}"
+									],
+									"path": [
+										"oauth",
+										"realms",
+										"dev",
+										"protocol",
+										"openid-connect",
+										"token"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "refresh Access Token",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"var resp = JSON.parse(responseBody);\r",
+											"postman.setEnvironmentVariable(\"userAccessToken\", resp.access_token);\r",
+											"postman.setEnvironmentVariable(\"userRefreshToken\", resp.refresh_token);"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "grant_type",
+											"value": "refresh_token",
+											"type": "text"
+										},
+										{
+											"key": "client_id",
+											"value": "dg-app-ui",
+											"type": "text"
+										},
+										{
+											"key": "refresh_token",
+											"value": "{{userRefreshToken}}",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{baseUrlIdp}}/oauth/realms/dev/protocol/openid-connect/token",
+									"host": [
+										"{{baseUrlIdp}}"
+									],
+									"path": [
+										"oauth",
+										"realms",
+										"dev",
+										"protocol",
+										"openid-connect",
+										"token"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
 					"name": "Collection",
 					"item": [
 						{
@@ -1120,7 +1450,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"project\": { \"fields\": [\"id\", \"code\", \"name\", \"size\", \"collections.id\", \"collections.code\", \"collections.name\", \"collections.datasetCount\", \"permissions.browseDataset\", \"permissions.editDataset\" ] },\r\n    \"page\":{\r\n        \"Offset\": 0,\r\n        \"Size\": 5\r\n    },\r\n    \"Order\":{\r\n        \"Items\": [\"-size\"]\r\n    },\r\n    \"Metadata\":{\r\n        \"CountAll\": true\r\n    }\r\n}",
+									"raw": "{\r\n    \"project\": { \"fields\": [\"id\", \"code\", \"name\", \"size\", \"collections.id\", \"collections.code\", \"collections.name\", \"collections.datasetCount\", \"permissions.browseDataset\", \"permissions.editDataset\" ] },\r\n    \"page\":{\r\n        \"Offset\": 0,\r\n        \"Size\": 20\r\n    },\r\n    \"Order\":{\r\n        \"Items\": [\"-size\"]\r\n    },\r\n    \"Metadata\":{\r\n        \"CountAll\": true\r\n    }\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1187,6 +1517,162 @@
 								}
 							},
 							"response": []
+						},
+						{
+							"name": "Dataset - Onboard",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"code\": \"dataset-test-A\",\r\n    \"name\": \"dataset-test-A\",\r\n    \"Description\": \"dataset-test-A\",\r\n    \"License\": \"dataset-test-A\",\r\n    \"MimeType\": \"dataset-test-A\",\r\n    \"Size\": 10,\r\n    \"Url\": \"https://dataset-test-A.gr\",\r\n    \"Version\": \"dataset-test-A\",\r\n    \"Headline\": \"dataset-test-A\",\r\n    \"Keywords\": [\"dataset-test-A\"],\r\n    \"FieldOfScience\": [\"dataset-test-A\"],\r\n    \"Language\": [\"dataset-test-A\"],\r\n    \"Country\": [\"dataset-test-A\"],\r\n    \"DatePublished\": \"2025-10-22\",\r\n    \"DataLocations\": [\r\n        {\r\n            \"Kind\": 0,\r\n            \"url\": \"/storage/datagems/gw/dataset_upload\\\\test1.46b01b3566534eed86c3d7fb0fac86de.csv\",\r\n        },\r\n        {\r\n            \"Kind\": 0,\r\n            \"url\": \"/storage/datagems/gw/dataset_upload\\\\test2.e751c74994b34a17a6daa2a4bfab7047.csv\"\r\n        }\r\n    ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/dataset/onboard?f=id&f=code&f=name&f=size&f=collections.id&f=collections.code&f=collections.name&f=collections.datasetCount&f=permissions.browseDataset&f=permissions.editDataset",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"dataset",
+										"onboard"
+									],
+									"query": [
+										{
+											"key": "f",
+											"value": "id"
+										},
+										{
+											"key": "f",
+											"value": "code"
+										},
+										{
+											"key": "f",
+											"value": "name"
+										},
+										{
+											"key": "f",
+											"value": "size"
+										},
+										{
+											"key": "f",
+											"value": "collections.id"
+										},
+										{
+											"key": "f",
+											"value": "collections.code"
+										},
+										{
+											"key": "f",
+											"value": "collections.name"
+										},
+										{
+											"key": "f",
+											"value": "collections.datasetCount"
+										},
+										{
+											"key": "f",
+											"value": "permissions.browseDataset"
+										},
+										{
+											"key": "f",
+											"value": "permissions.editDataset"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Dataset - Persist",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": \"58a99483-1a50-45a7-b8da-6c036b4235ad\",\r\n    \"code\": \"dataset-test-1\",\r\n    \"name\": \"dataset-test-1\",\r\n    \"Description\": \"dataset-test-1.2\",\r\n    \"License\": \"dataset-test-1\",\r\n    \"MimeType\": \"dataset-test-1\",\r\n    \"Size\": 10,\r\n    \"Url\": \"https://dataset-test-1.gr\",\r\n    \"Version\": \"dataset-test-1\",\r\n    \"Headline\": \"dataset-test-1\",\r\n    \"Keywords\": [\"dataset-test-1\"],\r\n    \"FieldOfScience\": [\"dataset-test-1\"],\r\n    \"Language\": [\"dataset-test-1\"],\r\n    \"Country\": [\"dataset-test-1\"],\r\n    \"DatePublished\": \"2025-10-22\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/dataset/persist?f=id&f=code&f=name&f=description&f=size&f=collections.id&f=collections.code&f=collections.name&f=collections.datasetCount&f=permissions.browseDataset&f=permissions.editDataset",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"dataset",
+										"persist"
+									],
+									"query": [
+										{
+											"key": "f",
+											"value": "id"
+										},
+										{
+											"key": "f",
+											"value": "code"
+										},
+										{
+											"key": "f",
+											"value": "name"
+										},
+										{
+											"key": "f",
+											"value": "description"
+										},
+										{
+											"key": "f",
+											"value": "size"
+										},
+										{
+											"key": "f",
+											"value": "collections.id"
+										},
+										{
+											"key": "f",
+											"value": "collections.code"
+										},
+										{
+											"key": "f",
+											"value": "collections.name"
+										},
+										{
+											"key": "f",
+											"value": "collections.datasetCount"
+										},
+										{
+											"key": "f",
+											"value": "permissions.browseDataset"
+										},
+										{
+											"key": "f",
+											"value": "permissions.editDataset"
+										}
+									]
+								}
+							},
+							"response": []
 						}
 					]
 				},
@@ -1206,7 +1692,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"conversationOptions\":{\r\n        //\"conversationId\": \"90f41f6e-8940-409d-a3a3-7a18eb0ab08a\",\r\n        \"autoCreateConversation\": false\r\n    },\r\n    \"project\": { \"fields\": [\"maxSimilarity\", \"dataset.id\", \"dataset.collections.id\", \"dataset.collections.name\", \"dataset.code\", \"dataset.name\", \"hits.content\", \"hits.objectId\", \"hits.similarity\" ] },\r\n    \"query\": \"What is the fundamental theorem of calculus?\",\r\n    //\"query\": \"I want to know more about pythagoras\",\r\n   // \"datasetIds\": [\"d84d1a2e-127d-4393-91d0-afb7e4fd9c68\"],\r\n    //\"collectionIds\": [\"c09b4ca6-f435-485e-acfe-537e92413039\"],\r\n    \"resultCount\": 1\r\n}",
+									"raw": "{\r\n    \"conversationOptions\":{\r\n        //\"conversationId\": \"90f41f6e-8940-409d-a3a3-7a18eb0ab08a\",\r\n        \"autoCreateConversation\": false\r\n    },\r\n    \"project\": { \"fields\": [\"maxSimilarity\", \"dataset.id\", \"dataset.collections.id\", \"dataset.collections.name\", \"dataset.code\", \"dataset.name\", \"hits.content\", \"hits.objectId\", \"hits.similarity\" ] },\r\n    \"query\": \"What is the fundamental theorem of calculus?\",\r\n    //\"query\": \"I want to know more about pythagoras\",\r\n   // \"datasetIds\": [\"d84d1a2e-127d-4393-91d0-afb7e4fd9c68\"],\r\n    //\"collectionIds\": [\"c09b4ca6-f435-485e-acfe-537e92413039\"],\r\n    \"resultCount\": 10\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -2086,7 +2572,7 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/api/user/settings/key/setting_key_test?f=id&f=key&f=user.id&f=user.name&f=value&f=createdAt&f=updatedAt&f=etag",
+									"raw": "{{baseUrl}}/api/user/settings/key/personalSettings?f=id&f=key&f=user.id&f=user.name&f=value&f=createdAt&f=updatedAt&f=etag",
 									"host": [
 										"{{baseUrl}}"
 									],
@@ -2095,7 +2581,7 @@
 										"user",
 										"settings",
 										"key",
-										"setting_key_test"
+										"personalSettings"
 									],
 									"query": [
 										{
@@ -2724,6 +3210,41 @@
 					"name": "Context Grants",
 					"item": [
 						{
+							"name": "Context Grants - Assigned - Query",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    //\"datasetIds\": [\"07382b91-5bc5-42f9-8391-33adc2460c19\"],\r\n    \"roles\": [\"dg_ds-browse\"]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/principal/context-grants/query",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"principal",
+										"context-grants",
+										"query"
+									]
+								}
+							},
+							"response": []
+						},
+						{
 							"name": "Context Grants - Me - Assigned",
 							"protocolProfileBehavior": {
 								"disabledSystemHeaders": {
@@ -2848,10 +3369,524 @@
 								}
 							},
 							"response": []
+						},
+						{
+							"name": "Context Grants - Other Group - Assigned",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/principal/group/f9c4037d-9c8d-40b0-a310-5bd46e49118f/context-grants",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"principal",
+										"group",
+										"f9c4037d-9c8d-40b0-a310-5bd46e49118f",
+										"context-grants"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Context Grants - Other User - Collections",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/principal/user/c7cb567a-3dc4-4a68-8b89-9b90ad86ae25/context-grants/collection?id=d30d5eae-013c-4c03-908f-6a0c3db0a3d2",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"principal",
+										"user",
+										"c7cb567a-3dc4-4a68-8b89-9b90ad86ae25",
+										"context-grants",
+										"collection"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "d30d5eae-013c-4c03-908f-6a0c3db0a3d2"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Context Grants - Other Group - Collections",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/principal/group/f9c4037d-9c8d-40b0-a310-5bd46e49118f/context-grants/collection?id=d30d5eae-013c-4c03-908f-6a0c3db0a3d2",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"principal",
+										"group",
+										"f9c4037d-9c8d-40b0-a310-5bd46e49118f",
+										"context-grants",
+										"collection"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "d30d5eae-013c-4c03-908f-6a0c3db0a3d2"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Context Grants - Other User - Datasets",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/principal/user/c7cb567a-3dc4-4a68-8b89-9b90ad86ae25/context-grants/dataset?id=58a99483-1a50-45a7-b8da-6c036b4235ad",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"principal",
+										"user",
+										"c7cb567a-3dc4-4a68-8b89-9b90ad86ae25",
+										"context-grants",
+										"dataset"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "58a99483-1a50-45a7-b8da-6c036b4235ad"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Context Grants - Other Group - Datasets",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/principal/group/f9c4037d-9c8d-40b0-a310-5bd46e49118f/context-grants/dataset?id=58a99483-1a50-45a7-b8da-6c036b4235ad",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"principal",
+										"group",
+										"f9c4037d-9c8d-40b0-a310-5bd46e49118f",
+										"context-grants",
+										"dataset"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "58a99483-1a50-45a7-b8da-6c036b4235ad"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Context Grants - Assign User - Dataset Access",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/principal/context-grants/user/dcaec1d0-e28f-4dc7-8667-258f54b07287/dataset/58a99483-1a50-45a7-b8da-6c036b4235ad/role/dg_ds-browse",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"principal",
+										"context-grants",
+										"user",
+										"dcaec1d0-e28f-4dc7-8667-258f54b07287",
+										"dataset",
+										"58a99483-1a50-45a7-b8da-6c036b4235ad",
+										"role",
+										"dg_ds-browse"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Context Grants - Assign Group - Dataset Access",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/principal/context-grants/group/f9c4037d-9c8d-40b0-a310-5bd46e49118f/dataset/58a99483-1a50-45a7-b8da-6c036b4235ad/role/dg_ds-browse",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"principal",
+										"context-grants",
+										"group",
+										"f9c4037d-9c8d-40b0-a310-5bd46e49118f",
+										"dataset",
+										"58a99483-1a50-45a7-b8da-6c036b4235ad",
+										"role",
+										"dg_ds-browse"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Context Grants - Unassign User - Dataset Access",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/principal/context-grants/user/dcaec1d0-e28f-4dc7-8667-258f54b07287/dataset/58a99483-1a50-45a7-b8da-6c036b4235ad/role/dg_ds-browse",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"principal",
+										"context-grants",
+										"user",
+										"dcaec1d0-e28f-4dc7-8667-258f54b07287",
+										"dataset",
+										"58a99483-1a50-45a7-b8da-6c036b4235ad",
+										"role",
+										"dg_ds-browse"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Context Grants - Unassign Group - Dataset Access",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/principal/context-grants/group/f9c4037d-9c8d-40b0-a310-5bd46e49118f/dataset/58a99483-1a50-45a7-b8da-6c036b4235ad/role/dg_ds-browse",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"principal",
+										"context-grants",
+										"group",
+										"f9c4037d-9c8d-40b0-a310-5bd46e49118f",
+										"dataset",
+										"58a99483-1a50-45a7-b8da-6c036b4235ad",
+										"role",
+										"dg_ds-browse"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Context Grants - Assign User - Collection Access",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/principal/context-grants/user/dcaec1d0-e28f-4dc7-8667-258f54b07287/collection/d30d5eae-013c-4c03-908f-6a0c3db0a3d2/role/dg_col-browse",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"principal",
+										"context-grants",
+										"user",
+										"dcaec1d0-e28f-4dc7-8667-258f54b07287",
+										"collection",
+										"d30d5eae-013c-4c03-908f-6a0c3db0a3d2",
+										"role",
+										"dg_col-browse"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Context Grants - Assign Group - Collection Access",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/principal/context-grants/group/f9c4037d-9c8d-40b0-a310-5bd46e49118f/collection/d30d5eae-013c-4c03-908f-6a0c3db0a3d2/role/dg_col-browse",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"principal",
+										"context-grants",
+										"group",
+										"f9c4037d-9c8d-40b0-a310-5bd46e49118f",
+										"collection",
+										"d30d5eae-013c-4c03-908f-6a0c3db0a3d2",
+										"role",
+										"dg_col-browse"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Context Grants - Unassign User - Collection Access",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/principal/context-grants/user/dcaec1d0-e28f-4dc7-8667-258f54b07287/collection/d30d5eae-013c-4c03-908f-6a0c3db0a3d2/role/dg_col-browse",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"principal",
+										"context-grants",
+										"user",
+										"dcaec1d0-e28f-4dc7-8667-258f54b07287",
+										"collection",
+										"d30d5eae-013c-4c03-908f-6a0c3db0a3d2",
+										"role",
+										"dg_col-browse"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Context Grants - Unassign Group - Collection Access",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/principal/context-grants/group/f9c4037d-9c8d-40b0-a310-5bd46e49118f/collection/d30d5eae-013c-4c03-908f-6a0c3db0a3d2/role/dg_col-browse",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"principal",
+										"context-grants",
+										"group",
+										"f9c4037d-9c8d-40b0-a310-5bd46e49118f",
+										"collection",
+										"d30d5eae-013c-4c03-908f-6a0c3db0a3d2",
+										"role",
+										"dg_col-browse"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Storage",
+					"item": [
+						{
+							"name": "Storage - Upload - Dataset",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "file1",
+											"type": "file",
+											"src": "/C:/Users/gpapanikos/Downloads/test1.csv"
+										},
+										{
+											"key": "file2",
+											"type": "file",
+											"src": "/C:/Users/gpapanikos/Downloads/test2.csv"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/storage/upload/dataset",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"storage",
+										"upload",
+										"dataset"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Storage - Upload - Allowed Extensions",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/storage/upload/allowed-extension",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"storage",
+										"upload",
+										"allowed-extension"
+									]
+								}
+							},
+							"response": []
 						}
 					]
 				}
 			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
 		}
 	]
 }
