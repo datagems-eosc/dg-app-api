@@ -1562,11 +1562,68 @@
         },
         "responses": {
           "200": {
-            "description": "The onboarded dataset",
+            "description": "The onboarded dataset id",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Dataset"
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "404": {
+            "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/dataset/profile/{id}": {
+      "post": {
+        "tags": [
+          "Dataset"
+        ],
+        "summary": "Profile dataset",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the dataset to profile",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The profiled dataset id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
                 }
               }
             }
@@ -1665,6 +1722,128 @@
         ]
       }
     },
+    "/api/dataset/as/data-management/onboard": {
+      "post": {
+        "tags": [
+          "Dataset"
+        ],
+        "summary": "Persist dataset as data management service",
+        "requestBody": {
+          "description": "The model to onboard",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DatasetPersist"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The persisted dataset id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "404": {
+            "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/dataset/as/data-management/profile/{id}": {
+      "post": {
+        "tags": [
+          "Dataset"
+        ],
+        "summary": "Persist dataset profile as data management service",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the dataset to update",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The profile to update",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The persisted dataset id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "404": {
+            "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
     "/api/principal/me": {
       "get": {
         "tags": [
@@ -1698,6 +1877,57 @@
           },
           "401": {
             "description": "The request is not authenticated"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/principal/context-grants/query": {
+      "post": {
+        "tags": [
+          "Principal"
+        ],
+        "summary": "Query context grants",
+        "requestBody": {
+          "description": "The query predicates",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContextGrantLookup"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The list of matching context grants",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextGrant"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
           },
           "500": {
             "description": "Internal error"
@@ -2811,6 +3041,95 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/InDataExploreListSearchResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/storage/upload/allowed-extension": {
+      "get": {
+        "tags": [
+          "Storage"
+        ],
+        "summary": "Retrieve allowed extensions for upload",
+        "responses": {
+          "200": {
+            "description": "The allowed extensions to upload",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "404": {
+            "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/storage/upload/dataset": {
+      "post": {
+        "tags": [
+          "Storage"
+        ],
+        "summary": "Upload dataset files",
+        "responses": {
+          "200": {
+            "description": "The list of uploaded dataset files",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
                 }
               }
             }
@@ -4259,87 +4578,6 @@
         ]
       }
     },
-    "/api/workflow/execute": {
-      "post": {
-        "tags": [
-          "Workflow"
-        ],
-        "summary": "Lookup workflow definition by id",
-        "parameters": [
-          {
-            "name": "f",
-            "in": "query",
-            "schema": {
-              "uniqueItems": true,
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            },
-            "example": "f=id&f=name&f=foo.id&f=foo.br.id"
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json-patch+json": {
-              "schema": {
-                "$ref": "#/components/schemas/WorkflowExecutionArgs"
-              }
-            },
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/WorkflowExecutionArgs"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/WorkflowExecutionArgs"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/WorkflowExecutionArgs"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Trigger a workflow run",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/WorkflowDefinitionQueryResult"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Validation problem with the request"
-          },
-          "401": {
-            "description": "The request is not authenticated"
-          },
-          "404": {
-            "description": "Could not locate item with the provided id"
-          },
-          "403": {
-            "description": "The requested operation is not permitted based on granted permissions"
-          },
-          "500": {
-            "description": "Internal error"
-          },
-          "503": {
-            "description": "An underpinning service indicated failure"
-          }
-        },
-        "security": [
-          {
-            "oauth2": [ ]
-          }
-        ]
-      }
-    },
     "/api/workflow/definition/{workflowId}/execution/{executionId}": {
       "get": {
         "tags": [
@@ -4888,6 +5126,55 @@
           "role": {
             "type": "string",
             "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ContextGrantLookup": {
+        "type": "object",
+        "properties": {
+          "datasetIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Limit lookup to items target specific dataset ids. If set, the list of ids must not be empty",
+            "nullable": true
+          },
+          "collectionIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Limit lookup to items target specific collection ids. If set, the list of ids must not be empty",
+            "nullable": true
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Limit lookup to items granting specific roles. If set, the list of roles must not be empty",
+            "nullable": true
+          },
+          "subjectId": {
+            "type": "string",
+            "description": "Limit lookup to items granting access to specific subject. If empty, use current user",
+            "nullable": true
+          },
+          "page": {
+            "$ref": "#/components/schemas/Paging"
+          },
+          "order": {
+            "$ref": "#/components/schemas/Ordering"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/Header"
+          },
+          "project": {
+            "$ref": "#/components/schemas/FieldSet"
           }
         },
         "additionalProperties": false
@@ -5463,6 +5750,42 @@
         },
         "additionalProperties": false
       },
+      "DataLocation": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/DataLocationKind"
+          },
+          "url": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DataLocationKind": {
+        "enum": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "type": "integer",
+        "description": "  (0 - File = 0 - Data is stored in a local or network file system path., 1 - Http = 1 - Data is accessible via an HTTP or HTTPS endpoint., 2 - Ftp = 2 - Data is accessible via an FTP or FTPS server., 3 - Remote = 3 - Data is accesible via a repote location)",
+        "format": "int32",
+        "x-enum-varnames": [
+          "0 - File",
+          "1 - Http",
+          "2 - Ftp",
+          "3 - Remote"
+        ],
+        "x-enum-descriptions": [
+          "0 - Data is stored in a local or network file system path.",
+          "1 - Data is accessible via an HTTP or HTTPS endpoint.",
+          "2 - Data is accessible via an FTP or FTPS server.",
+          "3 - Data is accesible via a repote location"
+        ]
+      },
       "Dataset": {
         "type": "object",
         "properties": {
@@ -5731,6 +6054,13 @@
           "datePublished": {
             "type": "string",
             "format": "date",
+            "nullable": true
+          },
+          "dataLocations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DataLocation"
+            },
             "nullable": true
           }
         },
@@ -7023,16 +7353,19 @@
       },
       "WorkflowDefinitionKind": {
         "enum": [
-          0
+          0,
+          1
         ],
         "type": "integer",
-        "description": "  (0 - DatasetIngestion = 0 - Dataset Ingestion)",
+        "description": "  (0 - DatasetOnboarding = 0 - Dataset Onboarding, 1 - DatasetProfiling = 1 - Dataset Profiling)",
         "format": "int32",
         "x-enum-varnames": [
-          "0 - DatasetIngestion"
+          "0 - DatasetOnboarding",
+          "1 - DatasetProfiling"
         ],
         "x-enum-descriptions": [
-          "0 - Dataset Ingestion"
+          "0 - Dataset Onboarding",
+          "1 - Dataset Profiling"
         ]
       },
       "WorkflowDefinitionLookup": {
@@ -7187,16 +7520,6 @@
             "items": {
               "$ref": "#/components/schemas/WorkflowTaskInstance"
             },
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "WorkflowExecutionArgs": {
-        "type": "object",
-        "properties": {
-          "workflowId": {
-            "type": "string",
             "nullable": true
           }
         },
