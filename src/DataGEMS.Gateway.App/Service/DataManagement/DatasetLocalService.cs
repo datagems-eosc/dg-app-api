@@ -258,7 +258,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 					languages = model.Language,
 					countries = model.Country,
 					date_published = model.DatePublished,
-					dataset_file_path = await this._storageService.DirectoryOf(Common.StorageType.Dataset, selectedDefinition.Id.ToString()),
+					dataset_file_path = await this._storageService.DirectoryOf(Common.StorageType.Dataset, model.Id.ToString()),
 				}
 			}, new FieldSet
 			{
