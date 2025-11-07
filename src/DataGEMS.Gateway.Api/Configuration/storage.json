@@ -19,8 +19,8 @@
 			},
 			{
 				"Type": "DatasetOnboardStaging",
-				"BasePath": "%{MyStorageBasePath}%",
-				"SubPath": "dataset_onboard_staging",
+				"BasePath": "%{DatasetStagingBasePath}%",
+				"SubPath": "dataset_staging",
 				"NamingConventions": {
 					"NamePattern": "{filename}.{extension}"
 				}
