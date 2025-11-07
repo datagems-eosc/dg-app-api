@@ -238,7 +238,6 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 
 			if (definitions == null || definitions.Count != 1) throw new DGNotFoundException(this._localizer["general_notFound", Common.WorkflowDefinitionKind.DatasetProfiling.ToString(), nameof(App.Model.WorkflowDefinition)]);
 			Airflow.Model.AirflowDag selectedDefinition = definitions.FirstOrDefault();
-
 			_ = await this._airflowService.ExecuteWorkflowAsync(new App.Model.WorkflowExecutionArgs
 			{
 				WorkflowId = selectedDefinition.Id,
@@ -259,6 +258,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 					languages = model.Language,
 					countries = model.Country,
 					date_published = model.DatePublished,
+					dataset_file_path = await this._storageService.DirectoryOf(Common.StorageType.Dataset, selectedDefinition.Id.ToString()),
 				}
 			}, new FieldSet
 			{
