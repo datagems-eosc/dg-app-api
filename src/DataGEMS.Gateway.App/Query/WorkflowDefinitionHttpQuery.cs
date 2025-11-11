@@ -19,7 +19,7 @@ namespace DataGEMS.Gateway.App.Query
 		private List<WorkflowDefinitionKind> _kinds { get; set; }
 		private String _like {  get; set; }
 		private Boolean? _excludeStaled { get; set; }
-		private Boolean? _includePaused { get; set; }
+		private Boolean? _onlyPaused { get; set; }
 		private WorkflowRunState? _lastRunState { get; set; }
 		private RangeOf<DateOnly?> _runStartRange { get; set; }
 		private RangeOf<DateOnly?> _runEndRange { get; set; }
@@ -59,7 +59,7 @@ namespace DataGEMS.Gateway.App.Query
 		public WorkflowDefinitionHttpQuery Kinds(WorkflowDefinitionKind kind) { this._kinds = kind.AsList(); return this; }
 		public WorkflowDefinitionHttpQuery Like(String like) { this._like = like; return this; }
 		public WorkflowDefinitionHttpQuery ExcludeStaled(Boolean? excludeStaled) { this._excludeStaled = excludeStaled; return this; }
-		public WorkflowDefinitionHttpQuery IncludePaused(Boolean? includePaused) { this._includePaused = includePaused; return this; }
+		public WorkflowDefinitionHttpQuery OnlyPaused(Boolean? includePaused) { this._onlyPaused = includePaused; return this; }
 		public WorkflowDefinitionHttpQuery LastRunState(WorkflowRunState runState) { this._lastRunState = runState; return this; }
 		public WorkflowDefinitionHttpQuery RunStates(IEnumerable<WorkflowRunState> runStates) { this._runState = runStates?.ToList(); return this; }
 		public WorkflowDefinitionHttpQuery RunStates(WorkflowRunState runState) { this._runState = runState.AsList(); return this; }
@@ -120,7 +120,7 @@ namespace DataGEMS.Gateway.App.Query
 			}
 			if (!string.IsNullOrEmpty(this._like)) qs = qs.Add("dag_display_name_pattern", this._like);
 			if (this._excludeStaled.HasValue) qs = qs.Add("exclude_stale", this._excludeStaled.Value ? "true" : "false");
-			if (this._includePaused.HasValue) qs = qs.Add("paused", this._includePaused.Value ? "true" : "false");
+			if (this._onlyPaused.HasValue) qs = qs.Add("paused", this._onlyPaused.Value ? "false" : "true");
 			if (this._lastRunState.HasValue) qs = qs.Add("last_dag_run_state", this._lastRunState.ToString().ToLower());
 			if (this._runStartRange != null)
 			{
@@ -148,7 +148,7 @@ namespace DataGEMS.Gateway.App.Query
 					qs = qs.Add("dag_run_end_date_lte", rangeEnd.ToString("o", CultureInfo.InvariantCulture));
 				}
 			}
-			if (this._runState != null) this._kinds.ForEach(x => qs = qs.Add("dag_run_state", x.ToString()));
+			if (this._runState != null) this._runState.ForEach(x => qs = qs.Add("dag_run_state", x.ToString().ToLowerInvariant()));
 
 			String orderBy = this.ApplyOrdering();
 			if (!String.IsNullOrEmpty(orderBy) && !useInCount) qs = qs.Add("order_by", orderBy);

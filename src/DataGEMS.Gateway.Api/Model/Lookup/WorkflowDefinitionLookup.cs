@@ -18,7 +18,7 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 		[SwaggerSchema(description: "Limit lookup to items that are or are not staled")]
 		public Boolean? ExcludeStaled { get; set; }
 		[SwaggerSchema(description: "Limit lookup to items that are or are not paused")]
-		public Boolean? IncludePaused { get; set; }
+		public Boolean? OnlyPaused { get; set; }
 		[SwaggerSchema(description: "Limit lookup to items whose last run was at a specific state")]
 		public WorkflowRunState? LastRunState { get; set; }
 		[SwaggerSchema(description: "Limit lookup to items whose run start is in the specific period")]
@@ -35,7 +35,7 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 			if (this.Kinds != null) query.Kinds(this.Kinds);
 			if (!String.IsNullOrEmpty(this.Like)) query.Like(this.Like);
 			if (this.ExcludeStaled.HasValue) query.ExcludeStaled(this.ExcludeStaled);
-			if (this.IncludePaused.HasValue) query.IncludePaused(this.IncludePaused);
+			if (this.OnlyPaused.HasValue) query.OnlyPaused(this.OnlyPaused);
 			if (this.LastRunState.HasValue) query.LastRunState(this.LastRunState.Value);
 			if (this.RunStartRange != null) query.RunStartRange(this.RunStartRange);
 			if (this.RunEndRange != null) query.RunEndRange(this.RunEndRange);
