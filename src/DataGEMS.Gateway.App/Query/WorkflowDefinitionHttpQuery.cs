@@ -85,7 +85,7 @@ namespace DataGEMS.Gateway.App.Query
 			String content = await this.SendRequest(request);
 			try
 			{
-				Service.Airflow.Model.AirflowDag model = this._jsonHandlingService.FromJsonSafe<Service.Airflow.Model.AirflowDag>(content);
+				Service.Airflow.Model.AirflowDag model = this._jsonHandlingService.FromJson<Service.Airflow.Model.AirflowDag>(content);
 				return model;
 			}
 			catch (System.Exception ex)
