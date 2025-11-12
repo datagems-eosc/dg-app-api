@@ -138,6 +138,29 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 			return model.Id.Value;
 		}
 
+		public async Task<Guid> FutureOnboardAsync(App.Model.DatasetPersist model, IFieldSet fields = null)
+		{
+			this._logger.Debug(new MapLogEntry("future onboarding").And("type", nameof(App.Model.DatasetPersist)).And("model", model).And("fields", fields));
+
+			await this.AuthorizeCreateForce();
+			await this.AuthorizeExecuteOnboardingWorkflowForce();
+
+			model.Id = Guid.NewGuid();
+
+			foreach (Common.DataLocation location in model.DataLocations.Where(x => x.Kind == Common.DataLocationKind.File))
+			{
+				String stagedPath = await this._storageService.MoveToStorage(location.Url, Common.StorageType.DatasetOnboardStaging, model.Id.ToString());
+				location.Url = stagedPath;
+			}
+
+			await this.ExecuteFutureOnboardingFlow(model);
+
+			await this.AutoAssignNewDatasetRoles(model.Id.Value);
+			this._eventBroker.EmitDatasetTouched(model.Id.Value);
+
+			return model.Id.Value;
+		}
+
 		private async Task ExecuteOnboardingFlow(App.Model.DatasetPersist model)
 		{
 			this._logger.Debug(new MapLogEntry("executing").And("type", nameof(ExecuteOnboardingFlow)).And("model", model));
@@ -148,6 +171,50 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 				.CollectAsync();
 
 			if (definitions == null || definitions.Count != 1) throw new DGNotFoundException(this._localizer["general_notFound", Common.WorkflowDefinitionKind.DatasetOnboarding.ToString(), nameof(App.Model.WorkflowDefinition)]);
+			Airflow.Model.AirflowDag selectedDefinition = definitions.FirstOrDefault();
+
+			App.Model.WorkflowExecution execution = await this._airflowService.ExecuteWorkflowAsync(new App.Model.WorkflowExecutionArgs
+			{
+				WorkflowId = selectedDefinition.Id,
+				Configurations = new
+				{
+					id = model.Id,
+					name = model.Name,
+					description = model.Description,
+					headline = model.Headline,
+					fields_of_science = model.FieldOfScience,
+					languages = model.Language,
+					keywords = model.Keywords,
+					countries = model.Country,
+					publishedUrl = model.Url,
+					size = model.Size,
+					doi = "",
+					citeAs = $"{model.Name}, {model.License}, {DateTime.UtcNow}",
+					license = model.License,
+					dataLocations = this._jsonHandlingService.ToJsonSafe(model.DataLocations.Select(x => new
+					{
+						kind = x.Kind,
+						url = x.Url,
+					})),
+					version = model.Version,
+					mime_type = model.MimeType,
+					date_published = model.DatePublished,
+					code = model.Code,
+				}
+			}, new FieldSet(nameof(App.Model.WorkflowExecution.Id), nameof(App.Model.WorkflowExecution.WorkflowId)));
+		}
+
+
+		private async Task ExecuteFutureOnboardingFlow(App.Model.DatasetPersist model)
+		{
+			this._logger.Debug(new MapLogEntry("executing").And("type", nameof(ExecuteFutureOnboardingFlow)).And("model", model));
+
+			List<Airflow.Model.AirflowDag> definitions = await this._queryFactory.Query<WorkflowDefinitionHttpQuery>()
+				.Kinds(Common.WorkflowDefinitionKind.DatasetOnboardingFuture)
+				.ExcludeStaled(true)
+				.CollectAsync();
+
+			if (definitions == null || definitions.Count != 1) throw new DGNotFoundException(this._localizer["general_notFound", Common.WorkflowDefinitionKind.DatasetOnboardingFuture.ToString(), nameof(App.Model.WorkflowDefinition)]);
 			Airflow.Model.AirflowDag selectedDefinition = definitions.FirstOrDefault();
 
 			App.Model.WorkflowExecution execution = await this._airflowService.ExecuteWorkflowAsync(new App.Model.WorkflowExecutionArgs

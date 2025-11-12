@@ -165,6 +165,45 @@ namespace DataGEMS.Gateway.Api.Controllers
 			return id;
 		}
 
+
+		[HttpPost("future-onboard")]
+		[Authorize]
+		[ModelStateValidationFilter]
+		[ValidationFilter(typeof(App.Model.DatasetPersist.OnboardValidator), "model")]
+		[ServiceFilter(typeof(AppTransactionFilter))]
+		[SwaggerOperation(Summary = "Onboard dataset")]
+		[SwaggerResponse(statusCode: 200, description: "The onboarded dataset id", type: typeof(Guid))]
+		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
+		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
+		[SwaggerResponse(statusCode: 404, description: "Could not locate item with the provided id")]
+		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
+		[SwaggerResponse(statusCode: 500, description: "Internal error")]
+		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
+		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
+		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
+		public async Task<Guid> FutureOnboard(
+			[FromBody]
+			[SwaggerRequestBody(description: "The model to onboard", Required = true)]
+			App.Model.DatasetPersist model,
+			[ModelBinder(Name = "f")]
+			[SwaggerParameter(description: "The fields to include in the response model", Required = true)]
+			[LookupFieldSetQueryStringOpenApi]
+			IFieldSet fieldSet)
+		{
+			this._logger.Debug(new MapLogEntry("future onboarding").And("type", nameof(App.Model.DatasetPersist)).And("fields", fieldSet));
+
+			//GOTCHA: Ommiting browse permission check in case of new
+			IFieldSet censoredFields = await this._censorFactory.Censor<DatasetCensor>().Censor(fieldSet, CensorContext.AsCensor(), !model.Id.HasValue);
+			if (fieldSet.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+
+			Guid id = await this._datasetService.FutureOnboardAsync(model, censoredFields);
+
+			this._accountingService.AccountFor(KnownActions.Onboard, KnownResources.Dataset.AsAccountable());
+			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.Workflow.AsAccountable());
+
+			return id;
+		}
+
 		[HttpPost("profile/{id}")]
 		[Authorize]
 		[ModelStateValidationFilter]
