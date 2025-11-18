@@ -200,6 +200,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 					mime_type = model.MimeType,
 					date_published = model.DatePublished,
 					code = model.Code,
+					userId = await this._authorizationContentResolver.CurrentUserId(),
 				}
 			}, new FieldSet(nameof(App.Model.WorkflowExecution.Id), nameof(App.Model.WorkflowExecution.WorkflowId)));
 		}
@@ -244,6 +245,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 					mime_type = model.MimeType,
 					date_published = model.DatePublished,
 					code = model.Code,
+					userId = await this._authorizationContentResolver.CurrentUserId(),
 				}
 			}, new FieldSet(nameof(App.Model.WorkflowExecution.Id), nameof(App.Model.WorkflowExecution.WorkflowId)));
 		}
@@ -326,6 +328,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 					countries = model.Country,
 					date_published = model.DatePublished,
 					dataset_file_path = await this._storageService.DirectoryOf(Common.StorageType.Dataset, model.Id.ToString()),
+					userId = await this._authorizationContentResolver.CurrentUserId(),
 				}
 			}, new FieldSet
 			{
