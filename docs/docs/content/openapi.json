@@ -1598,6 +1598,75 @@
         ]
       }
     },
+    "/api/dataset/future-onboard": {
+      "post": {
+        "tags": [
+          "Dataset"
+        ],
+        "summary": "Onboard dataset",
+        "parameters": [
+          {
+            "name": "f",
+            "in": "query",
+            "schema": {
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "example": "f=id&f=name&f=foo.id&f=foo.br.id"
+          }
+        ],
+        "requestBody": {
+          "description": "The model to onboard",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DatasetPersist"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The onboarded dataset id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "404": {
+            "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
     "/api/dataset/profile/{id}": {
       "post": {
         "tags": [
@@ -6062,6 +6131,14 @@
               "$ref": "#/components/schemas/DataLocation"
             },
             "nullable": true
+          },
+          "citeAs": {
+            "type": "string",
+            "nullable": true
+          },
+          "conformsTo": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -7354,18 +7431,21 @@
       "WorkflowDefinitionKind": {
         "enum": [
           0,
-          1
+          1,
+          2
         ],
         "type": "integer",
-        "description": "  (0 - DatasetOnboarding = 0 - Dataset Onboarding, 1 - DatasetProfiling = 1 - Dataset Profiling)",
+        "description": "  (0 - DatasetOnboarding = 0 - Dataset Onboarding, 1 - DatasetProfiling = 1 - Dataset Profiling, 2 - DatasetOnboardingFuture = 2 - Future Dataset Onboarding)",
         "format": "int32",
         "x-enum-varnames": [
           "0 - DatasetOnboarding",
-          "1 - DatasetProfiling"
+          "1 - DatasetProfiling",
+          "2 - DatasetOnboardingFuture"
         ],
         "x-enum-descriptions": [
           "0 - Dataset Onboarding",
-          "1 - Dataset Profiling"
+          "1 - Dataset Profiling",
+          "2 - Future Dataset Onboarding"
         ]
       },
       "WorkflowDefinitionLookup": {
@@ -7389,7 +7469,7 @@
             "description": "Limit lookup to items that are or are not staled",
             "nullable": true
           },
-          "includePaused": {
+          "onlyPaused": {
             "type": "boolean",
             "description": "Limit lookup to items that are or are not paused",
             "nullable": true
