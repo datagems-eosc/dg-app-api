@@ -188,8 +188,8 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 					countries = model.Country,
 					publishedUrl = model.Url,
 					size = model.Size,
-					doi = "",
-					citeAs = $"{model.Name}, {model.License}, {DateTime.UtcNow}",
+					citeAs = model.CiteAs,
+					conformsTo = model.ConformsTo,
 					license = model.License,
 					dataLocations = this._jsonHandlingService.ToJsonSafe(model.DataLocations.Select(x => new
 					{
@@ -233,8 +233,8 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 					countries = model.Country,
 					publishedUrl = model.Url,
 					size = model.Size,
-					doi = "",
-					citeAs = $"{model.Name}, {model.License}, {DateTime.UtcNow}",
+					citeAs = model.CiteAs,
+					conformsTo = model.ConformsTo,
 					license = model.License,
 					dataLocations = this._jsonHandlingService.ToJsonSafe(model.DataLocations.Select(x => new
 					{

@@ -49,6 +49,8 @@ namespace DataGEMS.Gateway.App.Model
 		public List<String> Country { get; set; }
 		public DateOnly? DatePublished { get; set; }
 		public List<DataLocation> DataLocations { get; set; }
+		public string CiteAs { get; set; }
+		public string ConformsTo { get; set; }
 
 		public class OnboardValidator : BaseValidator<DatasetPersist>
 		{
