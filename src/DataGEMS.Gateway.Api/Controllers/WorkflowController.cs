@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Cite.Tools.Data.Builder;
+﻿using Cite.Tools.Data.Builder;
 using Cite.Tools.Data.Censor;
 using Cite.Tools.Data.Query;
 using Cite.Tools.FieldSet;
@@ -16,7 +15,6 @@ using DataGEMS.Gateway.App.Censor;
 using DataGEMS.Gateway.App.Common;
 using DataGEMS.Gateway.App.ErrorCode;
 using DataGEMS.Gateway.App.Exception;
-using DataGEMS.Gateway.App.Model;
 using DataGEMS.Gateway.App.Model.Builder;
 using DataGEMS.Gateway.App.Query;
 using DataGEMS.Gateway.App.Service.Airflow;
@@ -62,6 +60,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 
 		[Authorize]
 		[ModelStateValidationFilter]
+		[ValidationFilter(typeof(WorkflowDefinitionLookup.QueryValidator), "lookup")]
 		[SwaggerOperation(Summary = "Retrieve the available workflow definitions")]
 		[SwaggerResponse(statusCode: 200, description: "The list of matching workflows along with the count", type: typeof(QueryResult<App.Model.WorkflowDefinition>))]
 		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
@@ -169,6 +168,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 
 		[Authorize]
 		[ModelStateValidationFilter]
+		[ValidationFilter(typeof(WorkflowExecutionLookup.QueryValidator), "lookup")]
 		[SwaggerOperation(Summary = "Retrieve the available workflow executions")]
 		[SwaggerResponse(statusCode: 200, description: "The list of matching workflow executions along with the count", type: typeof(QueryResult<App.Model.WorkflowExecution>))]
 		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]

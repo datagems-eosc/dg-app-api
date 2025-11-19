@@ -110,11 +110,7 @@ namespace DataGEMS.Gateway.App.Query
 			String token = await this._airflowAccessTokenService.GetAirflowAccessTokenAsync();
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
 
-			Service.Airflow.Model.AirflowDagExecutionListRequest requestModel = new Service.Airflow.Model.AirflowDagExecutionListRequest
-			{
-				Offset = 0,
-				Limit = 100,
-			};
+			Service.Airflow.Model.AirflowDagExecutionListRequest requestModel = new Service.Airflow.Model.AirflowDagExecutionListRequest();
 			if (this._workflowIds != null && this._workflowIds.Count > 0) requestModel.DagIds = this._workflowIds;
 			if (this._state != null && this._state.Count > 0) requestModel.States = this._state.Select(x => x.ToString()).ToList();
 			if (this._runAfterRange != null)

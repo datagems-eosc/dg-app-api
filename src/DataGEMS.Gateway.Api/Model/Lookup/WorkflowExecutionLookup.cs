@@ -71,6 +71,10 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 					this.Spec()
 						.Must(() => !item.State.IsNotNullButEmpty())
 						.FailOn(nameof(WorkflowExecutionLookup.State)).FailWith(this._localizer["validation_setButEmpty", nameof(WorkflowExecutionLookup.State)]),
+					//paging must be set
+					this.Spec()
+						.Must(() => item.Page != null && !item.Page.IsEmpty)
+						.FailOn(nameof(WorkflowExecutionLookup.Page)).FailWith(this._localizer["validation_required", nameof(WorkflowExecutionLookup.Page)]),
 					//Paging with Ordering is only supported !
 					this.Spec()
 						.If(()=> item.Page != null && !item.Page.IsEmpty)
