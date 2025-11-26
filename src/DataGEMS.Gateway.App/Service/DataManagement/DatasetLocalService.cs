@@ -296,6 +296,38 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 			return id;
 		}
 
+		public async Task<Guid> FutureProfileAsync(Guid id)
+		{
+			this._logger.Debug(new MapLogEntry("future profiling").And("id", id));
+
+			await this.AuthorizeProfileForce();
+			await this.AuthorizeExecuteProfilingWorkflowForce();
+
+			Data.Dataset data = await this._dbContext.Datasets.FindAsync(id);
+			if (data == null) throw new DGNotFoundException(this._localizer["general_notFound", id, nameof(App.Model.Dataset)]);
+			FieldSet fields = new FieldSet(
+				nameof(App.Model.Dataset.Id),
+				nameof(App.Model.Dataset.Code),
+				nameof(App.Model.Dataset.Name),
+				nameof(App.Model.Dataset.Description),
+				nameof(App.Model.Dataset.License),
+				nameof(App.Model.Dataset.MimeType),
+				nameof(App.Model.Dataset.Size),
+				nameof(App.Model.Dataset.Url),
+				nameof(App.Model.Dataset.Version),
+				nameof(App.Model.Dataset.Headline),
+				nameof(App.Model.Dataset.Keywords),
+				nameof(App.Model.Dataset.FieldOfScience),
+				nameof(App.Model.Dataset.Language),
+				nameof(App.Model.Dataset.Country),
+				nameof(App.Model.Dataset.DatePublished));
+			App.Model.Dataset model = await this._builderFactory.Builder<App.Model.Builder.DatasetBuilder>().Build(fields, data.ToModel());
+
+			await this.ExecuteFutureProfilingFlow(model);
+
+			return id;
+		}
+
 		private async Task ExecuteProfilingFlow(App.Model.Dataset model)
 		{
 			this._logger.Debug(new MapLogEntry("executing").And("type", nameof(ExecuteProfilingFlow)).And("model", model));
@@ -306,6 +338,49 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 				.CollectAsync();
 
 			if (definitions == null || definitions.Count != 1) throw new DGNotFoundException(this._localizer["general_notFound", Common.WorkflowDefinitionKind.DatasetProfiling.ToString(), nameof(App.Model.WorkflowDefinition)]);
+			Airflow.Model.AirflowDag selectedDefinition = definitions.FirstOrDefault();
+			_ = await this._airflowService.ExecuteWorkflowAsync(new App.Model.WorkflowExecutionArgs
+			{
+				WorkflowId = selectedDefinition.Id,
+				Configurations = new
+				{
+					id = model.Id,
+					code = model.Code,
+					name = model.Name,
+					description = model.Description,
+					license = model.License,
+					mime_type = model.MimeType,
+					size = model.Size,
+					url = model.Url,
+					version = model.Version,
+					headline = model.Headline,
+					keywords = model.Keywords,
+					fields_of_science = model.FieldOfScience,
+					languages = model.Language,
+					countries = model.Country,
+					date_published = model.DatePublished,
+					dataset_file_path = await this._storageService.DirectoryOf(Common.StorageType.Dataset, model.Id.ToString()),
+					userId = await this._authorizationContentResolver.CurrentUserId(),
+				}
+			}, new FieldSet
+			{
+				Fields = [
+				nameof(App.Model.WorkflowExecution.Id),
+				nameof(App.Model.WorkflowExecution.WorkflowId),
+				]
+			});
+		}
+
+		private async Task ExecuteFutureProfilingFlow(App.Model.Dataset model)
+		{
+			this._logger.Debug(new MapLogEntry("executing").And("type", nameof(ExecuteFutureProfilingFlow)).And("model", model));
+
+			List<Airflow.Model.AirflowDag> definitions = await this._queryFactory.Query<WorkflowDefinitionHttpQuery>()
+				.Kinds(Common.WorkflowDefinitionKind.DatasetProfilingFuture)
+				.ExcludeStaled(true)
+				.CollectAsync();
+
+			if (definitions == null || definitions.Count != 1) throw new DGNotFoundException(this._localizer["general_notFound", Common.WorkflowDefinitionKind.DatasetProfilingFuture.ToString(), nameof(App.Model.WorkflowDefinition)]);
 			Airflow.Model.AirflowDag selectedDefinition = definitions.FirstOrDefault();
 			_ = await this._airflowService.ExecuteWorkflowAsync(new App.Model.WorkflowExecutionArgs
 			{

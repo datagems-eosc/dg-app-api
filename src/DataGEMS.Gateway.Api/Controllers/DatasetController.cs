@@ -233,6 +233,36 @@ namespace DataGEMS.Gateway.Api.Controllers
 			return idProfiled;
 		}
 
+
+		[HttpPost("future-profile/{id}")]
+		[Authorize]
+		[ModelStateValidationFilter]
+		[ServiceFilter(typeof(AppTransactionFilter))]
+		[SwaggerOperation(Summary = "Profile dataset")]
+		[SwaggerResponse(statusCode: 200, description: "The profiled dataset id", type: typeof(Guid))]
+		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
+		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
+		[SwaggerResponse(statusCode: 404, description: "Could not locate item with the provided id")]
+		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
+		[SwaggerResponse(statusCode: 500, description: "Internal error")]
+		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
+		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
+		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
+		public async Task<Guid> FutureProfile(
+			[FromRoute]
+			[SwaggerParameter(description: "The id of the dataset to future profile", Required = true)]
+			Guid id)
+		{
+			this._logger.Debug(new MapLogEntry("future profiling").And("id", id));
+
+			Guid idProfiled = await this._datasetService.FutureProfileAsync(id);
+
+			this._accountingService.AccountFor(KnownActions.Profile, KnownResources.Dataset.AsAccountable());
+			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.Workflow.AsAccountable());
+
+			return idProfiled;
+		}
+
 		[HttpPost("persist")]
 		[Authorize]
 		[ModelStateValidationFilter]

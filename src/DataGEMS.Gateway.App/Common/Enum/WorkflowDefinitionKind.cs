@@ -11,5 +11,7 @@ namespace DataGEMS.Gateway.App.Common
 		DatasetProfiling = 1,
 		[Description("Future Dataset Onboarding")]
 		DatasetOnboardingFuture = 2,
+		[Description("Future Dataset Profiling")]
+		DatasetProfilingFuture = 3,
 	}
 }
