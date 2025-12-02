@@ -2,8 +2,8 @@
 	"DataManagementService": {
 		"Http": {
 			"Scope": "data-management-api",
-			"BaseUrl": "http://somepath.eu/datamangement/api/",
-			"DatasetQueryEndpoint": "dataset/query",
+			"BaseUrl": "https://datagems-dev.scayle.es/dmm/api/v1/",
+			"DatasetQueryEndpoint": "dataset",
 			"DatasetCountEndpoint": "dataset/count"
 		},
 		"Local": {
