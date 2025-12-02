@@ -12,6 +12,7 @@ using DataGEMS.Gateway.App.Exception;
 using DataGEMS.Gateway.App.Query;
 using DataGEMS.Gateway.App.Service.AAI;
 using DataGEMS.Gateway.App.Service.Airflow;
+using DataGEMS.Gateway.App.Service.DataManagement.Model;
 using DataGEMS.Gateway.App.Service.Storage;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
@@ -123,8 +124,13 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 			await this.AuthorizeExecuteOnboardingWorkflowForce();
 
 			model.Id = Guid.NewGuid();
+			if (model.DataLocations != null && model.DataLocations.Any(x => x.Kind == Common.DataLocationKind.Staged))
+			{
+				string relativePath = this._storageService.GetRelativePath(model.DataLocations.FirstOrDefault().Url, Common.StorageType.DatasetOnboardStaging);
+				model.Id = Guid.Parse(relativePath.Split('/')[0]);
+			}
 
-			foreach(Common.DataLocation location in model.DataLocations.Where(x=> x.Kind == Common.DataLocationKind.File))
+			foreach (Common.DataLocation location in model.DataLocations.Where(x => x.Kind == Common.DataLocationKind.File))
 			{
 				String stagedPath = await this._storageService.MoveToStorage(location.Url, Common.StorageType.DatasetOnboardStaging, model.Id.ToString());
 				location.Url = stagedPath;
@@ -303,8 +309,10 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 			await this.AuthorizeProfileForce();
 			await this.AuthorizeExecuteProfilingWorkflowForce();
 
-			Data.Dataset data = await this._dbContext.Datasets.FindAsync(id);
-			if (data == null) throw new DGNotFoundException(this._localizer["general_notFound", id, nameof(App.Model.Dataset)]);
+			List<Dataset> datas = await this._queryFactory.Query<DatasetHttpQuery>().Ids(id).CollectAsync();
+			if (datas == null || datas.Count == 0) throw new DGNotFoundException(this._localizer["general_notFound", id, nameof(App.Model.Dataset)]);
+			if (datas.Count > 1) throw new DGNotFoundException(this._localizer["general_notFound", Common.WorkflowDefinitionKind.DatasetProfilingFuture.ToString(), nameof(App.Model.Dataset)]);
+
 			FieldSet fields = new FieldSet(
 				nameof(App.Model.Dataset.Id),
 				nameof(App.Model.Dataset.Code),
@@ -321,7 +329,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 				nameof(App.Model.Dataset.Language),
 				nameof(App.Model.Dataset.Country),
 				nameof(App.Model.Dataset.DatePublished));
-			App.Model.Dataset model = await this._builderFactory.Builder<App.Model.Builder.DatasetBuilder>().Build(fields, data.ToModel());
+			App.Model.Dataset model = await this._builderFactory.Builder<App.Model.Builder.DatasetBuilder>().Build(fields, datas.First());
 
 			await this.ExecuteFutureProfilingFlow(model);
 

@@ -209,5 +209,11 @@ namespace DataGEMS.Gateway.App.Service.Storage
 
 			return current;
 		}
+
+		public string GetRelativePath(string url, StorageType storageType)
+		{
+			StorageTypeConfig storageTypeConfig = this._config.Storages.FirstOrDefault(x => x.Type == storageType);
+			return Path.GetRelativePath(storageTypeConfig.BasePath, url);
+		}
 	}
 }

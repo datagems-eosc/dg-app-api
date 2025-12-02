@@ -126,6 +126,9 @@
   <data name="validation_maxLength" xml:space="preserve">
     <value>{0} too long</value>
   </data>
+  <data name="validation_onlyOneStagedDataLocation" xml:space="preserve">
+    <value>Only one file is allowed if it is already staged</value>
+  </data>
   <data name="validation_overPosting" xml:space="preserve">
     <value>Too much info</value>
   </data>

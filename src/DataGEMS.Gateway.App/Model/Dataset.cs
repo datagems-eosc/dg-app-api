@@ -165,6 +165,11 @@ namespace DataGEMS.Gateway.App.Model
 						.On(nameof(DatasetPersist.DataLocations))
 						.Over(item.DataLocations)
 						.Using(()=>_validatorFactory[typeof(DataLocationValidator)]),
+					//if data location is staged, it must be only one
+					this.Spec()
+						.If(() => item.DataLocations != null && item.DataLocations.Any(x => x.Kind == DataLocationKind.Staged))
+						.Must(() => item.DataLocations.Count() == 1)
+						.FailOn(nameof(DatasetPersist.DataLocations)).FailWith(this._localizer["validation_onlyOneStagedDataLocation"]),
 				};
 			}
 		}

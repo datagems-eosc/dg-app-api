@@ -17,6 +17,7 @@ namespace DataGEMS.Gateway.App.Service.Storage
 		Task<String> MoveToStorage(String filePath, StorageType type, String subDirectory = null);
 		Task<byte[]> ReadByteSafeAsync(String path);
 		Task<String> DirectoryOf(StorageType type, String subDirectory);
+		string GetRelativePath(string url, StorageType storageType);
 	}
 
 	public class StorageFile

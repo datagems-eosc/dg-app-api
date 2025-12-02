@@ -12,5 +12,7 @@ namespace DataGEMS.Gateway.App.Common
 		Ftp = 2,
 		[Description("Data is accesible via a repote location")]
 		Remote = 3,
+		[Description("Data is already staged")]
+		Staged = 4,
 	}
 }
