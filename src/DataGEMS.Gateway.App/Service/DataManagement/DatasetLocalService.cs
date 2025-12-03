@@ -299,7 +299,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 				nameof(App.Model.Dataset.Country),
 				nameof(App.Model.Dataset.DatePublished));
 			App.Model.Dataset model = await this._builderFactory.Builder<App.Model.Builder.DatasetBuilder>().Build(fields, data.ToModel());
-			model.ConnectorType = viewModel.ConnectorType;
+			model.ConnectorType = viewModel.DataStoreKind;
 			await this.ExecuteProfilingFlow(model);
 
 			return viewModel.Id.Value;

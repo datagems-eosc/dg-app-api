@@ -416,7 +416,7 @@ namespace DataGEMS.Gateway.App.Model
 	public class DatasetProfiling
 	{
 		public Guid? Id { get; set; }
-		public DataStoreKind? ConnectorType { get; set; }
+		public DataStoreKind? DataStoreKind { get; set; }
 
 
 		public class ProfilingValidator : BaseValidator<DatasetProfiling>
@@ -441,8 +441,8 @@ namespace DataGEMS.Gateway.App.Model
 						.FailOn(nameof(DatasetProfiling.Id)).FailWith(this._localizer["validation_required", nameof(DatasetProfiling.Id)]),
 					//ConnectorType must always be set
 					this.Spec()
-						.Must(() => item.ConnectorType.HasValue)
-						.FailOn(nameof(DatasetProfiling.ConnectorType)).FailWith(this._localizer["validation_required", nameof(DatasetProfiling.ConnectorType)]),
+						.Must(() => item.DataStoreKind.HasValue)
+						.FailOn(nameof(DatasetProfiling.DataStoreKind)).FailWith(this._localizer["validation_required", nameof(DatasetProfiling.DataStoreKind)]),
 				];
 			}
 		}
