@@ -6,6 +6,7 @@ using Cite.Tools.Json;
 using Cite.Tools.Logging;
 using Cite.Tools.Logging.Extensions;
 using DataGEMS.Gateway.App.Authorization;
+using DataGEMS.Gateway.App.Common;
 using DataGEMS.Gateway.App.ErrorCode;
 using DataGEMS.Gateway.App.Event;
 using DataGEMS.Gateway.App.Exception;
@@ -376,6 +377,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 					date_published = model.DatePublished,
 					dataset_file_path = await this._storageService.DirectoryOf(Common.StorageType.Dataset, model.Id.ToString()),
 					userId = await this._authorizationContentResolver.CurrentUserId(),
+					connector = DatasetConnectorType.RawDataPath.ToString(),
 				}
 			}, new FieldSet
 			{
@@ -419,6 +421,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 					date_published = model.DatePublished,
 					dataset_file_path = await this._storageService.DirectoryOf(Common.StorageType.Dataset, model.Id.ToString()),
 					userId = await this._authorizationContentResolver.CurrentUserId(),
+					connector = DatasetConnectorType.RawDataPath.ToString(),
 				}
 			}, new FieldSet
 			{

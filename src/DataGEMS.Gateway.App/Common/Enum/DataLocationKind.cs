@@ -14,5 +14,7 @@ namespace DataGEMS.Gateway.App.Common
 		Remote = 3,
 		[Description("Data is already staged")]
 		Staged = 4,
+		[Description("Data is stored in a database file.")]
+		DatabaseFile = 5
 	}
 }
