@@ -165,26 +165,6 @@ namespace DataGEMS.Gateway.App.Service.Storage
 			return Task.FromResult(path);
 		}
 
-		public Task<string> CreateDirectoryPath(StorageType type, string sourceDirectoryPath, string subDirectory = null)
-		{
-			StorageTypeConfig storageTypeConfig = this._config.Storages
-				.FirstOrDefault(x => x.Type == type);
-
-			DirectoryInfo sourceDir = new DirectoryInfo(sourceDirectoryPath);
-			if (!sourceDir.Exists) throw new DGNotFoundException($"Source directory '{sourceDirectoryPath}' does not exist");
-
-			string targetBasePath = Path.Combine(storageTypeConfig.BasePath, storageTypeConfig.SubPath);
-			if (!string.IsNullOrEmpty(subDirectory)) targetBasePath = Path.Combine(targetBasePath, subDirectory);
-
-			string targetDirectoryPath = Path.Combine(targetBasePath, sourceDir.Name);
-			DirectoryInfo targetDir = new DirectoryInfo(targetDirectoryPath);
-			if (targetDir.Exists) throw new DGNotFoundException($"Target directory '{targetDirectoryPath}' should not exist but it does");
-
-			Directory.Move(sourceDir.FullName, targetDir.FullName);
-
-			return Task.FromResult(targetDir.FullName);
-		}
-
 		private String FilePath(StorageFile model, String subDirectory = null)
 		{
 			StorageTypeConfig storageTypeConfig = this._config.Storages.FirstOrDefault(x => x.Type == model.StorageType);
@@ -230,10 +210,11 @@ namespace DataGEMS.Gateway.App.Service.Storage
 			return current;
 		}
 
-		public string GetRelativePath(string url, StorageType storageType)
+		public bool DirectoryExists(StorageType type, string directoryName)
 		{
-			StorageTypeConfig storageTypeConfig = this._config.Storages.FirstOrDefault(x => x.Type == storageType);
-			return Path.GetRelativePath(storageTypeConfig.BasePath, url);
+			var path = this.DirectoryPath(type, directoryName);
+			DirectoryInfo dir = new DirectoryInfo(path);
+			return dir.Exists;
 		}
 	}
 }

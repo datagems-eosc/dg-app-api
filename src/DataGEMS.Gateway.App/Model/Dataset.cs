@@ -4,6 +4,7 @@ using Cite.Tools.Validation;
 using DataGEMS.Gateway.App.Common;
 using DataGEMS.Gateway.App.Common.Validation;
 using DataGEMS.Gateway.App.ErrorCode;
+using DataGEMS.Gateway.App.Service.Storage;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 
@@ -29,6 +30,7 @@ namespace DataGEMS.Gateway.App.Model
 		public String ProfileRaw { get; set; }
 		public List<Model.Collection> Collections { get; set; }
 		public List<String> Permissions { get; set; }
+		public DataStoreKind? ConnectorType { get; set; }
 	}
 
 	public class DatasetPersist
@@ -64,12 +66,15 @@ namespace DataGEMS.Gateway.App.Model
 				IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> localizer,
 				ValidatorFactory validatorFactory,
 				ILogger<OnboardValidator> logger,
-				ErrorThesaurus errors) : base(validatorFactory, logger, errors)
+				ErrorThesaurus errors,
+				IStorageService storageService) : base(validatorFactory, logger, errors)
 			{
 				this._localizer = localizer;
+				this._storageService = storageService;
 			}
 
 			private readonly IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> _localizer;
+			private readonly IStorageService _storageService;
 
 			protected override IEnumerable<ISpecification> Specifications(DatasetPersist item)
 			{
@@ -165,11 +170,16 @@ namespace DataGEMS.Gateway.App.Model
 						.On(nameof(DatasetPersist.DataLocations))
 						.Over(item.DataLocations)
 						.Using(()=>_validatorFactory[typeof(DataLocationValidator)]),
-					//if data location is staged, it must be only one
+					//if data location is Staged, it must be only one
 					this.Spec()
 						.If(() => item.DataLocations != null && item.DataLocations.Any(x => x.Kind == DataLocationKind.Staged))
 						.Must(() => item.DataLocations.Count() == 1)
-						.FailOn(nameof(DatasetPersist.DataLocations)).FailWith(this._localizer["validation_onlyOneStagedDataLocation"]),
+						.FailOn(nameof(DatasetPersist.DataLocations)).FailWith(this._localizer["validation_onlyOneStagedDataStore"]),
+					//if data location is Staged, the directory must exist
+					this.Spec()
+						.If(() => item.DataLocations != null && item.DataLocations.Any(x => x.Kind == DataLocationKind.Staged))
+						.Must(() => item.DataLocations.Where(x => x.Kind == DataLocationKind.Staged).All(x => this._storageService.DirectoryExists(StorageType.DatasetOnboardStaging, x.Url)))
+						.FailOn(nameof(DatasetPersist.DataLocations)).FailWith(this._localizer["validation_stagedDataStoreNotExists"]),
 				};
 			}
 		}
@@ -399,6 +409,41 @@ namespace DataGEMS.Gateway.App.Model
 						.Must(() => item.DataLocations == null)
 						.FailOn(nameof(DatasetPersist.DataLocations)).FailWith(this._localizer["validation_overPosting", nameof(DatasetPersist.DataLocations)]),
 				};
+			}
+		}
+	}
+
+	public class DatasetProfiling
+	{
+		public Guid? Id { get; set; }
+		public DataStoreKind? ConnectorType { get; set; }
+
+
+		public class ProfilingValidator : BaseValidator<DatasetProfiling>
+		{
+			public ProfilingValidator(
+				IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> localizer,
+				ValidatorFactory validatorFactory,
+				ILogger<ProfilingValidator> logger,
+				ErrorThesaurus errors) : base(validatorFactory, logger, errors)
+			{
+				this._localizer = localizer;
+			}
+
+			private readonly IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> _localizer;
+
+			protected override IEnumerable<ISpecification> Specifications(DatasetProfiling item)
+			{
+				return [
+					//id must be set
+					this.Spec()
+						.Must(() => this.IsValidGuid(item.Id))
+						.FailOn(nameof(DatasetProfiling.Id)).FailWith(this._localizer["validation_required", nameof(DatasetProfiling.Id)]),
+					//ConnectorType must always be set
+					this.Spec()
+						.Must(() => item.ConnectorType.HasValue)
+						.FailOn(nameof(DatasetProfiling.ConnectorType)).FailWith(this._localizer["validation_required", nameof(DatasetProfiling.ConnectorType)]),
+				];
 			}
 		}
 	}

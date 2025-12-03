@@ -127,8 +127,10 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 			model.Id = Guid.NewGuid();
 			if (model.DataLocations != null && model.DataLocations.Any(x => x.Kind == Common.DataLocationKind.Staged))
 			{
-				string relativePath = this._storageService.GetRelativePath(model.DataLocations.FirstOrDefault().Url, Common.StorageType.DatasetOnboardStaging);
-				model.Id = Guid.Parse(relativePath.Split('/')[0]);
+				string normalized = Path.GetFullPath(model.DataLocations.FirstOrDefault(x => x.Kind == Common.DataLocationKind.Staged).Url)
+					.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+				string lastDirectory = Path.GetFileName(normalized);
+				model.Id = Guid.Parse(lastDirectory);
 			}
 
 			foreach (Common.DataLocation location in model.DataLocations.Where(x => x.Kind == Common.DataLocationKind.File))
@@ -265,28 +267,21 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 
 			Service.DataManagement.Model.Dataset data = await this.PatchAndSave(model, false);
 
-			if (model.DataLocations != null && model.DataLocations.Any(x => x.Kind == Common.DataLocationKind.Staged))
-			{
-				await this._storageService.CreateDirectoryPath(Common.StorageType.Dataset, model.DataLocations.FirstOrDefault().Url);
-			}
-			else
-			{
-				String datasetPath = await this._storageService.DirectoryOf(Common.StorageType.DatasetOnboardStaging, data.Id.ToString());
-				await this._storageService.MoveToStorage(datasetPath, Common.StorageType.Dataset);
-			}
+			String datasetPath = await this._storageService.DirectoryOf(Common.StorageType.DatasetOnboardStaging, data.Id.ToString());
+			await this._storageService.MoveToStorage(datasetPath, Common.StorageType.Dataset);
 
 			return data.Id;
 		}
 
-		public async Task<Guid> ProfileAsync(Guid id)
+		public async Task<Guid> ProfileAsync(App.Model.DatasetProfiling viewModel)
 		{
-			this._logger.Debug(new MapLogEntry("profiling").And("id", id));
+			this._logger.Debug(new MapLogEntry("profiling").And("model", viewModel));
 
 			await this.AuthorizeProfileForce();
 			await this.AuthorizeExecuteProfilingWorkflowForce();
 
-			Data.Dataset data = await this._dbContext.Datasets.FindAsync(id);
-			if (data == null) throw new DGNotFoundException(this._localizer["general_notFound", id, nameof(App.Model.Dataset)]);
+			Data.Dataset data = await this._dbContext.Datasets.FindAsync(viewModel.Id);
+			if (data == null) throw new DGNotFoundException(this._localizer["general_notFound", viewModel.Id, nameof(App.Model.Dataset)]);
 			FieldSet fields = new FieldSet(
 				nameof(App.Model.Dataset.Id),
 				nameof(App.Model.Dataset.Code),
@@ -304,10 +299,10 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 				nameof(App.Model.Dataset.Country),
 				nameof(App.Model.Dataset.DatePublished));
 			App.Model.Dataset model = await this._builderFactory.Builder<App.Model.Builder.DatasetBuilder>().Build(fields, data.ToModel());
-
+			model.ConnectorType = viewModel.ConnectorType;
 			await this.ExecuteProfilingFlow(model);
 
-			return id;
+			return viewModel.Id.Value;
 		}
 
 		public async Task<Guid> FutureProfileAsync(Guid id)
@@ -377,7 +372,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 					date_published = model.DatePublished,
 					dataset_file_path = await this._storageService.DirectoryOf(Common.StorageType.Dataset, model.Id.ToString()),
 					userId = await this._authorizationContentResolver.CurrentUserId(),
-					connector = DatasetConnectorType.RawDataPath.ToString(),
+					connector = model.ConnectorType.ToString(),
 				}
 			}, new FieldSet
 			{
@@ -421,7 +416,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 					date_published = model.DatePublished,
 					dataset_file_path = await this._storageService.DirectoryOf(Common.StorageType.Dataset, model.Id.ToString()),
 					userId = await this._authorizationContentResolver.CurrentUserId(),
-					connector = DatasetConnectorType.RawDataPath.ToString(),
+					connector = DataStoreKind.RawDataPath.ToString(),
 				}
 			}, new FieldSet
 			{

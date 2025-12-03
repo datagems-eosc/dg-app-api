@@ -1,5 +1,4 @@
-﻿using Cite.Tools.FieldSet;
-using DataGEMS.Gateway.App.Common;
+﻿using DataGEMS.Gateway.App.Common;
 using Microsoft.AspNetCore.Http;
 using System.Text;
 
@@ -17,8 +16,7 @@ namespace DataGEMS.Gateway.App.Service.Storage
 		Task<String> MoveToStorage(String filePath, StorageType type, String subDirectory = null);
 		Task<byte[]> ReadByteSafeAsync(String path);
 		Task<String> DirectoryOf(StorageType type, String subDirectory);
-		string GetRelativePath(string url, StorageType storageType);
-		Task<string> CreateDirectoryPath(StorageType type, string directoryName, string subDirectory = null);
+		bool DirectoryExists(StorageType type, string directoryName);
 	}
 
 	public class StorageFile

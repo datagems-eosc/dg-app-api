@@ -204,9 +204,10 @@ namespace DataGEMS.Gateway.Api.Controllers
 			return id;
 		}
 
-		[HttpPost("profile/{id}")]
+		[HttpPost("profile")]
 		[Authorize]
 		[ModelStateValidationFilter]
+		[ValidationFilter(typeof(App.Model.DatasetProfiling.ProfilingValidator), "model")]
 		[ServiceFilter(typeof(AppTransactionFilter))]
 		[SwaggerOperation(Summary = "Profile dataset")]
 		[SwaggerResponse(statusCode: 200, description: "The profiled dataset id", type: typeof(Guid))]
@@ -219,13 +220,14 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
 		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
 		public async Task<Guid> Profile(
-			[FromRoute]
-			[SwaggerParameter(description: "The id of the dataset to profile", Required = true)]
-			Guid id)
+			[FromBody]
+			[SwaggerRequestBody(description: "The profile to apply", Required = true)]
+			App.Model.DatasetProfiling model
+		)
 		{
-			this._logger.Debug(new MapLogEntry("profiling").And("id", id));
+			this._logger.Debug(new MapLogEntry("profiling").And("model", model));
 
-			Guid idProfiled = await this._datasetService.ProfileAsync(id);
+			Guid idProfiled = await this._datasetService.ProfileAsync(model);
 
 			this._accountingService.AccountFor(KnownActions.Profile, KnownResources.Dataset.AsAccountable());
 			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.Workflow.AsAccountable());
