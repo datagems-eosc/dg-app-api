@@ -264,8 +264,15 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 
 			Service.DataManagement.Model.Dataset data = await this.PatchAndSave(model, false);
 
-			String datasetPath = await this._storageService.DirectoryOf(Common.StorageType.DatasetOnboardStaging, data.Id.ToString());
-			await this._storageService.MoveToStorage(datasetPath, Common.StorageType.Dataset);
+			if (model.DataLocations != null && model.DataLocations.Any(x => x.Kind == Common.DataLocationKind.Staged))
+			{
+				await this._storageService.CreateDirectoryPath(Common.StorageType.Dataset, model.DataLocations.FirstOrDefault().Url);
+			}
+			else
+			{
+				String datasetPath = await this._storageService.DirectoryOf(Common.StorageType.DatasetOnboardStaging, data.Id.ToString());
+				await this._storageService.MoveToStorage(datasetPath, Common.StorageType.Dataset);
+			}
 
 			return data.Id;
 		}
