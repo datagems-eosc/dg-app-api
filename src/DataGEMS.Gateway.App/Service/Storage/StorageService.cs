@@ -171,37 +171,18 @@ namespace DataGEMS.Gateway.App.Service.Storage
 				.FirstOrDefault(x => x.Type == type);
 
 			DirectoryInfo sourceDir = new DirectoryInfo(sourceDirectoryPath);
-			if (!sourceDir.Exists)
-				throw new DGNotFoundException($"Source directory '{sourceDirectoryPath}' does not exist");
+			if (!sourceDir.Exists) throw new DGNotFoundException($"Source directory '{sourceDirectoryPath}' does not exist");
 
 			string targetBasePath = Path.Combine(storageTypeConfig.BasePath, storageTypeConfig.SubPath);
-			if (!string.IsNullOrEmpty(subDirectory))
-				targetBasePath = Path.Combine(targetBasePath, subDirectory);
+			if (!string.IsNullOrEmpty(subDirectory)) targetBasePath = Path.Combine(targetBasePath, subDirectory);
 
 			string targetDirectoryPath = Path.Combine(targetBasePath, sourceDir.Name);
-
 			DirectoryInfo targetDir = new DirectoryInfo(targetDirectoryPath);
-			if (!targetDir.Exists)
-				targetDir.Create();
+			if (targetDir.Exists) throw new DGNotFoundException($"Target directory '{targetDirectoryPath}' should not exist but it does");
 
-			CopyDirectoryRecursively(sourceDir, targetDir);
+			Directory.Move(sourceDir.FullName, targetDir.FullName);
 
 			return Task.FromResult(targetDir.FullName);
-		}
-
-		private void CopyDirectoryRecursively(DirectoryInfo source, DirectoryInfo target)
-		{
-			foreach (FileInfo file in source.GetFiles())
-			{
-				string destFilePath = Path.Combine(target.FullName, file.Name);
-				file.MoveTo(destFilePath, overwrite: true);
-			}
-
-			foreach (DirectoryInfo subDir in source.GetDirectories())
-			{
-				DirectoryInfo nextTargetSubDir = target.CreateSubdirectory(subDir.Name);
-				CopyDirectoryRecursively(subDir, nextTargetSubDir);
-			}
 		}
 
 		private String FilePath(StorageFile model, String subDirectory = null)
