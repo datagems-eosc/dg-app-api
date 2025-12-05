@@ -47,7 +47,7 @@ namespace DataGEMS.Gateway.App.Common.Validation
 					.FailOn(nameof(DataLocation.Location)).FailWith(this._localizer["validation_invalidValue", nameof(DataLocation.Location)]),
 				//if data location is Staged, the directory must exist
 				this.Spec()
-					.If(() => item.Kind == DataLocationKind.Staged)
+					.If(() => item.Kind == DataLocationKind.Staged && this.IsValidGuid(item.Location))
 					.Must(() => this._storageService.DirectoryExists(StorageType.DatasetOnboardStaging, item.Location))
 					.FailOn(nameof(DataLocation.Location)).FailWith(this._localizer["validation_stagedDataStoreNotExists"]),
 			];
