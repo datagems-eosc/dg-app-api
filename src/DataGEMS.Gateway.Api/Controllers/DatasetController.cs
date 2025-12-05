@@ -236,7 +236,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		}
 
 
-		[HttpPost("future-profile/{id}")]
+		[HttpPost("future-profile")]
 		[Authorize]
 		[ModelStateValidationFilter]
 		[ServiceFilter(typeof(AppTransactionFilter))]
@@ -251,13 +251,13 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
 		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
 		public async Task<Guid> FutureProfile(
-			[FromRoute]
-			[SwaggerParameter(description: "The id of the dataset to future profile", Required = true)]
-			Guid id)
+			[FromBody]
+			[SwaggerRequestBody(description: "The profile to apply", Required = true)]
+			App.Model.DatasetProfiling model)
 		{
-			this._logger.Debug(new MapLogEntry("future profiling").And("id", id));
+			this._logger.Debug(new MapLogEntry("future profiling").And("model", model));
 
-			Guid idProfiled = await this._datasetService.FutureProfileAsync(id);
+			Guid idProfiled = await this._datasetService.FutureProfileAsync(model);
 
 			this._accountingService.AccountFor(KnownActions.Profile, KnownResources.Dataset.AsAccountable());
 			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.Workflow.AsAccountable());

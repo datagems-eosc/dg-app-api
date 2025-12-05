@@ -301,15 +301,15 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 			return viewModel.Id.Value;
 		}
 
-		public async Task<Guid> FutureProfileAsync(Guid id)
+		public async Task<Guid> FutureProfileAsync(App.Model.DatasetProfiling viewModel)
 		{
-			this._logger.Debug(new MapLogEntry("future profiling").And("id", id));
+			this._logger.Debug(new MapLogEntry("future profiling").And("model", viewModel));
 
 			await this.AuthorizeProfileForce();
 			await this.AuthorizeExecuteProfilingWorkflowForce();
 
-			List<Dataset> datas = await this._queryFactory.Query<DatasetHttpQuery>().Ids(id).CollectAsync();
-			if (datas == null || datas.Count == 0) throw new DGNotFoundException(this._localizer["general_notFound", id, nameof(App.Model.Dataset)]);
+			List<Dataset> datas = await this._queryFactory.Query<DatasetHttpQuery>().Ids(viewModel.Id.Value).CollectAsync();
+			if (datas == null || datas.Count == 0) throw new DGNotFoundException(this._localizer["general_notFound", viewModel.Id.Value, nameof(App.Model.Dataset)]);
 			if (datas.Count > 1) throw new DGNotFoundException(this._localizer["general_notFound", Common.WorkflowDefinitionKind.DatasetProfilingFuture.ToString(), nameof(App.Model.Dataset)]);
 
 			FieldSet fields = new FieldSet(
@@ -329,10 +329,9 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 				nameof(App.Model.Dataset.Country),
 				nameof(App.Model.Dataset.DatePublished));
 			App.Model.Dataset model = await this._builderFactory.Builder<App.Model.Builder.DatasetBuilder>().Build(fields, datas.First());
+			await this.ExecuteFutureProfilingFlow(model, viewModel.DataStoreKind);
 
-			await this.ExecuteFutureProfilingFlow(model);
-
-			return id;
+			return viewModel.Id.Value;
 		}
 
 		private async Task ExecuteProfilingFlow(App.Model.Dataset model, DataStoreKind? dataStoreKind)
@@ -379,7 +378,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 			});
 		}
 
-		private async Task ExecuteFutureProfilingFlow(App.Model.Dataset model)
+		private async Task ExecuteFutureProfilingFlow(App.Model.Dataset model, DataStoreKind? dataStoreKind)
 		{
 			this._logger.Debug(new MapLogEntry("executing").And("type", nameof(ExecuteFutureProfilingFlow)).And("model", model));
 
@@ -412,7 +411,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 					date_published = model.DatePublished,
 					dataset_file_path = await this._storageService.DirectoryOf(Common.StorageType.Dataset, model.Id.ToString()),
 					userId = await this._authorizationContentResolver.CurrentUserId(),
-					connector = DataStoreKind.FileSystem.ToString(),
+					data_store_kind = dataStoreKind,
 				}
 			}, new FieldSet
 			{

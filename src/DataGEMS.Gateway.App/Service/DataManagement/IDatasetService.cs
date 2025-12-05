@@ -7,7 +7,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 		Task<Guid> OnboardAsync(App.Model.DatasetPersist model, IFieldSet fields = null);
 		Task<Guid> FutureOnboardAsync(App.Model.DatasetPersist model, IFieldSet fields = null);
 		Task<Guid> ProfileAsync(App.Model.DatasetProfiling model);
-		Task<Guid> FutureProfileAsync(Guid id);
+		Task<Guid> FutureProfileAsync(App.Model.DatasetProfiling model);
 		Task<App.Model.Dataset> PersistAsync(App.Model.DatasetPersist model, IFieldSet fields = null);
 		Task DeleteAsync(Guid id);
 
