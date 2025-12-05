@@ -3,6 +3,6 @@
 	public class DataLocation
 	{
 		public DataLocationKind Kind { get; set; }
-		public string Url { get; set; }
+		public string Location { get; set; }
 	}
 }

@@ -212,7 +212,7 @@ namespace DataGEMS.Gateway.App.Service.Storage
 
 		public bool DirectoryExists(StorageType type, string directoryName)
 		{
-			var path = this.DirectoryPath(type, directoryName);
+			string path = this.DirectoryPath(type, directoryName);
 			DirectoryInfo dir = new DirectoryInfo(path);
 			return dir.Exists;
 		}

@@ -30,7 +30,6 @@ namespace DataGEMS.Gateway.App.Model
 		public String ProfileRaw { get; set; }
 		public List<Model.Collection> Collections { get; set; }
 		public List<String> Permissions { get; set; }
-		public DataStoreKind? ConnectorType { get; set; }
 	}
 
 	public class DatasetPersist
@@ -66,15 +65,12 @@ namespace DataGEMS.Gateway.App.Model
 				IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> localizer,
 				ValidatorFactory validatorFactory,
 				ILogger<OnboardValidator> logger,
-				ErrorThesaurus errors,
-				IStorageService storageService) : base(validatorFactory, logger, errors)
+				ErrorThesaurus errors) : base(validatorFactory, logger, errors)
 			{
 				this._localizer = localizer;
-				this._storageService = storageService;
 			}
 
 			private readonly IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> _localizer;
-			private readonly IStorageService _storageService;
 
 			protected override IEnumerable<ISpecification> Specifications(DatasetPersist item)
 			{
@@ -122,11 +118,11 @@ namespace DataGEMS.Gateway.App.Model
 					this.Spec()
 						.Must(() => item.Size.HasValue)
 						.FailOn(nameof(DatasetPersist.Size)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.Size)]),
-					//Url must always be set
+					//Location must always be set
 					this.Spec()
 						.Must(() => !this.IsEmpty(item.Url))
 						.FailOn(nameof(DatasetPersist.Url)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.Url)]),
-					//Url max length
+					//Location max length
 					this.Spec()
 						.If(() => !this.IsEmpty(item.Url))
 						.Must(() => this.LessEqual(item.Url, OnboardValidator.UrlMaxLength))
@@ -175,11 +171,6 @@ namespace DataGEMS.Gateway.App.Model
 						.If(() => item.DataLocations != null && item.DataLocations.Any(x => x.Kind == DataLocationKind.Staged))
 						.Must(() => item.DataLocations.Count() == 1)
 						.FailOn(nameof(DatasetPersist.DataLocations)).FailWith(this._localizer["validation_onlyOneStagedDataStore"]),
-					//if data location is Staged, the directory must exist
-					this.Spec()
-						.If(() => item.DataLocations != null && item.DataLocations.Any(x => x.Kind == DataLocationKind.Staged))
-						.Must(() => item.DataLocations.Where(x => x.Kind == DataLocationKind.Staged).All(x => this._storageService.DirectoryExists(StorageType.DatasetOnboardStaging, x.Url)))
-						.FailOn(nameof(DatasetPersist.DataLocations)).FailWith(this._localizer["validation_stagedDataStoreNotExists"]),
 				};
 			}
 		}
@@ -249,11 +240,11 @@ namespace DataGEMS.Gateway.App.Model
 					this.Spec()
 						.Must(() => item.Size.HasValue)
 						.FailOn(nameof(DatasetPersist.Size)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.Size)]),
-					//Url must always be set
+					//Location must always be set
 					this.Spec()
 						.Must(() => !this.IsEmpty(item.Url))
 						.FailOn(nameof(DatasetPersist.Url)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.Url)]),
-					//Url max length
+					//Location max length
 					this.Spec()
 						.If(() => !this.IsEmpty(item.Url))
 						.Must(() => this.LessEqual(item.Url, OnboardAsDataManagementValidator.UrlMaxLength))
@@ -366,11 +357,11 @@ namespace DataGEMS.Gateway.App.Model
 					this.Spec()
 						.Must(() => item.Size.HasValue)
 						.FailOn(nameof(DatasetPersist.Size)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.Size)]),
-					//Url must always be set
+					//Location must always be set
 					this.Spec()
 						.Must(() => !this.IsEmpty(item.Url))
 						.FailOn(nameof(DatasetPersist.Url)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.Url)]),
-					//Url max length
+					//Location max length
 					this.Spec()
 						.If(() => !this.IsEmpty(item.Url))
 						.Must(() => this.LessEqual(item.Url, PersistValidator.UrlMaxLength))
@@ -439,7 +430,7 @@ namespace DataGEMS.Gateway.App.Model
 					this.Spec()
 						.Must(() => this.IsValidGuid(item.Id))
 						.FailOn(nameof(DatasetProfiling.Id)).FailWith(this._localizer["validation_required", nameof(DatasetProfiling.Id)]),
-					//ConnectorType must always be set
+					//DataStoreKind must always be set
 					this.Spec()
 						.Must(() => item.DataStoreKind.HasValue)
 						.FailOn(nameof(DatasetProfiling.DataStoreKind)).FailWith(this._localizer["validation_required", nameof(DatasetProfiling.DataStoreKind)]),

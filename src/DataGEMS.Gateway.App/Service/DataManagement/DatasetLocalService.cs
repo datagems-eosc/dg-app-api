@@ -127,16 +127,13 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 			model.Id = Guid.NewGuid();
 			if (model.DataLocations != null && model.DataLocations.Any(x => x.Kind == Common.DataLocationKind.Staged))
 			{
-				string normalized = Path.GetFullPath(model.DataLocations.FirstOrDefault(x => x.Kind == Common.DataLocationKind.Staged).Url)
-					.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-				string lastDirectory = Path.GetFileName(normalized);
-				model.Id = Guid.Parse(lastDirectory);
+				model.Id = Guid.Parse(model.DataLocations.FirstOrDefault(x => x.Kind == Common.DataLocationKind.Staged).Location);
 			}
 
 			foreach (Common.DataLocation location in model.DataLocations.Where(x => x.Kind == Common.DataLocationKind.File))
 			{
-				String stagedPath = await this._storageService.MoveToStorage(location.Url, Common.StorageType.DatasetOnboardStaging, model.Id.ToString());
-				location.Url = stagedPath;
+				String stagedPath = await this._storageService.MoveToStorage(location.Location, Common.StorageType.DatasetOnboardStaging, model.Id.ToString());
+				location.Location = stagedPath;
 			}
 
 			await this.ExecuteOnboardingFlow(model);
@@ -158,8 +155,8 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 
 			foreach (Common.DataLocation location in model.DataLocations.Where(x => x.Kind == Common.DataLocationKind.File))
 			{
-				String stagedPath = await this._storageService.MoveToStorage(location.Url, Common.StorageType.DatasetOnboardStaging, model.Id.ToString());
-				location.Url = stagedPath;
+				String stagedPath = await this._storageService.MoveToStorage(location.Location, Common.StorageType.DatasetOnboardStaging, model.Id.ToString());
+				location.Location = stagedPath;
 			}
 
 			await this.ExecuteFutureOnboardingFlow(model);
@@ -203,7 +200,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 					dataLocations = this._jsonHandlingService.ToJsonSafe(model.DataLocations.Select(x => new
 					{
 						kind = x.Kind,
-						url = x.Url,
+						url = x.Location,
 					})),
 					version = model.Version,
 					mime_type = model.MimeType,
@@ -248,7 +245,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 					dataLocations = this._jsonHandlingService.ToJsonSafe(model.DataLocations.Select(x => new
 					{
 						kind = x.Kind,
-						url = x.Url,
+						url = x.Location,
 					})),
 					version = model.Version,
 					mime_type = model.MimeType,
@@ -299,8 +296,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 				nameof(App.Model.Dataset.Country),
 				nameof(App.Model.Dataset.DatePublished));
 			App.Model.Dataset model = await this._builderFactory.Builder<App.Model.Builder.DatasetBuilder>().Build(fields, data.ToModel());
-			model.ConnectorType = viewModel.DataStoreKind;
-			await this.ExecuteProfilingFlow(model);
+			await this.ExecuteProfilingFlow(model, viewModel.DataStoreKind);
 
 			return viewModel.Id.Value;
 		}
@@ -339,7 +335,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 			return id;
 		}
 
-		private async Task ExecuteProfilingFlow(App.Model.Dataset model)
+		private async Task ExecuteProfilingFlow(App.Model.Dataset model, DataStoreKind? dataStoreKind)
 		{
 			this._logger.Debug(new MapLogEntry("executing").And("type", nameof(ExecuteProfilingFlow)).And("model", model));
 
@@ -372,7 +368,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 					date_published = model.DatePublished,
 					dataset_file_path = await this._storageService.DirectoryOf(Common.StorageType.Dataset, model.Id.ToString()),
 					userId = await this._authorizationContentResolver.CurrentUserId(),
-					connector = model.ConnectorType.ToString(),
+					data_store_kind = dataStoreKind,
 				}
 			}, new FieldSet
 			{
@@ -416,7 +412,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 					date_published = model.DatePublished,
 					dataset_file_path = await this._storageService.DirectoryOf(Common.StorageType.Dataset, model.Id.ToString()),
 					userId = await this._authorizationContentResolver.CurrentUserId(),
-					connector = DataStoreKind.RawDataPath.ToString(),
+					connector = DataStoreKind.FileSystem.ToString(),
 				}
 			}, new FieldSet
 			{
