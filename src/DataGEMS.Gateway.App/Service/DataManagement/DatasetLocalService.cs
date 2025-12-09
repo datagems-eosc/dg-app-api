@@ -200,7 +200,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 					dataLocations = this._jsonHandlingService.ToJsonSafe(model.DataLocations.Select(x => new
 					{
 						kind = x.Kind,
-						url = x.Location,
+						location = x.Location,
 					})),
 					version = model.Version,
 					mime_type = model.MimeType,
@@ -245,7 +245,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 					dataLocations = this._jsonHandlingService.ToJsonSafe(model.DataLocations.Select(x => new
 					{
 						kind = x.Kind,
-						url = x.Location,
+						location = x.Location,
 					})),
 					version = model.Version,
 					mime_type = model.MimeType,
