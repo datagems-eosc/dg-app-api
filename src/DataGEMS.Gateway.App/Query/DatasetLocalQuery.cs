@@ -1,12 +1,15 @@
 ﻿using Cite.Tools.Common.Extensions;
+using Cite.Tools.Data.Query;
 using DataGEMS.Gateway.App.Authorization;
 using DataGEMS.Gateway.App.Common;
+using DataGEMS.Gateway.App.Common.Auth;
 using DataGEMS.Gateway.App.Service.DataManagement;
+using DataGEMS.Gateway.App.Service.DataManagement.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataGEMS.Gateway.App.Query
 {
-    public class DatasetLocalQuery : Cite.Tools.Data.Query.Query<Service.DataManagement.Data.Dataset>
+	public class DatasetLocalQuery : ExtendedQuery<Service.DataManagement.Data.Dataset>
 	{
 		private List<Guid> _ids { get; set; }
 		private List<Guid> _excludedIds { get; set; }
@@ -17,16 +20,23 @@ namespace DataGEMS.Gateway.App.Query
 		private RangeOf<DateOnly?> _publishedRange { get; set; }
 		private RangeOf<long?> _sizeRange { get; set; }
 		private String _mimeType { get; set; }
+		private List<string> _roles { get; set; }
+		private string _subject { get; set; }
 		private AuthorizationFlags _authorize { get; set; } = AuthorizationFlags.None;
 
 		public DatasetLocalQuery(
 			Service.DataManagement.Data.DataManagementDbContext dbContext,
-			IAuthorizationContentResolver authorizationContentResolver)
+			IAuthorizationContentResolver authorizationContentResolver,
+			ContextGrantQuery contextGrantQurer,
+			QueryFactory queryFactory)
 		{
+
 			this._dbContext = dbContext;
 			this._authorizationContentResolver = authorizationContentResolver;
+			this._queryFactory = queryFactory;
 		}
 
+		private readonly QueryFactory _queryFactory;
 		private readonly Service.DataManagement.Data.DataManagementDbContext _dbContext;
 		private readonly IAuthorizationContentResolver _authorizationContentResolver;
 
@@ -48,10 +58,13 @@ namespace DataGEMS.Gateway.App.Query
 		public DatasetLocalQuery DisableTracking() { base.NoTracking = true; return this; }
 		public DatasetLocalQuery AsDistinct() { base.Distinct = true; return this; }
 		public DatasetLocalQuery AsNotDistinct() { base.Distinct = false; return this; }
+		public DatasetLocalQuery Roles(IEnumerable<String> roles) { this._roles = roles?.ToList(); return this; }
+		public DatasetLocalQuery Roles(String role) { this._roles = role.AsList(); return this; }
+		public DatasetLocalQuery Subject(String subject) { this._subject = subject; return this; }
 
 		protected override bool IsFalseQuery()
 		{
-			return this.IsEmpty(this._ids) || this.IsEmpty(this._excludedIds) || this.IsEmpty(this._collectionIds) || this.IsEmpty(this._fieldsOfScience);
+			return this.IsEmpty(this._ids) || this.IsEmpty(this._excludedIds) || this.IsEmpty(this._collectionIds) || this.IsEmpty(this._fieldsOfScience) || this.IsEmpty(this._roles);
 		}
 
 		public async Task<Service.DataManagement.Data.Dataset> Find(Guid id, Boolean tracked = true)
@@ -123,7 +136,7 @@ namespace DataGEMS.Gateway.App.Query
 				}
 			}
 			if (this._collectionIds != null) query = query.Where(x => x.Collections.Any(y => this._collectionIds.Contains(y.CollectionId)));
-
+			
 			return Task.FromResult(query);
 		}
 
@@ -182,6 +195,36 @@ namespace DataGEMS.Gateway.App.Query
 			Service.DataManagement.Data.Dataset datas = await this.FirstAsync();
 			Service.DataManagement.Model.Dataset models = datas.ToModel();
 			return models;
+		}
+
+		protected override bool RequiresInMemoryFiltering()
+			=> this._subject != null || this._roles != null;
+
+		protected override bool RequiresInMemoryOrdering() => false;
+
+		protected override string[] ProjectionEnsureInMemoryProcessing()
+		{
+			HashSet<string> ensure = [];
+			if (this._subject != null || this._roles != null)
+			{
+				ensure.Add(nameof(Dataset.Id));
+			}
+			return ensure.ToArray();
+		}
+
+		protected override async Task<List<Dataset>> FilterAsync(List<Dataset> items)
+		{
+			List<Dataset> data = items;
+
+			if (this._subject != null || this._roles != null)
+			{
+				ContextGrantQuery query = this._queryFactory.Query<ContextGrantQuery>();
+				if (this._subject != null) query = query.Subject(this._subject);
+				if (this._roles != null) query = query.Roles(this._roles);
+				HashSet<ContextGrant> contextGrants = (await query.CollectAsync()).ToHashSet();
+				data = data.Where(x => contextGrants.Any(y => y.TargetId == x.Id)).ToList();
+			}
+			return data;
 		}
 	}
 }
