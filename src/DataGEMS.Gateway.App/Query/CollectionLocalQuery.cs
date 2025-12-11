@@ -1,21 +1,25 @@
 ﻿using Cite.Tools.Common.Extensions;
 using Cite.Tools.Data.Query;
 using DataGEMS.Gateway.App.Authorization;
+using DataGEMS.Gateway.App.Common.Auth;
 using DataGEMS.Gateway.App.Service.DataManagement;
+using DataGEMS.Gateway.App.Service.DataManagement.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataGEMS.Gateway.App.Query
 {
-    public class CollectionLocalQuery : Cite.Tools.Data.Query.Query<App.Service.DataManagement.Data.Collection>
+	public class CollectionLocalQuery : ExtendedQuery<App.Service.DataManagement.Data.Collection>
 	{
 		private List<Guid> _ids { get; set; }
 		private List<Guid> _excludedIds { get; set; }
 		private List<Guid> _datasetIds { get; set; }
 		private String _like { get; set; }
+		private List<string> _roles { get; set; }
+		private string _subject { get; set; }
 		private AuthorizationFlags _authorize { get; set; } = AuthorizationFlags.None;
 
 		public CollectionLocalQuery(
-		    App.Service.DataManagement.Data.DataManagementDbContext dbContext,
+			App.Service.DataManagement.Data.DataManagementDbContext dbContext,
 			QueryFactory queryFactory,
 			IAuthorizationContentResolver authorizationContentResolver)
 		{
@@ -40,6 +44,9 @@ namespace DataGEMS.Gateway.App.Query
 		public CollectionLocalQuery DisableTracking() { base.NoTracking = true; return this; }
 		public CollectionLocalQuery AsDistinct() { base.Distinct = true; return this; }
 		public CollectionLocalQuery AsNotDistinct() { base.Distinct = false; return this; }
+		public CollectionLocalQuery Roles(IEnumerable<String> roles) { this._roles = roles?.ToList(); return this; }
+		public CollectionLocalQuery Roles(String role) { this._roles = role.AsList(); return this; }
+		public CollectionLocalQuery Subject(String subject) { this._subject = subject; return this; }
 
 		protected override bool IsFalseQuery()
 		{
@@ -141,6 +148,34 @@ namespace DataGEMS.Gateway.App.Query
 			App.Service.DataManagement.Data.Collection datas = await this.FirstAsync();
 			Service.DataManagement.Model.Collection models = datas.ToModel();
 			return models;
+		}
+
+		protected override bool RequiresInMemoryFiltering() => this._subject != null || this._roles != null;
+
+		protected override bool RequiresInMemoryOrdering() => false;
+
+		protected override string[] ProjectionEnsureInMemoryProcessing()
+		{
+			HashSet<string> ensure = [];
+			if (this._subject != null || this._roles != null)
+			{
+				ensure.Add(nameof(Dataset.Id));
+			}
+			return ensure.ToArray();
+		}
+
+		protected override async Task<List<Collection>> FilterAsync(List<Collection> items)
+		{
+			List<Collection> data = items;
+			if (this._subject != null || this._roles != null)
+			{
+				ContextGrantQuery query = this._queryFactory.Query<ContextGrantQuery>();
+				if (this._subject != null) query = query.Subject(this._subject);
+				if (this._roles != null) query = query.Roles(this._roles);
+				HashSet<ContextGrant> contextGrants = (await query.CollectAsync()).ToHashSet();
+				data = data.Where(x => contextGrants.Any(y => y.TargetId == x.Id)).ToList();
+			}
+			return data;
 		}
 	}
 }
