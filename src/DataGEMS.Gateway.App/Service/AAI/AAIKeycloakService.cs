@@ -313,7 +313,7 @@ namespace DataGEMS.Gateway.App.Service.AAI
 			await this.SendRequest(removeRoleHttpRequest);
 		}
 
-		private List<ContextGrant> ConvertToContextGrant(String principalId, Model.Group princialGroup, Model.Group targetGroup)
+		private List<ContextGrant> ConvertToContextGrant(String principalId, Model.Group principalGroup, Model.Group targetGroup)
 		{
 			if (!Guid.TryParse(targetGroup.Name, out Guid targetId)) return null;
 
@@ -323,8 +323,8 @@ namespace DataGEMS.Gateway.App.Service.AAI
 				targetGroup.Attributes[this._config.ContextGrantTypeAttributeName].Count == 0) return null;
 
 			ContextGrant.PrincipalKind principalType;
-			if (princialGroup.Attributes[this._config.ContextGrantTypeAttributeName].Any(x => x.Equals(this._config.ContextGrantTypeUserAttributeValue, StringComparison.OrdinalIgnoreCase))) principalType = ContextGrant.PrincipalKind.User;
-			else if (princialGroup.Attributes[this._config.ContextGrantTypeAttributeName].Any(x => x.Equals(this._config.ContextGrantTypeGroupAttributeValue, StringComparison.OrdinalIgnoreCase))) principalType = ContextGrant.PrincipalKind.Group;
+			if (principalGroup.Attributes[this._config.ContextGrantTypeAttributeName].Any(x => x.Equals(this._config.ContextGrantTypeUserAttributeValue, StringComparison.OrdinalIgnoreCase))) principalType = ContextGrant.PrincipalKind.User;
+			else if (principalGroup.Attributes[this._config.ContextGrantTypeAttributeName].Any(x => x.Equals(this._config.ContextGrantTypeGroupAttributeValue, StringComparison.OrdinalIgnoreCase))) principalType = ContextGrant.PrincipalKind.Group;
 			else return null;
 
 			ContextGrant.TargetKind targetType;
@@ -334,13 +334,20 @@ namespace DataGEMS.Gateway.App.Service.AAI
 
 			if (targetGroup.RealmRoles == null || targetGroup.RealmRoles.Count == 0) return null;
 
+			List<string> semantics = null;
+			if (principalGroup.Attributes.ContainsKey(this._config.ContextSemanticsAttributeName) && principalGroup.Attributes[this._config.ContextSemanticsAttributeName] != null && principalGroup.Attributes[this._config.ContextSemanticsAttributeName].Count > 0)
+			{
+				semantics = principalGroup.Attributes[this._config.ContextSemanticsAttributeName];
+			}
+
 			List<ContextGrant> targetGrants = targetGroup.RealmRoles.Select(x => new ContextGrant()
 			{
 				PrincipalId = principalId,
 				PrincipalType = principalType,
 				TargetType = targetType,
 				TargetId = targetId,
-				Role = x
+				Role = x,
+				Semantics = semantics,
 			}).ToList();
 			return targetGrants;
 		}

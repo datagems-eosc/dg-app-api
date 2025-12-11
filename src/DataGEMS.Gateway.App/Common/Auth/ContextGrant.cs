@@ -10,6 +10,7 @@ namespace DataGEMS.Gateway.App.Common.Auth
 		public TargetKind TargetType { get; set; }
 		public Guid TargetId { get; set; }
 		public String Role { get; set; }
+		public List<string> Semantics { get; set; }
 
 		public enum PrincipalKind : short
 		{
