@@ -89,7 +89,7 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 						.FailOn(nameof(DatasetLookup.ContextRoles)).FailWith(this._localizer["validation_setButEmpty", nameof(DatasetLookup.ContextRoles)]),
 					//contextRoleSubjectId must be set only if ContextRoles is set
 					this.Spec()
-						.If(() => item.ContextRoles != null || item.ContextRoles.Count == 0)
+						.If(() => item.ContextRoles == null || item.ContextRoles.Count == 0)
 						.Must(() => String.IsNullOrEmpty(item.ContextRoleSubjectId))
 						.FailOn(nameof(DatasetLookup.ContextRoleSubjectId)).FailWith(this._localizer["validation_overPosting"]),
 					//paging without ordering not supported
