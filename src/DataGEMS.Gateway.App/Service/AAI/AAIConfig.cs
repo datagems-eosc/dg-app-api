@@ -7,7 +7,6 @@ namespace DataGEMS.Gateway.App.Service.AAI
 		public String BaseUrl { get; set; }
 		public String ContextGrantGroupPrefix { get; set; }
 		public String ContextGrantTypeAttributeName { get; set; }
-		public String ContextSemanticsAttributeName { get; set; }
 		public String ContextGrantTypeDatasetAttributeValue { get; set; }
 		public String ContextGrantTypeCollectionAttributeValue { get; set; }
 		public String ContextGrantTypeUserAttributeValue { get; set; }

@@ -5,7 +5,6 @@
 			"BaseUrl": "%{AAIBaseUrl}%",
 			"ContextGrantGroupPrefix": "ctx-grant",
 			"ContextGrantTypeAttributeName": "target-type",
-			"ContextSemanticsAttributeName": "semantics",
 			"ContextGrantTypeDatasetAttributeValue": "ds",
 			"ContextGrantTypeCollectionAttributeValue": "col",
 			"ContextGrantTypeUserAttributeValue": "usr",
