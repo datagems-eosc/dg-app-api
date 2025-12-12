@@ -1,5 +1,4 @@
 ﻿using Cite.Tools.Data.Query;
-using Cite.Tools.Exception;
 using Cite.Tools.FieldSet;
 using DataGEMS.Gateway.App.Exception;
 using System.Linq.Expressions;
@@ -75,25 +74,25 @@ namespace DataGEMS.Gateway.App.Query
 
 		public override async Task<List<R>> CollectAsync<R>(Expression<Func<T, R>> projection)
 		{
-			if (this.RequiresInMemoryProcessing()) throw new MyApplicationException("Invalid use of filters");
+			if (this.RequiresInMemoryProcessing()) throw new DGApplicationException("Invalid use of filters");
 			return await base.CollectAsync(projection);
 		}
 
 		public override async Task<R> FirstAsync<R>(Expression<Func<T, R>> projection)
 		{
-			if (this.RequiresInMemoryProcessing()) throw new MyApplicationException("Invalid use of filters");
+			if (this.RequiresInMemoryProcessing()) throw new DGApplicationException("Invalid use of filters");
 			return await base.FirstAsync(projection);
 		}
 
 		public override async Task<R> MaxAsync<R>(Expression<Func<T, R>> projection)
 		{
-			if (this.RequiresInMemoryProcessing()) throw new MyApplicationException("Invalid use of filters");
+			if (this.RequiresInMemoryProcessing()) throw new DGApplicationException("Invalid use of filters");
 			return await base.MaxAsync(projection);
 		}
 
 		public override async Task<R> MinAsync<R>(Expression<Func<T, R>> projection)
 		{
-			if (this.RequiresInMemoryProcessing()) throw new MyApplicationException("Invalid use of filters");
+			if (this.RequiresInMemoryProcessing()) throw new DGApplicationException("Invalid use of filters");
 			return await base.MinAsync(projection);
 		}
 

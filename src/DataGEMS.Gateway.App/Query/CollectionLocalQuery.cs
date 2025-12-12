@@ -1,7 +1,5 @@
 ﻿using Cite.Tools.Common.Extensions;
-using Cite.Tools.Data.Query;
 using DataGEMS.Gateway.App.Authorization;
-using DataGEMS.Gateway.App.Common.Auth;
 using DataGEMS.Gateway.App.Service.DataManagement;
 using DataGEMS.Gateway.App.Service.DataManagement.Data;
 using Microsoft.EntityFrameworkCore;
@@ -14,13 +12,13 @@ namespace DataGEMS.Gateway.App.Query
 		private List<Guid> _excludedIds { get; set; }
 		private List<Guid> _datasetIds { get; set; }
 		private String _like { get; set; }
-		private List<string> _roles { get; set; }
-		private string _subject { get; set; }
+		private List<String> _contextRolesInMemory { get; set; }
+		private String _contextRoleSubjectIdInMemory { get; set; }
 		private AuthorizationFlags _authorize { get; set; } = AuthorizationFlags.None;
 
 		public CollectionLocalQuery(
 			App.Service.DataManagement.Data.DataManagementDbContext dbContext,
-			QueryFactory queryFactory,
+			Cite.Tools.Data.Query.QueryFactory queryFactory,
 			IAuthorizationContentResolver authorizationContentResolver)
 		{
 			this._dbContext = dbContext;
@@ -29,7 +27,7 @@ namespace DataGEMS.Gateway.App.Query
 		}
 
 		private readonly App.Service.DataManagement.Data.DataManagementDbContext _dbContext;
-		private readonly QueryFactory _queryFactory;
+		private readonly Cite.Tools.Data.Query.QueryFactory _queryFactory;
 		private readonly IAuthorizationContentResolver _authorizationContentResolver;
 
 		public CollectionLocalQuery Ids(IEnumerable<Guid> ids) { this._ids = ids?.ToList(); return this; }
@@ -44,13 +42,27 @@ namespace DataGEMS.Gateway.App.Query
 		public CollectionLocalQuery DisableTracking() { base.NoTracking = true; return this; }
 		public CollectionLocalQuery AsDistinct() { base.Distinct = true; return this; }
 		public CollectionLocalQuery AsNotDistinct() { base.Distinct = false; return this; }
-		public CollectionLocalQuery Roles(IEnumerable<String> roles) { this._roles = roles?.ToList(); return this; }
-		public CollectionLocalQuery Roles(String role) { this._roles = role.AsList(); return this; }
-		public CollectionLocalQuery Subject(String subject) { this._subject = subject; return this; }
+		public CollectionLocalQuery ContextRolesInMemory(IEnumerable<String> contextRoles) { this._contextRolesInMemory = contextRoles?.ToList(); return this; }
+		public CollectionLocalQuery ContextRolesInMemory(String contextRole) { this._contextRolesInMemory = contextRole.AsList(); return this; }
+		public CollectionLocalQuery ContextRoleSubjectIdInMemory(String subjectId) { this._contextRoleSubjectIdInMemory = subjectId; return this; }
 
 		protected override bool IsFalseQuery()
 		{
-			return this.IsEmpty(this._ids) || this.IsEmpty(this._excludedIds) || this.IsEmpty(this._datasetIds);
+			return this.IsEmpty(this._ids) || this.IsEmpty(this._excludedIds) || this.IsEmpty(this._datasetIds) || this.IsEmpty(this._contextRolesInMemory);
+		}
+
+		protected override bool RequiresInMemoryFiltering()
+		{
+			return this._contextRolesInMemory != null && this._contextRolesInMemory.Count > 0;
+		}
+
+		protected override bool RequiresInMemoryOrdering() { return false; }
+
+		protected override string[] ProjectionEnsureInMemoryProcessing()
+		{
+			HashSet<string> ensure = [];
+			if (this._contextRolesInMemory != null) ensure.Add(nameof(Collection.Id));
+			return ensure.ToArray();
 		}
 
 		public async Task<App.Service.DataManagement.Data.Collection> Find(Guid id, Boolean tracked = true)
@@ -95,6 +107,34 @@ namespace DataGEMS.Gateway.App.Query
 			if (!String.IsNullOrEmpty(this._like)) query = query.Where(x => EF.Functions.ILike(x.Name, this._like));
 
 			return Task.FromResult(query);
+		}
+
+		protected override async Task<List<Collection>> FilterAsync(List<Collection> items)
+		{
+			List<Collection> data = items;
+
+			if (this._contextRolesInMemory != null)
+			{
+				String contextRoleSubjectId = this._contextRoleSubjectIdInMemory;
+				if (String.IsNullOrEmpty(this._contextRoleSubjectIdInMemory)) contextRoleSubjectId = await this._authorizationContentResolver.SubjectIdOfCurrentUser();
+
+				if (String.IsNullOrEmpty(contextRoleSubjectId)) data = new List<Collection>();
+				else
+				{
+					HashSet<Guid> collectionIds = (await this._queryFactory.Query<ContextGrantQuery>()
+						.Subject(this._contextRoleSubjectIdInMemory)
+						.Roles(this._contextRolesInMemory)
+						.TargetKinds(Common.Auth.ContextGrant.TargetKind.Collection)
+						.CollectAsync()).Select(x => x.TargetId).ToHashSet();
+					data = data.Where(x => collectionIds.Contains(x.Id)).ToList();
+				}
+			}
+			return data;
+		}
+
+		protected override async Task<List<Collection>> OrderAsync(List<Collection> items)
+		{
+			return await base.OrderAsync(items);
 		}
 
 		protected override IOrderedQueryable<App.Service.DataManagement.Data.Collection> OrderClause(IQueryable<App.Service.DataManagement.Data.Collection> query, Cite.Tools.Data.Query.OrderingFieldResolver item)
@@ -148,34 +188,6 @@ namespace DataGEMS.Gateway.App.Query
 			App.Service.DataManagement.Data.Collection datas = await this.FirstAsync();
 			Service.DataManagement.Model.Collection models = datas.ToModel();
 			return models;
-		}
-
-		protected override bool RequiresInMemoryFiltering() => this._subject != null || this._roles != null;
-
-		protected override bool RequiresInMemoryOrdering() => false;
-
-		protected override string[] ProjectionEnsureInMemoryProcessing()
-		{
-			HashSet<string> ensure = [];
-			if (this._subject != null || this._roles != null)
-			{
-				ensure.Add(nameof(Dataset.Id));
-			}
-			return ensure.ToArray();
-		}
-
-		protected override async Task<List<Collection>> FilterAsync(List<Collection> items)
-		{
-			List<Collection> data = items;
-			if (this._subject != null || this._roles != null)
-			{
-				ContextGrantQuery query = this._queryFactory.Query<ContextGrantQuery>();
-				if (this._subject != null) query = query.Subject(this._subject);
-				if (this._roles != null) query = query.Roles(this._roles);
-				HashSet<ContextGrant> contextGrants = (await query.CollectAsync()).ToHashSet();
-				data = data.Where(x => contextGrants.Any(y => y.TargetId == x.Id)).ToList();
-			}
-			return data;
 		}
 	}
 }

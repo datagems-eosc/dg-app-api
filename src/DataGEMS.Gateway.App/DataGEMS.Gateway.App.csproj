@@ -16,7 +16,6 @@
     <PackageReference Include="Cite.Tools.Data.Deleter" Version="8.0.0" />
     <PackageReference Include="Cite.Tools.Data.Query" Version="8.0.0" />
     <PackageReference Include="Cite.Tools.DI" Version="8.0.0" />
-    <PackageReference Include="Cite.Tools.Exception" Version="1.1.0" />
     <PackageReference Include="Cite.Tools.FieldSet" Version="8.0.0" />
     <PackageReference Include="Cite.Tools.Json" Version="8.0.0" />
     <PackageReference Include="Cite.Tools.Logging" Version="8.0.0" />

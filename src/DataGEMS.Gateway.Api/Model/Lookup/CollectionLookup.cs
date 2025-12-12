@@ -19,6 +19,10 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 		public List<Guid> DatasetIds { get; set; }
 		[SwaggerSchema(description: "Limit lookup to items whose name matches the pattern")]
 		public String Like { get; set; }
+		[SwaggerSchema(description: "Limit lookup to items that the provided user has explicit access kind. If set, the list of values must not be empty")]
+		public List<String> ContextRoles { get; set; }
+		[SwaggerSchema(description: "Limit lookup to items that the provided user has explicit access kind. This should only be set in combination with ContextRoles. If left empty, the current user is used")]
+		public String ContextRoleSubjectId { get; set; }
 
 		public CollectionLocalQuery Enrich(QueryFactory factory)
 		{
@@ -28,6 +32,8 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 			if (this.ExcludedIds != null) query.ExcludedIds(this.ExcludedIds);
 			if (this.DatasetIds != null) query.DatasetIds(this.DatasetIds);
 			if (!String.IsNullOrEmpty(this.Like)) query.Like(this.Like);
+			if (this.ContextRoles != null) query.ContextRolesInMemory(this.ContextRoles);
+			if (!String.IsNullOrEmpty(this.ContextRoleSubjectId)) query.ContextRoleSubjectIdInMemory(this.ContextRoleSubjectId);
 
 			this.EnrichCommon(query);
 
@@ -62,6 +68,15 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 					this.Spec()
 						.Must(() => !item.DatasetIds.IsNotNullButEmpty())
 						.FailOn(nameof(CollectionLookup.DatasetIds)).FailWith(this._localizer["validation_setButEmpty", nameof(CollectionLookup.DatasetIds)]),
+					//contextRoles must be null or not empty
+					this.Spec()
+						.Must(() => !item.ContextRoles.IsNotNullButEmpty())
+						.FailOn(nameof(CollectionLookup.ContextRoles)).FailWith(this._localizer["validation_setButEmpty", nameof(CollectionLookup.ContextRoles)]),
+					//contextRoleSubjectId must be set only if ContextRoles is set
+					this.Spec()
+						.If(() => item.ContextRoles != null || item.ContextRoles.Count == 0)
+						.Must(() => String.IsNullOrEmpty(item.ContextRoleSubjectId))
+						.FailOn(nameof(CollectionLookup.ContextRoleSubjectId)).FailWith(this._localizer["validation_overPosting"]),
 					//paging without ordering not supported
 					this.Spec()
 						.If(()=> item.Page != null && !item.Page.IsEmpty)

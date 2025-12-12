@@ -14,6 +14,7 @@ namespace DataGEMS.Gateway.App.Query
 		private List<Guid> _collectionIds { get; set; }
 		private List<String> _roles { get; set; }
 		private String _subjectId { get; set; }
+		private List<ContextGrant.TargetKind> _targetKinds { get; set; }
 
 		public Paging Page { get; set; }
 		public Ordering Order { get; set; }
@@ -39,10 +40,12 @@ namespace DataGEMS.Gateway.App.Query
 		public ContextGrantQuery Roles(IEnumerable<String> roles) { this._roles = roles?.ToList(); return this; }
 		public ContextGrantQuery Roles(String role) { this._roles = role.AsList(); return this; }
 		public ContextGrantQuery Subject(String subjectId) { this._subjectId = subjectId; return this; }
+		public ContextGrantQuery TargetKinds(IEnumerable<ContextGrant.TargetKind> targetKinds) { this._targetKinds = targetKinds?.ToList(); return this; }
+		public ContextGrantQuery TargetKinds(ContextGrant.TargetKind targetKind) { this._targetKinds = targetKind.AsList(); return this; }
 
 		protected bool IsFalseQuery()
 		{
-			return this._datasetIds.IsNotNullButEmpty() || this._collectionIds.IsNotNullButEmpty() || this._roles.IsNotNullButEmpty();
+			return this._datasetIds.IsNotNullButEmpty() || this._collectionIds.IsNotNullButEmpty() || this._roles.IsNotNullButEmpty() || this._targetKinds.IsNotNullButEmpty() || String.IsNullOrEmpty(this._subjectId);
 		}
 
 		public async Task<List<App.Common.Auth.ContextGrant>> CollectAsync()
@@ -62,6 +65,7 @@ namespace DataGEMS.Gateway.App.Query
 
 			if (this._datasetIds != null) grants = grants.Where(x => x.TargetType == ContextGrant.TargetKind.Dataset && this._datasetIds.Contains(x.TargetId)).ToList();
 			if (this._collectionIds != null) grants = grants.Where(x => x.TargetType == ContextGrant.TargetKind.Collection && this._collectionIds.Contains(x.TargetId)).ToList();
+			if (this._targetKinds != null) grants = grants.Where(x => this._targetKinds.Contains(x.TargetType)).ToList();
 			if (this._roles != null)
 			{
 				HashSet<string> rolesToUse = this._roles.Select(x => x.ToLowerInvariant()).ToHashSet();

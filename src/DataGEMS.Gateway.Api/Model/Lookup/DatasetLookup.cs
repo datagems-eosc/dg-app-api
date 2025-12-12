@@ -29,6 +29,10 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 		public RangeOf<DateOnly?> PublishedRange { get; set; }
 		[SwaggerSchema(description: "Limit lookup to items whose size is within the provided bounds. Any of the bounds can be left unset")]
 		public RangeOf<long?> SizeRange { get; set; }
+		[SwaggerSchema(description: "Limit lookup to items that the provided user has explicit access kind. If set, the list of values must not be empty")]
+		public List<String> ContextRoles { get; set; }
+		[SwaggerSchema(description: "Limit lookup to items that the provided user has explicit access kind. This should only be set in combination with ContextRoles. If left empty, the current user is used")]
+		public String ContextRoleSubjectId { get; set; }
 
 		public DatasetLocalQuery Enrich(QueryFactory factory)
 		{
@@ -43,6 +47,8 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 			if (this.FieldsOfScience != null) query.FieldsOfScience(this.FieldsOfScience);
 			if (this.PublishedRange != null) query.PublishedRange(this.PublishedRange);
 			if (this.SizeRange != null) query.SizeRange(this.SizeRange);
+			if (this.ContextRoles != null) query.ContextRolesInMemory(this.ContextRoles);
+			if (!String.IsNullOrEmpty(this.ContextRoleSubjectId)) query.ContextRoleSubjectIdInMemory(this.ContextRoleSubjectId);
 
 			this.EnrichCommon(query);
 
@@ -77,6 +83,15 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 					this.Spec()
 						.Must(() => !item.CollectionIds.IsNotNullButEmpty())
 						.FailOn(nameof(DatasetLookup.CollectionIds)).FailWith(this._localizer["validation_setButEmpty", nameof(DatasetLookup.CollectionIds)]),
+					//contextRoles must be null or not empty
+					this.Spec()
+						.Must(() => !item.ContextRoles.IsNotNullButEmpty())
+						.FailOn(nameof(DatasetLookup.ContextRoles)).FailWith(this._localizer["validation_setButEmpty", nameof(DatasetLookup.ContextRoles)]),
+					//contextRoleSubjectId must be set only if ContextRoles is set
+					this.Spec()
+						.If(() => item.ContextRoles != null || item.ContextRoles.Count == 0)
+						.Must(() => String.IsNullOrEmpty(item.ContextRoleSubjectId))
+						.FailOn(nameof(DatasetLookup.ContextRoleSubjectId)).FailWith(this._localizer["validation_overPosting"]),
 					//paging without ordering not supported
 					this.Spec()
 						.If(()=> item.Page != null && !item.Page.IsEmpty)

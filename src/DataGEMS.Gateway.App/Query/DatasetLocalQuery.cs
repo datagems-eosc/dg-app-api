@@ -1,8 +1,6 @@
 ﻿using Cite.Tools.Common.Extensions;
-using Cite.Tools.Data.Query;
 using DataGEMS.Gateway.App.Authorization;
 using DataGEMS.Gateway.App.Common;
-using DataGEMS.Gateway.App.Common.Auth;
 using DataGEMS.Gateway.App.Service.DataManagement;
 using DataGEMS.Gateway.App.Service.DataManagement.Data;
 using Microsoft.EntityFrameworkCore;
@@ -20,15 +18,14 @@ namespace DataGEMS.Gateway.App.Query
 		private RangeOf<DateOnly?> _publishedRange { get; set; }
 		private RangeOf<long?> _sizeRange { get; set; }
 		private String _mimeType { get; set; }
-		private List<string> _roles { get; set; }
-		private string _subject { get; set; }
+		private List<String> _contextRolesInMemory { get; set; }
+		private String _contextRoleSubjectIdInMemory { get; set; }
 		private AuthorizationFlags _authorize { get; set; } = AuthorizationFlags.None;
 
 		public DatasetLocalQuery(
 			Service.DataManagement.Data.DataManagementDbContext dbContext,
 			IAuthorizationContentResolver authorizationContentResolver,
-			ContextGrantQuery contextGrantQurer,
-			QueryFactory queryFactory)
+			Cite.Tools.Data.Query.QueryFactory queryFactory)
 		{
 
 			this._dbContext = dbContext;
@@ -36,7 +33,7 @@ namespace DataGEMS.Gateway.App.Query
 			this._queryFactory = queryFactory;
 		}
 
-		private readonly QueryFactory _queryFactory;
+		private readonly Cite.Tools.Data.Query.QueryFactory _queryFactory;
 		private readonly Service.DataManagement.Data.DataManagementDbContext _dbContext;
 		private readonly IAuthorizationContentResolver _authorizationContentResolver;
 
@@ -58,13 +55,27 @@ namespace DataGEMS.Gateway.App.Query
 		public DatasetLocalQuery DisableTracking() { base.NoTracking = true; return this; }
 		public DatasetLocalQuery AsDistinct() { base.Distinct = true; return this; }
 		public DatasetLocalQuery AsNotDistinct() { base.Distinct = false; return this; }
-		public DatasetLocalQuery Roles(IEnumerable<String> roles) { this._roles = roles?.ToList(); return this; }
-		public DatasetLocalQuery Roles(String role) { this._roles = role.AsList(); return this; }
-		public DatasetLocalQuery Subject(String subject) { this._subject = subject; return this; }
+		public DatasetLocalQuery ContextRolesInMemory(IEnumerable<String> contextRoles) { this._contextRolesInMemory = contextRoles?.ToList(); return this; }
+		public DatasetLocalQuery ContextRolesInMemory(String contextRole) { this._contextRolesInMemory = contextRole.AsList(); return this; }
+		public DatasetLocalQuery ContextRoleSubjectIdInMemory(String subjectId) { this._contextRoleSubjectIdInMemory = subjectId; return this; }
 
 		protected override bool IsFalseQuery()
 		{
-			return this.IsEmpty(this._ids) || this.IsEmpty(this._excludedIds) || this.IsEmpty(this._collectionIds) || this.IsEmpty(this._fieldsOfScience) || this.IsEmpty(this._roles);
+			return this.IsEmpty(this._ids) || this.IsEmpty(this._excludedIds) || this.IsEmpty(this._collectionIds) || this.IsEmpty(this._fieldsOfScience) || this.IsEmpty(this._contextRolesInMemory);
+		}
+
+		protected override bool RequiresInMemoryFiltering()
+		{
+			return this._contextRolesInMemory != null && this._contextRolesInMemory.Count > 0;
+		}
+
+		protected override bool RequiresInMemoryOrdering() { return false; }
+
+		protected override string[] ProjectionEnsureInMemoryProcessing()
+		{
+			HashSet<string> ensure = [];
+			if (this._contextRolesInMemory != null) ensure.Add(nameof(Dataset.Id));
+			return ensure.ToArray();
 		}
 
 		public async Task<Service.DataManagement.Data.Dataset> Find(Guid id, Boolean tracked = true)
@@ -140,6 +151,35 @@ namespace DataGEMS.Gateway.App.Query
 			return Task.FromResult(query);
 		}
 
+		protected override async Task<List<Dataset>> FilterAsync(List<Dataset> items)
+		{
+			List<Dataset> data = items;
+
+			if (this._contextRolesInMemory != null)
+			{
+				String contextRoleSubjectId = this._contextRoleSubjectIdInMemory;
+				if (String.IsNullOrEmpty(this._contextRoleSubjectIdInMemory)) contextRoleSubjectId = await this._authorizationContentResolver.SubjectIdOfCurrentUser();
+
+				if (String.IsNullOrEmpty(contextRoleSubjectId)) data = new List<Dataset>();
+				else
+				{
+					HashSet<Guid> datasetIds = (await this._queryFactory.Query<ContextGrantQuery>()
+						.Subject(this._contextRoleSubjectIdInMemory)
+						.Roles(this._contextRolesInMemory)
+						.TargetKinds(Common.Auth.ContextGrant.TargetKind.Dataset)
+						.CollectAsync()).Select(x => x.TargetId).ToHashSet();
+					data = data.Where(x => datasetIds.Contains(x.Id)).ToList();
+				}
+
+			}
+			return data;
+		}
+
+		protected override async Task<List<Dataset>> OrderAsync(List<Dataset> items)
+		{
+			return await base.OrderAsync(items);
+		}
+
 		protected override IOrderedQueryable<Service.DataManagement.Data.Dataset> OrderClause(IQueryable<Service.DataManagement.Data.Dataset> query, Cite.Tools.Data.Query.OrderingFieldResolver item)
 		{
 			IOrderedQueryable<Service.DataManagement.Data.Dataset> orderedQuery = null;
@@ -195,36 +235,6 @@ namespace DataGEMS.Gateway.App.Query
 			Service.DataManagement.Data.Dataset datas = await this.FirstAsync();
 			Service.DataManagement.Model.Dataset models = datas.ToModel();
 			return models;
-		}
-
-		protected override bool RequiresInMemoryFiltering()
-			=> this._subject != null || this._roles != null;
-
-		protected override bool RequiresInMemoryOrdering() => false;
-
-		protected override string[] ProjectionEnsureInMemoryProcessing()
-		{
-			HashSet<string> ensure = [];
-			if (this._subject != null || this._roles != null)
-			{
-				ensure.Add(nameof(Dataset.Id));
-			}
-			return ensure.ToArray();
-		}
-
-		protected override async Task<List<Dataset>> FilterAsync(List<Dataset> items)
-		{
-			List<Dataset> data = items;
-
-			if (this._subject != null || this._roles != null)
-			{
-				ContextGrantQuery query = this._queryFactory.Query<ContextGrantQuery>();
-				if (this._subject != null) query = query.Subject(this._subject);
-				if (this._roles != null) query = query.Roles(this._roles);
-				HashSet<ContextGrant> contextGrants = (await query.CollectAsync()).ToHashSet();
-				data = data.Where(x => contextGrants.Any(y => y.TargetId == x.Id)).ToList();
-			}
-			return data;
 		}
 	}
 }

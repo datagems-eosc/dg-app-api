@@ -1,6 +1,7 @@
 ﻿using Cite.Tools.Data.Query;
 using Cite.Tools.Validation;
 using DataGEMS.Gateway.App.Common;
+using DataGEMS.Gateway.App.Common.Auth;
 using DataGEMS.Gateway.App.Common.Validation;
 using DataGEMS.Gateway.App.ErrorCode;
 using DataGEMS.Gateway.App.Query;
@@ -19,6 +20,8 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 		public List<String> Roles { get; set; }
 		[SwaggerSchema(description: "Limit lookup to items granting access to specific subject. If empty, use current user")]
 		public String SubjectId { get; set; }
+		[SwaggerSchema(description: "Limit lookup to items of specific kind. If set, the list of roles must not be empty")]
+		public List<ContextGrant.TargetKind> TargetKinds { get; set; }
 
 		public ContextGrantQuery Enrich(QueryFactory factory)
 		{
@@ -27,6 +30,7 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 			if (this.DatasetIds != null) query.DatasetIds(this.DatasetIds);
 			if (this.CollectionIds != null) query.CollectionIds(this.CollectionIds);
 			if (this.Roles != null) query.Roles(this.Roles);
+			if (this.TargetKinds != null) query.TargetKinds(this.TargetKinds);
 			if (!String.IsNullOrEmpty(this.SubjectId)) query.Subject(this.SubjectId);
 
 			this.EnrichCommon(query);
@@ -65,6 +69,10 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 					this.Spec()
 						.Must(() => !item.Roles.IsNotNullButEmpty())
 						.FailOn(nameof(ContextGrantLookup.Roles)).FailWith(this._localizer["validation_setButEmpty", nameof(ContextGrantLookup.Roles)]),
+					//targetKinds must be null or not empty
+					this.Spec()
+						.Must(() => !item.TargetKinds.IsNotNullButEmpty())
+						.FailOn(nameof(ContextGrantLookup.TargetKinds)).FailWith(this._localizer["validation_setButEmpty", nameof(ContextGrantLookup.TargetKinds)]),
 					//ordering must not be set
 					this.Spec()
 						.Must(() => item.Order == null || item.Order.IsEmpty)
