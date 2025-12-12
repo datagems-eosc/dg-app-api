@@ -164,7 +164,7 @@ namespace DataGEMS.Gateway.App.Query
 				else
 				{
 					HashSet<Guid> datasetIds = (await this._queryFactory.Query<ContextGrantQuery>()
-						.Subject(this._contextRoleSubjectIdInMemory)
+						.Subject(contextRoleSubjectId)
 						.Roles(this._contextRolesInMemory)
 						.TargetKinds(Common.Auth.ContextGrant.TargetKind.Dataset)
 						.CollectAsync()).Select(x => x.TargetId).ToHashSet();
