@@ -59,6 +59,10 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 					this.Spec()
 						.Must(() => !item.ExcludedIds.IsNotNullButEmpty())
 						.FailOn(nameof(UserGroupLookup.ExcludedIds)).FailWith(this._localizer["validation_setButEmpty", nameof(UserGroupLookup.ExcludedIds)]),
+					//semantics must be null or not empty
+					this.Spec()
+						.Must(() => !item.Semantics.IsNotNullButEmpty())
+						.FailOn(nameof(UserGroupLookup.Semantics)).FailWith(this._localizer["validation_setButEmpty", nameof(UserGroupLookup.Semantics)]),
 					//paging not supported
 					this.Spec()
 						.Must(() => item.Page == null || item.Page.IsEmpty)

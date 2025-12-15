@@ -14,7 +14,7 @@ namespace DataGEMS.Gateway.App.Model.Builder
 		private readonly QueryFactory _queryFactory;
 		private readonly BuilderFactory _builderFactory;
 		private readonly IAuthorizationContentResolver _authorizationContentResolver;
-		private readonly DataGEMS.Gateway.App.Service.AAI.AAIConfig _aAIConfig;
+		private readonly DataGEMS.Gateway.App.Service.AAI.AAIConfig _aaiConfig;
 
 		private AuthorizationFlags _authorize { get; set; } = AuthorizationFlags.None;
 
@@ -28,7 +28,7 @@ namespace DataGEMS.Gateway.App.Model.Builder
 			this._queryFactory = queryFactory;
 			this._builderFactory = builderFactory;
 			this._authorizationContentResolver = authorizationContentResolver;
-			this._aAIConfig = aAIConfig;
+			this._aaiConfig = aAIConfig;
 		}
 
 		public UserGroupBuilder Authorize(AuthorizationFlags flags) { this._authorize = flags; return this; }
@@ -46,9 +46,9 @@ namespace DataGEMS.Gateway.App.Model.Builder
 				if (fields.HasField(nameof(UserGroup.Name))) m.Name = d.Name;
 				if (fields.HasField(nameof(UserGroup.Semantics)))
 				{
-					m.Semantics = d.Attributes != null && d.Attributes.ContainsKey(this._aAIConfig.ContextSemanticsAttributeName) ?
-						d.Attributes[this._aAIConfig.ContextSemanticsAttributeName] :
-						default;
+					m.Semantics = d.Attributes != null && d.Attributes.ContainsKey(this._aaiConfig.ContextSemanticsAttributeName) ?
+						d.Attributes[this._aaiConfig.ContextSemanticsAttributeName] :
+						null;
 				}
 
 				models.Add(m);

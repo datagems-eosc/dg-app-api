@@ -10,7 +10,6 @@ using DataGEMS.Gateway.App.Exception;
 using DataGEMS.Gateway.App.LogTracking;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
-using System.Collections.Generic;
 using System.Net.Http.Headers;
 
 namespace DataGEMS.Gateway.App.Query
@@ -66,7 +65,7 @@ namespace DataGEMS.Gateway.App.Query
 
 		protected bool IsFalseQuery()
 		{
-			return this._ids.IsNotNullButEmpty() || this._excludedIds.IsNotNullButEmpty();
+			return this._ids.IsNotNullButEmpty() || this._excludedIds.IsNotNullButEmpty() || this._semantics.IsNotNullButEmpty();
 		}
 
 		public async Task<List<Service.AAI.Model.Group>> CollectAsync()
@@ -79,7 +78,7 @@ namespace DataGEMS.Gateway.App.Query
 			if (this._semantics != null) items = items.Where(x => 
 				x.Attributes != null 
 				&& x.Attributes.ContainsKey(this._config.ContextSemanticsAttributeName)
-				&& this._semantics.All(y => x.Attributes[this._config.ContextSemanticsAttributeName].Contains(y))
+				&& this._semantics.Any(y => x.Attributes[this._config.ContextSemanticsAttributeName].Contains(y))
 			).ToList();
 			if (!String.IsNullOrEmpty(this._like)) items = items.Where(x => x.Name.Contains(this._like)).ToList();
 			return items;
