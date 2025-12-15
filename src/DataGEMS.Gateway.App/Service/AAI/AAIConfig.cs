@@ -11,6 +11,7 @@ namespace DataGEMS.Gateway.App.Service.AAI
 		public String ContextGrantTypeCollectionAttributeValue { get; set; }
 		public String ContextGrantTypeUserAttributeValue { get; set; }
 		public String ContextGrantTypeGroupAttributeValue { get; set; }
+		public String ContextSemanticsAttributeName { get; set; }
 		public List<String> AutoAssignGrantsOnNewCollection { get; set; }
 		public List<String> AutoAssignGrantsOnNewDataset { get; set; }
 		public String GroupsEndpoint { get; set; }

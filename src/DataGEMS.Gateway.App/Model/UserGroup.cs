@@ -5,5 +5,6 @@ namespace DataGEMS.Gateway.App.Model
 	{
 		public String Id { get; set; }
 		public String Name { get; set; }
+		public List<string> Semantics { get; set; }
 	}
 }

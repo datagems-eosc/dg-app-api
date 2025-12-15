@@ -9,6 +9,7 @@
 			"ContextGrantTypeCollectionAttributeValue": "col",
 			"ContextGrantTypeUserAttributeValue": "usr",
 			"ContextGrantTypeGroupAttributeValue": "grp",
+			"ContextSemanticsAttributeName": "semantics",
 			"AutoAssignGrantsOnNewCollection": [ "dg_col-manage", "dg_col-edit", "dg_col-delete", "dg_col-browse" ],
 			"AutoAssignGrantsOnNewDataset": [ "dg_ds-manage", "dg_ds-edit", "dg_ds-delete", "dg_ds-browse", "dg_ds-search", "dg_ds-download" ],
 			"GroupsEndpoint": "groups",
