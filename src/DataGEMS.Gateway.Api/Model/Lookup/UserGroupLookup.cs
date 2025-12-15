@@ -15,6 +15,8 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 		public List<String> Ids { get; set; }
 		[SwaggerSchema(description: "Exclude from the lookup items with specific ids. If set, the list of ids must not be empty")]
 		public List<String> ExcludedIds { get; set; }
+		[SwaggerSchema(description: "Limit lookup to items with specific semantics")]
+		public List<string> Semantics { get; set; }
 		[SwaggerSchema(description: "Limit lookup to items whose name matches the pattern")]
 		public String Like { get; set; }
 
@@ -24,6 +26,7 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 
 			if (this.Ids != null) query.Ids(this.Ids);
 			if (this.ExcludedIds != null) query.ExcludedIds(this.ExcludedIds);
+			if (this.Semantics != null) query.Semantics(this.Semantics);
 			if (!String.IsNullOrEmpty(this.Like)) query.Like(this.Like);
 
 			query.Page = null;

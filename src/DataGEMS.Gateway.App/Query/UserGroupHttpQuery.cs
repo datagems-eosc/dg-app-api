@@ -19,6 +19,7 @@ namespace DataGEMS.Gateway.App.Query
 	{
 		private List<String> _ids { get; set; }
 		private List<String> _excludedIds { get; set; }
+		private List<string> _semantics { get; set; }
 		private String _like { get; set; }
 		private AuthorizationFlags _authorize { get; set; } = AuthorizationFlags.None;
 
@@ -58,6 +59,8 @@ namespace DataGEMS.Gateway.App.Query
 		public UserGroupHttpQuery Ids(String id) { this._ids = id.AsList(); return this; }
 		public UserGroupHttpQuery ExcludedIds(IEnumerable<String> excludedIds) { this._excludedIds = excludedIds?.ToList(); return this; }
 		public UserGroupHttpQuery ExcludedIds(String excludedId) { this._excludedIds = excludedId.AsList(); return this; }
+		public UserGroupHttpQuery Semantics(IEnumerable<string> semantics) { this._semantics = semantics?.ToList(); return this; }
+		public UserGroupHttpQuery Semantics(string semantics) { this._semantics = semantics.AsList(); return this; }
 		public UserGroupHttpQuery Like(String like) { this._like = like; return this; }
 		public UserGroupHttpQuery Authorize(AuthorizationFlags flags) { this._authorize = flags; return this; }
 
@@ -73,6 +76,11 @@ namespace DataGEMS.Gateway.App.Query
 			List<Service.AAI.Model.Group> items = await this.CollectBaseAsync();
 			if (this._ids != null) items = items.Where(x => this._ids.Contains(x.Id)).ToList();
 			if (this._excludedIds != null) items = items.Where(x => !this._excludedIds.Contains(x.Id)).ToList();
+			if (this._semantics != null) items = items.Where(x => 
+				x.Attributes != null 
+				&& x.Attributes.ContainsKey(this._config.ContextSemanticsAttributeName)
+				&& this._semantics.All(y => x.Attributes[this._config.ContextSemanticsAttributeName].Contains(y))
+			).ToList();
 			if (!String.IsNullOrEmpty(this._like)) items = items.Where(x => x.Name.Contains(this._like)).ToList();
 			return items;
 		}
