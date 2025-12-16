@@ -89,18 +89,18 @@ namespace DataGEMS.Gateway.App.Query
 			DatasetQueryList collectedItems = await CollectBaseAsync(false);
 			return collectedItems == null || collectedItems.Datasets == null ? null : collectedItems.Datasets.Select(x => new Dataset
 			{
-				Country = [x.Country],
-				DatePublished = x.DatePublished == null ? null : DateOnly.FromDateTime(x.DatePublished.Value),
-				Description = x.Description,
-				FieldOfScience = x.FieldsOfScience,
-				Headline = x.Headline,
+				Country = [x.Properties.Country],
+				DatePublished = x.Properties.DatePublished == null ? null : DateOnly.FromDateTime(x.Properties.DatePublished.Value),
+				Description = x.Properties.Description,
+				FieldOfScience = x.Properties.FieldsOfScience,
+				Headline = x.Properties.Headline,
 				Id = Guid.TryParse(x.Id, out Guid parsedId) ? parsedId : Guid.Empty,
-				Keywords = x.Keywords,
-				License = x.License,
-				Name = x.Name,
-				Url = x.Url,
-				Version = x.Version,
-				Language = x.Languages,
+				Keywords = x.Properties.Keywords,
+				License = x.Properties.License,
+				Name = x.Properties.Name,
+				Url = x.Properties.Url,
+				Version = x.Properties.Version,
+				Language = x.Properties.Languages,
 			}).ToList();
 		}
 

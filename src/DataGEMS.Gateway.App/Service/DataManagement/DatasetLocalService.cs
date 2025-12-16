@@ -308,7 +308,11 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 			await this.AuthorizeProfileForce();
 			await this.AuthorizeExecuteProfilingWorkflowForce();
 
-			List<Dataset> datas = await this._queryFactory.Query<DatasetHttpQuery>().Ids(viewModel.Id.Value).CollectAsync();
+			List<Dataset> datas = await this._queryFactory.Query<DatasetHttpQuery>()
+				.Ids(viewModel.Id.Value)
+				.State(Common.Enum.DatasetState.Staged)
+				.Properties(["name", "archivedAt", "description", "conformsTo", "citeAs", "license", "url", "version", "headline", "keywords", "fieldOfScience", "inLanguage", "country", "datePublished", "access", "uploadedBy", "distribution", "recordSet"])
+				.CollectAsync();
 			if (datas == null || datas.Count == 0) throw new DGNotFoundException(this._localizer["general_notFound", viewModel.Id.Value, nameof(App.Model.Dataset)]);
 			if (datas.Count > 1) throw new DGNotFoundException(this._localizer["general_notFound", Common.WorkflowDefinitionKind.DatasetProfilingFuture.ToString(), nameof(App.Model.Dataset)]);
 
