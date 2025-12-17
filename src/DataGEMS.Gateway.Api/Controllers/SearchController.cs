@@ -15,6 +15,7 @@ using DataGEMS.Gateway.App.Model;
 using DataGEMS.Gateway.App.Service.Conversation;
 using DataGEMS.Gateway.App.Service.Discovery;
 using DataGEMS.Gateway.App.Service.InDataExploration;
+using DataGEMS.Gateway.App.Service.QueryRecommender;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -32,6 +33,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		private readonly IAccountingService _accountingService;
 		private readonly ErrorThesaurus _errors;
 		private readonly IConversationService _conversationService;
+		private readonly IQueryRecommenderHttpService _queryRecommenderHttpService;
 
 		public SearchController(
 			CensorFactory censorFactory,
@@ -40,7 +42,8 @@ namespace DataGEMS.Gateway.Api.Controllers
 			IAccountingService accountingService,
 			ILogger<SearchController> logger,
 			IConversationService conversationService,
-			ErrorThesaurus errors)
+			ErrorThesaurus errors,
+			IQueryRecommenderHttpService queryRecommenderHttpService)
 		{
 			this._censorFactory = censorFactory;
 			this._crossDatasetDiscoveryService = crossDatasetDiscoveryService;
@@ -49,6 +52,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			this._conversationService = conversationService;
 			this._logger = logger;
 			this._errors = errors;
+			this._queryRecommenderHttpService = queryRecommenderHttpService;
 		}
 
 		[HttpPost("cross-dataset")]
@@ -159,6 +163,57 @@ namespace DataGEMS.Gateway.Api.Controllers
 			return new SearchResult<App.Model.InDataExplore>(conversationId, results);
 		}
 
+
+		[HttpPost("recommend")]
+		[Authorize]
+		[ModelStateValidationFilter]
+		[ValidationFilter(typeof(QueryRecommendationLookup.QueryRecommendationLookupValidator), "lookup")]
+		[SwaggerOperation(Summary = "Recommend possible queries")]
+		[SwaggerResponse(statusCode: 200, description: "Matching results", type: typeof(SearchResult<List<App.Model.QueryRecommendation>>))]
+		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
+		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
+		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
+		[SwaggerResponse(statusCode: 500, description: "Internal error")]
+		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
+		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
+		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
+		public async Task<SearchResult<List<App.Model.QueryRecommendation>>> RecommendAsync(
+			[FromBody]
+			[SwaggerRequestBody(description: "The recommendation query", Required = true)]
+			QueryRecommendationLookup lookup)
+		{
+			this._logger.Debug(new MapLogEntry("recommend query exploring").And("type", nameof(App.Model.QueryRecommendation)).And("lookup", lookup));
+
+			IFieldSet censoredFields = await this._censorFactory.Censor<QueryRecommenderCensor>().Censor(lookup.Project, CensorContext.AsCensor());
+			if (lookup.Project.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+
+			RecommenderInfo request = new RecommenderInfo()
+			{
+				Query = lookup.Query,
+			};
+
+			List<App.Model.QueryRecommendation> results = await this._queryRecommenderHttpService.RecommendAsync(request, censoredFields);
+
+			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.QueryRecommender.AsAccountable());
+
+			Guid? conversationId = await this.UpdateConversation(
+				lookup.ConversationOptions?.ConversationId,
+				lookup.ConversationOptions?.AutoCreateConversation,
+				lookup.Query,
+				null,
+				new App.Common.Conversation.QueryRecommenderQueryConversationEntry()
+				{
+					Version = ExploreInfo.ModelVersion,
+					Payload = request
+				},
+				new App.Common.Conversation.QueryRecommenderResponseConversationEntry()
+				{
+					Version = App.Model.QueryRecommendation.ModelVersion,
+					Payload = results
+				});
+
+			return new SearchResult<List<App.Model.QueryRecommendation>>(conversationId, results);
+		}
 
 		private async Task<Guid?> UpdateConversation(Guid? conversationId, Boolean? autoCreateConversation, String currentQuery, IEnumerable<Guid> datasetIds, params App.Common.Conversation.ConversationEntry[] entries)
 		{

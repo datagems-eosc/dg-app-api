@@ -39,6 +39,7 @@ using DataGEMS.Gateway.App.Service.UserSettings;
 using DataGEMS.Gateway.App.Service.DataManagement;
 using DataGEMS.Gateway.App.Service.AAI;
 using DataGEMS.Gateway.App.Service.Storage;
+using DataGEMS.Gateway.App.Service.QueryRecommender;
 
 namespace DataGEMS.Gateway.Api
 {
@@ -92,6 +93,7 @@ namespace DataGEMS.Gateway.Api
 				.AddInDataExplorationServices(this._config.GetSection("InDataExplorationService"))  //In Data Exploration API
 				.AddAirflowServices(this._config.GetSection("AirflowService")) //Airflow
 				.AddAAIServices(this._config.GetSection("AAIService:Service"), this._config.GetSection("AAIService:Cache")) //AAI Keycloak
+				.AddQueryRecommenderServices(this._config.GetSection("QueryRecommenderService")) //Query Recommender API
 			;
 
 			services

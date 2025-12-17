@@ -1,0 +1,7 @@
+{
+  "QueryRecommenderService": {
+    "Scope": "query-recommender",
+    "BaseUrl": "%{QueryRecommenderBaseUrl}%",
+    "RecommendEndpoint": "api/v1/recommend-next-queries"
+  }
+}

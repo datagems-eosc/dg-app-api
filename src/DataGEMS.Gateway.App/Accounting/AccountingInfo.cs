@@ -43,6 +43,7 @@ namespace DataGEMS.Gateway.App.Accounting
 		ContextGrant = 10,
 		ContextGrantAssignment = 11,
 		UserGroup = 12,
+		QueryRecommender = 13,
 	}
 
 	public class AccountingInfo

@@ -161,6 +161,15 @@
 				"AllowAnonymous": false,
 				"AllowAuthenticated": false
 			},
+			//Query Recommender
+			"CanExecuteQueryRecommendation": {
+				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_user" ],
+				"ContextRoles": [],
+				"Claims": [],
+				"Clients": [],
+				"AllowAnonymous": false,
+				"AllowAuthenticated": false
+			},
 			//Dataset
 			"BrowseDataset": {
 				"Roles": [ "GLOBAL_dg_admin" ],
