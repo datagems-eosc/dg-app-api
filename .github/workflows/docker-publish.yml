@@ -36,7 +36,7 @@ jobs:
           tags: |
             type=ref,event=tag
           labels: |
-            org.opencontainers.image.source=https://github.com/datagems-eosc/web-api-demo
+            org.opencontainers.image.source=https://github.com/datagems-eosc/dg-app-api
 
       - name: Build and push Docker image
         id: push
