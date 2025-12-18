@@ -51,6 +51,14 @@ namespace DataGEMS.Gateway.App.Service.DataManagement.Model
 				public string CiteAs { get; set; }
 				[JsonProperty("country")]
 				public string Country { get; set; }
+				//TODO: [JsonProperty("access")]
+				//TODO: public string Access { get; set; }
+				//TODO: [JsonProperty("uploadedBy")]
+				//TODO: public string UploadedBy { get; set; }
+				//TODO: [JsonProperty("distribution")]
+				//TODO: public string Distribution { get; set; }
+				//TODO: [JsonProperty("recordSet")]
+				//TODO: public string RecordSet { get; set; }
 			}
 		}
 	}

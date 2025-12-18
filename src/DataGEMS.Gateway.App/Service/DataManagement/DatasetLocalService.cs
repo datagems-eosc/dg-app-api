@@ -294,7 +294,10 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 				nameof(App.Model.Dataset.FieldOfScience),
 				nameof(App.Model.Dataset.Language),
 				nameof(App.Model.Dataset.Country),
-				nameof(App.Model.Dataset.DatePublished));
+				nameof(App.Model.Dataset.DatePublished),
+				nameof(App.Model.Dataset.ArchivedAt),
+				nameof(App.Model.Dataset.ConformsTo),
+				nameof(App.Model.Dataset.CiteAs));
 			App.Model.Dataset model = await this._builderFactory.Builder<App.Model.Builder.DatasetBuilder>().Build(fields, data.ToModel());
 			await this.ExecuteProfilingFlow(model, viewModel.DataStoreKind);
 
@@ -311,7 +314,6 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 			List<Dataset> datas = await this._queryFactory.Query<DatasetHttpQuery>()
 				.Ids(viewModel.Id.Value)
 				.State(Common.Enum.DatasetState.Staged)
-				.Properties(["name", "archivedAt", "description", "conformsTo", "citeAs", "license", "url", "version", "headline", "keywords", "fieldOfScience", "inLanguage", "country", "datePublished", "access", "uploadedBy", "distribution", "recordSet"])
 				.CollectAsync();
 			if (datas == null || datas.Count == 0) throw new DGNotFoundException(this._localizer["general_notFound", viewModel.Id.Value, nameof(App.Model.Dataset)]);
 			if (datas.Count > 1) throw new DGNotFoundException(this._localizer["general_notFound", Common.WorkflowDefinitionKind.DatasetProfilingFuture.ToString(), nameof(App.Model.Dataset)]);
@@ -331,7 +333,10 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 				nameof(App.Model.Dataset.FieldOfScience),
 				nameof(App.Model.Dataset.Language),
 				nameof(App.Model.Dataset.Country),
-				nameof(App.Model.Dataset.DatePublished));
+				nameof(App.Model.Dataset.DatePublished),
+				nameof(App.Model.Dataset.ArchivedAt),
+				nameof(App.Model.Dataset.ConformsTo),
+				nameof(App.Model.Dataset.CiteAs));
 			App.Model.Dataset model = await this._builderFactory.Builder<App.Model.Builder.DatasetBuilder>().Build(fields, datas.First());
 			await this.ExecuteFutureProfilingFlow(model, viewModel.DataStoreKind);
 
@@ -372,6 +377,9 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 					dataset_file_path = await this._storageService.DirectoryOf(Common.StorageType.Dataset, model.Id.ToString()),
 					userId = await this._authorizationContentResolver.CurrentUserId(),
 					data_store_kind = dataStoreKind,
+					citeAs = model.CiteAs,
+					conformsTo = model.ConformsTo,
+					archivedAt = model.ArchivedAt,
 				}
 			}, new FieldSet
 			{
@@ -416,6 +424,9 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 					dataset_file_path = await this._storageService.DirectoryOf(Common.StorageType.Dataset, model.Id.ToString()),
 					userId = await this._authorizationContentResolver.CurrentUserId(),
 					data_store_kind = dataStoreKind,
+					citeAs = model.CiteAs,
+					conformsTo = model.ConformsTo,
+					archivedAt = model.ArchivedAt,
 				}
 			}, new FieldSet
 			{

@@ -89,18 +89,26 @@ namespace DataGEMS.Gateway.App.Query
 			DatasetQueryList collectedItems = await CollectBaseAsync(false);
 			return collectedItems == null || collectedItems.Datasets == null ? null : collectedItems.Datasets.Select(x => new Dataset
 			{
-				Country = [x.Properties.Country],
-				DatePublished = x.Properties.DatePublished == null ? null : DateOnly.FromDateTime(x.Properties.DatePublished.Value),
-				Description = x.Properties.Description,
-				FieldOfScience = x.Properties.FieldsOfScience,
-				Headline = x.Properties.Headline,
 				Id = Guid.TryParse(x.Id, out Guid parsedId) ? parsedId : Guid.Empty,
-				Keywords = x.Properties.Keywords,
-				License = x.Properties.License,
 				Name = x.Properties.Name,
+				ArchivedAt = x.Properties.ArchivedAt,
+				Description = x.Properties.Description,
+				ConformsTo = x.Properties.ConformsTo,
+				CiteAs = x.Properties.CiteAs,
+				License = x.Properties.License,
 				Url = x.Properties.Url,
 				Version = x.Properties.Version,
+				Headline = x.Properties.Headline,
+				Keywords = x.Properties.Keywords,
+				FieldOfScience = x.Properties.FieldsOfScience,
 				Language = x.Properties.Languages,
+				Country = [x.Properties.Country],
+				DatePublished = x.Properties.DatePublished == null ? null : DateOnly.FromDateTime(x.Properties.DatePublished.Value),
+				//TODO: Access = x.Properties.Access,
+				//TODO: UploadedBy = x.Properties.UploadedBy,
+				//TODO: Distribution = x.Properties.Distribution,
+				//TODO: RecordSet = x.Properties.RecordSet,
+				//TODO: Type = x.Properties.Type,
 			}).ToList();
 		}
 

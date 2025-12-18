@@ -18,5 +18,8 @@
         public List<string> Country { get; set; }
         public DateOnly? DatePublished { get; set; }
         public string ProfileRaw { get; set; }
-    }
+		public string ArchivedAt { get; set; }
+        public string ConformsTo { get; set; }
+		public string CiteAs { get; set; }
+	}
 }

@@ -4,7 +4,6 @@ using Cite.Tools.Validation;
 using DataGEMS.Gateway.App.Common;
 using DataGEMS.Gateway.App.Common.Validation;
 using DataGEMS.Gateway.App.ErrorCode;
-using DataGEMS.Gateway.App.Service.Storage;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 
@@ -27,6 +26,9 @@ namespace DataGEMS.Gateway.App.Model
 		public List<String> Language { get; set; }
 		public List<String> Country { get; set; }
 		public DateOnly? DatePublished { get; set; }
+		public string ArchivedAt { get; set; }
+        public string ConformsTo { get; set; }
+		public string CiteAs { get; set; }
 		public String ProfileRaw { get; set; }
 		public List<Model.Collection> Collections { get; set; }
 		public List<String> Permissions { get; set; }
@@ -171,6 +173,14 @@ namespace DataGEMS.Gateway.App.Model
 						.If(() => item.DataLocations != null && item.DataLocations.Any(x => x.Kind == DataLocationKind.Staged))
 						.Must(() => item.DataLocations.Count() == 1)
 						.FailOn(nameof(DatasetPersist.DataLocations)).FailWith(this._localizer["validation_onlyOneStagedDataStore"]),
+					//citeAs must always be set
+					this.Spec()
+						.Must(() => !this.IsEmpty(item.CiteAs))
+						.FailOn(nameof(DatasetPersist.CiteAs)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.CiteAs)]),
+					//conformsTo must always be set
+					this.Spec()
+						.Must(() => !this.IsEmpty(item.ConformsTo))
+						.FailOn(nameof(DatasetPersist.ConformsTo)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.ConformsTo)]),
 				};
 			}
 		}
@@ -288,6 +298,14 @@ namespace DataGEMS.Gateway.App.Model
 						.On(nameof(DatasetPersist.DataLocations))
 						.Over(item.DataLocations)
 						.Using(()=>_validatorFactory[typeof(DataLocationValidator)]),
+					//citeAs must always be set
+					this.Spec()
+						.Must(() => !this.IsEmpty(item.CiteAs))
+						.FailOn(nameof(DatasetPersist.CiteAs)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.CiteAs)]),
+					//conformsTo must always be set
+					this.Spec()
+						.Must(() => !this.IsEmpty(item.ConformsTo))
+						.FailOn(nameof(DatasetPersist.ConformsTo)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.ConformsTo)]),
 				};
 			}
 		}
@@ -399,6 +417,14 @@ namespace DataGEMS.Gateway.App.Model
 					this.Spec()
 						.Must(() => item.DataLocations == null)
 						.FailOn(nameof(DatasetPersist.DataLocations)).FailWith(this._localizer["validation_overPosting", nameof(DatasetPersist.DataLocations)]),
+					//citeAs must always be set
+					this.Spec()
+						.Must(() => !this.IsEmpty(item.CiteAs))
+						.FailOn(nameof(DatasetPersist.CiteAs)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.CiteAs)]),
+					//conformsTo must always be set
+					this.Spec()
+						.Must(() => !this.IsEmpty(item.ConformsTo))
+						.FailOn(nameof(DatasetPersist.ConformsTo)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.ConformsTo)]),
 				};
 			}
 		}

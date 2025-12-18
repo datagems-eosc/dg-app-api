@@ -65,6 +65,9 @@ namespace DataGEMS.Gateway.App.Model.Builder
 				if (fields.HasField(nameof(Model.Dataset.Country))) m.Country = d.Country;
 				if (fields.HasField(nameof(Model.Dataset.DatePublished))) m.DatePublished = d.DatePublished;
 				if (fields.HasField(nameof(Model.Dataset.ProfileRaw))) m.ProfileRaw = d.ProfileRaw;
+				if (fields.HasField(nameof(Model.Dataset.ArchivedAt))) m.ArchivedAt = d.ArchivedAt;
+				if (fields.HasField(nameof(Model.Dataset.ConformsTo))) m.ConformsTo = d.ConformsTo;
+				if (fields.HasField(nameof(Model.Dataset.CiteAs))) m.CiteAs = d.CiteAs;
 
 				if (!collectionFields.IsEmpty() && collectionMap != null && collectionMap.ContainsKey(d.Id)) m.Collections = collectionMap[d.Id];
 				if (!permissionFields.IsEmpty() && datasetAffiliatedRoles != null && datasetAffiliatedRoles.ContainsKey(d.Id))
