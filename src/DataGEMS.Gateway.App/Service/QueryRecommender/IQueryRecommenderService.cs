@@ -1,12 +1,11 @@
 ﻿using Cite.Tools.FieldSet;
 using DataGEMS.Gateway.App.Model;
-using DataGEMS.Gateway.App.Service.InDataExploration;
 
 namespace DataGEMS.Gateway.App.Service.QueryRecommender
 {
-	public interface IQueryRecommenderHttpService
+	public interface IQueryRecommenderService
 	{
-		Task<List<QueryRecommendation>> RecommendAsync(RecommenderInfo exploreInfo, IFieldSet fieldSet);
+		Task<List<QueryRecommendation>> RecommendAsync(RecommenderInfo recommendInfo, IFieldSet fieldSet);
 	}
 
 	public class RecommenderInfo

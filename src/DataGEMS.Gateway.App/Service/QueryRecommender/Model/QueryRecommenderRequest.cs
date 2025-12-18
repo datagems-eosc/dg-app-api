@@ -7,9 +7,9 @@ namespace DataGEMS.Gateway.App.Service.QueryRecommender.Model
 		[JsonProperty("current_query")]
 		public string CurrentQuery { get; set; }
 		[JsonProperty("context")]
-		public InternalContext Context { get; set; }
+		public RecommenderContext Context { get; set; }
 
-		public class InternalContext
+		public class RecommenderContext
 		{
 			[JsonProperty("user_id")]
 			public string UserId { get; set; }

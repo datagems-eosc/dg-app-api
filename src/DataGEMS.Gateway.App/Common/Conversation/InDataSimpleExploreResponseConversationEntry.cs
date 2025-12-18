@@ -1,5 +1,4 @@
-﻿
-namespace DataGEMS.Gateway.App.Common.Conversation
+﻿namespace DataGEMS.Gateway.App.Common.Conversation
 {
 	public class InDataSimpleExploreResponseConversationEntry : ConversationEntry
 	{

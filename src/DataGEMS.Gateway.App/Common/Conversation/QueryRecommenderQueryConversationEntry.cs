@@ -2,7 +2,7 @@
 {
 	public class QueryRecommenderQueryConversationEntry : ConversationEntry
 	{
-		public override ConversationMessageKind Kind { get { return ConversationMessageKind.CrossDatasetQuery; } }
+		public override ConversationMessageKind Kind { get { return ConversationMessageKind.QueryRecommenderQuery; } }
 		public Service.QueryRecommender.RecommenderInfo Payload { get; set; }
 	}
 }

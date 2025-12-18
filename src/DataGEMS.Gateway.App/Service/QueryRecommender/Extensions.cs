@@ -6,11 +6,11 @@ namespace DataGEMS.Gateway.App.Service.QueryRecommender
 {
 	public static class Extensions
 	{
-		public static IServiceCollection AddQueryRecommenderServices(this IServiceCollection services, IConfigurationSection configurationSection)
+		public static IServiceCollection AddQueryRecommenderServices(this IServiceCollection services, IConfigurationSection queryRecommenderConfigurationSection)
 		{
-			services.ConfigurePOCO<QueryRecommenderHttpConfig>(configurationSection);
+			services.ConfigurePOCO<QueryRecommenderHttpConfig>(queryRecommenderConfigurationSection);
 
-			services.AddTransient<IQueryRecommenderHttpService, QueryRecommenderHttpService>();
+			services.AddTransient<IQueryRecommenderService, QueryRecommenderHttpService>();
 
 			return services;
 		}

@@ -29,30 +29,30 @@ namespace DataGEMS.Gateway.Api.Controllers
 		private readonly CensorFactory _censorFactory;
 		private readonly ICrossDatasetDiscoveryService _crossDatasetDiscoveryService;
 		private readonly IInDataExplorationService _inDataExplorationService;
+		private readonly IQueryRecommenderService _queryRecommenderService;
 		private readonly ILogger<SearchController> _logger;
 		private readonly IAccountingService _accountingService;
 		private readonly ErrorThesaurus _errors;
 		private readonly IConversationService _conversationService;
-		private readonly IQueryRecommenderHttpService _queryRecommenderHttpService;
 
 		public SearchController(
 			CensorFactory censorFactory,
 			ICrossDatasetDiscoveryService crossDatasetDiscoveryService,
 			IInDataExplorationService inDataExplorationService,
+			IQueryRecommenderService queryRecommenderService,
 			IAccountingService accountingService,
 			ILogger<SearchController> logger,
 			IConversationService conversationService,
-			ErrorThesaurus errors,
-			IQueryRecommenderHttpService queryRecommenderHttpService)
+			ErrorThesaurus errors)
 		{
 			this._censorFactory = censorFactory;
 			this._crossDatasetDiscoveryService = crossDatasetDiscoveryService;
 			this._inDataExplorationService = inDataExplorationService;
+			this._queryRecommenderService = queryRecommenderService;
 			this._accountingService = accountingService;
 			this._conversationService = conversationService;
 			this._logger = logger;
 			this._errors = errors;
-			this._queryRecommenderHttpService = queryRecommenderHttpService;
 		}
 
 		[HttpPost("cross-dataset")]
@@ -128,7 +128,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			[SwaggerRequestBody(description: "The exploration query", Required = true)]
 			InDataExplorationLookup lookup)
 		{
-			this._logger.Debug(new MapLogEntry("explore query exploring").And("type", nameof(App.Model.InDataExplore)).And("lookup", lookup));
+			this._logger.Debug(new MapLogEntry("in data exploration").And("type", nameof(App.Model.InDataExplore)).And("lookup", lookup));
 
 			IFieldSet censoredFields = await this._censorFactory.Censor<InDataExplorationCensor>().Censor(lookup.Project, CensorContext.AsCensor());
 			if (lookup.Project.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
@@ -179,10 +179,10 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
 		public async Task<SearchResult<List<App.Model.QueryRecommendation>>> RecommendAsync(
 			[FromBody]
-			[SwaggerRequestBody(description: "The recommendation query", Required = true)]
+			[SwaggerRequestBody(description: "The query recommendation options", Required = true)]
 			QueryRecommendationLookup lookup)
 		{
-			this._logger.Debug(new MapLogEntry("recommend query exploring").And("type", nameof(App.Model.QueryRecommendation)).And("lookup", lookup));
+			this._logger.Debug(new MapLogEntry("query recommendation").And("type", nameof(App.Model.QueryRecommendation)).And("lookup", lookup));
 
 			IFieldSet censoredFields = await this._censorFactory.Censor<QueryRecommenderCensor>().Censor(lookup.Project, CensorContext.AsCensor());
 			if (lookup.Project.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
@@ -192,7 +192,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 				Query = lookup.Query,
 			};
 
-			List<App.Model.QueryRecommendation> results = await this._queryRecommenderHttpService.RecommendAsync(request, censoredFields);
+			List<App.Model.QueryRecommendation> results = await this._queryRecommenderService.RecommendAsync(request, censoredFields);
 
 			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.QueryRecommender.AsAccountable());
 

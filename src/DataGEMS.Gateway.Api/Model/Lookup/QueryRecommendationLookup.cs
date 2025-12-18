@@ -8,7 +8,7 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 {
 	public class QueryRecommendationLookup
 	{
-		[SwaggerSchema(description: "The provided query the recommendation will be based on")]
+		[SwaggerSchema(description: "The query the recommendation will be based on")]
 		public string Query { get; set; }
 		[SwaggerSchema(description: "The conversation handling options")]
 		public ConversationOptions ConversationOptions { get; set; }

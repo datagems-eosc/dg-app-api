@@ -9,16 +9,14 @@ using DataGEMS.Gateway.App.Common;
 using DataGEMS.Gateway.App.ErrorCode;
 using DataGEMS.Gateway.App.Exception;
 using DataGEMS.Gateway.App.LogTracking;
-using DataGEMS.Gateway.App.Query;
 using DataGEMS.Gateway.App.Service.QueryRecommender.Model;
 using Microsoft.Extensions.Logging;
-using Microsoft.Net.Http.Headers;
 using System.Net.Http.Headers;
 using System.Text;
 
 namespace DataGEMS.Gateway.App.Service.QueryRecommender
 {
-	public class QueryRecommenderHttpService : IQueryRecommenderHttpService
+	public class QueryRecommenderHttpService : IQueryRecommenderService
 	{
 		private readonly IAccessTokenService _accessTokenService;
 		private readonly IHttpClientFactory _httpClientFactory;
@@ -31,7 +29,6 @@ namespace DataGEMS.Gateway.App.Service.QueryRecommender
 		private readonly JsonHandlingService _jsonHandlingService;
 		private readonly BuilderFactory _builderFactory;
 		private readonly IAuthorizationContentResolver _authorizationContentResolver;
-		private readonly QueryFactory _queryFactory;
 
 		public QueryRecommenderHttpService(
 			IAccessTokenService accessTokenService,
@@ -44,8 +41,7 @@ namespace DataGEMS.Gateway.App.Service.QueryRecommender
 			ErrorThesaurus errors,
 			JsonHandlingService jsonHandlingService,
 			BuilderFactory builderFactory,
-			IAuthorizationContentResolver authorizationContentResolver,
-			QueryFactory queryFactory)
+			IAuthorizationContentResolver authorizationContentResolver)
 		{
 			this._accessTokenService = accessTokenService;
 			this._httpClientFactory = httpClientFactory;
@@ -58,10 +54,9 @@ namespace DataGEMS.Gateway.App.Service.QueryRecommender
 			this._jsonHandlingService = jsonHandlingService;
 			this._builderFactory = builderFactory;
 			this._authorizationContentResolver = authorizationContentResolver;
-			this._queryFactory = queryFactory;
 		}
 
-		public async Task<List<App.Model.QueryRecommendation>> RecommendAsync(RecommenderInfo exploreInfo, IFieldSet fieldSet)
+		public async Task<List<App.Model.QueryRecommendation>> RecommendAsync(RecommenderInfo recommendInfo, IFieldSet fieldSet)
 		{
 			string token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
@@ -70,8 +65,8 @@ namespace DataGEMS.Gateway.App.Service.QueryRecommender
 			{
 				Content = new StringContent(this._jsonHandlingService.ToJson(new QueryRecommenderRequest
 				{
-					CurrentQuery = exploreInfo.Query,
-					Context = new QueryRecommenderRequest.InternalContext
+					CurrentQuery = recommendInfo.Query,
+					Context = new QueryRecommenderRequest.RecommenderContext
 					{
 						UserId = this._authorizationContentResolver.CurrentUser(),
 						Results = null
@@ -108,7 +103,7 @@ namespace DataGEMS.Gateway.App.Service.QueryRecommender
 				string errorPayload = null;
 				try { errorPayload = await response.Content.ReadAsStringAsync(); } catch (System.Exception) { }
 				this._logger.Error(ex, "non successful response. StatusCode was {statusCode} and Payload {errorPayload}", response?.StatusCode, errorPayload);
-				bool includeErrorPayload = response != null && response.StatusCode == System.Net.HttpStatusCode.BadRequest;
+				bool includeErrorPayload = response != null && (response.StatusCode == System.Net.HttpStatusCode.BadRequest || response.StatusCode == System.Net.HttpStatusCode.UnprocessableContent);
 				throw new Exception.DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, (int?)response?.StatusCode, UnderpinningServiceType.QueryRecommender, this._logCorrelationScope.CorrelationId, includeErrorPayload ? errorPayload : null);
 			}
 			string content = await response.Content.ReadAsStringAsync();

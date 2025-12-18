@@ -1,5 +1,4 @@
 ﻿using Cite.Tools.Auth.Claims;
-using Cite.Tools.Common.Extensions;
 using Cite.Tools.Data.Censor;
 using Cite.Tools.FieldSet;
 using Cite.Tools.Logging;

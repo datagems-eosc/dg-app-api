@@ -43,6 +43,12 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 						.Must(() => item.DatasetIds != null && item.DatasetIds.Count > 0)
 						.FailOn(nameof(InDataExplorationLookup.DatasetIds))
 						.FailWith(this._localizer["validation_required", nameof(InDataExplorationLookup.DatasetIds)]),
+					//conversation options must be valid if set
+					this.RefSpec()
+						.If(() => item.ConversationOptions != null)
+						.On(nameof(InDataExplorationLookup.ConversationOptions))
+						.Over(item.ConversationOptions)
+						.Using(()=>_validatorFactory[typeof(ConversationOptions.ConversationOptionsValidator)]),
 				};
 			}
 		}

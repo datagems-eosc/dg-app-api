@@ -26,7 +26,6 @@ namespace DataGEMS.Gateway.App.Model.Builder
 
 		public InDataExplorationBuilder Authorize(AuthorizationFlags flags) { this._authorize = flags; return this; }
 
-
 		public override Task<List<InDataExplore>> Build(IFieldSet fields, IEnumerable<Service.InDataExploration.Model.InDataExplorationResponse> datas)
 		{
 			this._logger.Debug(new MapLogEntry("building").And("type", nameof(Service.InDataExploration.Model.InDataExplorationResponse)).And("fields", fields).And("dataCount", datas?.Count()));

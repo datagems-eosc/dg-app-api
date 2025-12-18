@@ -14,8 +14,8 @@ namespace DataGEMS.Gateway.App.Common
 		[Description("InDataExplore Response")]
 		InDataExploreResponse = 3,
 		[Description("QueryRecommender Query")]
-		QueryRecommenderQuery = 2,
+		QueryRecommenderQuery = 4,
 		[Description("QueryRecommender Response")]
-		QueryRecommenderResponse = 3,
+		QueryRecommenderResponse = 5,
 	}
 }

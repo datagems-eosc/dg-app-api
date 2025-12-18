@@ -56,7 +56,7 @@ namespace DataGEMS.Gateway.App.Service.InDataExploration
 		public async Task<InDataExplore> ExploreAsync(ExploreInfo request, IFieldSet fieldSet)
 		{
 			String token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
-			if (token == null)	throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
+			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
 
 			HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Get, $"{this._config.BaseUrl}{this._config.ExploreEndpoint}{new QueryString().Add("question", request.Question).ToString()}");
 			httpRequest.Headers.Add(HeaderNames.Accept, "application/json");
