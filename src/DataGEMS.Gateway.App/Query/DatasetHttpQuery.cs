@@ -114,8 +114,8 @@ namespace DataGEMS.Gateway.App.Query
 
 		public async Task<DatasetQueryList> CollectBaseAsync(bool useInCount)
 		{
-			//string token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
-			//if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
+			string token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
+			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
 
 			QueryString qs = new QueryString();
 			if (this._ids != null) this._ids.ForEach(x => qs = qs.Add("nodeIds", x.ToString()));
@@ -135,7 +135,7 @@ namespace DataGEMS.Gateway.App.Query
 
 			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"{this._config.BaseUrl}{this._config.DatasetQueryEndpoint}{qs.ToString()}");
 			request.Headers.Add(HeaderNames.Accept, "application/json");
-			//request.Headers.Add(HeaderNames.Authorization, $"Bearer {token}");
+			request.Headers.Add(HeaderNames.Authorization, $"Bearer {token}");
 
 			String content = await this.SendRequest(request);
 			try
