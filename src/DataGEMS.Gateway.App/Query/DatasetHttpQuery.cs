@@ -117,10 +117,7 @@ namespace DataGEMS.Gateway.App.Query
 			string token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
 
-			QueryString qs = new QueryString();
-			if (this._ids != null) this._ids.ForEach(x => qs = qs.Add("nodeIds", x.ToString()));
-			if (this._properties != null) this._properties.ForEach(x => qs = qs.Add("properties", x));
-			if (this._types != null) this._types.ForEach(x => qs = qs.Add("types", x));
+			QueryString qs = this.CreateFilterQuery();
 			if (this.Order != null && !this.Order.IsEmpty)
 			{
 				if (this.Order.Items != null)
@@ -129,9 +126,6 @@ namespace DataGEMS.Gateway.App.Query
 					qs = qs.Add("direction", new OrderingFieldResolver(this.Order.Items.FirstOrDefault()).IsAscending ? "1" : "-1");
 				}
 			}
-			if (this._publishedDateFrom != null) qs = qs.Add("publishedDateFrom", this._publishedDateFrom.Value.ToString("yyyy-MM-dd"));
-			if (this._publishedDateTo != null) qs = qs.Add("publishedDateTo", this._publishedDateTo.Value.ToString("yyyy-MM-dd"));
-			if (this._datasetStatus != null) qs = qs.Add("dataset_status", this._datasetStatus.Value.ToString().ToLower());
 
 			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"{this._config.BaseUrl}{this._config.DatasetQueryEndpoint}{qs.ToString()}");
 			request.Headers.Add(HeaderNames.Accept, "application/json");
@@ -153,13 +147,12 @@ namespace DataGEMS.Gateway.App.Query
 
 		public async Task<int> CountAsync()
 		{
-			//String token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
-			//if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
-
-			//TODO: Apply query
-			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"{this._config.BaseUrl}{this._config.DatasetQueryEndpoint}");
+			string token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
+			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
+			QueryString qs = this.CreateFilterQuery();
+			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"{this._config.BaseUrl}{this._config.DatasetQueryEndpoint}{qs.ToString()}");
 			request.Headers.Add(HeaderNames.Accept, "application/json");
-			//request.Headers.Add(HeaderNames.Authorization, $"Bearer {token}");
+			request.Headers.Add(HeaderNames.Authorization, $"Bearer {token}");
 			request.Headers.Add(this._logTrackingCorrelationConfig.HeaderName, this._logCorrelationScope.CorrelationId);
 
 			String content = await this.SendRequest(request);
@@ -173,6 +166,18 @@ namespace DataGEMS.Gateway.App.Query
 				this._logger.Error(ex, "problem converting response {content}", content);
 				throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.DataManagement, this._logCorrelationScope.CorrelationId);
 			}
+		}
+
+		private QueryString CreateFilterQuery()
+		{
+			QueryString qs = new QueryString();
+			if (this._ids != null) this._ids.ForEach(x => qs = qs.Add("nodeIds", x.ToString()));
+			if (this._properties != null) this._properties.ForEach(x => qs = qs.Add("properties", x));
+			if (this._types != null) this._types.ForEach(x => qs = qs.Add("types", x));
+			if (this._publishedDateFrom != null) qs = qs.Add("publishedDateFrom", this._publishedDateFrom.Value.ToString("yyyy-MM-dd"));
+			if (this._publishedDateTo != null) qs = qs.Add("publishedDateTo", this._publishedDateTo.Value.ToString("yyyy-MM-dd"));
+			if (this._datasetStatus != null) qs = qs.Add("dataset_status", this._datasetStatus.Value.ToString().ToLower());
+			return qs;
 		}
 
 		private async Task<String> SendRequest(HttpRequestMessage request)
