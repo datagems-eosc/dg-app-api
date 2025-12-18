@@ -118,6 +118,7 @@ namespace DataGEMS.Gateway.App.Query
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
 
 			QueryString qs = this.CreateFilterQuery();
+			if (this._properties != null) this._properties.ForEach(x => qs = qs.Add("properties", x));
 			if (this.Order != null && !this.Order.IsEmpty)
 			{
 				if (this.Order.Items != null)
@@ -172,7 +173,6 @@ namespace DataGEMS.Gateway.App.Query
 		{
 			QueryString qs = new QueryString();
 			if (this._ids != null) this._ids.ForEach(x => qs = qs.Add("nodeIds", x.ToString()));
-			if (this._properties != null) this._properties.ForEach(x => qs = qs.Add("properties", x));
 			if (this._types != null) this._types.ForEach(x => qs = qs.Add("types", x));
 			if (this._publishedDateFrom != null) qs = qs.Add("publishedDateFrom", this._publishedDateFrom.Value.ToString("yyyy-MM-dd"));
 			if (this._publishedDateTo != null) qs = qs.Add("publishedDateTo", this._publishedDateTo.Value.ToString("yyyy-MM-dd"));
