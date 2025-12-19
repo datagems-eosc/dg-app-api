@@ -313,7 +313,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 
 			List<Dataset> datas = await this._queryFactory.Query<DatasetHttpQuery>()
 				.Ids(viewModel.Id.Value)
-				.State(Common.Enum.DatasetState.Staged)
+				.State(Common.Enum.DatasetState.Loaded)
 				.CollectAsync();
 			if (datas == null || datas.Count == 0) throw new DGNotFoundException(this._localizer["general_notFound", viewModel.Id.Value, nameof(App.Model.Dataset)]);
 			if (datas.Count > 1) throw new DGNotFoundException(this._localizer["general_notFound", Common.WorkflowDefinitionKind.DatasetProfilingFuture.ToString(), nameof(App.Model.Dataset)]);
