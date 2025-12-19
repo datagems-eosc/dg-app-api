@@ -400,14 +400,14 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/api/collection/a085cd9f-4666-4349-a63a-42f7f9d24293?f=id&f=code",
+									"raw": "{{baseUrl}}/api/collection/ed2d7d01-b484-494f-a606-aebc0c38851f?f=id&f=code",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
 										"api",
 										"collection",
-										"a085cd9f-4666-4349-a63a-42f7f9d24293"
+										"ed2d7d01-b484-494f-a606-aebc0c38851f"
 									],
 									"query": [
 										{
@@ -436,7 +436,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"id\": null,\r\n    \"code\": \"collection-test-1\",\r\n    \"name\": \"collection-test-1\"\r\n}",
+									"raw": "{\r\n    \"id\": null,\r\n    \"code\": \"collection-test-delete\",\r\n    \"name\": \"collection-test-delete\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -742,7 +742,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"id\": null,\r\n    \"code\": \"test-persist-1\",\r\n    \"name\": \"test-persist-1\"\r\n}",
+									"raw": "",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -750,14 +750,14 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/api/collection/a085cd9f-4666-4349-a63a-42f7f9d24293",
+									"raw": "{{baseUrl}}/api/collection/abd69646-dbfd-4e26-af53-528da12e2b5b",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
 										"api",
 										"collection",
-										"a085cd9f-4666-4349-a63a-42f7f9d24293"
+										"abd69646-dbfd-4e26-af53-528da12e2b5b"
 									]
 								}
 							},
@@ -1450,7 +1450,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"project\": { \"fields\": [\"id\", \"code\", \"name\", \"size\", \"collections.id\", \"collections.code\", \"collections.name\", \"collections.datasetCount\", \"permissions.browseDataset\", \"permissions.editDataset\" ] },\r\n    \"page\":{\r\n        \"Offset\": 0,\r\n        \"Size\": 20\r\n    },\r\n    \"Order\":{\r\n        \"Items\": [\"-size\"]\r\n    },\r\n    \"Metadata\":{\r\n        \"CountAll\": true\r\n    }\r\n}",
+									"raw": "{\r\n    \"project\": { \"fields\": [\"id\", \"code\", \"name\", \"description\", \"license\", \"mimeType\", \"size\", \"url\", \"version\", \"headline\", \"keywords\", \"fieldsOfScience\", \"language\", \"country\", \"datePublished\" ] },\r\n    \"page\":{\r\n        \"Offset\": 0,\r\n        \"Size\": 40\r\n    },\r\n    // \"ids\": [\r\n    //     \"9af7373e-9593-414e-ba31-bc4b573a392b\",\r\n    //     \"07382b91-5bc5-42f9-8391-33adc2460c19\",\r\n    //     \"1f6fba0c-9aea-4345-b5a3-457c924f9e0c\",\r\n    //     \"d84d1a2e-127d-4393-91d0-afb7e4fd9c68\",\r\n    //     \"22153318-d90d-4ea6-903b-13ab4205b989\",\r\n    //     \"8930240b-a0e8-46e7-ace8-aab2b42fcc01\",\r\n    //     \"9b25bc46-8bd3-4f7f-94b4-52dbc38c130f\",\r\n    //     \"a36dde9d-7f95-40ff-8a9b-f687d0a72318\",\r\n    //     \"d5c34990-9acf-4349-91d4-924f58565922\",\r\n    //     \"b551f361-3f61-4ccf-a001-7c28d065c30d\",\r\n    //     \"7c4d20a0-33e8-471e-8a3f-a7a54aa09f68\",\r\n    //     \"729f8932-8300-4ac5-a71e-b41904ca7433\",\r\n    //     \"ecc5086d-10fe-44a0-84bf-906f49ccc433\"\r\n    // ],\r\n    \"Order\":{\r\n        \"Items\": [\"-size\"]\r\n    },\r\n    \"Metadata\":{\r\n        \"CountAll\": true\r\n    }\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1708,6 +1708,40 @@
 										"api",
 										"search",
 										"cross-dataset"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Search - Recommend",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{userAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"conversationOptions\":{\r\n        //\"conversationId\": \"90f41f6e-8940-409d-a3a3-7a18eb0ab08a\",\r\n        \"autoCreateConversation\": false\r\n    },\r\n    \"project\": { \"fields\": [\"query\" ] },\r\n    \"query\": \"What is the fundamental theorem of calculus?\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/search/recommend",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"search",
+										"recommend"
 									]
 								}
 							},
@@ -3222,7 +3256,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    //\"datasetIds\": [\"07382b91-5bc5-42f9-8391-33adc2460c19\"],\r\n    \"roles\": [\"dg_ds-browse\"]\r\n}",
+									"raw": "{\r\n    \"datasetIds\": [\"07382b91-5bc5-42f9-8391-33adc2460c19\"]\r\n    //\"roles\": [\"dg_ds-browse\"]\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -3289,7 +3323,7 @@
 									}
 								],
 								"url": {
-									"raw": "{{baseUrl}}/api/principal/me/context-grants/collection?id=d30d5eae-013c-4c03-908f-6a0c3db0a3d2",
+									"raw": "{{baseUrl}}/api/principal/me/context-grants/collection?id=df940fef-824c-45f7-9677-754996b3fc76",
 									"host": [
 										"{{baseUrl}}"
 									],
@@ -3303,7 +3337,7 @@
 									"query": [
 										{
 											"key": "id",
-											"value": "d30d5eae-013c-4c03-908f-6a0c3db0a3d2"
+											"value": "df940fef-824c-45f7-9677-754996b3fc76"
 										}
 									]
 								}
@@ -3322,7 +3356,7 @@
 									}
 								],
 								"url": {
-									"raw": "{{baseUrl}}/api/principal/me/context-grants/dataset?id=58a99483-1a50-45a7-b8da-6c036b4235ad",
+									"raw": "{{baseUrl}}/api/principal/me/context-grants/dataset?id=df940fef-824c-45f7-9677-754996b3fc76",
 									"host": [
 										"{{baseUrl}}"
 									],
@@ -3336,7 +3370,7 @@
 									"query": [
 										{
 											"key": "id",
-											"value": "58a99483-1a50-45a7-b8da-6c036b4235ad"
+											"value": "df940fef-824c-45f7-9677-754996b3fc76"
 										}
 									]
 								}
@@ -3355,7 +3389,7 @@
 									}
 								],
 								"url": {
-									"raw": "{{baseUrl}}/api/principal/user/c7cb567a-3dc4-4a68-8b89-9b90ad86ae25/context-grants",
+									"raw": "{{baseUrl}}/api/principal/user/ecc392cf-054b-46e8-8d54-2185d2a2db2e/context-grants",
 									"host": [
 										"{{baseUrl}}"
 									],
@@ -3363,7 +3397,7 @@
 										"api",
 										"principal",
 										"user",
-										"c7cb567a-3dc4-4a68-8b89-9b90ad86ae25",
+										"ecc392cf-054b-46e8-8d54-2185d2a2db2e",
 										"context-grants"
 									]
 								}
@@ -3409,7 +3443,7 @@
 									}
 								],
 								"url": {
-									"raw": "{{baseUrl}}/api/principal/user/c7cb567a-3dc4-4a68-8b89-9b90ad86ae25/context-grants/collection?id=d30d5eae-013c-4c03-908f-6a0c3db0a3d2",
+									"raw": "{{baseUrl}}/api/principal/user/ecc392cf-054b-46e8-8d54-2185d2a2db2e/context-grants/collection?id=ed2d7d01-b484-494f-a606-aebc0c38851f",
 									"host": [
 										"{{baseUrl}}"
 									],
@@ -3417,14 +3451,14 @@
 										"api",
 										"principal",
 										"user",
-										"c7cb567a-3dc4-4a68-8b89-9b90ad86ae25",
+										"ecc392cf-054b-46e8-8d54-2185d2a2db2e",
 										"context-grants",
 										"collection"
 									],
 									"query": [
 										{
 											"key": "id",
-											"value": "d30d5eae-013c-4c03-908f-6a0c3db0a3d2"
+											"value": "ed2d7d01-b484-494f-a606-aebc0c38851f"
 										}
 									]
 								}
@@ -3477,7 +3511,7 @@
 									}
 								],
 								"url": {
-									"raw": "{{baseUrl}}/api/principal/user/c7cb567a-3dc4-4a68-8b89-9b90ad86ae25/context-grants/dataset?id=58a99483-1a50-45a7-b8da-6c036b4235ad",
+									"raw": "{{baseUrl}}/api/principal/user/ecc392cf-054b-46e8-8d54-2185d2a2db2e/context-grants/dataset?id=ed2d7d01-b484-494f-a606-aebc0c38851f",
 									"host": [
 										"{{baseUrl}}"
 									],
@@ -3485,14 +3519,14 @@
 										"api",
 										"principal",
 										"user",
-										"c7cb567a-3dc4-4a68-8b89-9b90ad86ae25",
+										"ecc392cf-054b-46e8-8d54-2185d2a2db2e",
 										"context-grants",
 										"dataset"
 									],
 									"query": [
 										{
 											"key": "id",
-											"value": "58a99483-1a50-45a7-b8da-6c036b4235ad"
+											"value": "ed2d7d01-b484-494f-a606-aebc0c38851f"
 										}
 									]
 								}

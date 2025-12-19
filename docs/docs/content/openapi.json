@@ -1667,24 +1667,78 @@
         ]
       }
     },
-    "/api/dataset/profile/{id}": {
+    "/api/dataset/profile": {
       "post": {
         "tags": [
           "Dataset"
         ],
         "summary": "Profile dataset",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "The id of the dataset to profile",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
+        "requestBody": {
+          "description": "The profile to apply",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DatasetProfiling"
+              }
             }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The profiled dataset id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "404": {
+            "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
           }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/dataset/future-profile": {
+      "post": {
+        "tags": [
+          "Dataset"
         ],
+        "summary": "Profile dataset",
+        "requestBody": {
+          "description": "The profile to apply",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DatasetProfiling"
+              }
+            }
+          },
+          "required": true
+        },
         "responses": {
           "200": {
             "description": "The profiled dataset id",
@@ -3110,6 +3164,57 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/InDataExploreListSearchResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/search/recommend": {
+      "post": {
+        "tags": [
+          "Search"
+        ],
+        "summary": "Recommend possible queries",
+        "requestBody": {
+          "description": "The query recommendation options",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QueryRecommendationLookup"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Matching results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryRecommendationListSearchResult"
                 }
               }
             }
@@ -5097,6 +5202,19 @@
             "description": "Limit lookup to items whose name matches the pattern",
             "nullable": true
           },
+          "contextRoles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Limit lookup to items that the provided user has explicit access kind. If set, the list of values must not be empty",
+            "nullable": true
+          },
+          "contextRoleSubjectId": {
+            "type": "string",
+            "description": "Limit lookup to items that the provided user has explicit access kind. This should only be set in combination with ContextRoles. If left empty, the current user is used",
+            "nullable": true
+          },
           "page": {
             "$ref": "#/components/schemas/Paging"
           },
@@ -5231,6 +5349,14 @@
           "subjectId": {
             "type": "string",
             "description": "Limit lookup to items granting access to specific subject. If empty, use current user",
+            "nullable": true
+          },
+          "targetKinds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TargetKind"
+            },
+            "description": "Limit lookup to items of specific kind. If set, the list of roles must not be empty",
             "nullable": true
           },
           "page": {
@@ -5558,22 +5684,28 @@
           0,
           1,
           2,
-          3
+          3,
+          4,
+          5
         ],
         "type": "integer",
-        "description": "  (0 - CrossDatasetQuery = 0 - CrossDataset Query, 1 - CrossDatasetResponse = 1 - CrossDataset Response, 2 - InDataExploreQuery = 2 - InDataExplore Query, 3 - InDataExploreResponse = 3 - InDataExplore Response)",
+        "description": "  (0 - CrossDatasetQuery = 0 - CrossDataset Query, 1 - CrossDatasetResponse = 1 - CrossDataset Response, 2 - InDataExploreQuery = 2 - InDataExplore Query, 3 - InDataExploreResponse = 3 - InDataExplore Response, 4 - QueryRecommenderQuery = 4 - QueryRecommender Query, 5 - QueryRecommenderResponse = 5 - QueryRecommender Response)",
         "format": "int32",
         "x-enum-varnames": [
           "0 - CrossDatasetQuery",
           "1 - CrossDatasetResponse",
           "2 - InDataExploreQuery",
-          "3 - InDataExploreResponse"
+          "3 - InDataExploreResponse",
+          "4 - QueryRecommenderQuery",
+          "5 - QueryRecommenderResponse"
         ],
         "x-enum-descriptions": [
           "0 - CrossDataset Query",
           "1 - CrossDataset Response",
           "2 - InDataExplore Query",
-          "3 - InDataExplore Response"
+          "3 - InDataExplore Response",
+          "4 - QueryRecommender Query",
+          "5 - QueryRecommender Response"
         ]
       },
       "ConversationMessageLookup": {
@@ -5825,7 +5957,7 @@
           "kind": {
             "$ref": "#/components/schemas/DataLocationKind"
           },
-          "url": {
+          "location": {
             "type": "string",
             "nullable": true
           }
@@ -5837,22 +5969,45 @@
           0,
           1,
           2,
-          3
+          3,
+          4,
+          5
         ],
         "type": "integer",
-        "description": "  (0 - File = 0 - Data is stored in a local or network file system path., 1 - Http = 1 - Data is accessible via an HTTP or HTTPS endpoint., 2 - Ftp = 2 - Data is accessible via an FTP or FTPS server., 3 - Remote = 3 - Data is accesible via a repote location)",
+        "description": "  (0 - File = 0 - Data is stored in a local or network file system path., 1 - Http = 1 - Data is accessible via an HTTP or HTTPS endpoint., 2 - Ftp = 2 - Data is accessible via an FTP or FTPS server., 3 - Remote = 3 - Data is accesible via a repote location, 4 - Staged = 4 - The dataset is already staged, 5 - Database = 5 - The dataset is stored in a database.)",
         "format": "int32",
         "x-enum-varnames": [
           "0 - File",
           "1 - Http",
           "2 - Ftp",
-          "3 - Remote"
+          "3 - Remote",
+          "4 - Staged",
+          "5 - Database"
         ],
         "x-enum-descriptions": [
           "0 - Data is stored in a local or network file system path.",
           "1 - Data is accessible via an HTTP or HTTPS endpoint.",
           "2 - Data is accessible via an FTP or FTPS server.",
-          "3 - Data is accesible via a repote location"
+          "3 - Data is accesible via a repote location",
+          "4 - The dataset is already staged",
+          "5 - The dataset is stored in a database."
+        ]
+      },
+      "DataStoreKind": {
+        "enum": [
+          0,
+          1
+        ],
+        "type": "integer",
+        "description": "  (0 - FileSystem = 0 - The dataset is stored in a filesystem, 1 - RelationalDatabase = 1 - The dataset is stored in a relational database)",
+        "format": "int32",
+        "x-enum-varnames": [
+          "0 - FileSystem",
+          "1 - RelationalDatabase"
+        ],
+        "x-enum-descriptions": [
+          "0 - The dataset is stored in a filesystem",
+          "1 - The dataset is stored in a relational database"
         ]
       },
       "Dataset": {
@@ -5931,6 +6086,18 @@
           "datePublished": {
             "type": "string",
             "format": "date",
+            "nullable": true
+          },
+          "archivedAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "conformsTo": {
+            "type": "string",
+            "nullable": true
+          },
+          "citeAs": {
+            "type": "string",
             "nullable": true
           },
           "profileRaw": {
@@ -6031,6 +6198,19 @@
           },
           "sizeRange": {
             "$ref": "#/components/schemas/Int64NullableRangeOf"
+          },
+          "contextRoles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Limit lookup to items that the provided user has explicit access kind. If set, the list of values must not be empty",
+            "nullable": true
+          },
+          "contextRoleSubjectId": {
+            "type": "string",
+            "description": "Limit lookup to items that the provided user has explicit access kind. This should only be set in combination with ContextRoles. If left empty, the current user is used",
+            "nullable": true
           },
           "page": {
             "$ref": "#/components/schemas/Paging"
@@ -6139,6 +6319,20 @@
           "conformsTo": {
             "type": "string",
             "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DatasetProfiling": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "dataStoreKind": {
+            "$ref": "#/components/schemas/DataStoreKind"
           }
         },
         "additionalProperties": false
@@ -6560,6 +6754,51 @@
           "0 - Grant assigned at the user level",
           "1 - Grant assigned at the user group level"
         ]
+      },
+      "QueryRecommendation": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "QueryRecommendationListSearchResult": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/QueryRecommendation"
+            },
+            "nullable": true
+          },
+          "conversationId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "QueryRecommendationLookup": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "The query the recommendation will be based on",
+            "nullable": true
+          },
+          "conversationOptions": {
+            "$ref": "#/components/schemas/ConversationOptions"
+          },
+          "project": {
+            "$ref": "#/components/schemas/FieldSet"
+          }
+        },
+        "additionalProperties": false
       },
       "ResponseStatus": {
         "enum": [
@@ -7045,6 +7284,13 @@
           "name": {
             "type": "string",
             "nullable": true
+          },
+          "semantics": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -7066,6 +7312,14 @@
               "type": "string"
             },
             "description": "Exclude from the lookup items with specific ids. If set, the list of ids must not be empty",
+            "nullable": true
+          },
+          "semantics": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Limit lookup to items with specific semantics",
             "nullable": true
           },
           "like": {
@@ -7432,20 +7686,23 @@
         "enum": [
           0,
           1,
-          2
+          2,
+          3
         ],
         "type": "integer",
-        "description": "  (0 - DatasetOnboarding = 0 - Dataset Onboarding, 1 - DatasetProfiling = 1 - Dataset Profiling, 2 - DatasetOnboardingFuture = 2 - Future Dataset Onboarding)",
+        "description": "  (0 - DatasetOnboarding = 0 - Dataset Onboarding, 1 - DatasetProfiling = 1 - Dataset Profiling, 2 - DatasetOnboardingFuture = 2 - Future Dataset Onboarding, 3 - DatasetProfilingFuture = 3 - Future Dataset Profiling)",
         "format": "int32",
         "x-enum-varnames": [
           "0 - DatasetOnboarding",
           "1 - DatasetProfiling",
-          "2 - DatasetOnboardingFuture"
+          "2 - DatasetOnboardingFuture",
+          "3 - DatasetProfilingFuture"
         ],
         "x-enum-descriptions": [
           "0 - Dataset Onboarding",
           "1 - Dataset Profiling",
-          "2 - Future Dataset Onboarding"
+          "2 - Future Dataset Onboarding",
+          "3 - Future Dataset Profiling"
         ]
       },
       "WorkflowDefinitionLookup": {
