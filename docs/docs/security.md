@@ -35,6 +35,7 @@ Possible authorization policies include:
 For context based authorization policies with a Dataset affiliation bearer, the evaluation of the kind of operations that the user can perfomr is done by interpreting the respective JWT "datasets" claim. The context is provided through the interpretation of the context grant model detailed in the [DataGEMS AAI](https://datagems-eosc.github.io/dg-aai/).
 
 For each of affiliation bearing datasets, the following actions (verbs) are interpreted to grant needed access:
+
 * browse - Grants permission to browse the dataset in a listing view and see dataset metadata
 * delete - Grants permission to delete the dataset
 * download - Grants permission to download the dataset
