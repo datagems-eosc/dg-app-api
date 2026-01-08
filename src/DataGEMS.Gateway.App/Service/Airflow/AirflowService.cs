@@ -73,7 +73,7 @@ namespace DataGEMS.Gateway.App.Service.Airflow
 
 			String content = await this.SendRequest(httpRequest);
 			List<AirflowTaskInstance> rawResponse = null;
-			try { rawResponse = this._jsonHandlingService.FromJson<List<AirflowTaskInstance>>(content); }
+			try { rawResponse = this._jsonHandlingService.FromJson<ClearTaskInstanceResponse>(content).TaskInstances; }
 			catch (System.Exception ex)
 			{
 				this._logger.LogError(ex, "Failed to parse response: {content}", content);
