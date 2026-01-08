@@ -20,7 +20,7 @@ namespace DataGEMS.Gateway.App.Service.Airflow.Model
 		public bool OnlyFailed { get; set; } = true;
 		[JsonProperty("only_running")]
 		public bool OnlyRunning { get; set; }
-		[JsonProperty("reset_dag_tuns")]
+		[JsonProperty("reset_dag_runs")]
 		public bool ResetDagRuns { get; set; } = true;
 		[JsonProperty("task_ids")]
 		public List<string> TaskIds { get; set; }

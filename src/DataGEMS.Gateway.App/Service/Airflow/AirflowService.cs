@@ -57,7 +57,7 @@ namespace DataGEMS.Gateway.App.Service.Airflow
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
 			Service.Airflow.Model.AirflowClearTaskInstanceRequest httpRequestModel = new Service.Airflow.Model.AirflowClearTaskInstanceRequest
 			{
-				DryRun = true,
+				DryRun = false,
 				OnlyFailed = true,
 				ResetDagRuns = true,
 				TaskIds = args.TaskIds,
