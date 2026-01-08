@@ -2,12 +2,6 @@
 
 namespace DataGEMS.Gateway.App.Service.Airflow.Model
 {
-	public class ClearTaskInstanceResponse
-	{
-		[JsonProperty("task_instances")]
-		public List<AirflowTaskInstance> TaskInstances { get; set; }
-	}
-
 	public class AirflowClearTaskInstanceRequest
 	{
 		[JsonProperty("dry_run")]

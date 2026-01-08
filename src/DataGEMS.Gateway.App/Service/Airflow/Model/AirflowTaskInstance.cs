@@ -11,6 +11,12 @@ namespace DataGEMS.Gateway.App.Service.Airflow.Model
 		public int TotalEntries { get; set; }
 	}
 
+	public class ClearTaskInstanceResponse
+	{
+		[JsonProperty("task_instances")]
+		public List<AirflowTaskInstance> TaskInstances { get; set; }
+	}
+
 	public class AirflowTaskInstanceListRequest
 	{
 		[JsonProperty("dag_ids", NullValueHandling = NullValueHandling.Ignore)]
