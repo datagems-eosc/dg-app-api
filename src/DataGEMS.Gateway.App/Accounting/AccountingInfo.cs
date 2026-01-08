@@ -11,6 +11,7 @@ namespace DataGEMS.Gateway.App.Accounting
 		Onboard = 5,
 		Profile = 6,
 		Upload = 7,
+		Rerun = 8,
 	}
 
 	public enum KnownUnits : short

@@ -368,6 +368,14 @@
 				"Clients": [],
 				"AllowAnonymous": false,
 				"AllowAuthenticated": false
+			},
+			"RerunWorkflowTask": {
+				"Roles": [ "GLOBAL_dg_admin" ],
+				"ContextRoles": [],
+				"Claims": [],
+				"Clients": [],
+				"AllowAnonymous": false,
+				"AllowAuthenticated": false
 			}
 		}
 	}

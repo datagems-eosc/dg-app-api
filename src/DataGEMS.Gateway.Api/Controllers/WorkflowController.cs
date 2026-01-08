@@ -15,6 +15,7 @@ using DataGEMS.Gateway.App.Censor;
 using DataGEMS.Gateway.App.Common;
 using DataGEMS.Gateway.App.ErrorCode;
 using DataGEMS.Gateway.App.Exception;
+using DataGEMS.Gateway.App.Model;
 using DataGEMS.Gateway.App.Model.Builder;
 using DataGEMS.Gateway.App.Query;
 using DataGEMS.Gateway.App.Service.Airflow;
@@ -283,6 +284,41 @@ namespace DataGEMS.Gateway.Api.Controllers
 			this._accountingService.AccountFor(KnownActions.Query, KnownResources.Workflow.AsAccountable());
 
 			return model;
+		}
+
+		[Authorize]
+		[ModelStateValidationFilter]
+		[ValidationFilter(typeof(TaskInstanceDownstreamExecutionArgs.TaskInstanceDownstreamExecutionArgsValidator), "model")]
+		[SwaggerOperation(Summary = "Clear one or more workflow task instances, forcing them to re-run along with all their downstream tasks.")]
+		[SwaggerResponse(statusCode: 200, description: "The affected workflow task instances", type: typeof(List<App.Model.WorkflowTaskInstance>))]
+		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
+		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
+		[SwaggerResponse(statusCode: 404, description: "Could not locate item with the provided id")]
+		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
+		[SwaggerResponse(statusCode: 500, description: "Internal error")]
+		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
+		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
+		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
+		[HttpPost("rerun")]
+		public async Task<List<App.Model.WorkflowTaskInstance>> RerunTaskInstances(
+			[FromBody]
+			[SwaggerRequestBody(description: "The task instances that will be rerun along with returned fieldsets", Required = true)]
+			TaskInstanceDownstreamExecutionArgs model,
+			[ModelBinder(Name = "f")]
+			[SwaggerParameter(description: "The fields to include in the response model", Required = true)]
+			[LookupFieldSetQueryStringOpenApi]
+			IFieldSet fieldSet)
+		{
+			this._logger.Debug(new MapLogEntry("rerun").And("type", nameof(App.Model.TaskInstanceDownstreamExecutionArgs)).And("lookup", model).And("fields", fieldSet));
+
+			IFieldSet censoredFields = await this._censorFactory.Censor<WorkflowTaskInstanceCensor>().Censor(fieldSet, CensorContext.AsCensor());
+			if (fieldSet.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+
+			List<WorkflowTaskInstance> response = await this._airflowService.ExecuteTaskInstancesAsync(model, censoredFields);
+
+			this._accountingService.AccountFor(KnownActions.Rerun, KnownResources.Workflow.AsAccountable());
+
+			return response;
 		}
 
 	}

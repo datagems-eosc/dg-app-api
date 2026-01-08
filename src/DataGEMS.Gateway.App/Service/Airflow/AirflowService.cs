@@ -50,9 +50,10 @@ namespace DataGEMS.Gateway.App.Service.Airflow
 			this._airflowAccessTokenService = airflowAccessTokenService;
 		}
 
-		public async Task<List<WorkflowTaskInstance>> ExecuteTaskInstanceAsync(TaskInstanceDownstreamExecutionArgs args, IFieldSet fields)
+		public async Task<List<WorkflowTaskInstance>> ExecuteTaskInstancesAsync(TaskInstanceDownstreamExecutionArgs args, IFieldSet fields)
 		{
-			//GOTCHA: No authorization applied at this level. Permissions must be checked prior to calling airflow execute
+			await this._authorizationService.AuthorizeForce(Permission.RerunWorkflowTask);
+
 			String token = await this._airflowAccessTokenService.GetAirflowAccessTokenAsync();
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
 			Service.Airflow.Model.AirflowClearTaskInstanceRequest httpRequestModel = new Service.Airflow.Model.AirflowClearTaskInstanceRequest

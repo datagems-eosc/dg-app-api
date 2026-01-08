@@ -62,5 +62,6 @@ namespace DataGEMS.Gateway.App.Authorization
 		public const String BrowseWorkflowTaskInstance = "BrowseWorkflowTaskInstance";
 		public const String BrowseWorkflowXCom = "BrowseWorkflowXCom";
 		public const String BrowseWorkflowTaskLog = "BrowseWorkflowTaskLog";
+		public const String RerunWorkflowTask = "RerunWorkflowTask";
 	}
 }
