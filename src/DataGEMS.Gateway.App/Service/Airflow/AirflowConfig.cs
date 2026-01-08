@@ -5,6 +5,7 @@ namespace DataGEMS.Gateway.App.Service.Airflow
 	{
 		public String BaseUrl { get; set; }
 		public String TokenEndpoint { get; set; }
+		public String ClearTaskInstancesEndpoint { get; set; }
 		public String DagListEndpoint { get; set; }
 		public String DagByIdEndpoint { get; set; }
 		public String DagRunEndpoint {  get; set; }

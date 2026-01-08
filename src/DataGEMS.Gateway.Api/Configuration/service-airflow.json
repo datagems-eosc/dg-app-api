@@ -2,6 +2,7 @@
 	"AirflowService": {
 		"BaseUrl": "%{AirflowBaseUrl}%",
 		"TokenEndpoint": "auth/token",
+		"ClearTaskInstancesEndpoint": "api/v2/dags/{workflowId}/clearTaskInstances",
 		"DagListEndpoint": "api/v2/dags",
 		"DagByIdEndpoint": "api/v2/dags/{id}",
 		"DagRunEndpoint": "api/v2/dags/{id}/dagRuns",

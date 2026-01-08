@@ -10,6 +10,7 @@ using DataGEMS.Gateway.App.ErrorCode;
 using DataGEMS.Gateway.App.Exception;
 using DataGEMS.Gateway.App.LogTracking;
 using DataGEMS.Gateway.App.Model;
+using DataGEMS.Gateway.App.Service.Airflow.Model;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 
@@ -47,6 +48,41 @@ namespace DataGEMS.Gateway.App.Service.Airflow
 			this._builderFactory = builderFactory;
 			this._airflowConfig = airflowConfig;
 			this._airflowAccessTokenService = airflowAccessTokenService;
+		}
+
+		public async Task<List<WorkflowTaskInstance>> ExecuteTaskInstanceAsync(TaskInstanceDownstreamExecutionArgs args, IFieldSet fields)
+		{
+			//GOTCHA: No authorization applied at this level. Permissions must be checked prior to calling airflow execute
+			String token = await this._airflowAccessTokenService.GetAirflowAccessTokenAsync();
+			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
+			Service.Airflow.Model.AirflowClearTaskInstanceRequest httpRequestModel = new Service.Airflow.Model.AirflowClearTaskInstanceRequest
+			{
+				DryRun = true,
+				OnlyFailed = true,
+				ResetDagRuns = true,
+				TaskIds = args.TaskIds,
+				DagRunId = args.WorkflowExecutionId,
+				IncludeDownstream = true,
+			};
+			HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, $"{this._airflowConfig.BaseUrl}{this._airflowConfig.ClearTaskInstancesEndpoint.Replace("{workflowId}", args.WorkflowId)}")
+			{
+				Content = new StringContent(this._jsonHandlingService.ToJson(httpRequestModel), Encoding.UTF8, "application/json")
+			};
+			httpRequest.Headers.Add(HeaderNames.Accept, "application/json");
+			httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+			String content = await this.SendRequest(httpRequest);
+			List<AirflowTaskInstance> rawResponse = null;
+			try { rawResponse = this._jsonHandlingService.FromJson<List<AirflowTaskInstance>>(content); }
+			catch (System.Exception ex)
+			{
+				this._logger.LogError(ex, "Failed to parse response: {content}", content);
+				throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.Workflow, this._logCorrelationScope.CorrelationId);
+			}
+
+			List<WorkflowTaskInstance> result = await this._builderFactory.Builder<App.Model.Builder.WorkflowTaskInstanceBuilder>().Authorize(AuthorizationFlags.Any).Build(fields, rawResponse);
+
+			return result;
 		}
 
 		public async Task<WorkflowExecution> ExecuteWorkflowAsync(WorkflowExecutionArgs args, IFieldSet fieldset)
