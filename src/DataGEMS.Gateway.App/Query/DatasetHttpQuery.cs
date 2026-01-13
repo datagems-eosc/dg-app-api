@@ -1,5 +1,6 @@
 ﻿using Cite.Tools.Common.Extensions;
 using Cite.Tools.Data.Query;
+using Cite.Tools.FieldSet;
 using Cite.Tools.Json;
 using Cite.Tools.Logging.Extensions;
 using DataGEMS.Gateway.App.AccessToken;
@@ -20,7 +21,6 @@ namespace DataGEMS.Gateway.App.Query
 		private List<Guid> _ids { get; set; }
 		private List<Guid> _excludedIds { get; set; }
 		private List<Guid> _collectionIds { get; set; }
-		private List<string> _properties { get; set; }
 		private List<string> _types { get; set; }
 		private Common.Enum.DatasetState? _datasetStatus { get; set; }
 		private DateTime? _publishedDateFrom { get; set; }
@@ -70,8 +70,6 @@ namespace DataGEMS.Gateway.App.Query
 		public DatasetHttpQuery CollectionIds(IEnumerable<Guid> collectionIds) { this._collectionIds = collectionIds?.ToList(); return this; }
 		public DatasetHttpQuery CollectionIds(Guid collectionId) { this._collectionIds = collectionId.AsList(); return this; }
 		public DatasetHttpQuery Like(String like) { this._like = like; return this; }
-		public DatasetHttpQuery Properties(IEnumerable<string> properties) { this._properties = properties?.ToList(); return this; }
-		public DatasetHttpQuery Properties(string property) { this._properties = property.AsList(); return this; }
 		public DatasetHttpQuery Types(IEnumerable<string> types) { this._types = types?.ToList(); return this; }
 		public DatasetHttpQuery Types(string type) { this._types = type.AsList(); return this; }
 		public DatasetHttpQuery State(Common.Enum.DatasetState state) { this._datasetStatus = state; return this; }
@@ -81,56 +79,59 @@ namespace DataGEMS.Gateway.App.Query
 
 		protected bool IsFalseQuery()
 		{
-			return this._ids.IsNotNullButEmpty() || this._excludedIds.IsNotNullButEmpty() || this._collectionIds.IsNotNullButEmpty() || this._properties.IsNotNullButEmpty() || this._types.IsNotNullButEmpty();
+			return this._ids.IsNotNullButEmpty() || this._excludedIds.IsNotNullButEmpty() || this._collectionIds.IsNotNullButEmpty() || this._types.IsNotNullButEmpty();
 		}
 
 		public async Task<List<Dataset>> CollectAsync()
 		{
-			DatasetQueryList collectedItems = await CollectBaseAsync(false);
+			return await this.CollectAsync(null);
+		}
+
+		public async Task<List<Dataset>> CollectAsync(IFieldSet projection)
+		{
+			DatasetQueryList collectedItems = await this.CollectBaseAsync(false, projection);
 			return collectedItems == null || collectedItems.Datasets == null ? null : collectedItems.Datasets.Select(x => new Dataset
 			{
 				Id = Guid.TryParse(x.Id, out Guid parsedId) ? parsedId : Guid.Empty,
-				Name = x.Properties.Name,
-				ArchivedAt = x.Properties.ArchivedAt,
-				Description = x.Properties.Description,
-				ConformsTo = x.Properties.ConformsTo,
-				CiteAs = x.Properties.CiteAs,
-				License = x.Properties.License,
-				Url = x.Properties.Url,
-				Version = x.Properties.Version,
-				Headline = x.Properties.Headline,
-				Keywords = x.Properties.Keywords,
-				FieldOfScience = x.Properties.FieldsOfScience,
-				Language = x.Properties.Languages,
-				Country = [x.Properties.Country],
-				DatePublished = x.Properties.DatePublished == null ? null : DateOnly.FromDateTime(x.Properties.DatePublished.Value),
-				//TODO: Access = x.Properties.Access,
-				//TODO: UploadedBy = x.Properties.UploadedBy,
-				//TODO: Distribution = x.Properties.Distribution,
-				//TODO: RecordSet = x.Properties.RecordSet,
+				Name = x.Properties?.Name,
+				ArchivedAt = x.Properties?.ArchivedAt,
+				Description = x.Properties?.Description,
+				ConformsTo = x.Properties?.ConformsTo,
+				CiteAs = x.Properties?.CiteAs,
+				License = x.Properties?.License,
+				Url = x.Properties?.Url,
+				Version = x.Properties?.Version,
+				Headline = x.Properties?.Headline,
+				Keywords = x.Properties?.Keywords,
+				FieldOfScience = x.Properties?.FieldsOfScience,
+				Language = x.Properties?.Languages,
+				Country = [x.Properties?.Country],
+				DatePublished = x.Properties?.DatePublished == null ? null : DateOnly.FromDateTime(x.Properties.DatePublished.Value),
+				//TODO: Access = x.Properties?.Access,
+				//TODO: UploadedBy = x.Properties?.UploadedBy,
+				//TODO: Distribution = x.Properties?.Distribution,
+				//TODO: RecordSet = x.Properties?.RecordSet,
 				//TODO: Type = x.Properties.Type,
 			}).ToList();
 		}
 
-		public async Task<DatasetQueryList> CollectBaseAsync(bool useInCount)
+		public async Task<DatasetQueryList> CollectBaseAsync(bool useInCount, IFieldSet projection)
 		{
 			string token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
 
 			QueryString qs = this.CreateFilterQuery();
-			if (this._properties != null) this._properties.ForEach(x => qs = qs.Add("properties", x));
+			qs = this.BuildProjection(qs, projection);
 			if (this.Order != null && !this.Order.IsEmpty)
 			{
-				if (this.Order.Items != null)
-				{
-					this.Order.Items.Select(x => qs = qs.Add("orderBy", new OrderingFieldResolver(x).Field));
-					qs = qs.Add("direction", new OrderingFieldResolver(this.Order.Items.FirstOrDefault()).IsAscending ? "1" : "-1");
-				}
+				this.Order.Items.Select(x => qs = qs.Add("orderBy", new OrderingFieldResolver(x).Field));
+				qs = qs.Add("direction", new OrderingFieldResolver(this.Order.Items.FirstOrDefault()).IsAscending ? "1" : "-1");
 			}
 
 			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"{this._config.BaseUrl}{this._config.DatasetQueryEndpoint}{qs.ToString()}");
 			request.Headers.Add(HeaderNames.Accept, "application/json");
 			request.Headers.Add(HeaderNames.Authorization, $"Bearer {token}");
+			request.Headers.Add(this._logTrackingCorrelationConfig.HeaderName, this._logCorrelationScope.CorrelationId);
 
 			String content = await this.SendRequest(request);
 			try
@@ -150,7 +151,9 @@ namespace DataGEMS.Gateway.App.Query
 		{
 			string token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
+
 			QueryString qs = this.CreateFilterQuery();
+
 			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"{this._config.BaseUrl}{this._config.DatasetQueryEndpoint}{qs.ToString()}");
 			request.Headers.Add(HeaderNames.Accept, "application/json");
 			request.Headers.Add(HeaderNames.Authorization, $"Bearer {token}");
@@ -177,6 +180,31 @@ namespace DataGEMS.Gateway.App.Query
 			if (this._publishedDateFrom != null) qs = qs.Add("publishedDateFrom", this._publishedDateFrom.Value.ToString("yyyy-MM-dd"));
 			if (this._publishedDateTo != null) qs = qs.Add("publishedDateTo", this._publishedDateTo.Value.ToString("yyyy-MM-dd"));
 			if (this._datasetStatus != null) qs = qs.Add("dataset_status", this._datasetStatus.Value.ToString().ToLower());
+			return qs;
+		}
+
+		private QueryString BuildProjection(QueryString qs, IFieldSet projection)
+		{
+			if (projection == null || projection.IsEmpty()) return qs;
+
+			List<String> fields = new List<string>();
+			if (projection.HasField(nameof(Model.Dataset.Country))) fields.Add("headline");
+			if (projection.HasField(nameof(Model.Dataset.Country))) fields.Add("fieldOfScience");
+			if (projection.HasField(nameof(Model.Dataset.Country))) fields.Add("name");
+			if (projection.HasField(nameof(Model.Dataset.Country))) fields.Add("conformsTo");
+			if (projection.HasField(nameof(Model.Dataset.Country))) fields.Add("url");
+			if (projection.HasField(nameof(Model.Dataset.Country))) fields.Add("datePublished");
+			if (projection.HasField(nameof(Model.Dataset.Country))) fields.Add("license");
+			if (projection.HasField(nameof(Model.Dataset.Country))) fields.Add("keywords");
+			if (projection.HasField(nameof(Model.Dataset.Country))) fields.Add("description");
+			if (projection.HasField(nameof(Model.Dataset.Country))) fields.Add("inLanguage");
+			if (projection.HasField(nameof(Model.Dataset.Country))) fields.Add("version");
+			if (projection.HasField(nameof(Model.Dataset.Country))) fields.Add("archivedAt");
+			if (projection.HasField(nameof(Model.Dataset.Country))) fields.Add("citeAs");
+			if (projection.HasField(nameof(Model.Dataset.Country))) fields.Add("country");
+
+			fields.ForEach(x => qs = qs.Add("properties", x));
+
 			return qs;
 		}
 
