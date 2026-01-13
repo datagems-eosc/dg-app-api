@@ -10,7 +10,6 @@ using DataGEMS.Gateway.App.ErrorCode;
 using DataGEMS.Gateway.App.Exception;
 using DataGEMS.Gateway.App.LogTracking;
 using DataGEMS.Gateway.App.Model;
-using DataGEMS.Gateway.App.Service.Airflow.Model;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 
@@ -50,7 +49,7 @@ namespace DataGEMS.Gateway.App.Service.Airflow
 			this._airflowAccessTokenService = airflowAccessTokenService;
 		}
 
-		public async Task<List<WorkflowTaskInstance>> ExecuteTaskInstancesAsync(TaskInstanceDownstreamExecutionArgs args, IFieldSet fields)
+		public async Task<List<WorkflowTaskInstance>> ReRunWorkflowTasksAsync(TaskInstanceDownstreamExecutionArgs args, IFieldSet fields)
 		{
 			await this._authorizationService.AuthorizeForce(Permission.RerunWorkflowTask);
 
@@ -73,8 +72,8 @@ namespace DataGEMS.Gateway.App.Service.Airflow
 			httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
 			String content = await this.SendRequest(httpRequest);
-			List<AirflowTaskInstance> rawResponse = null;
-			try { rawResponse = this._jsonHandlingService.FromJson<ClearTaskInstanceResponse>(content).TaskInstances; }
+			List<Service.Airflow.Model.AirflowTaskInstance> rawResponse = null;
+			try { rawResponse = this._jsonHandlingService.FromJson<Service.Airflow.Model.ClearTaskInstanceResponse>(content).TaskInstances; }
 			catch (System.Exception ex)
 			{
 				this._logger.LogError(ex, "Failed to parse response: {content}", content);

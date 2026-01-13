@@ -1,5 +1,4 @@
-﻿using Cite.Tools.Common.Extensions;
-using Cite.Tools.Validation;
+﻿using Cite.Tools.Validation;
 using DataGEMS.Gateway.App.Common.Validation;
 using DataGEMS.Gateway.App.ErrorCode;
 using Microsoft.Extensions.Localization;
