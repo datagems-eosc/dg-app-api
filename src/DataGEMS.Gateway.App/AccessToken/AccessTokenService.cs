@@ -15,6 +15,8 @@ namespace DataGEMS.Gateway.App.AccessToken
 {
 	public class AccessTokenService : IAccessTokenService
 	{
+		private static readonly int PreemptiveExpirationSeconds = 30;
+
 		private readonly IHttpClientFactory _httpClientFactory;
 		private readonly IDistributedCache _cache;
 		private readonly IdpClientConfig _config;
@@ -79,7 +81,11 @@ namespace DataGEMS.Gateway.App.AccessToken
 			ClientAccessToken token = null;
 			if (content != null)
 			{
-				try { token = JsonConvert.DeserializeObject<ClientAccessToken>(content); }
+				try
+				{
+					token = JsonConvert.DeserializeObject<ClientAccessToken>(content);
+					token.IssuedAt = DateTime.UtcNow;
+				}
 				catch (System.Exception ex)
 				{
 					this._logger.Error(ex, "could not retrieve access token");
@@ -148,7 +154,11 @@ namespace DataGEMS.Gateway.App.AccessToken
 			ClientAccessToken token = null;
 			if (content != null)
 			{
-				try { token = JsonConvert.DeserializeObject<ClientAccessToken>(content); }
+				try
+				{
+					token = JsonConvert.DeserializeObject<ClientAccessToken>(content);
+					token.IssuedAt = DateTime.UtcNow;
+				}
 				catch (System.Exception ex)
 				{
 					this._logger.Error(ex, "could not retrieve access token");
@@ -189,6 +199,11 @@ namespace DataGEMS.Gateway.App.AccessToken
 					info = null; 
 				}
 			}
+			if (info != null)
+			{
+				DateTime threashold = DateTime.Now.Subtract(TimeSpan.FromSeconds(AccessTokenService.PreemptiveExpirationSeconds));
+				if (info.IssuedAt.AddSeconds(info.ExpiresIn) >= threashold) info = null;
+			}
 
 			return info;
 		}
@@ -208,6 +223,13 @@ namespace DataGEMS.Gateway.App.AccessToken
 
 		private async Task CacheUpdateBase(String cacheKey, ClientAccessToken value)
 		{
+			DateTime threashold = DateTime.Now.Subtract(TimeSpan.FromSeconds(AccessTokenService.PreemptiveExpirationSeconds));
+			if (value == null || (value!=null && value.IssuedAt.AddSeconds(value.ExpiresIn) >= threashold))
+			{
+				await this._cache.RemoveAsync(cacheKey);
+				return;
+			}
+
 			String payload = null;
 			if (value != null)
 			{
@@ -220,7 +242,7 @@ namespace DataGEMS.Gateway.App.AccessToken
 			}
 			if (payload == null || value.ExpiresIn <= 30) return;
 
-			await this._cache.SetStringAsync(cacheKey, payload, new DistributedCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(value.ExpiresIn - 30)));
+			await this._cache.SetStringAsync(cacheKey, payload, new DistributedCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(value.ExpiresIn - AccessTokenService.PreemptiveExpirationSeconds)));
 		}
 
 		private String CacheKeyClient(String key)
