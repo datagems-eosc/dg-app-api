@@ -12,6 +12,7 @@ nav:
   - API:
     - Overview: api-overview.md
     - Status & Error Codes: error-codes.md
+    - Context Grants: context-grants.md
     - OpenAPI: openapi.md
   - Setup & Monitoring:
     - Automations: automations.md
