@@ -13,6 +13,8 @@ using DataGEMS.Gateway.App.Service.DataManagement.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace DataGEMS.Gateway.App.Query
 {
@@ -90,30 +92,50 @@ namespace DataGEMS.Gateway.App.Query
 		public async Task<List<Dataset>> CollectAsync(IFieldSet projection)
 		{
 			DatasetQueryList collectedItems = await this.CollectBaseAsync(false, projection);
-			return collectedItems == null || collectedItems.Datasets == null ? null : collectedItems.Datasets.SelectMany(x => x.Nodes).Select(x => new Dataset
-			{
-				Id = Guid.TryParse(x.Id, out Guid parsedId) ? parsedId : Guid.Empty,
-				Name = x.Properties?.Name,
-				ArchivedAt = x.Properties?.ArchivedAt,
-				Description = x.Properties?.Description,
-				ConformsTo = x.Properties?.ConformsTo,
-				CiteAs = x.Properties?.CiteAs,
-				License = x.Properties?.License,
-				Url = x.Properties?.Url,
-				Version = x.Properties?.Version,
-				Headline = x.Properties?.Headline,
-				Keywords = x.Properties?.Keywords,
-				FieldOfScience = x.Properties?.FieldsOfScience,
-				Language = x.Properties?.Languages,
-				Country = [x.Properties?.Country],
-				DatePublished = x.Properties?.DatePublished == null ? null : DateOnly.FromDateTime(x.Properties.DatePublished.Value),
-				Status = x.Properties?.Status,
-				//TODO: Access = x.Properties?.Access,
-				//TODO: UploadedBy = x.Properties?.UploadedBy,
-				//TODO: Distribution = x.Properties?.Distribution,
-				//TODO: RecordSet = x.Properties?.RecordSet,
-				//TODO: Type = x.Properties.Type,
-			}).ToList();
+			if (collectedItems == null || collectedItems.Datasets == null) return null;
+
+			return collectedItems.Datasets
+				.SelectMany(x => x.Nodes)
+				.Where(x => x.ContainsKey("labels") && ((JArray)x["labels"]).ToList().Contains("sc:Dataset"))
+				.Select(x =>
+				{
+					JObject properties = x.ContainsKey("properties") && x["properties"] != null ? (JObject)x["properties"] : null;
+					if (properties == null)
+					{
+						return null;
+					}
+					return new Dataset
+					{
+						Id = properties.ContainsKey("id") && properties["id"] != null ? (Guid)properties["id"] : Guid.Empty,
+						Name = properties.ContainsKey("name") ? (string)properties["name"] : null,
+						ArchivedAt = properties.ContainsKey("sc:archivedAt") ? (string)properties["sc:archivedAt"] : null,
+						Description = properties.ContainsKey("description") ? (string)properties["description"] : null,
+						ConformsTo = properties.ContainsKey("conformsTo") ? (string)properties["conformsTo"] : null,
+						CiteAs = properties.ContainsKey("citeAs") ? (string)properties["citeAs"] : null,
+						License = properties.ContainsKey("license") ? (string)properties["license"] : null,
+						Url = properties.ContainsKey("url") ? (string)properties["url"] : null,
+						Version = properties.ContainsKey("version") ? (string)properties["version"] : null,
+						Headline = properties.ContainsKey("dg:headline") ? (string)properties["dg:headline"] : null,
+						Keywords = properties.ContainsKey("dg:keywords") && properties["dg:keywords"] != null ? ((JArray)properties["dg:keywords"]).ToObject<List<string>>() : null,
+						FieldOfScience = properties.ContainsKey("dg:fieldOfScience") && properties["dg:fieldOfScience"] != null ? ((JArray)properties["dg:fieldOfScience"]).ToObject<List<string>>() : null,
+						Language = properties.ContainsKey("inLanguage") && properties["inLanguage"] != null ? ((JArray)properties["inLanguage"]).ToObject<List<string>>() : null,
+						Country = properties.ContainsKey("country") ? [(string)properties["country"]] : null,
+						DatePublished = properties.ContainsKey("datePublished") && properties["datePublished"] != null ? DateOnly.FromDateTime((DateTime)properties["datePublished"]) : null,
+						Status = properties.ContainsKey("dg:status") ? (string)properties["dg:status"] : null,
+						Code = properties.ContainsKey("code") ? (string)properties["code"] : null,
+						Size = properties.ContainsKey("size") && properties["size"] != null ? (long?)properties["size"] : null,
+						MimeType = properties.ContainsKey("mime_type") ? (string)properties["mime_type"] : null,
+						//TODO: Access
+						//TODO: UploadedBy
+						//TODO: Distribution
+						//TODO: RecordSet
+						//TODO: Type
+						//TODO: code
+						//TODO: size
+						//TODO: mime_type
+
+					};
+				}).ToList();
 		}
 
 		public async Task<DatasetQueryList> CollectBaseAsync(bool useInCount, IFieldSet projection)
