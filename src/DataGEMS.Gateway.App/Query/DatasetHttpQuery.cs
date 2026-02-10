@@ -90,7 +90,7 @@ namespace DataGEMS.Gateway.App.Query
 		public async Task<List<Dataset>> CollectAsync(IFieldSet projection)
 		{
 			DatasetQueryList collectedItems = await this.CollectBaseAsync(false, projection);
-			return collectedItems == null || collectedItems.Datasets == null ? null : collectedItems.Datasets.Select(x => new Dataset
+			return collectedItems == null || collectedItems.Datasets == null ? null : collectedItems.Datasets.SelectMany(x => x.Nodes).Select(x => new Dataset
 			{
 				Id = Guid.TryParse(x.Id, out Guid parsedId) ? parsedId : Guid.Empty,
 				Name = x.Properties?.Name,
@@ -107,6 +107,7 @@ namespace DataGEMS.Gateway.App.Query
 				Language = x.Properties?.Languages,
 				Country = [x.Properties?.Country],
 				DatePublished = x.Properties?.DatePublished == null ? null : DateOnly.FromDateTime(x.Properties.DatePublished.Value),
+				Status = x.Properties?.Status,
 				//TODO: Access = x.Properties?.Access,
 				//TODO: UploadedBy = x.Properties?.UploadedBy,
 				//TODO: Distribution = x.Properties?.Distribution,

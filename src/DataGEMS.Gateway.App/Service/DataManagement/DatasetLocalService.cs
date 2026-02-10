@@ -336,7 +336,8 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 				nameof(App.Model.Dataset.DatePublished),
 				nameof(App.Model.Dataset.ArchivedAt),
 				nameof(App.Model.Dataset.ConformsTo),
-				nameof(App.Model.Dataset.CiteAs));
+				nameof(App.Model.Dataset.CiteAs),
+				nameof(App.Model.Dataset.Status));
 			App.Model.Dataset model = await this._builderFactory.Builder<App.Model.Builder.DatasetBuilder>().Build(fields, datas.First());
 			await this.ExecuteFutureProfilingFlow(model, viewModel.DataStoreKind);
 

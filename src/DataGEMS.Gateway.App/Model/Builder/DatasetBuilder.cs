@@ -68,6 +68,7 @@ namespace DataGEMS.Gateway.App.Model.Builder
 				if (fields.HasField(nameof(Model.Dataset.ArchivedAt))) m.ArchivedAt = d.ArchivedAt;
 				if (fields.HasField(nameof(Model.Dataset.ConformsTo))) m.ConformsTo = d.ConformsTo;
 				if (fields.HasField(nameof(Model.Dataset.CiteAs))) m.CiteAs = d.CiteAs;
+				if (fields.HasField(nameof(Model.Dataset.Status))) m.Status = d.Status;
 
 				if (!collectionFields.IsEmpty() && collectionMap != null && collectionMap.ContainsKey(d.Id)) m.Collections = collectionMap[d.Id];
 				if (!permissionFields.IsEmpty() && datasetAffiliatedRoles != null && datasetAffiliatedRoles.ContainsKey(d.Id))

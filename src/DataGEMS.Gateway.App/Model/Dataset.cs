@@ -30,6 +30,7 @@ namespace DataGEMS.Gateway.App.Model
         public string ConformsTo { get; set; }
 		public string CiteAs { get; set; }
 		public String ProfileRaw { get; set; }
+		public String Status { get; set; }
 		public List<Model.Collection> Collections { get; set; }
 		public List<String> Permissions { get; set; }
 	}
