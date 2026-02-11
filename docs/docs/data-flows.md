@@ -7,6 +7,7 @@ The Gateway API provides entry points for some facets of the onboarding and proc
 ## Making data available to the platform
 
 When it comes to making data available to the platform so that they can be ingested as datasets, there are various methods supported:
+
 * Upload data files directly through the Gateway API
 * Reference data that are publicly available through http / ftp
 * Reference data previously staged to the platform as raw files
@@ -115,6 +116,7 @@ This will provide an answer like the following:
 ```
 
 For the DataLocation property, as described in the [OpenAPI Reference](openapi.md), possible values include (please see the reference for the updated list): 
+
 * File = 0 - Data is stored in a local or network file system path
 * Http = 1 - Data is accessible via an HTTP or HTTPS endpoint
 * Ftp = 2 - Data is accessible via an FTP or FTPS server
@@ -149,6 +151,7 @@ This will provide an answer like the following:
 ```
 
 For the DataStoreKind property, as described in the [OpenAPI Reference](openapi.md), possible values include (please see the reference for the updated list): 
+
 * FileSystem = 0 - The dataset is stored in a filesystem
 * RelationalDatabase = 1 - The dataset is stored in a relational database
 
