@@ -1275,11 +1275,13 @@
 <p>The data onboarding and processing flows are primarily managed through respective DataGEMS conmponents such as the <a href="https://datagems-eosc.github.io/data-model-management">DataGEMS Data Model Management</a>, the <a href="https://datagems-eosc.github.io/dg-data-workflow">DataGEMS Data Workflow Orchestrator</a>, the <a href="https://datagems-eosc.github.io/dg-dataset-profiler">Dataset Profiler</a>, and others that can be found in the <a href="https://datagems-eosc.github.io/">DataGEMS documentation</a>.</p>
 <p>The Gateway API provides entry points for some facets of the onboarding and processing phases as required and propagates processing requests to the underpinning components.</p>
 <h2 id="making-data-available-to-the-platform">Making data available to the platform<a class="headerlink" href="#making-data-available-to-the-platform" title="Permanent link">&para;</a></h2>
-<p>When it comes to making data available to the platform so that they can be ingested as datasets, there are various methods supported:
-* Upload data files directly through the Gateway API
-* Reference data that are publicly available through http / ftp
-* Reference data previously staged to the platform as raw files
-* Reference data previously staged to the platform as relations database</p>
+<p>When it comes to making data available to the platform so that they can be ingested as datasets, there are various methods supported:</p>
+<ul>
+<li>Upload data files directly through the Gateway API</li>
+<li>Reference data that are publicly available through http / ftp</li>
+<li>Reference data previously staged to the platform as raw files</li>
+<li>Reference data previously staged to the platform as relations database</li>
+</ul>
 <p>The first two methods are made available to users that have proper authorization to be used when registering a new dataset. The later two cases are restricted to administrator users as they require previous communication, offline actions and internal platform knowledge to be referenced.</p>
 <h2 id="uploading-data">Uploading data<a class="headerlink" href="#uploading-data" title="Permanent link">&para;</a></h2>
 <p>A user with the approriate authorization can upload data that can then be used to register a dataset.</p>
@@ -1354,13 +1356,15 @@
 <p>This will provide an answer like the following:</p>
 <div class="highlight"><pre><span></span><code><span class="s2">&quot;&lt;dataset uuid&gt;&quot;</span>
 </code></pre></div>
-<p>For the DataLocation property, as described in the <a href="../openapi/">OpenAPI Reference</a>, possible values include (please see the reference for the updated list): 
-* File = 0 - Data is stored in a local or network file system path
-* Http = 1 - Data is accessible via an HTTP or HTTPS endpoint
-* Ftp = 2 - Data is accessible via an FTP or FTPS server
-* Remote = 3 - Reserved but not used
-* Staged = 4 - The dataset is already staged
-* Database = 5 - The dataset is stored in a database</p>
+<p>For the DataLocation property, as described in the <a href="../openapi/">OpenAPI Reference</a>, possible values include (please see the reference for the updated list): </p>
+<ul>
+<li>File = 0 - Data is stored in a local or network file system path</li>
+<li>Http = 1 - Data is accessible via an HTTP or HTTPS endpoint</li>
+<li>Ftp = 2 - Data is accessible via an FTP or FTPS server</li>
+<li>Remote = 3 - Reserved but not used</li>
+<li>Staged = 4 - The dataset is already staged</li>
+<li>Database = 5 - The dataset is stored in a database</li>
+</ul>
 <p>These options relate with the possible onboarding storage locations as detailed above.</p>
 <p>As a result of this process a new dataset entry will be created with the provided metadata anf an ID will be assigned to the dataset. The dataset will not yet be profiled and no other processing steps will be done for this dataset. These will need to be executed explicitly. </p>
 <h2 id="profiling-dataset">Profiling Dataset<a class="headerlink" href="#profiling-dataset" title="Permanent link">&para;</a></h2>
@@ -1377,9 +1381,11 @@
 <p>This will provide an answer like the following:</p>
 <div class="highlight"><pre><span></span><code><span class="s2">&quot;&lt;dataset uuid&gt;&quot;</span>
 </code></pre></div>
-<p>For the DataStoreKind property, as described in the <a href="../openapi/">OpenAPI Reference</a>, possible values include (please see the reference for the updated list): 
-* FileSystem = 0 - The dataset is stored in a filesystem
-* RelationalDatabase = 1 - The dataset is stored in a relational database</p>
+<p>For the DataStoreKind property, as described in the <a href="../openapi/">OpenAPI Reference</a>, possible values include (please see the reference for the updated list): </p>
+<ul>
+<li>FileSystem = 0 - The dataset is stored in a filesystem</li>
+<li>RelationalDatabase = 1 - The dataset is stored in a relational database</li>
+</ul>
 <p>These options relate with the possible onboarding storage locations as detailed above. For all cases where raw files are either uploaded, downloaded or already staged, the <code>filesystem</code> option should be set. The <code>RelationalDatabase</code> should be set only for the case where the dataset is already staged in a relational database as a administrative offline task.</p>
 
 
