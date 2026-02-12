@@ -141,7 +141,7 @@ namespace DataGEMS.Gateway.App.Query
 				.Where(x => x != null)
 				.ToList() ?? [];
 			}
-			catch(InvalidCastException ex)
+			catch (InvalidCastException ex)
 			{
 				this._logger.Error(ex, "problem converting dataset properties. collected items were {collectedItems}", collectedItems);
 				throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.DataManagement, this._logCorrelationScope.CorrelationId);
@@ -162,7 +162,7 @@ namespace DataGEMS.Gateway.App.Query
 
 		private Guid TransformJTokenToGuid(JObject obj, string propName)
 		{
-			if (!obj.TryGetValue(propName, out var token) || token is null || token.Type is JTokenType.Null or JTokenType.Undefined) 
+			if (!obj.TryGetValue(propName, out var token) || token is null || token.Type is JTokenType.Null or JTokenType.Undefined)
 				return Guid.Empty;
 			if (token.Type == JTokenType.Guid)
 				return token.Value<Guid>();
@@ -184,13 +184,28 @@ namespace DataGEMS.Gateway.App.Query
 
 		private DateOnly? TransformJTokenToDateOnly(JObject obj, string propName)
 		{
-			if (!obj.TryGetValue(propName, out var token) || token is null ||
-			token.Type is JTokenType.Null or JTokenType.Undefined)
-			{
+			if (!obj.TryGetValue(propName, out var token) || token is null || token.Type is JTokenType.Null or JTokenType.Undefined)
 				return null;
+			var s = (token.Type == JTokenType.String ? token.Value<string>() : token.ToString())?.Trim();
+			if (string.IsNullOrWhiteSpace(s)) return null;
+			if (DateOnly.TryParseExact(
+					s,
+					["dd-MM-yyyy", "d-M-yyyy", "yyyy-MM-dd", "dd/MM/yyyy", "d/M/yyyy"],
+					CultureInfo.InvariantCulture,
+					DateTimeStyles.None,
+					out var d))
+			{
+				return d;
 			}
-			var s = token.Type == JTokenType.String ? token.Value<string>() : token.ToString();
-			return DateOnly.TryParse(s, out var date) ? date : null;
+			if (DateTime.TryParse(
+					s,
+					CultureInfo.InvariantCulture,
+					DateTimeStyles.AllowWhiteSpaces | DateTimeStyles.AssumeUniversal,
+					out var dt))
+			{
+				return DateOnly.FromDateTime(dt);
+			}
+			return null;
 		}
 
 		private List<string> TransformJTokenToStringList(JObject obj, string propName)
