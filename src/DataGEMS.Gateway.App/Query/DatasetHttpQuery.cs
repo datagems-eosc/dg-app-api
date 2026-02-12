@@ -98,7 +98,7 @@ namespace DataGEMS.Gateway.App.Query
 			{
 				return collectedItems.Datasets
 				.SelectMany(x => x.Nodes)
-				.Where(x => x.ContainsKey("labels") && JArrayToList(x["labels"]) != null && JArrayToList(x["labels"]).Contains("sc:Dataset"))
+				.Where(x => x.ContainsKey("labels") && Common.Extensions.JArrayToList(x["labels"]) != null && Common.Extensions.JArrayToList(x["labels"]).Contains("sc:Dataset"))
 				.Select(x =>
 				{
 					JObject properties = x.ContainsKey("properties") && x["properties"] != null && x["properties"] is JObject ? (JObject)x["properties"] : null;
@@ -108,25 +108,25 @@ namespace DataGEMS.Gateway.App.Query
 					}
 					return new Dataset
 					{
-						Id = TransformJTokenToGuid(properties, "id"),
-						Name = TransformJTokenToString(properties, "name"),
-						ArchivedAt = TransformJTokenToString(properties, "sc:archivedAt"),
-						Description = TransformJTokenToString(properties, "description"),
-						ConformsTo = TransformJTokenToString(properties, "conformsTo"),
-						CiteAs = TransformJTokenToString(properties, "citeAs"),
-						License = TransformJTokenToString(properties, "license"),
-						Url = TransformJTokenToString(properties, "url"),
-						Version = TransformJTokenToString(properties, "version"),
-						Headline = TransformJTokenToString(properties, "dg:headline"),
-						Keywords = TransformJTokenToStringList(properties, "dg:keywords"),
-						FieldOfScience = TransformJTokenToStringList(properties, "dg:fieldOfScience"),
-						Language = TransformJTokenToStringList(properties, "inLanguage"),
-						Country = [TransformJTokenToString(properties, "country")],
-						DatePublished = TransformJTokenToDateOnly(properties, "datePublished"),
-						Status = TransformJTokenToString(properties, "dg:status"),
-						Code = TransformJTokenToString(properties, "code"),
-						Size = TransformJTokenToLong(properties, "size"),
-						MimeType = TransformJTokenToString(properties, "mime_type"),
+						Id = Common.Extensions.TransformJTokenToGuid(properties, "id"),
+						Name = Common.Extensions.TransformJTokenToString(properties, "name"),
+						ArchivedAt = Common.Extensions.TransformJTokenToString(properties, "sc:archivedAt"),
+						Description = Common.Extensions.TransformJTokenToString(properties, "description"),
+						ConformsTo = Common.Extensions.TransformJTokenToString(properties, "conformsTo"),
+						CiteAs = Common.Extensions.TransformJTokenToString(properties, "citeAs"),
+						License = Common.Extensions.TransformJTokenToString(properties, "license"),
+						Url = Common.Extensions.TransformJTokenToString(properties, "url"),
+						Version = Common.Extensions.TransformJTokenToString(properties, "version"),
+						Headline = Common.Extensions.TransformJTokenToString(properties, "dg:headline"),
+						Keywords = Common.Extensions.TransformJTokenToStringList(properties, "dg:keywords"),
+						FieldOfScience = Common.Extensions.TransformJTokenToStringList(properties, "dg:fieldOfScience"),
+						Language = Common.Extensions.TransformJTokenToStringList(properties, "inLanguage"),
+						Country = [Common.Extensions.TransformJTokenToString(properties, "country")],
+						DatePublished = Common.Extensions.TransformJTokenToDateOnly(properties, "datePublished"),
+						Status = Common.Extensions.TransformJTokenToString(properties, "dg:status"),
+						Code = Common.Extensions.TransformJTokenToString(properties, "code"),
+						Size = Common.Extensions.TransformJTokenToLong(properties, "size"),
+						MimeType = Common.Extensions.TransformJTokenToString(properties, "mime_type"),
 						//TODO: Access
 						//TODO: UploadedBy
 						//TODO: Distribution
@@ -147,99 +147,6 @@ namespace DataGEMS.Gateway.App.Query
 				throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.DataManagement, this._logCorrelationScope.CorrelationId);
 			}
 		}
-
-
-		private string TransformJTokenToString(JObject obj, string propName)
-		{
-			if (!obj.TryGetValue(propName, out var token) || token is null || token.Type is JTokenType.Null or JTokenType.Undefined) return null;
-			return token.Type switch
-			{
-				JTokenType.String => token.Value<string>(),
-				JTokenType.Integer or JTokenType.Float or JTokenType.Boolean or JTokenType.Date => token.ToString(),
-				_ => throw new InvalidCastException($"Token type {token.Type} cannot be converted to string.")
-			};
-		}
-
-		private Guid TransformJTokenToGuid(JObject obj, string propName)
-		{
-			if (!obj.TryGetValue(propName, out var token) || token is null || token.Type is JTokenType.Null or JTokenType.Undefined)
-				return Guid.Empty;
-			if (token.Type == JTokenType.Guid)
-				return token.Value<Guid>();
-			if (token.Type == JTokenType.String && Guid.TryParse(token.Value<string>(), out var guid))
-				return guid;
-			throw new InvalidCastException($"Token type {token.Type} cannot be converted to Guid.");
-		}
-
-		private long? TransformJTokenToLong(JObject obj, string propName)
-		{
-			if (!obj.TryGetValue(propName, out var token) || token is null || token.Type is JTokenType.Null or JTokenType.Undefined) return null;
-			return token.Type switch
-			{
-				JTokenType.Integer => token.Value<long?>(),
-				JTokenType.Float => token.Value<long?>(),
-				_ => throw new InvalidCastException($"Token type {token.Type} cannot be converted to long?.")
-			};
-		}
-
-		private DateOnly? TransformJTokenToDateOnly(JObject obj, string propName)
-		{
-			if (!obj.TryGetValue(propName, out var token) || token is null || token.Type is JTokenType.Null or JTokenType.Undefined)
-				return null;
-			var s = (token.Type == JTokenType.String ? token.Value<string>() : token.ToString())?.Trim();
-			if (string.IsNullOrWhiteSpace(s)) return null;
-			if (DateOnly.TryParseExact(
-					s,
-					["dd-MM-yyyy", "d-M-yyyy", "yyyy-MM-dd", "dd/MM/yyyy", "d/M/yyyy"],
-					CultureInfo.InvariantCulture,
-					DateTimeStyles.None,
-					out var d))
-			{
-				return d;
-			}
-			if (DateTime.TryParse(
-					s,
-					CultureInfo.InvariantCulture,
-					DateTimeStyles.AllowWhiteSpaces | DateTimeStyles.AssumeUniversal,
-					out var dt))
-			{
-				return DateOnly.FromDateTime(dt);
-			}
-			return null;
-		}
-
-		private List<string> TransformJTokenToStringList(JObject obj, string propName)
-		{
-			if (!obj.TryGetValue(propName, out var token) || token is null ||
-			token.Type is JTokenType.Null or JTokenType.Undefined)
-			{
-				return null;
-			}
-			if (token is JArray arr)
-				return arr.Values<string>().Where(x => x is not null).Cast<string>().ToList();
-			if (token.Type == JTokenType.String)
-				return [token.Value<string>()];
-
-			throw new InvalidCastException($"Token type {token.Type} cannot be converted to List<string>.");
-		}
-
-		private List<JToken> JArrayToList(object obj)
-		{
-			if (obj is JArray jArray)
-			{
-				return jArray.ToList();
-			}
-			else if (obj is IEnumerable<JToken> enumerable)
-			{
-				return enumerable.ToList();
-			}
-			else
-			{
-				this._logger.Error("Could not convert object {obj} to List<JToken>", obj.ToString());
-				throw new DGUnderpinningException(this._errors.UnderpinningService.Code, $"Could not convert object to List<JToken>", null, UnderpinningServiceType.DataManagement, this._logCorrelationScope.CorrelationId);
-			}
-		}
-
 
 		public async Task<DatasetQueryList> CollectBaseAsync(bool useInCount, IFieldSet projection)
 		{
