@@ -131,21 +131,17 @@ namespace DataGEMS.Gateway.App.Service.Discovery
 			List<List<Guid>> datasetIdsPerKind = new List<List<Guid>>();
 			if (request.DatasetIds != null && request.DatasetIds.Count > 0) 
 			{
-				List<DataManagement.Model.Dataset> directDatasets = await this._queryFactory.Query<DatasetLocalQuery>()
+				List<DataManagement.Model.Dataset> directDatasets = await this._queryFactory.Query<DatasetHttpQuery>()
 					.Ids(request.DatasetIds)
-					.DisableTracking()
-					.Authorize(AuthorizationFlags.Any)
-					.CollectAsyncAsModels();
+					.CollectAsync();
 
 				if (directDatasets.Count > 0) datasetIdsPerKind.Add(directDatasets.Select(x => x.Id).ToList());
 			}
 			if (request.CollectionIds != null && request.CollectionIds.Count > 0) 
 			{
-				List<DataManagement.Model.Dataset> collectionDatasets = await this._queryFactory.Query<DatasetLocalQuery>()
+				List<DataManagement.Model.Dataset> collectionDatasets = await this._queryFactory.Query<DatasetHttpQuery>()
 					.CollectionIds(request.CollectionIds)
-					.DisableTracking()
-					.Authorize(AuthorizationFlags.Any)
-					.CollectAsyncAsModels();
+					.CollectAsync();
 
 				if (collectionDatasets.Count > 0) datasetIdsPerKind.Add(collectionDatasets.Select(x => x.Id).ToList());
 			}
@@ -157,11 +153,9 @@ namespace DataGEMS.Gateway.App.Service.Discovery
 					.Authorize(AuthorizationFlags.Any)
 					.CollectAsync(x => x.DatasetId);
 
-				List<DataManagement.Model.Dataset> userCollectionDatasets = await this._queryFactory.Query<DatasetLocalQuery>()
+				List<DataManagement.Model.Dataset> userCollectionDatasets = await this._queryFactory.Query<DatasetHttpQuery>()
 					.CollectionIds(userCollectionDatasetIds)
-					.DisableTracking()
-					.Authorize(AuthorizationFlags.Any)
-					.CollectAsyncAsModels();
+					.CollectAsync();
 
 				if (userCollectionDatasetIds.Count > 0) datasetIdsPerKind.Add(userCollectionDatasets.Select(x => x.Id).ToList());
 			}

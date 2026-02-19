@@ -19,36 +19,15 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 		public List<Guid> CollectionIds { get; set; }
 		[SwaggerSchema(description: "Limit lookup to items whose name matches the pattern")]
 		public String Like { get; set; }
-		[SwaggerSchema(description: "Limit lookup to items whose license matches the provided value")]
-		public String License { get; set; }
-		[SwaggerSchema(description: "Limit lookup to items whose mime type matches the provided value")]
-		public String MimeType { get; set; }
-		[SwaggerSchema(description: "Limit lookup to items belonging to the specific fields of science. If set, the list of values must not be empty")]
-		public List<String> FieldsOfScience { get; set; }
-		[SwaggerSchema(description: "Limit lookup to items whose published date is within the provided bounds. Any of the bounds can be left unset")]
-		public RangeOf<DateOnly?> PublishedRange { get; set; }
-		[SwaggerSchema(description: "Limit lookup to items whose size is within the provided bounds. Any of the bounds can be left unset")]
-		public RangeOf<long?> SizeRange { get; set; }
-		[SwaggerSchema(description: "Limit lookup to items that the provided user has explicit access kind. If set, the list of values must not be empty")]
-		public List<String> ContextRoles { get; set; }
-		[SwaggerSchema(description: "Limit lookup to items that the provided user has explicit access kind. This should only be set in combination with ContextRoles. If left empty, the current user is used")]
-		public String ContextRoleSubjectId { get; set; }
 
-		public DatasetLocalQuery Enrich(QueryFactory factory)
+		public DatasetHttpQuery Enrich(QueryFactory factory)
 		{
-			DatasetLocalQuery query = factory.Query<DatasetLocalQuery>();
+			DatasetHttpQuery query = factory.Query<DatasetHttpQuery>();
 
 			if (this.Ids != null) query.Ids(this.Ids);
 			if (this.ExcludedIds != null) query.ExcludedIds(this.ExcludedIds);
 			if (this.CollectionIds != null) query.CollectionIds(this.CollectionIds);
 			if (!String.IsNullOrEmpty(this.Like)) query.Like(this.Like);
-			if (!String.IsNullOrEmpty(this.License)) query.License(this.License);
-			if (!String.IsNullOrEmpty(this.MimeType)) query.MimeType(this.MimeType);
-			if (this.FieldsOfScience != null) query.FieldsOfScience(this.FieldsOfScience);
-			if (this.PublishedRange != null) query.PublishedRange(this.PublishedRange);
-			if (this.SizeRange != null) query.SizeRange(this.SizeRange);
-			if (this.ContextRoles != null) query.ContextRolesInMemory(this.ContextRoles);
-			if (!String.IsNullOrEmpty(this.ContextRoleSubjectId)) query.ContextRoleSubjectIdInMemory(this.ContextRoleSubjectId);
 
 			this.EnrichCommon(query);
 
@@ -83,15 +62,6 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 					this.Spec()
 						.Must(() => !item.CollectionIds.IsNotNullButEmpty())
 						.FailOn(nameof(DatasetLookup.CollectionIds)).FailWith(this._localizer["validation_setButEmpty", nameof(DatasetLookup.CollectionIds)]),
-					//contextRoles must be null or not empty
-					this.Spec()
-						.Must(() => !item.ContextRoles.IsNotNullButEmpty())
-						.FailOn(nameof(DatasetLookup.ContextRoles)).FailWith(this._localizer["validation_setButEmpty", nameof(DatasetLookup.ContextRoles)]),
-					//contextRoleSubjectId must be set only if ContextRoles is set
-					this.Spec()
-						.If(() => item.ContextRoles == null || item.ContextRoles.Count == 0)
-						.Must(() => String.IsNullOrEmpty(item.ContextRoleSubjectId))
-						.FailOn(nameof(DatasetLookup.ContextRoleSubjectId)).FailWith(this._localizer["validation_overPosting"]),
 					//paging without ordering not supported
 					this.Spec()
 						.If(()=> item.Page != null && !item.Page.IsEmpty)

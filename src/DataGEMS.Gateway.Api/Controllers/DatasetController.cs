@@ -26,7 +26,7 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace DataGEMS.Gateway.Api.Controllers
 {
-    [Route("api/dataset")]
+	[Route("api/dataset")]
 	public class DatasetController : ControllerBase
 	{
 		private readonly CensorFactory _censorFactory;
@@ -81,8 +81,8 @@ namespace DataGEMS.Gateway.Api.Controllers
 			IFieldSet censoredFields = await this._censorFactory.Censor<DatasetCensor>().Censor(lookup.Project, CensorContext.AsCensor());
 			if (lookup.Project.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
 
-			DatasetLocalQuery query = lookup.Enrich(this._queryFactory).DisableTracking().Authorize(AuthorizationFlags.Any);
-			List<App.Service.DataManagement.Model.Dataset> datas = await query.CollectAsyncAsModels();
+			DatasetHttpQuery query = lookup.Enrich(this._queryFactory);
+			List<App.Service.DataManagement.Model.Dataset> datas = await query.CollectAsync();
 			int count = (lookup.Metadata != null && lookup.Metadata.CountAll) ? await query.CountAsync() : datas.Count;
 			List<App.Model.Dataset> models = await this._builderFactory.Builder<DatasetBuilder>().Authorize(AuthorizationFlags.Any).Build(censoredFields, datas);
 
@@ -117,52 +117,15 @@ namespace DataGEMS.Gateway.Api.Controllers
 			IFieldSet censoredFields = await this._censorFactory.Censor<DatasetCensor>().Censor(fieldSet, CensorContext.AsCensor());
 			if (fieldSet.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
 
-			DatasetLocalQuery query = this._queryFactory.Query<DatasetLocalQuery>().Ids(id).DisableTracking().Authorize(AuthorizationFlags.Any);
-			App.Service.DataManagement.Model.Dataset data = await query.FirstAsyncAsModel();
+			DatasetHttpQuery query = this._queryFactory.Query<DatasetHttpQuery>().Ids(id);
+			App.Service.DataManagement.Model.Dataset data = (await query.CollectAsync())?.FirstOrDefault();
+			if (data == null) throw new DGNotFoundException(this._localizer["general_notFound", id, nameof(App.Model.Dataset)]);
 			App.Model.Dataset model = await this._builderFactory.Builder<DatasetBuilder>().Authorize(AuthorizationFlags.Any).Build(censoredFields, data);
 			if (model == null) throw new DGNotFoundException(this._localizer["general_notFound", id, nameof(App.Model.Dataset)]);
 
 			this._accountingService.AccountFor(KnownActions.Query, KnownResources.Dataset.AsAccountable());
 
 			return model;
-		}
-
-		[HttpPost("onboard")]
-		[Authorize]
-		[ModelStateValidationFilter]
-		[ValidationFilter(typeof(App.Model.DatasetPersist.OnboardValidator), "model")]
-		[ServiceFilter(typeof(AppTransactionFilter))]
-		[SwaggerOperation(Summary = "Onboard dataset")]
-		[SwaggerResponse(statusCode: 200, description: "The onboarded dataset id", type: typeof(Guid))]
-		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
-		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
-		[SwaggerResponse(statusCode: 404, description: "Could not locate item with the provided id")]
-		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
-		[SwaggerResponse(statusCode: 500, description: "Internal error")]
-		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
-		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
-		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
-		public async Task<Guid> Onboard(
-			[FromBody]
-			[SwaggerRequestBody(description: "The model to onboard", Required = true)]
-			App.Model.DatasetPersist model,
-			[ModelBinder(Name = "f")]
-			[SwaggerParameter(description: "The fields to include in the response model", Required = true)]
-			[LookupFieldSetQueryStringOpenApi]
-			IFieldSet fieldSet)
-		{
-			this._logger.Debug(new MapLogEntry("onboarding").And("type", nameof(App.Model.DatasetPersist)).And("fields", fieldSet));
-
-			//GOTCHA: Ommiting browse permission check in case of new
-			IFieldSet censoredFields = await this._censorFactory.Censor<DatasetCensor>().Censor(fieldSet, CensorContext.AsCensor(), !model.Id.HasValue);
-			if (fieldSet.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
-
-			Guid id = await this._datasetService.OnboardAsync(model, censoredFields);
-
-			this._accountingService.AccountFor(KnownActions.Onboard, KnownResources.Dataset.AsAccountable());
-			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.Workflow.AsAccountable());
-
-			return id;
 		}
 
 
@@ -204,37 +167,6 @@ namespace DataGEMS.Gateway.Api.Controllers
 			return id;
 		}
 
-		[HttpPost("profile")]
-		[Authorize]
-		[ModelStateValidationFilter]
-		[ValidationFilter(typeof(App.Model.DatasetProfiling.ProfilingValidator), "model")]
-		[ServiceFilter(typeof(AppTransactionFilter))]
-		[SwaggerOperation(Summary = "Profile dataset")]
-		[SwaggerResponse(statusCode: 200, description: "The profiled dataset id", type: typeof(Guid))]
-		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
-		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
-		[SwaggerResponse(statusCode: 404, description: "Could not locate item with the provided id")]
-		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
-		[SwaggerResponse(statusCode: 500, description: "Internal error")]
-		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
-		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
-		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
-		public async Task<Guid> Profile(
-			[FromBody]
-			[SwaggerRequestBody(description: "The profile to apply", Required = true)]
-			App.Model.DatasetProfiling model
-		)
-		{
-			this._logger.Debug(new MapLogEntry("profiling").And("model", model));
-
-			Guid idProfiled = await this._datasetService.ProfileAsync(model);
-
-			this._accountingService.AccountFor(KnownActions.Profile, KnownResources.Dataset.AsAccountable());
-			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.Workflow.AsAccountable());
-
-			return idProfiled;
-		}
-
 
 		[HttpPost("future-profile")]
 		[Authorize]
@@ -263,122 +195,6 @@ namespace DataGEMS.Gateway.Api.Controllers
 			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.Workflow.AsAccountable());
 
 			return idProfiled;
-		}
-
-		[HttpPost("persist")]
-		[Authorize]
-		[ModelStateValidationFilter]
-		[ValidationFilter(typeof(App.Model.DatasetPersist.PersistValidator), "model")]
-		[ServiceFilter(typeof(AppTransactionFilter))]
-		[SwaggerOperation(Summary = "Persist dataset")]
-		[SwaggerResponse(statusCode: 200, description: "The persisted dataset", type: typeof(App.Model.Dataset))]
-		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
-		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
-		[SwaggerResponse(statusCode: 404, description: "Could not locate item with the provided id")]
-		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
-		[SwaggerResponse(statusCode: 500, description: "Internal error")]
-		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
-		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
-		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
-		public async Task<App.Model.Dataset> Persist(
-			[FromBody]
-			[SwaggerRequestBody(description: "The model to persist", Required = true)]
-			App.Model.DatasetPersist model,
-			[ModelBinder(Name = "f")]
-			[SwaggerParameter(description: "The fields to include in the response model", Required = true)]
-			[LookupFieldSetQueryStringOpenApi]
-			IFieldSet fieldSet)
-		{
-			this._logger.Debug(new MapLogEntry("persisting").And("type", nameof(App.Model.DatasetPersist)).And("fields", fieldSet));
-
-			IFieldSet censoredFields = await this._censorFactory.Censor<DatasetCensor>().Censor(fieldSet, CensorContext.AsCensor());
-			if (fieldSet.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
-
-			App.Model.Dataset persisted = await this._datasetService.PersistAsync(model, censoredFields);
-
-			this._accountingService.AccountFor(KnownActions.Persist, KnownResources.Dataset.AsAccountable());
-
-			return persisted;
-		}
-
-		[HttpDelete("{id}")]
-		[Authorize]
-		[ModelStateValidationFilter]
-		[ServiceFilter(typeof(AppTransactionFilter))]
-		[SwaggerOperation(Summary = "Deletes the dataset by id")]
-		[SwaggerResponse(statusCode: 200, description: "dataset deleted")]
-		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
-		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
-		[SwaggerResponse(statusCode: 404, description: "Could not locate item with the provided id")]
-		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
-		[SwaggerResponse(statusCode: 500, description: "Internal error")]
-		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
-		public async Task Delete(
-			[FromRoute]
-			[SwaggerParameter(description: "The id of the item to delete", Required = true)]
-			Guid id)
-		{
-			this._logger.Debug(new MapLogEntry("delete").And("type", nameof(App.Model.Dataset)).And("id", id));
-
-			await this._datasetService.DeleteAsync(id);
-
-			this._accountingService.AccountFor(KnownActions.Delete, KnownResources.Dataset.AsAccountable());
-		}
-
-		[HttpPost("as/data-management/onboard")]
-		[Authorize]
-		[ModelStateValidationFilter]
-		[ValidationFilter(typeof(App.Model.DatasetPersist.OnboardAsDataManagementValidator), "model")]
-		[ServiceFilter(typeof(AppTransactionFilter))]
-		[SwaggerOperation(Summary = "Persist dataset as data management service")]
-		[SwaggerResponse(statusCode: 200, description: "The persisted dataset id", type: typeof(Guid))]
-		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
-		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
-		[SwaggerResponse(statusCode: 404, description: "Could not locate item with the provided id")]
-		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
-		[SwaggerResponse(statusCode: 500, description: "Internal error")]
-		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
-		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
-		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
-		public async Task<Guid> OnboardAsDataManagement(
-			[FromBody]
-			[SwaggerRequestBody(description: "The model to onboard", Required = true)]
-			App.Model.DatasetPersist model)
-		{
-			this._logger.Debug(new MapLogEntry("onboarding as data management").And("type", nameof(App.Model.DatasetPersist)));
-
-			Guid id = await this._datasetService.OnboardAsDataManagementAsync(model);
-
-			return id;
-		}
-
-		[HttpPost("as/data-management/profile/{id}")]
-		[Authorize]
-		[ModelStateValidationFilter]
-		[ServiceFilter(typeof(AppTransactionFilter))]
-		[SwaggerOperation(Summary = "Persist dataset profile as data management service")]
-		[SwaggerResponse(statusCode: 200, description: "The persisted dataset id", type: typeof(Guid))]
-		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
-		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
-		[SwaggerResponse(statusCode: 404, description: "Could not locate item with the provided id")]
-		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
-		[SwaggerResponse(statusCode: 500, description: "Internal error")]
-		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
-		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
-		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
-		public async Task<Guid> UpdateProfileAsDataManagement(
-			[FromRoute]
-			[SwaggerParameter(description: "The id of the dataset to update", Required = true)]
-			Guid id,
-			[FromBody]
-			[SwaggerRequestBody(description: "The profile to update", Required = true)]
-			String profile)
-		{
-			this._logger.Debug(new MapLogEntry("updating profile as data management").And("id", id).And("profile", profile));
-
-			await this._datasetService.UpdateProfileAsDataManagementAsync(id, profile);
-
-			return id;
 		}
 	}
 }

@@ -6,19 +6,25 @@ using DataGEMS.Gateway.App.Common.Validation;
 using DataGEMS.Gateway.App.ErrorCode;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
+using System.ComponentModel.DataAnnotations;
 
 namespace DataGEMS.Gateway.App.Model
 {
 	public class Dataset
 	{
 		public Guid? Id { get; set; }
+		[MaxLength(50)]
 		public String Code { get; set; }
+		[MaxLength(250)]
 		public String Name { get; set; }
 		public String Description { get; set; }
 		public String License { get; set; }
+		[MaxLength(250)]
 		public String MimeType { get; set; }
 		public long? Size { get; set; }
+		[MaxLength(300)]
 		public String Url { get; set; }
+		[MaxLength(50)]
 		public String Version { get; set; }
 		public String Headline { get; set; }
 		public List<String> Keywords { get; set; }
@@ -27,7 +33,7 @@ namespace DataGEMS.Gateway.App.Model
 		public List<String> Country { get; set; }
 		public DateOnly? DatePublished { get; set; }
 		public string ArchivedAt { get; set; }
-        public string ConformsTo { get; set; }
+		public string ConformsTo { get; set; }
 		public string CiteAs { get; set; }
 		public String ProfileRaw { get; set; }
 		public String Status { get; set; }
@@ -58,11 +64,11 @@ namespace DataGEMS.Gateway.App.Model
 
 		public class OnboardValidator : BaseValidator<DatasetPersist>
 		{
-			private static int CodeMaxLength = typeof(Service.DataManagement.Data.Dataset).MaxLengthOf(nameof(Service.DataManagement.Data.Dataset.Code));
-			private static int NameMaxLength = typeof(Service.DataManagement.Data.Dataset).MaxLengthOf(nameof(Service.DataManagement.Data.Dataset.Name));
-			private static int UrlMaxLength = typeof(Service.DataManagement.Data.Dataset).MaxLengthOf(nameof(Service.DataManagement.Data.Dataset.Url));
-			private static int VersionMaxLength = typeof(Service.DataManagement.Data.Dataset).MaxLengthOf(nameof(Service.DataManagement.Data.Dataset.Version));
-			private static int MimeTypeMaxLength = typeof(Service.DataManagement.Data.Dataset).MaxLengthOf(nameof(Service.DataManagement.Data.Dataset.MimeType));
+			private static int CodeMaxLength = typeof(Dataset).MaxLengthOf(nameof(Dataset.Code));
+			private static int NameMaxLength = typeof(Dataset).MaxLengthOf(nameof(Dataset.Name));
+			private static int UrlMaxLength = typeof(Dataset).MaxLengthOf(nameof(Dataset.Url));
+			private static int VersionMaxLength = typeof(Dataset).MaxLengthOf(nameof(Dataset.Version));
+			private static int MimeTypeMaxLength = typeof(Dataset).MaxLengthOf(nameof(Dataset.MimeType));
 
 			public OnboardValidator(
 				IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> localizer,
@@ -188,11 +194,11 @@ namespace DataGEMS.Gateway.App.Model
 
 		public class OnboardAsDataManagementValidator : BaseValidator<DatasetPersist>
 		{
-			private static int CodeMaxLength = typeof(Service.DataManagement.Data.Dataset).MaxLengthOf(nameof(Service.DataManagement.Data.Dataset.Code));
-			private static int NameMaxLength = typeof(Service.DataManagement.Data.Dataset).MaxLengthOf(nameof(Service.DataManagement.Data.Dataset.Name));
-			private static int UrlMaxLength = typeof(Service.DataManagement.Data.Dataset).MaxLengthOf(nameof(Service.DataManagement.Data.Dataset.Url));
-			private static int VersionMaxLength = typeof(Service.DataManagement.Data.Dataset).MaxLengthOf(nameof(Service.DataManagement.Data.Dataset.Version));
-			private static int MimeTypeMaxLength = typeof(Service.DataManagement.Data.Dataset).MaxLengthOf(nameof(Service.DataManagement.Data.Dataset.MimeType));
+			private static int CodeMaxLength = typeof(Dataset).MaxLengthOf(nameof(Dataset.Code));
+			private static int NameMaxLength = typeof(Dataset).MaxLengthOf(nameof(Dataset.Name));
+			private static int UrlMaxLength = typeof(Dataset).MaxLengthOf(nameof(Dataset.Url));
+			private static int VersionMaxLength = typeof(Dataset).MaxLengthOf(nameof(Dataset.Version));
+			private static int MimeTypeMaxLength = typeof(Dataset).MaxLengthOf(nameof(Dataset.MimeType));
 
 			public OnboardAsDataManagementValidator(
 				IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> localizer,
@@ -313,11 +319,11 @@ namespace DataGEMS.Gateway.App.Model
 
 		public class PersistValidator : BaseValidator<DatasetPersist>
 		{
-			private static int CodeMaxLength = typeof(Service.DataManagement.Data.Dataset).MaxLengthOf(nameof(Service.DataManagement.Data.Dataset.Code));
-			private static int NameMaxLength = typeof(Service.DataManagement.Data.Dataset).MaxLengthOf(nameof(Service.DataManagement.Data.Dataset.Name));
-			private static int UrlMaxLength = typeof(Service.DataManagement.Data.Dataset).MaxLengthOf(nameof(Service.DataManagement.Data.Dataset.Url));
-			private static int VersionMaxLength = typeof(Service.DataManagement.Data.Dataset).MaxLengthOf(nameof(Service.DataManagement.Data.Dataset.Version));
-			private static int MimeTypeMaxLength = typeof(Service.DataManagement.Data.Dataset).MaxLengthOf(nameof(Service.DataManagement.Data.Dataset.MimeType));
+			private static int CodeMaxLength = typeof(Dataset).MaxLengthOf(nameof(Dataset.Code));
+			private static int NameMaxLength = typeof(Dataset).MaxLengthOf(nameof(Dataset.Name));
+			private static int UrlMaxLength = typeof(Dataset).MaxLengthOf(nameof(Dataset.Url));
+			private static int VersionMaxLength = typeof(Dataset).MaxLengthOf(nameof(Dataset.Version));
+			private static int MimeTypeMaxLength = typeof(Dataset).MaxLengthOf(nameof(Dataset.MimeType));
 
 			public PersistValidator(
 				IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> localizer,
