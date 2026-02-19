@@ -211,6 +211,14 @@
 				"AllowAnonymous": false,
 				"AllowAuthenticated": false
 			},
+			"PowerSearchDataset": {
+				"Roles": [ "GLOBAL_dg_admin" ],
+				"ContextRoles": [ "dg_ds-power-search" ],
+				"Claims": [],
+				"Clients": [],
+				"AllowAnonymous": false,
+				"AllowAuthenticated": false
+			},
 			//DatasetCollection
 			"BrowseDatasetCollection": {
 				"Roles": [ "GLOBAL_dg_admin" ],

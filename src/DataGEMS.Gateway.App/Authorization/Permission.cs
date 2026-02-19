@@ -37,6 +37,7 @@ namespace DataGEMS.Gateway.App.Authorization
 		public const String ProfileDataset = "ProfileDataset";
 		public const String EditDataset = "EditDataset";
 		public const String DeleteDataset = "DeleteDataset";
+		public const String PowerSearchDataset = "PowerSearchDataset";
 		//DatasetCollection
 		public const String BrowseDatasetCollection = "BrowseDatasetCollection";
 		//User

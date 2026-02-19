@@ -41,6 +41,7 @@ For each of affiliation bearing datasets, the following actions (verbs) are inte
 * download - Grants permission to download the dataset
 * edit - Grants permission to edit dataset data and metadata
 * search - Grants permission to perform a search using the data and metadata of the dataset. This does not refer to listing / browsing operations but advanced search capabilities offered by DataGEMS
+* power search - Grants permission to perform a power search using the data and metadata of the dataset. This does not refer to listing / browsing operations but advanced search capabilities offered by DataGEMS. Power search capabilities may differ depending on the type of dataset
 
 ## Token exchange
 
