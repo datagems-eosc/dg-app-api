@@ -129,7 +129,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		}
 
 
-		[HttpPost("future-onboard")]
+		[HttpPost("onboard")]
 		[Authorize]
 		[ModelStateValidationFilter]
 		[ValidationFilter(typeof(App.Model.DatasetPersist.OnboardValidator), "model")]
@@ -144,7 +144,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
 		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
 		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
-		public async Task<Guid> FutureOnboard(
+		public async Task<Guid> Onboard(
 			[FromBody]
 			[SwaggerRequestBody(description: "The model to onboard", Required = true)]
 			App.Model.DatasetPersist model,
@@ -159,7 +159,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			IFieldSet censoredFields = await this._censorFactory.Censor<DatasetCensor>().Censor(fieldSet, CensorContext.AsCensor(), !model.Id.HasValue);
 			if (fieldSet.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
 
-			Guid id = await this._datasetService.FutureOnboardAsync(model, censoredFields);
+			Guid id = await this._datasetService.OnboardAsync(model, censoredFields);
 
 			this._accountingService.AccountFor(KnownActions.Onboard, KnownResources.Dataset.AsAccountable());
 			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.Workflow.AsAccountable());
@@ -168,7 +168,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		}
 
 
-		[HttpPost("future-profile")]
+		[HttpPost("profile")]
 		[Authorize]
 		[ModelStateValidationFilter]
 		[ServiceFilter(typeof(AppTransactionFilter))]
@@ -182,14 +182,14 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
 		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
 		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
-		public async Task<Guid> FutureProfile(
+		public async Task<Guid> Profile(
 			[FromBody]
 			[SwaggerRequestBody(description: "The profile to apply", Required = true)]
 			App.Model.DatasetProfiling model)
 		{
 			this._logger.Debug(new MapLogEntry("future profiling").And("model", model));
 
-			Guid idProfiled = await this._datasetService.FutureProfileAsync(model);
+			Guid idProfiled = await this._datasetService.ProfileAsync(model);
 
 			this._accountingService.AccountFor(KnownActions.Profile, KnownResources.Dataset.AsAccountable());
 			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.Workflow.AsAccountable());

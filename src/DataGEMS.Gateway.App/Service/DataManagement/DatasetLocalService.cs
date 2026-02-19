@@ -101,7 +101,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 			await this._aaiService.AssignDatasetGrantToUser(subjectId, datasetId, this._aaiConfig.AutoAssignGrantsOnNewDataset);
 		}
 
-		public async Task<Guid> FutureOnboardAsync(App.Model.DatasetPersist model, IFieldSet fields = null)
+		public async Task<Guid> OnboardAsync(App.Model.DatasetPersist model, IFieldSet fields = null)
 		{
 			this._logger.Debug(new MapLogEntry("future onboarding").And("type", nameof(App.Model.DatasetPersist)).And("model", model).And("fields", fields));
 
@@ -116,7 +116,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 				location.Location = stagedPath;
 			}
 
-			await this.ExecuteFutureOnboardingFlow(model);
+			await this.ExecuteOnboardingFlow(model);
 
 			await this.AutoAssignNewDatasetRoles(model.Id.Value);
 			this._eventBroker.EmitDatasetTouched(model.Id.Value);
@@ -124,9 +124,9 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 			return model.Id.Value;
 		}
 
-		private async Task ExecuteFutureOnboardingFlow(App.Model.DatasetPersist model)
+		private async Task ExecuteOnboardingFlow(App.Model.DatasetPersist model)
 		{
-			this._logger.Debug(new MapLogEntry("executing").And("type", nameof(ExecuteFutureOnboardingFlow)).And("model", model));
+			this._logger.Debug(new MapLogEntry("executing").And("type", nameof(ExecuteOnboardingFlow)).And("model", model));
 
 			List<Airflow.Model.AirflowDag> definitions = await this._queryFactory.Query<WorkflowDefinitionHttpQuery>()
 				.Kinds(Common.WorkflowDefinitionKind.DatasetOnboardingFuture)
@@ -168,7 +168,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 			}, new FieldSet(nameof(App.Model.WorkflowExecution.Id), nameof(App.Model.WorkflowExecution.WorkflowId)));
 		}
 
-		public async Task<Guid> FutureProfileAsync(App.Model.DatasetProfiling viewModel)
+		public async Task<Guid> ProfileAsync(App.Model.DatasetProfiling viewModel)
 		{
 			this._logger.Debug(new MapLogEntry("future profiling").And("model", viewModel));
 
@@ -203,14 +203,14 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 				nameof(App.Model.Dataset.CiteAs),
 				nameof(App.Model.Dataset.Status));
 			App.Model.Dataset model = await this._builderFactory.Builder<App.Model.Builder.DatasetBuilder>().Build(fields, datas.First());
-			await this.ExecuteFutureProfilingFlow(model, viewModel.DataStoreKind);
+			await this.ExecuteProfilingFlow(model, viewModel.DataStoreKind);
 
 			return viewModel.Id.Value;
 		}
 
-		private async Task ExecuteFutureProfilingFlow(App.Model.Dataset model, DataStoreKind? dataStoreKind)
+		private async Task ExecuteProfilingFlow(App.Model.Dataset model, DataStoreKind? dataStoreKind)
 		{
-			this._logger.Debug(new MapLogEntry("executing").And("type", nameof(ExecuteFutureProfilingFlow)).And("model", model));
+			this._logger.Debug(new MapLogEntry("executing").And("type", nameof(ExecuteProfilingFlow)).And("model", model));
 
 			List<Airflow.Model.AirflowDag> definitions = await this._queryFactory.Query<WorkflowDefinitionHttpQuery>()
 				.Kinds(Common.WorkflowDefinitionKind.DatasetProfilingFuture)

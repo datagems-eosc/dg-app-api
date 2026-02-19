@@ -4,7 +4,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 {
 	public interface IDatasetService
 	{
-		Task<Guid> FutureOnboardAsync(App.Model.DatasetPersist model, IFieldSet fields = null);
-		Task<Guid> FutureProfileAsync(App.Model.DatasetProfiling model);
+		Task<Guid> OnboardAsync(App.Model.DatasetPersist model, IFieldSet fields = null);
+		Task<Guid> ProfileAsync(App.Model.DatasetProfiling model);
 	}
 }
