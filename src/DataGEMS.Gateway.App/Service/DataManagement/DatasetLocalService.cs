@@ -103,12 +103,17 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 
 		public async Task<Guid> OnboardAsync(App.Model.DatasetPersist model, IFieldSet fields = null)
 		{
-			this._logger.Debug(new MapLogEntry("future onboarding").And("type", nameof(App.Model.DatasetPersist)).And("model", model).And("fields", fields));
+			this._logger.Debug(new MapLogEntry("onboarding").And("type", nameof(App.Model.DatasetPersist)).And("model", model).And("fields", fields));
 
 			await this.AuthorizeCreateForce();
 			await this.AuthorizeExecuteOnboardingWorkflowForce();
 
 			model.Id = Guid.NewGuid();
+
+			if (model.DataLocations != null && model.DataLocations.Any(x => x.Kind == Common.DataLocationKind.Staged))
+			{
+				model.Id = Guid.Parse(model.DataLocations.FirstOrDefault(x => x.Kind == Common.DataLocationKind.Staged).Location);
+			}
 
 			foreach (Common.DataLocation location in model.DataLocations.Where(x => x.Kind == Common.DataLocationKind.File))
 			{
@@ -129,11 +134,12 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 			this._logger.Debug(new MapLogEntry("executing").And("type", nameof(ExecuteOnboardingFlow)).And("model", model));
 
 			List<Airflow.Model.AirflowDag> definitions = await this._queryFactory.Query<WorkflowDefinitionHttpQuery>()
-				.Kinds(Common.WorkflowDefinitionKind.DatasetOnboardingFuture)
+				.Kinds(Common.WorkflowDefinitionKind.DatasetOnboarding)
 				.ExcludeStaled(true)
 				.CollectAsync();
 
-			if (definitions == null || definitions.Count != 1) throw new DGNotFoundException(this._localizer["general_notFound", Common.WorkflowDefinitionKind.DatasetOnboardingFuture.ToString(), nameof(App.Model.WorkflowDefinition)]);
+			if (definitions == null || definitions.Count == 0) throw new DGNotFoundException(this._localizer["general_notFound", Common.WorkflowDefinitionKind.DatasetOnboarding.ToString(), nameof(App.Model.WorkflowDefinition)]);
+			if (definitions.Count > 1) throw new DGFoundManyException(this._localizer["general_nonUnique", Common.WorkflowDefinitionKind.DatasetOnboarding.ToString(), nameof(App.Model.WorkflowDefinition)]);
 			Airflow.Model.AirflowDag selectedDefinition = definitions.FirstOrDefault();
 
 			App.Model.WorkflowExecution execution = await this._airflowService.ExecuteWorkflowAsync(new App.Model.WorkflowExecutionArgs
@@ -170,7 +176,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 
 		public async Task<Guid> ProfileAsync(App.Model.DatasetProfiling viewModel)
 		{
-			this._logger.Debug(new MapLogEntry("future profiling").And("model", viewModel));
+			this._logger.Debug(new MapLogEntry("profiling").And("model", viewModel));
 
 			await this.AuthorizeProfileForce();
 			await this.AuthorizeExecuteProfilingWorkflowForce();
@@ -180,7 +186,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 				.State(Common.Enum.DatasetState.Loaded)
 				.CollectAsync();
 			if (datas == null || datas.Count == 0) throw new DGNotFoundException(this._localizer["general_notFound", viewModel.Id.Value, nameof(App.Model.Dataset)]);
-			if (datas.Count > 1) throw new DGNotFoundException(this._localizer["general_notFound", Common.WorkflowDefinitionKind.DatasetProfilingFuture.ToString(), nameof(App.Model.Dataset)]);
+			if (datas.Count > 1) throw new DGFoundManyException(this._localizer["general_nonUnique", viewModel.Id.Value, nameof(App.Model.Dataset)]);
 
 			FieldSet fields = new FieldSet(
 				nameof(App.Model.Dataset.Id),
@@ -213,11 +219,12 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 			this._logger.Debug(new MapLogEntry("executing").And("type", nameof(ExecuteProfilingFlow)).And("model", model));
 
 			List<Airflow.Model.AirflowDag> definitions = await this._queryFactory.Query<WorkflowDefinitionHttpQuery>()
-				.Kinds(Common.WorkflowDefinitionKind.DatasetProfilingFuture)
+				.Kinds(Common.WorkflowDefinitionKind.DatasetProfiling)
 				.ExcludeStaled(true)
 				.CollectAsync();
 
-			if (definitions == null || definitions.Count != 1) throw new DGNotFoundException(this._localizer["general_notFound", Common.WorkflowDefinitionKind.DatasetProfilingFuture.ToString(), nameof(App.Model.WorkflowDefinition)]);
+			if (definitions == null || definitions.Count == 0) throw new DGNotFoundException(this._localizer["general_notFound", Common.WorkflowDefinitionKind.DatasetProfiling.ToString(), nameof(App.Model.WorkflowDefinition)]);
+			if (definitions.Count > 1) throw new DGFoundManyException(this._localizer["general_nonUnique", Common.WorkflowDefinitionKind.DatasetProfiling.ToString(), nameof(App.Model.WorkflowDefinition)]);
 			Airflow.Model.AirflowDag selectedDefinition = definitions.FirstOrDefault();
 			_ = await this._airflowService.ExecuteWorkflowAsync(new App.Model.WorkflowExecutionArgs
 			{
