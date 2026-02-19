@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../images/favicon.jpg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.2">
     
     
       
@@ -1245,6 +1245,7 @@
 <li>download - Grants permission to download the dataset</li>
 <li>edit - Grants permission to edit dataset data and metadata</li>
 <li>search - Grants permission to perform a search using the data and metadata of the dataset. This does not refer to listing / browsing operations but advanced search capabilities offered by DataGEMS</li>
+<li>power search - Grants permission to perform a power search using the data and metadata of the dataset. This does not refer to listing / browsing operations but advanced search capabilities offered by DataGEMS. Power search capabilities may differ depending on the type of dataset</li>
 </ul>
 <h2 id="token-exchange">Token exchange<a class="headerlink" href="#token-exchange" title="Permanent link">&para;</a></h2>
 <p>In the microservice architecture of DataGEMS and given the role of the Gateway Api in the DataGEMS archtiecture, it is expected that the service will need to invoke other services, either outside or within the request flow of an external invocation. The service  may need to perform some out of band operation or a scheduled maintenance / system task. Or, within the context of an incoming communication, invoke a third service as part of fulfilling its operation. We separate these two cases to distinguish the authentication mechanisms that are used:</p>
