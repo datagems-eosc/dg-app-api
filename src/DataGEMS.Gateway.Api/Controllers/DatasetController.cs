@@ -128,7 +128,6 @@ namespace DataGEMS.Gateway.Api.Controllers
 			return model;
 		}
 
-
 		[HttpPost("onboard")]
 		[Authorize]
 		[ModelStateValidationFilter]
@@ -153,7 +152,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			[LookupFieldSetQueryStringOpenApi]
 			IFieldSet fieldSet)
 		{
-			this._logger.Debug(new MapLogEntry("future onboarding").And("type", nameof(App.Model.DatasetPersist)).And("fields", fieldSet));
+			this._logger.Debug(new MapLogEntry("onboarding").And("type", nameof(App.Model.DatasetPersist)).And("fields", fieldSet));
 
 			//GOTCHA: Ommiting browse permission check in case of new
 			IFieldSet censoredFields = await this._censorFactory.Censor<DatasetCensor>().Censor(fieldSet, CensorContext.AsCensor(), !model.Id.HasValue);
@@ -171,6 +170,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[HttpPost("profile")]
 		[Authorize]
 		[ModelStateValidationFilter]
+		[ValidationFilter(typeof(App.Model.DatasetProfiling.ProfilingValidator), "model")]
 		[ServiceFilter(typeof(AppTransactionFilter))]
 		[SwaggerOperation(Summary = "Profile dataset")]
 		[SwaggerResponse(statusCode: 200, description: "The profiled dataset id", type: typeof(Guid))]
@@ -187,7 +187,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			[SwaggerRequestBody(description: "The profile to apply", Required = true)]
 			App.Model.DatasetProfiling model)
 		{
-			this._logger.Debug(new MapLogEntry("future profiling").And("model", model));
+			this._logger.Debug(new MapLogEntry("profiling").And("model", model));
 
 			Guid idProfiled = await this._datasetService.ProfileAsync(model);
 
