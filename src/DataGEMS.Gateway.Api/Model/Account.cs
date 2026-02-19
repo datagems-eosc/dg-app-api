@@ -37,6 +37,7 @@ namespace DataGEMS.Gateway.Api.Model
 			public List<String> Scope { get; set; }
 		}
 
+		public Guid? UserId { get; set; }
 		public Boolean? IsAuthenticated { get; set; }
 		public PrincipalInfo Principal { get; set; }
 		public TokenInfo Token { get; set; }
@@ -70,6 +71,8 @@ namespace DataGEMS.Gateway.Api.Model
 			Boolean isAuthenticated = principal != null;
 			if(fields.HasField(nameof(Account.IsAuthenticated))) model.IsAuthenticated = isAuthenticated;
 			if(!isAuthenticated) return model;
+
+			if (fields.HasField(nameof(Account.UserId))) model.UserId = await this._authorizationContentResolver.CurrentUserId();
 
 			IFieldSet principalFields = fields.ExtractPrefixed(nameof(Account.Principal).AsIndexerPrefix());
 			if (!principalFields.IsEmpty()) model.Principal = new Account.PrincipalInfo();

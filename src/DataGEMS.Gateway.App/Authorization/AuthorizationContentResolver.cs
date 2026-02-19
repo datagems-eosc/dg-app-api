@@ -67,6 +67,23 @@ namespace DataGEMS.Gateway.App.Authorization
 			return subjectId;
 		}
 
+		public async Task<String> SubjectIdOfUserIdentifier(String userIdentifier)
+		{
+			if (String.IsNullOrEmpty(userIdentifier)) return null;
+			String subjectId = null;
+			if (Guid.TryParse(userIdentifier, out Guid userId))
+			{
+				subjectId = await this._queryFactory.Query<UserQuery>().Ids(userId).DisableTracking().FirstAsync(x => x.IdpSubjectId);
+				if (!String.IsNullOrEmpty(subjectId)) return subjectId;
+			}
+			if(String.IsNullOrEmpty(subjectId))
+			{
+				subjectId = await this._queryFactory.Query<UserQuery>().IdpSubjectIds(userIdentifier).DisableTracking().FirstAsync(x => x.IdpSubjectId);
+			}
+			if (String.IsNullOrEmpty(subjectId)) return null;
+			return subjectId;
+		}
+
 		public async Task<Boolean> HasPermission(params String[] permissions)
 		{
 			return await this._authorizationService.Authorize(permissions);

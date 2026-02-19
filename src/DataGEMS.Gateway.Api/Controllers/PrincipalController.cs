@@ -83,6 +83,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		{
 			this._logger.Debug(new MapLogEntry("me").And("fields", fieldSet));
 			if (fieldSet == null || fieldSet.IsEmpty()) fieldSet = new FieldSet(
+				nameof(Account.UserId),
 				nameof(Account.IsAuthenticated),
 				nameof(Account.Roles),
 				nameof(Account.Permissions),
@@ -226,7 +227,9 @@ namespace DataGEMS.Gateway.Api.Controllers
 
 			await this._authorizationService.AuthorizeForce(Permission.LookupContextGrantOther);
 
-			List<App.Common.Auth.ContextGrant> grants = await this._aaiService.LookupUserContextGrants(subjectId);
+			String subjectIdentifier = await this._authorizationContentResolver.SubjectIdOfUserIdentifier(subjectId);
+			if (String.IsNullOrEmpty(subjectIdentifier)) throw new DGValidationException(this._errors.UserSync.Code, this._errors.UserSync.Message);
+			List<App.Common.Auth.ContextGrant> grants = await this._aaiService.LookupUserContextGrants(subjectIdentifier);
 
 			this._accountingService.AccountFor(KnownActions.Query, KnownResources.ContextGrantAssignment.AsAccountable());
 
@@ -282,7 +285,10 @@ namespace DataGEMS.Gateway.Api.Controllers
 			await this._authorizationService.AuthorizeForce(Permission.LookupContextGrantOther);
 
 			if (id == null || id.Length == 0) return new Dictionary<Guid, HashSet<string>>();
-			Dictionary<Guid, HashSet<String>> grants = await this._authorizationContentResolver.ContextRolesForCollectionOfUser(subjectId, id);
+
+			String subjectIdentifier = await this._authorizationContentResolver.SubjectIdOfUserIdentifier(subjectId);
+			if (String.IsNullOrEmpty(subjectIdentifier)) throw new DGValidationException(this._errors.UserSync.Code, this._errors.UserSync.Message);
+			Dictionary<Guid, HashSet<String>> grants = await this._authorizationContentResolver.ContextRolesForCollectionOfUser(subjectIdentifier, id);
 
 			this._accountingService.AccountFor(KnownActions.Query, KnownResources.ContextGrantAssignment.AsAccountable());
 
@@ -342,7 +348,10 @@ namespace DataGEMS.Gateway.Api.Controllers
 			await this._authorizationService.AuthorizeForce(Permission.LookupContextGrantOther);
 
 			if (id == null || id.Length == 0) return new Dictionary<Guid, HashSet<string>>();
-			Dictionary<Guid, HashSet<String>> grants = await this._authorizationContentResolver.EffectiveContextRolesForDatasetOfUser(subjectId, id);
+
+			String subjectIdentifier = await this._authorizationContentResolver.SubjectIdOfUserIdentifier(subjectId);
+			if (String.IsNullOrEmpty(subjectIdentifier)) throw new DGValidationException(this._errors.UserSync.Code, this._errors.UserSync.Message);
+			Dictionary<Guid, HashSet<String>> grants = await this._authorizationContentResolver.EffectiveContextRolesForDatasetOfUser(subjectIdentifier, id);
 
 			this._accountingService.AccountFor(KnownActions.Query, KnownResources.ContextGrantAssignment.AsAccountable());
 
@@ -404,13 +413,13 @@ namespace DataGEMS.Gateway.Api.Controllers
 		{
 			this._logger.Debug(new MapLogEntry("adding").And("userId", userId).And("datasetId", datasetId).And("role", role));
 
-			String subjectId = await this._authorizationContentResolver.SubjectIdOfUserId(userId);
-			if (String.IsNullOrEmpty(subjectId)) throw new DGValidationException(this._errors.UserSync.Code, this._errors.UserSync.Message);
+			String subjectIdentifier = await this._authorizationContentResolver.SubjectIdOfUserIdentifier(userId.ToString());
+			if (String.IsNullOrEmpty(subjectIdentifier)) throw new DGValidationException(this._errors.UserSync.Code, this._errors.UserSync.Message);
 
 			HashSet<string> contextRoles = await _authorizationContentResolver.EffectiveContextRolesForDatasetOfUser(datasetId);
 			await this._authorizationService.AuthorizeOrAffiliatedContextForce(new AffiliatedContextResource(contextRoles), Permission.AddUserToContextGrantGroup);
 
-			await this._aaiService.AssignDatasetGrantToUser(subjectId, datasetId, role);
+			await this._aaiService.AssignDatasetGrantToUser(subjectIdentifier, datasetId, role);
 			this._accountingService.AccountFor(KnownActions.Persist, KnownResources.ContextGrantAssignment.AsAccountable());
 		}
 
@@ -471,13 +480,13 @@ namespace DataGEMS.Gateway.Api.Controllers
 		{
 			this._logger.Debug(new MapLogEntry("adding").And("userId", userId).And("collectionId", collectionId).And("role", role));
 
-			String subjectId = await this._authorizationContentResolver.SubjectIdOfUserId(userId);
-			if (String.IsNullOrEmpty(subjectId)) throw new DGValidationException(this._errors.UserSync.Code, this._errors.UserSync.Message);
+			String subjectIdentifier = await this._authorizationContentResolver.SubjectIdOfUserIdentifier(userId.ToString());
+			if (String.IsNullOrEmpty(subjectIdentifier)) throw new DGValidationException(this._errors.UserSync.Code, this._errors.UserSync.Message);
 
 			HashSet<string> contextRoles = await _authorizationContentResolver.ContextRolesForCollectionOfUser(collectionId);
 			await this._authorizationService.AuthorizeOrAffiliatedContextForce(new AffiliatedContextResource(contextRoles), Permission.AddUserToContextGrantGroup);
 
-			await this._aaiService.AssignCollectionGrantToUser(subjectId, collectionId, role);
+			await this._aaiService.AssignCollectionGrantToUser(subjectIdentifier, collectionId, role);
 			this._accountingService.AccountFor(KnownActions.Persist, KnownResources.ContextGrantAssignment.AsAccountable());
 		}
 
@@ -538,13 +547,13 @@ namespace DataGEMS.Gateway.Api.Controllers
 		{
 			this._logger.Debug(new MapLogEntry("removing").And("userId", userId).And("datasetId", datasetId).And("role", role));
 
-			String subjectId = await this._authorizationContentResolver.SubjectIdOfUserId(userId);
-			if (String.IsNullOrEmpty(subjectId)) throw new DGValidationException(this._errors.UserSync.Code, this._errors.UserSync.Message);
+			String subjectIdentifier = await this._authorizationContentResolver.SubjectIdOfUserIdentifier(userId.ToString());
+			if (String.IsNullOrEmpty(subjectIdentifier)) throw new DGValidationException(this._errors.UserSync.Code, this._errors.UserSync.Message);
 
 			HashSet<string> contextRoles = await _authorizationContentResolver.EffectiveContextRolesForDatasetOfUser(datasetId);
 			await this._authorizationService.AuthorizeOrAffiliatedContextForce(new AffiliatedContextResource(contextRoles), Permission.RemoveUserFromContextGrantGroup);
 
-			await this._aaiService.UnassignDatasetGrantFromUser(subjectId, datasetId, role);
+			await this._aaiService.UnassignDatasetGrantFromUser(subjectIdentifier, datasetId, role);
 			this._accountingService.AccountFor(KnownActions.Delete, KnownResources.ContextGrantAssignment.AsAccountable());
 		}
 
@@ -605,13 +614,13 @@ namespace DataGEMS.Gateway.Api.Controllers
 		{
 			this._logger.Debug(new MapLogEntry("removing").And("userId", userId).And("collectionId", collectionId).And("role", role));
 
-			String subjectId = await this._authorizationContentResolver.SubjectIdOfUserId(userId);
-			if (String.IsNullOrEmpty(subjectId)) throw new DGValidationException(this._errors.UserSync.Code, this._errors.UserSync.Message);
+			String subjectIdentifier = await this._authorizationContentResolver.SubjectIdOfUserIdentifier(userId.ToString());
+			if (String.IsNullOrEmpty(subjectIdentifier)) throw new DGValidationException(this._errors.UserSync.Code, this._errors.UserSync.Message);
 
 			HashSet<string> contextRoles = await _authorizationContentResolver.ContextRolesForCollectionOfUser(collectionId);
 			await this._authorizationService.AuthorizeOrAffiliatedContextForce(new AffiliatedContextResource(contextRoles), Permission.RemoveUserFromContextGrantGroup);
 
-			await this._aaiService.UnassignCollectionGrantFromUser(subjectId, collectionId, role);
+			await this._aaiService.UnassignCollectionGrantFromUser(subjectIdentifier, collectionId, role);
 			this._accountingService.AccountFor(KnownActions.Delete, KnownResources.ContextGrantAssignment.AsAccountable());
 		}
 
