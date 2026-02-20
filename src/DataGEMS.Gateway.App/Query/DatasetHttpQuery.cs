@@ -189,6 +189,7 @@ namespace DataGEMS.Gateway.App.Query
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
 
 			QueryString qs = await this.CreateFilterQueryAsync();
+			qs = this.BuildProjection(qs, new FieldSet(nameof(Model.Dataset.Name)));
 
 			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"{this._config.BaseUrl}{this._config.DatasetQueryEndpoint}{qs.ToString()}");
 			request.Headers.Add(HeaderNames.Accept, "application/json");
@@ -219,12 +220,16 @@ namespace DataGEMS.Gateway.App.Query
 			if (this._datasetStatus != null) qs = qs.Add("dataset_status", this._datasetStatus.Value.ToString().ToLower());
 			if (this._collectionIds != null && this._collectionIds.Any())
 			{
-				List<List<Service.DataManagement.Data.DatasetCollection>> datasetCollections = await this._collectionLocalQuery.CollectAsync(x => x.Datasets);
+				List<List<Service.DataManagement.Data.DatasetCollection>> datasetCollections = await this._collectionLocalQuery.Ids(this._collectionIds).CollectAsync(x => x.Datasets);
 				var includedIds = datasetCollections?.SelectMany(x => x.Select(y => y.DatasetId))?.Distinct();
-				if (includedIds != null) nodeIds.AddRange(includedIds);
+				if (includedIds != null && includedIds.Any()) nodeIds.AddRange(includedIds);
 			}
-			if (this._excludedIds != null) this._excludedIds.ForEach(x => nodeIds.Remove(x));
-			if (this._ids != null || this._collectionIds != null) nodeIds.ForEach(x => qs = qs.Add("nodeIds", x.ToString()));
+			if (this._excludedIds != null) this._excludedIds.ForEach(x => nodeIds.Remove(x)); //TODO: replace with excludedIds predicate
+			if (this._ids != null || this._collectionIds != null)
+			{
+				if (nodeIds.Count == 0) nodeIds.Add(Guid.Empty); //TODO: with excludedIds predicate this becomes obsolete
+				nodeIds.ForEach(x => qs = qs.Add("nodeIds", x.ToString()));
+			}
 			return qs;
 		}
 
@@ -233,19 +238,19 @@ namespace DataGEMS.Gateway.App.Query
 			if (projection == null || projection.IsEmpty()) return qs;
 
 			List<String> fields = new List<string>();
-			if (projection.HasField(nameof(Model.Dataset.Country))) fields.Add("headline");
-			if (projection.HasField(nameof(Model.Dataset.Country))) fields.Add("fieldOfScience");
-			if (projection.HasField(nameof(Model.Dataset.Country))) fields.Add("name");
-			if (projection.HasField(nameof(Model.Dataset.Country))) fields.Add("conformsTo");
-			if (projection.HasField(nameof(Model.Dataset.Country))) fields.Add("url");
-			if (projection.HasField(nameof(Model.Dataset.Country))) fields.Add("datePublished");
-			if (projection.HasField(nameof(Model.Dataset.Country))) fields.Add("license");
-			if (projection.HasField(nameof(Model.Dataset.Country))) fields.Add("keywords");
-			if (projection.HasField(nameof(Model.Dataset.Country))) fields.Add("description");
-			if (projection.HasField(nameof(Model.Dataset.Country))) fields.Add("inLanguage");
-			if (projection.HasField(nameof(Model.Dataset.Country))) fields.Add("version");
-			if (projection.HasField(nameof(Model.Dataset.Country))) fields.Add("archivedAt");
-			if (projection.HasField(nameof(Model.Dataset.Country))) fields.Add("citeAs");
+			if (projection.HasField(nameof(Model.Dataset.Headline))) fields.Add("headline");
+			if (projection.HasField(nameof(Model.Dataset.FieldOfScience))) fields.Add("fieldOfScience");
+			if (projection.HasField(nameof(Model.Dataset.Name))) fields.Add("name");
+			if (projection.HasField(nameof(Model.Dataset.ConformsTo))) fields.Add("conformsTo");
+			if (projection.HasField(nameof(Model.Dataset.Url))) fields.Add("url");
+			if (projection.HasField(nameof(Model.Dataset.DatePublished))) fields.Add("datePublished");
+			if (projection.HasField(nameof(Model.Dataset.License))) fields.Add("license");
+			if (projection.HasField(nameof(Model.Dataset.Keywords))) fields.Add("keywords");
+			if (projection.HasField(nameof(Model.Dataset.Description))) fields.Add("description");
+			if (projection.HasField(nameof(Model.Dataset.Language))) fields.Add("inLanguage");
+			if (projection.HasField(nameof(Model.Dataset.Version))) fields.Add("version");
+			if (projection.HasField(nameof(Model.Dataset.ArchivedAt))) fields.Add("archivedAt");
+			if (projection.HasField(nameof(Model.Dataset.CiteAs))) fields.Add("citeAs");
 			if (projection.HasField(nameof(Model.Dataset.Country))) fields.Add("country");
 
 			fields.ForEach(x => qs = qs.Add("properties", x));
