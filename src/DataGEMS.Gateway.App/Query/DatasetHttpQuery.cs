@@ -14,7 +14,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json.Linq;
-using System.Globalization;
 
 namespace DataGEMS.Gateway.App.Query
 {
@@ -42,6 +41,7 @@ namespace DataGEMS.Gateway.App.Query
 		private readonly RequestTokenIntercepted _requestAccessToken;
 		private readonly ErrorThesaurus _errors;
 		private readonly JsonHandlingService _jsonHandlingService;
+		private readonly CollectionLocalQuery _collectionLocalQuery;
 
 		public DatasetHttpQuery(
 			IHttpClientFactory httpClientFactory,
@@ -52,7 +52,8 @@ namespace DataGEMS.Gateway.App.Query
 			RequestTokenIntercepted requestAccessToken,
 			ILogger<DatasetHttpQuery> logger,
 			JsonHandlingService jsonHandlingService,
-			ErrorThesaurus errors)
+			ErrorThesaurus errors,
+			CollectionLocalQuery collectionLocalQuery)
 		{
 			this._httpClientFactory = httpClientFactory;
 			this._accessTokenService = accessTokenService;
@@ -63,6 +64,7 @@ namespace DataGEMS.Gateway.App.Query
 			this._logger = logger;
 			this._jsonHandlingService = jsonHandlingService;
 			this._errors = errors;
+			this._collectionLocalQuery = collectionLocalQuery;
 		}
 
 		public DatasetHttpQuery Ids(IEnumerable<Guid> ids) { this._ids = ids?.ToList(); return this; }
@@ -153,13 +155,14 @@ namespace DataGEMS.Gateway.App.Query
 			string token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
 
-			QueryString qs = this.CreateFilterQuery();
+			QueryString qs = await this.CreateFilterQueryAsync();
 			qs = this.BuildProjection(qs, projection);
 			if (this.Order != null && !this.Order.IsEmpty)
 			{
 				this.Order.Items.Select(x => qs = qs.Add("orderBy", new OrderingFieldResolver(x).Field));
 				qs = qs.Add("direction", new OrderingFieldResolver(this.Order.Items.FirstOrDefault()).IsAscending ? "1" : "-1");
 			}
+			
 
 			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"{this._config.BaseUrl}{this._config.DatasetQueryEndpoint}{qs.ToString()}");
 			request.Headers.Add(HeaderNames.Accept, "application/json");
@@ -185,7 +188,7 @@ namespace DataGEMS.Gateway.App.Query
 			string token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
 
-			QueryString qs = this.CreateFilterQuery();
+			QueryString qs = await this.CreateFilterQueryAsync();
 
 			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"{this._config.BaseUrl}{this._config.DatasetQueryEndpoint}{qs.ToString()}");
 			request.Headers.Add(HeaderNames.Accept, "application/json");
@@ -205,14 +208,23 @@ namespace DataGEMS.Gateway.App.Query
 			}
 		}
 
-		private QueryString CreateFilterQuery()
+		private async Task<QueryString> CreateFilterQueryAsync()
 		{
 			QueryString qs = new QueryString();
-			if (this._ids != null) this._ids.ForEach(x => qs = qs.Add("nodeIds", x.ToString()));
+			List<Guid> nodeIds = [];
+			if (this._ids != null) nodeIds.AddRange(this._ids);
 			if (this._types != null) this._types.ForEach(x => qs = qs.Add("types", x));
 			if (this._publishedDateFrom != null) qs = qs.Add("publishedDateFrom", this._publishedDateFrom.Value.ToString("yyyy-MM-dd"));
 			if (this._publishedDateTo != null) qs = qs.Add("publishedDateTo", this._publishedDateTo.Value.ToString("yyyy-MM-dd"));
 			if (this._datasetStatus != null) qs = qs.Add("dataset_status", this._datasetStatus.Value.ToString().ToLower());
+			if (this._collectionIds != null && this._collectionIds.Any())
+			{
+				List<List<Service.DataManagement.Data.DatasetCollection>> datasetCollections = await this._collectionLocalQuery.CollectAsync(x => x.Datasets);
+				var includedIds = datasetCollections?.SelectMany(x => x.Select(y => y.DatasetId))?.Distinct();
+				if (includedIds != null) nodeIds.AddRange(includedIds);
+			}
+			if (this._excludedIds != null) this._excludedIds.ForEach(x => nodeIds.Remove(x));
+			if (this._ids != null || this._collectionIds != null) nodeIds.ForEach(x => qs = qs.Add("nodeIds", x.ToString()));
 			return qs;
 		}
 
