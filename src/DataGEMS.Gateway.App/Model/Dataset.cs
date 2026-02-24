@@ -153,15 +153,15 @@ namespace DataGEMS.Gateway.App.Model
 						.FailOn(nameof(DatasetPersist.Keywords)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.Keywords)]),
 					//FieldOfScience must always be set
 					this.Spec()
-						.Must(() => item.FieldOfScience != null || item.FieldOfScience.Count > 0)
+						.Must(() => item.FieldOfScience != null && item.FieldOfScience.Count > 0)
 						.FailOn(nameof(DatasetPersist.FieldOfScience)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.FieldOfScience)]),
 					//Language must always be set
 					this.Spec()
-						.Must(() => item.Language != null || item.Language.Count > 0)
+						.Must(() => item.Language != null && item.Language.Count > 0)
 						.FailOn(nameof(DatasetPersist.Language)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.Language)]),
 					//Country must always be set
 					this.Spec()
-						.Must(() => item.Country != null || item.Country.Count > 0)
+						.Must(() => item.Country != null && item.Country.Count > 0)
 						.FailOn(nameof(DatasetPersist.Country)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.Country)]),
 					//DatePublished must always be set
 					this.Spec()
