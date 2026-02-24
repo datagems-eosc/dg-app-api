@@ -37,6 +37,7 @@ namespace DataGEMS.Gateway.App.Model
 		public string CiteAs { get; set; }
 		public String ProfileRaw { get; set; }
 		public String Status { get; set; }
+		public string Doi { get; set; }
 		public List<Model.Collection> Collections { get; set; }
 		public List<String> Permissions { get; set; }
 	}
@@ -61,6 +62,7 @@ namespace DataGEMS.Gateway.App.Model
 		public List<DataLocation> DataLocations { get; set; }
 		public string CiteAs { get; set; }
 		public string ConformsTo { get; set; }
+		public string Doi { get; set; }
 
 		public class OnboardValidator : BaseValidator<DatasetPersist>
 		{
@@ -188,6 +190,10 @@ namespace DataGEMS.Gateway.App.Model
 					this.Spec()
 						.Must(() => !this.IsEmpty(item.ConformsTo))
 						.FailOn(nameof(DatasetPersist.ConformsTo)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.ConformsTo)]),
+					//doi must always be set
+					this.Spec()
+						.Must(() => !this.IsEmpty(item.Doi))
+						.FailOn(nameof(DatasetPersist.Doi)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.Doi)]),
 				};
 			}
 		}
@@ -307,6 +313,10 @@ namespace DataGEMS.Gateway.App.Model
 					this.Spec()
 						.Must(() => !this.IsEmpty(item.ConformsTo))
 						.FailOn(nameof(DatasetPersist.ConformsTo)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.ConformsTo)]),
+					//doi must always be set
+					this.Spec()
+						.Must(() => !this.IsEmpty(item.Doi))
+						.FailOn(nameof(DatasetPersist.Doi)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.Doi)]),
 				};
 			}
 		}

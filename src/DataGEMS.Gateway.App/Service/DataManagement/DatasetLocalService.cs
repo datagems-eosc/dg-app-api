@@ -170,6 +170,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 					date_published = model.DatePublished,
 					code = model.Code,
 					userId = await this._authorizationContentResolver.CurrentUserId(),
+					doi = model.Doi,
 				}
 			}, new FieldSet(nameof(App.Model.WorkflowExecution.Id), nameof(App.Model.WorkflowExecution.WorkflowId)));
 		}
@@ -207,7 +208,8 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 				nameof(App.Model.Dataset.ArchivedAt),
 				nameof(App.Model.Dataset.ConformsTo),
 				nameof(App.Model.Dataset.CiteAs),
-				nameof(App.Model.Dataset.Status));
+				nameof(App.Model.Dataset.Status),
+				nameof(App.Model.Dataset.Doi));
 			App.Model.Dataset model = await this._builderFactory.Builder<App.Model.Builder.DatasetBuilder>().Build(fields, datas.First());
 			await this.ExecuteProfilingFlow(model, viewModel.DataStoreKind);
 
@@ -252,6 +254,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 					citeAs = model.CiteAs,
 					conformsTo = model.ConformsTo,
 					archivedAt = model.ArchivedAt,
+					doi = model.Doi,
 				}
 			}, new FieldSet
 			{

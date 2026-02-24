@@ -132,6 +132,7 @@ namespace DataGEMS.Gateway.App.Query
 						Code = Common.Extensions.TransformJTokenToString(properties, "code"),
 						Size = Common.Extensions.TransformJTokenToLong(properties, "size"),
 						MimeType = Common.Extensions.TransformJTokenToString(properties, "mime_type"),
+						Doi = Common.Extensions.TransformJTokenToString(properties, "dg:doi"),
 						//TODO: Access
 						//TODO: UploadedBy
 						//TODO: Distribution
@@ -249,20 +250,22 @@ namespace DataGEMS.Gateway.App.Query
 			if (projection == null || projection.IsEmpty()) return qs;
 
 			List<String> fields = new List<string>();
-			if (projection.HasField(nameof(Model.Dataset.Headline))) fields.Add("headline");
-			if (projection.HasField(nameof(Model.Dataset.FieldOfScience))) fields.Add("fieldOfScience");
+			if (projection.HasField(nameof(Model.Dataset.Headline))) fields.Add("dg:headline");
+			if (projection.HasField(nameof(Model.Dataset.FieldOfScience))) fields.Add("dg:fieldOfScience");
 			if (projection.HasField(nameof(Model.Dataset.Name))) fields.Add("name");
 			if (projection.HasField(nameof(Model.Dataset.ConformsTo))) fields.Add("conformsTo");
 			if (projection.HasField(nameof(Model.Dataset.Url))) fields.Add("url");
 			if (projection.HasField(nameof(Model.Dataset.DatePublished))) fields.Add("datePublished");
 			if (projection.HasField(nameof(Model.Dataset.License))) fields.Add("license");
-			if (projection.HasField(nameof(Model.Dataset.Keywords))) fields.Add("keywords");
+			if (projection.HasField(nameof(Model.Dataset.Keywords))) fields.Add("dg:keywords");
 			if (projection.HasField(nameof(Model.Dataset.Description))) fields.Add("description");
 			if (projection.HasField(nameof(Model.Dataset.Language))) fields.Add("inLanguage");
 			if (projection.HasField(nameof(Model.Dataset.Version))) fields.Add("version");
-			if (projection.HasField(nameof(Model.Dataset.ArchivedAt))) fields.Add("archivedAt");
+			if (projection.HasField(nameof(Model.Dataset.ArchivedAt))) fields.Add("sc:archivedAt");
 			if (projection.HasField(nameof(Model.Dataset.CiteAs))) fields.Add("citeAs");
 			if (projection.HasField(nameof(Model.Dataset.Country))) fields.Add("country");
+			if (projection.HasField(nameof(Model.Dataset.Doi))) fields.Add("dg:doi");
+			if (projection.HasField(nameof(Model.Dataset.Status))) fields.Add("dg:status");
 
 			fields.ForEach(x => qs = qs.Add("properties", x));
 
