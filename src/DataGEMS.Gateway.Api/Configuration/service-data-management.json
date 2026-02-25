@@ -3,8 +3,8 @@
 		"Http": {
 			"Scope": "data-model-management-api",
 			"BaseUrl": "%{DataModelManagementBaseUrl}%",
-			"DatasetQueryEndpoint": "dataset/search",
-			"DatasetCountEndpoint": "dataset/count"
+			"DatasetQueryEndpoint": "api/v1/dataset/search",
+			"DatasetCountEndpoint": "api/v1/dataset/count"
 		},
 		"Local": {
 			"ConnectionStrings": {
