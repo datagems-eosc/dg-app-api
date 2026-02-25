@@ -2,7 +2,7 @@
 	"DataManagementService": {
 		"Http": {
 			"Scope": "data-model-management-api",
-			"BaseUrl": "https://datagems-dev.scayle.es/dmm/api/v1/",
+			"BaseUrl": "%{DataModelManagementBaseUrl}%",
 			"DatasetQueryEndpoint": "dataset/search",
 			"DatasetCountEndpoint": "dataset/count"
 		},
