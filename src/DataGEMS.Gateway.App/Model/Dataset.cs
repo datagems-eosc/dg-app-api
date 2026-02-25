@@ -326,6 +326,7 @@ namespace DataGEMS.Gateway.App.Model
 	{
 		public Guid? Id { get; set; }
 		public DataStoreKind? DataStoreKind { get; set; }
+		public string DatabaseName { get; set; }
 
 
 		public class ProfilingValidator : BaseValidator<DatasetProfiling>

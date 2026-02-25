@@ -184,7 +184,6 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 
 			List<Dataset> datas = await this._queryFactory.Query<DatasetHttpQuery>()
 				.Ids(viewModel.Id.Value)
-				.State(Common.Enum.DatasetState.Loaded)
 				.CollectAsync();
 			if (datas == null || datas.Count == 0) throw new DGNotFoundException(this._localizer["general_notFound", viewModel.Id.Value, nameof(App.Model.Dataset)]);
 			if (datas.Count > 1) throw new DGFoundManyException(this._localizer["general_nonUnique", viewModel.Id.Value, nameof(App.Model.Dataset)]);
@@ -211,12 +210,12 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 				nameof(App.Model.Dataset.Status),
 				nameof(App.Model.Dataset.Doi));
 			App.Model.Dataset model = await this._builderFactory.Builder<App.Model.Builder.DatasetBuilder>().Build(fields, datas.First());
-			await this.ExecuteProfilingFlow(model, viewModel.DataStoreKind);
+			await this.ExecuteProfilingFlow(model, viewModel.DataStoreKind, viewModel.DatabaseName);
 
 			return viewModel.Id.Value;
 		}
 
-		private async Task ExecuteProfilingFlow(App.Model.Dataset model, DataStoreKind? dataStoreKind)
+		private async Task ExecuteProfilingFlow(App.Model.Dataset model, DataStoreKind? dataStoreKind, string databaseName = null)
 		{
 			this._logger.Debug(new MapLogEntry("executing").And("type", nameof(ExecuteProfilingFlow)).And("model", model));
 
@@ -255,6 +254,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 					conformsTo = model.ConformsTo,
 					archivedAt = model.ArchivedAt,
 					doi = model.Doi,
+					database_name = databaseName,
 				}
 			}, new FieldSet
 			{
