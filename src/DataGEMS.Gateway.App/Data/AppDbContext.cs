@@ -10,8 +10,6 @@ namespace DataGEMS.Gateway.App.Data
 		public DbSet<ConversationDataset> ConversationDatasets { get; set; }
 		public DbSet<ConversationMessage> ConversationMessages { get; set; }
 		public DbSet<User> Users { get; set; }
-		public DbSet<UserCollection> UserCollections { get; set; }
-		public DbSet<UserDatasetCollection> UserDatasetCollections { get; set; }
 		public DbSet<UserSettings> UserSettings { get; set; }
 		public DbSet<VersionInfo> VersionInfos { get; set; }
 
@@ -21,8 +19,6 @@ namespace DataGEMS.Gateway.App.Data
 			new ConversationDatasetEntityConfiguration().Configure(modelBuilder.Entity<ConversationDataset>());
 			new ConversationMessageEntityConfiguration().Configure(modelBuilder.Entity<ConversationMessage>());
 			new UserEntityConfiguration().Configure(modelBuilder.Entity<User>());
-			new UserCollectionEntityConfiguration().Configure(modelBuilder.Entity<UserCollection>());
-			new UserDatasetCollectionEntityConfiguration().Configure(modelBuilder.Entity<UserDatasetCollection>());
 			new UserSettingsEntityConfiguration().Configure(modelBuilder.Entity<UserSettings>());
 			new VersionInfoEntityConfiguration().Configure(modelBuilder.Entity<VersionInfo>());
 		}

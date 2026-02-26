@@ -18,8 +18,6 @@ namespace DataGEMS.Gateway.Api.Model
 		public List<Guid> DatasetIds { get; set; }
 		[SwaggerSchema(description: "Limit lookup to datasets from the specific collections Ids. If set, the list of ids must not be empty")]
 		public List<Guid> CollectionIds { get; set; }
-		[SwaggerSchema(description: "Limit lookup to datasets from the specific user collections Ids. If set, the list of ids must not be empty")]
-		public List<Guid> UserCollectionIds { get; set; }
 		[SwaggerSchema(description: "The conversation handling options")]
 		public ConversationOptions ConversationOptions { get; set; }
 		public Cite.Tools.FieldSet.FieldSet Project { get; set; }
@@ -65,10 +63,6 @@ namespace DataGEMS.Gateway.Api.Model
 					this.Spec()
 						.Must(() => !item.CollectionIds.IsNotNullButEmpty())
 						.FailOn(nameof(CrossDatasetDiscoveryLookup.CollectionIds)).FailWith(this._localizer["validation_setButEmpty", nameof(CrossDatasetDiscoveryLookup.CollectionIds)]),
-					//user collectionIds must be null or not empty
-					this.Spec()
-						.Must(() => !item.UserCollectionIds.IsNotNullButEmpty())
-						.FailOn(nameof(CrossDatasetDiscoveryLookup.UserCollectionIds)).FailWith(this._localizer["validation_setButEmpty", nameof(CrossDatasetDiscoveryLookup.UserCollectionIds)]),
 				};
 			}
 		}

@@ -115,10 +115,6 @@ namespace DataGEMS.Gateway.Api
 							.AddJsonFileInPaths("storage.json", sharedConfigPath, "Configuration")
 							.AddJsonFileInPaths("storage.override.json", sharedConfigPath, "Configuration")
 							.AddJsonFileInPaths($"storage.{env.EnvironmentName}.json", sharedConfigPath, "Configuration")
-							//user collection
-							.AddJsonFileInPaths("user-collection.json", sharedConfigPath, "Configuration")
-							.AddJsonFileInPaths("user-collection.override.json", sharedConfigPath, "Configuration")
-							.AddJsonFileInPaths($"user-collection.{env.EnvironmentName}.json", sharedConfigPath, "Configuration")
 							//vocabulary
 							.AddJsonFileInPaths("vocabulary.json", sharedConfigPath, "Configuration")
 							.AddJsonFileInPaths("vocabulary.override.json", sharedConfigPath, "Configuration")

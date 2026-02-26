@@ -87,7 +87,7 @@ namespace DataGEMS.Gateway.App.Service.UserSettings
 			{
 				data = await this._queryFactory.Query<UserSettingsQuery>().Find(model.Id.Value);
 				if (data == null) throw new DGNotFoundException(this._localizer["general_notFound", model.Id.Value, nameof(Model.UserSettings)]);
-				if (!String.Equals(model.ETag, data.UpdatedAt.ToETag())) throw new DGValidationException(this._errors.ETagConflict.Code, string.Format(this._errors.ETagConflict.Message, data.Id, nameof(Data.UserCollection)));
+				if (!String.Equals(model.ETag, data.UpdatedAt.ToETag())) throw new DGValidationException(this._errors.ETagConflict.Code, string.Format(this._errors.ETagConflict.Message, data.Id, nameof(Data.UserSettings)));
 			}
 			else
 			{

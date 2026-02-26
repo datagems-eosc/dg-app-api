@@ -26,7 +26,6 @@ using Cite.Tools.Data.Builder.Extensions;
 using Cite.Tools.Validation.Extensions;
 using DataGEMS.Gateway.Api.OpenApi;
 using Microsoft.EntityFrameworkCore;
-using DataGEMS.Gateway.App.Service.UserCollection;
 using DataGEMS.Gateway.Api.Transaction;
 using Cite.Tools.Data.Deleter.Extensions;
 using DataGEMS.Gateway.App.Service.Version;
@@ -98,7 +97,6 @@ namespace DataGEMS.Gateway.Api
 
 			services
 				.AddScoped<IVersionInfoService, VersionInfoService>()
-				.AddUserCollectionServices(this._config.GetSection("UserCollection"))
 				.AddUserSettingsServices()
 				.AddConversationServices(this._config.GetSection("Conversation"))
 				.AddScoped<IConversationDatasetService, ConversationDatasetService>()
