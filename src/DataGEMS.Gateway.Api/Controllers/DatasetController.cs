@@ -83,7 +83,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 
 			DatasetHttpQuery query = lookup.Enrich(this._queryFactory);
 			DatasetHttpQuery.QueryResult queryResult = await query.CollectAsync();
-			int count = (lookup.Metadata != null && lookup.Metadata.CountAll) ? queryResult.Count : queryResult.Total;
+			int count = (lookup.Metadata != null && lookup.Metadata.CountAll) ? queryResult.Total : queryResult.Count;
 			List<App.Model.Dataset> models = await this._builderFactory.Builder<DatasetBuilder>().Authorize(AuthorizationFlags.Any).Build(censoredFields, queryResult.Items);
 
 			this._accountingService.AccountFor(KnownActions.Query, KnownResources.Dataset.AsAccountable());

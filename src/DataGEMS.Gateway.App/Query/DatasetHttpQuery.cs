@@ -165,12 +165,9 @@ namespace DataGEMS.Gateway.App.Query
 			QueryString? qs = await this.CreateFilterQueryAsync();
 			if (!qs.HasValue) return new DatasetQueryList();
 			qs = this.BuildProjection(qs.Value, projection);
-			if (this.Order != null && !this.Order.IsEmpty)
-			{
-				this.Order.Items.Select(x => qs = qs.Value.Add("orderBy", new OrderingFieldResolver(x).Field));
-				qs = qs.Value.Add("direction", new OrderingFieldResolver(this.Order.Items.FirstOrDefault()).IsAscending ? "1" : "-1");
-			}
-			
+			qs = this.BuildOrdering(qs.Value, this.Order);
+			qs = this.BuildPaging(qs.Value, this.Page);
+
 			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"{this._config.BaseUrl}{this._config.DatasetQueryEndpoint}{qs.ToString()}");
 			request.Headers.Add(HeaderNames.Accept, "application/json");
 			request.Headers.Add(HeaderNames.Authorization, $"Bearer {token}");
@@ -218,6 +215,22 @@ namespace DataGEMS.Gateway.App.Query
 			if (this._publishedDateTo != null) qs = qs.Add("publishedDateTo", this._publishedDateTo.Value.ToString("yyyy-MM-dd"));
 			if (this._datasetStatus != null) qs = qs.Add("dataset_status", this._datasetStatus.Value.ToString().ToLower());
 
+			return qs;
+		}
+
+		private QueryString BuildPaging(QueryString qs, Paging paging)
+		{
+			if (paging == null || paging.IsEmpty) return qs;
+			qs = qs.Add("offset", paging.Offset.ToString());
+			qs = qs.Add("count", paging.Size.ToString());
+			return qs;
+		}
+
+		private QueryString BuildOrdering(QueryString qs, Ordering ordering)
+		{
+			if (ordering == null || ordering.IsEmpty) return qs;
+			ordering.Items.Select(x => qs = qs.Add("orderBy", new OrderingFieldResolver(x).Field));
+			qs = qs.Add("direction", new OrderingFieldResolver(ordering.Items.FirstOrDefault()).IsAscending ? "1" : "-1");
 			return qs;
 		}
 
