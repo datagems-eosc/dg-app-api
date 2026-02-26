@@ -26,8 +26,8 @@ namespace DataGEMS.Gateway.App.Model
 
 		public class PersistValidator : BaseValidator<CollectionPersist>
 		{
-			private static int CodeMaxLength = typeof(Service.DataManagement.Data.Collection).MaxLengthOf(nameof(Service.DataManagement.Data.Collection.Code));
-			private static int NameMaxLength = typeof(Service.DataManagement.Data.Collection).MaxLengthOf(nameof(Service.DataManagement.Data.Collection.Name));
+			private static int CodeMaxLength = typeof(Data.Collection).MaxLengthOf(nameof(Data.Collection.Code));
+			private static int NameMaxLength = typeof(Data.Collection).MaxLengthOf(nameof(Data.Collection.Name));
 
 			public PersistValidator(
 				IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> localizer,
@@ -75,8 +75,8 @@ namespace DataGEMS.Gateway.App.Model
 
 		public class PersistValidator : BaseValidator<CollectionPersistDeep>
 		{
-			private static int CodeMaxLength = typeof(Service.DataManagement.Data.Collection).MaxLengthOf(nameof(Service.DataManagement.Data.Collection.Code));
-			private static int NameMaxLength = typeof(Service.DataManagement.Data.Collection).MaxLengthOf(nameof(Service.DataManagement.Data.Collection.Name));
+			private static int CodeMaxLength = typeof(Data.Collection).MaxLengthOf(nameof(Data.Collection.Code));
+			private static int NameMaxLength = typeof(Data.Collection).MaxLengthOf(nameof(Data.Collection.Name));
 
 			public PersistValidator(
 				IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> localizer,

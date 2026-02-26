@@ -18,7 +18,7 @@ using DataGEMS.Gateway.App.ErrorCode;
 using DataGEMS.Gateway.App.Exception;
 using DataGEMS.Gateway.App.Model.Builder;
 using DataGEMS.Gateway.App.Query;
-using DataGEMS.Gateway.App.Service.DataManagement;
+using DataGEMS.Gateway.App.Service.Collection;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
@@ -81,8 +81,8 @@ namespace DataGEMS.Gateway.Api.Controllers
 			IFieldSet censoredFields = await this._censorFactory.Censor<CollectionCensor>().Censor(lookup.Project, CensorContext.AsCensor());
 			if (lookup.Project.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
 
-			CollectionLocalQuery query = lookup.Enrich(this._queryFactory).DisableTracking().Authorize(AuthorizationFlags.Any);
-			List<App.Service.DataManagement.Model.Collection> datas = await query.CollectAsyncAsModels();
+			CollectionQuery query = lookup.Enrich(this._queryFactory).DisableTracking().Authorize(AuthorizationFlags.Any);
+			List<App.Data.Collection> datas = await query.CollectAsync();
 			int count = (lookup.Metadata != null && lookup.Metadata.CountAll) ? await query.CountAsync() : datas.Count;
 			List<App.Model.Collection> models = await this._builderFactory.Builder<CollectionBuilder>().Authorize(AuthorizationFlags.Any).Build(censoredFields, datas);
 
@@ -117,8 +117,8 @@ namespace DataGEMS.Gateway.Api.Controllers
 			IFieldSet censoredFields = await this._censorFactory.Censor<CollectionCensor>().Censor(fieldSet, CensorContext.AsCensor());
 			if (fieldSet.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
 
-			CollectionLocalQuery query = this._queryFactory.Query<CollectionLocalQuery>().Ids(id).DisableTracking().Authorize(AuthorizationFlags.Any);
-			App.Service.DataManagement.Model.Collection data = await query.FirstAsyncAsModel();
+			CollectionQuery query = this._queryFactory.Query<CollectionQuery>().Ids(id).DisableTracking().Authorize(AuthorizationFlags.Any);
+			App.Data.Collection data = await query.FirstAsync();
 			App.Model.Collection model = await this._builderFactory.Builder<CollectionBuilder>().Authorize(AuthorizationFlags.Any).Build(censoredFields, data);
 			if (model == null) throw new DGNotFoundException(this._localizer["general_notFound", id, nameof(App.Model.Collection)]);
 

@@ -39,6 +39,7 @@ using DataGEMS.Gateway.App.Service.DataManagement;
 using DataGEMS.Gateway.App.Service.AAI;
 using DataGEMS.Gateway.App.Service.Storage;
 using DataGEMS.Gateway.App.Service.QueryRecommender;
+using DataGEMS.Gateway.App.Service.Collection;
 
 namespace DataGEMS.Gateway.Api
 {
@@ -87,7 +88,7 @@ namespace DataGEMS.Gateway.Api
 			;
 
 			services
-				.AddDataManagementServices(this._config.GetSection("DataManagementService:Http"), this._config.GetSection("DataManagementService:Local")) //Data Management API
+				.AddDataManagementServices(this._config.GetSection("DataManagementService")) //Data Management API
 				.AddCrossDatasetDiscoveryServices(this._config.GetSection("CrossDatasetDiscoveryService")) //Cross Dataset Discovery API
 				.AddInDataExplorationServices(this._config.GetSection("InDataExplorationService"))  //In Data Exploration API
 				.AddAirflowServices(this._config.GetSection("AirflowService")) //Airflow
@@ -98,6 +99,7 @@ namespace DataGEMS.Gateway.Api
 			services
 				.AddScoped<IVersionInfoService, VersionInfoService>()
 				.AddUserSettingsServices()
+				.AddCollectionServices()
 				.AddConversationServices(this._config.GetSection("Conversation"))
 				.AddScoped<IConversationDatasetService, ConversationDatasetService>()
 				.AddVocabularyServices(this._config.GetSection("Vocabulary:FieldsOfScience"), this._config.GetSection("Vocabulary:License"))

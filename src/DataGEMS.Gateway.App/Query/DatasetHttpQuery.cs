@@ -221,7 +221,7 @@ namespace DataGEMS.Gateway.App.Query
 			List<Guid> datasetIdsToUse = null;
 			if (this._collectionIds != null && this._collectionIds.Count > 0)
 			{
-				List<Guid> collectionDatasetIds = await this._queryFactory.Query<DatasetCollectionLocalQuery>()
+				List<Guid> collectionDatasetIds = await this._queryFactory.Query<DatasetCollectionQuery>()
 					.Authorize(Authorization.AuthorizationFlags.Any)
 					.DisableTracking()
 					.CollectionIds(this._collectionIds)

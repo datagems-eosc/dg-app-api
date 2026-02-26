@@ -20,9 +20,8 @@ using Microsoft.Extensions.Logging;
 
 namespace DataGEMS.Gateway.App.Service.DataManagement
 {
-	public class DatasetLocalService : IDatasetService
+	public class DataManagementService : IDataManagementService
 	{
-		private readonly Data.DataManagementDbContext _dbContext;
 		private readonly BuilderFactory _builderFactory;
 		private readonly DeleterFactory _deleterFactory;
 		private readonly QueryFactory _queryFactory;
@@ -30,7 +29,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 		private readonly IAuthorizationService _authorizationService;
 		private readonly IAuthorizationContentResolver _authorizationContentResolver;
 		private readonly IStorageService _storageService;
-		private readonly ILogger<DatasetLocalService> _logger;
+		private readonly ILogger<DataManagementService> _logger;
 		private readonly AAIConfig _aaiConfig;
 		private readonly ErrorThesaurus _errors;
 		private readonly EventBroker _eventBroker;
@@ -38,9 +37,8 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 		private readonly IAirflowService _airflowService;
 		private readonly JsonHandlingService _jsonHandlingService;
 
-		public DatasetLocalService(
-			ILogger<DatasetLocalService> logger,
-			Data.DataManagementDbContext dbContext,
+		public DataManagementService(
+			ILogger<DataManagementService> logger,
 			BuilderFactory builderFactory,
 			DeleterFactory deleterFactory,
 			QueryFactory queryFactory,
@@ -56,7 +54,6 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 			JsonHandlingService jsonHandlingService)
 		{
 			this._logger = logger;
-			this._dbContext = dbContext;
 			this._builderFactory = builderFactory;
 			this._deleterFactory = deleterFactory;
 			this._queryFactory = queryFactory;

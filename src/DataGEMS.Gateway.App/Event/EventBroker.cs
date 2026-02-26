@@ -521,6 +521,81 @@ namespace DataGEMS.Gateway.App.Event
 
 		#endregion
 
+		#region DatasetCollection Deleted
+
+		private EventHandler<OnDatasetCollectionEventArgs> _datasetCollectionDeleted;
+		public event EventHandler<OnDatasetCollectionEventArgs> DatasetCollectionDeleted
+		{
+			add { this._datasetCollectionDeleted += value; }
+			remove { this._datasetCollectionDeleted -= value; }
+		}
+
+		public void EmitDatasetCollectionDeleted(OnDatasetCollectionEventArgs.DatasetCollectionIdentifier id)
+		{
+			this.EmitDatasetCollectionDeleted(this, new List<OnDatasetCollectionEventArgs.DatasetCollectionIdentifier>() { id });
+		}
+
+		public void EmitDatasetCollectionDeleted(IEnumerable<OnDatasetCollectionEventArgs.DatasetCollectionIdentifier> ids)
+		{
+			this.EmitDatasetCollectionDeleted(this, ids);
+		}
+
+		public void EmitDatasetCollectionDeleted(IEnumerable<OnDatasetCollectionEventArgs> events)
+		{
+			this.EmitDatasetCollectionDeleted(this, events);
+		}
+
+		public void EmitDatasetCollectionDeleted(Object sender, IEnumerable<OnDatasetCollectionEventArgs.DatasetCollectionIdentifier> ids)
+		{
+			this._datasetCollectionDeleted?.Invoke(sender, new OnDatasetCollectionEventArgs(ids));
+		}
+
+		public void EmitDatasetCollectionDeleted(Object sender, IEnumerable<OnDatasetCollectionEventArgs> events)
+		{
+			if (events == null) return;
+			foreach (OnDatasetCollectionEventArgs ev in events) this._datasetCollectionDeleted?.Invoke(sender, ev);
+		}
+
+		#endregion
+
+		#region DatasetCollection Touched
+
+		private EventHandler<OnDatasetCollectionEventArgs> _datasetCollectionTouched;
+		public event EventHandler<OnDatasetCollectionEventArgs> DatasetCollectionTouched
+		{
+			add { this._datasetCollectionTouched += value; }
+			remove { this._datasetCollectionTouched -= value; }
+		}
+
+		public void EmitDatasetCollectionTouched(OnDatasetCollectionEventArgs.DatasetCollectionIdentifier id)
+		{
+			this.EmitDatasetCollectionTouched(this, new List<OnDatasetCollectionEventArgs.DatasetCollectionIdentifier>() { id });
+		}
+
+		public void EmitDatasetCollectionTouched(IEnumerable<OnDatasetCollectionEventArgs.DatasetCollectionIdentifier> ids)
+		{
+			this.EmitDatasetCollectionTouched(this, ids);
+		}
+
+		public void EmitDatasetCollectionTouched(IEnumerable<OnDatasetCollectionEventArgs> events)
+		{
+			this.EmitDatasetCollectionTouched(this, events);
+		}
+
+		public void EmitDatasetCollectionTouched(Object sender, IEnumerable<OnDatasetCollectionEventArgs.DatasetCollectionIdentifier> ids)
+		{
+			this._datasetCollectionTouched?.Invoke(sender, new OnDatasetCollectionEventArgs(ids));
+		}
+
+		public void EmitDatasetCollectionTouched(Object sender, IEnumerable<OnDatasetCollectionEventArgs> events)
+		{
+			if (events == null) return;
+			foreach (OnDatasetCollectionEventArgs ev in events) this._datasetCollectionTouched?.Invoke(sender, ev);
+		}
+
+		#endregion
+
+
 		#region Dataset Deleted
 
 		private EventHandler<OnEventArgs<Guid>> _datasetDeleted;
