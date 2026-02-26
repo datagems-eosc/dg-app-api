@@ -179,9 +179,9 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 			await this.AuthorizeProfileForce();
 			await this.AuthorizeExecuteProfilingWorkflowForce();
 
-			List<Dataset> datas = await this._queryFactory.Query<DatasetHttpQuery>()
+			List<Dataset> datas = (await this._queryFactory.Query<DatasetHttpQuery>()
 				.Ids(viewModel.Id.Value)
-				.CollectAsync();
+				.CollectAsync())?.Items ?? [];
 			if (datas == null || datas.Count == 0) throw new DGNotFoundException(this._localizer["general_notFound", viewModel.Id.Value, nameof(App.Model.Dataset)]);
 			if (datas.Count > 1) throw new DGFoundManyException(this._localizer["general_nonUnique", viewModel.Id.Value, nameof(App.Model.Dataset)]);
 

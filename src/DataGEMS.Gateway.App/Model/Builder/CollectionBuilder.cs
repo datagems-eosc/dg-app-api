@@ -77,7 +77,7 @@ namespace DataGEMS.Gateway.App.Model.Builder
 			List<Guid> datasetIds = datasetCollections.Select(x=> x.DatasetId).Distinct().ToList();
 			Dictionary<Guid, List<Guid>> datasetsOfCollection = datasetCollections.ToDictionaryOfList(x => x.CollectionId).ToDictionary(x => x.Key, x => x.Value.Select(y => y.DatasetId).ToList());
 
-			List<Service.DataManagement.Model.Dataset> datasets = await this._queryFactory.Query<DatasetHttpQuery>().Ids(datasetIds).CollectAsync();
+			List<Service.DataManagement.Model.Dataset> datasets = (await this._queryFactory.Query<DatasetHttpQuery>().Ids(datasetIds).CollectAsync())?.Items ?? [];
 			IFieldSet clone = new FieldSet(fields.Fields).Ensure(nameof(Model.Dataset.Id));
 			List<Model.Dataset> datasetModels = await this._builderFactory.Builder<DatasetBuilder>().Authorize(this._authorize).Build(clone, datasets);
 			Dictionary<Guid, Model.Dataset> datasetMap = datasetModels.ToDictionary(x => x.Id.Value);

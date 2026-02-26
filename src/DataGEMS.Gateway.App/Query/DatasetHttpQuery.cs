@@ -89,69 +89,72 @@ namespace DataGEMS.Gateway.App.Query
 			return this._ids.IsNotNullButEmpty() || this._excludedIds.IsNotNullButEmpty() || this._collectionIds.IsNotNullButEmpty() || this._types.IsNotNullButEmpty();
 		}
 
-		public async Task<List<Dataset>> CollectAsync()
+		public async Task<QueryResult> CollectAsync()
 		{
 			return await this.CollectAsync(null);
 		}
 
-		public async Task<List<Dataset>> CollectAsync(IFieldSet projection)
+		public async Task<QueryResult> CollectAsync(IFieldSet projection)
 		{
 			DatasetQueryList collectedItems = await this.CollectBaseAsync(false, projection);
-			if (collectedItems == null || collectedItems.Datasets == null) return [];
 
-			try
-			{
-				return collectedItems.Datasets
+			if (collectedItems == null || collectedItems.Datasets == null) return new QueryResult() { Items = new List<Dataset>() };
+
+			QueryResult result = new QueryResult() { Count = collectedItems.Count, Offset = collectedItems.Offset, Total = collectedItems.Total };
+			result.Items = collectedItems.Datasets
 				.SelectMany(x => x.Nodes)
 				.Where(x => x.ContainsKey("labels") && Common.Extensions.JArrayToList(x["labels"]) != null && Common.Extensions.JArrayToList(x["labels"]).Contains("sc:Dataset"))
-				.Select(x =>
+				.Select(x => 
 				{
-					JObject properties = x.ContainsKey("properties") && x["properties"] != null && x["properties"] is JObject ? (JObject)x["properties"] : null;
-					if (properties == null)
+					try
 					{
+						JObject properties = x.ContainsKey("properties") && x["properties"] != null && x["properties"] is JObject ? (JObject)x["properties"] : null;
+						if (properties == null)
+						{
+							return null;
+						}
+						return new Dataset
+						{
+							Id = Common.Extensions.TransformJTokenToGuid(properties, "id"),
+							Name = Common.Extensions.TransformJTokenToString(properties, "name"),
+							ArchivedAt = Common.Extensions.TransformJTokenToString(properties, "sc:archivedAt"),
+							Description = Common.Extensions.TransformJTokenToString(properties, "description"),
+							ConformsTo = Common.Extensions.TransformJTokenToString(properties, "conformsTo"),
+							CiteAs = Common.Extensions.TransformJTokenToString(properties, "citeAs"),
+							License = Common.Extensions.TransformJTokenToString(properties, "license"),
+							Url = Common.Extensions.TransformJTokenToString(properties, "url"),
+							Version = Common.Extensions.TransformJTokenToString(properties, "version"),
+							Headline = Common.Extensions.TransformJTokenToString(properties, "dg:headline"),
+							Keywords = Common.Extensions.TransformJTokenToStringList(properties, "dg:keywords"),
+							FieldOfScience = Common.Extensions.TransformJTokenToStringList(properties, "dg:fieldOfScience"),
+							Language = Common.Extensions.TransformJTokenToStringList(properties, "inLanguage"),
+							Country = [Common.Extensions.TransformJTokenToString(properties, "country")],
+							DatePublished = Common.Extensions.TransformJTokenToDateOnly(properties, "datePublished"),
+							Status = Common.Extensions.TransformJTokenToString(properties, "dg:status"),
+							Code = Common.Extensions.TransformJTokenToString(properties, "code"),
+							Size = Common.Extensions.TransformJTokenToLong(properties, "size"),
+							MimeType = Common.Extensions.TransformJTokenToString(properties, "mime_type"),
+							Doi = Common.Extensions.TransformJTokenToString(properties, "dg:doi"),
+							//TODO: Access
+							//TODO: UploadedBy
+							//TODO: Distribution
+							//TODO: RecordSet
+							//TODO: Type
+							//TODO: code
+							//TODO: size
+							//TODO: mime_type
+
+						};
+					}
+					catch (System.Exception ex)
+					{
+						this._logger.Error(ex, "problem converting dataset properties. Skipping item {item}", x);
 						return null;
 					}
-					return new Dataset
-					{
-						Id = Common.Extensions.TransformJTokenToGuid(properties, "id"),
-						Name = Common.Extensions.TransformJTokenToString(properties, "name"),
-						ArchivedAt = Common.Extensions.TransformJTokenToString(properties, "sc:archivedAt"),
-						Description = Common.Extensions.TransformJTokenToString(properties, "description"),
-						ConformsTo = Common.Extensions.TransformJTokenToString(properties, "conformsTo"),
-						CiteAs = Common.Extensions.TransformJTokenToString(properties, "citeAs"),
-						License = Common.Extensions.TransformJTokenToString(properties, "license"),
-						Url = Common.Extensions.TransformJTokenToString(properties, "url"),
-						Version = Common.Extensions.TransformJTokenToString(properties, "version"),
-						Headline = Common.Extensions.TransformJTokenToString(properties, "dg:headline"),
-						Keywords = Common.Extensions.TransformJTokenToStringList(properties, "dg:keywords"),
-						FieldOfScience = Common.Extensions.TransformJTokenToStringList(properties, "dg:fieldOfScience"),
-						Language = Common.Extensions.TransformJTokenToStringList(properties, "inLanguage"),
-						Country = [Common.Extensions.TransformJTokenToString(properties, "country")],
-						DatePublished = Common.Extensions.TransformJTokenToDateOnly(properties, "datePublished"),
-						Status = Common.Extensions.TransformJTokenToString(properties, "dg:status"),
-						Code = Common.Extensions.TransformJTokenToString(properties, "code"),
-						Size = Common.Extensions.TransformJTokenToLong(properties, "size"),
-						MimeType = Common.Extensions.TransformJTokenToString(properties, "mime_type"),
-						Doi = Common.Extensions.TransformJTokenToString(properties, "dg:doi"),
-						//TODO: Access
-						//TODO: UploadedBy
-						//TODO: Distribution
-						//TODO: RecordSet
-						//TODO: Type
-						//TODO: code
-						//TODO: size
-						//TODO: mime_type
-
-					};
 				})
 				.Where(x => x != null)
 				.ToList() ?? [];
-			}
-			catch (InvalidCastException ex)
-			{
-				this._logger.Error(ex, "problem converting dataset properties. collected items were {collectedItems}", collectedItems);
-				throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.DataManagement, this._logCorrelationScope.CorrelationId);
-			}
+			return result;
 		}
 
 		public async Task<DatasetQueryList> CollectBaseAsync(bool useInCount, IFieldSet projection)
@@ -179,33 +182,6 @@ namespace DataGEMS.Gateway.App.Query
 				DatasetQueryList model = this._jsonHandlingService.FromJson<DatasetQueryList>(content);
 				if (model.Code != 200) throw new DGUnderpinningException(this._errors.UnderpinningService.Code, model.Message, null, UnderpinningServiceType.DataManagement, this._logCorrelationScope.CorrelationId);
 				return model;
-			}
-			catch (System.Exception ex)
-			{
-				this._logger.Error(ex, "problem converting response {content}", content);
-				throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.DataManagement, this._logCorrelationScope.CorrelationId);
-			}
-		}
-
-		public async Task<int> CountAsync()
-		{
-			string token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
-			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
-
-			QueryString? qs = await this.CreateFilterQueryAsync();
-			if (!qs.HasValue) return 0;
-			qs = this.BuildProjection(qs.Value, new FieldSet(nameof(Model.Dataset.Name)));
-
-			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"{this._config.BaseUrl}{this._config.DatasetQueryEndpoint}{qs.Value.ToString()}");
-			request.Headers.Add(HeaderNames.Accept, "application/json");
-			request.Headers.Add(HeaderNames.Authorization, $"Bearer {token}");
-			request.Headers.Add(this._logTrackingCorrelationConfig.HeaderName, this._logCorrelationScope.CorrelationId);
-
-			String content = await this.SendRequest(request);
-			try
-			{
-				int count = Convert.ToInt32(content);
-				return count;
 			}
 			catch (System.Exception ex)
 			{
@@ -293,6 +269,14 @@ namespace DataGEMS.Gateway.App.Query
 			}
 			String content = await response.Content.ReadAsStringAsync();
 			return content;
+		}
+
+		public class QueryResult
+		{
+			public List<Dataset> Items { get; set; }
+			public int Offset { get; set; }
+			public int Count { get; set; }
+			public int Total { get; set; }
 		}
 	}
 }

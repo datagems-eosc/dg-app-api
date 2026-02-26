@@ -130,17 +130,17 @@ namespace DataGEMS.Gateway.App.Service.Discovery
 			List<List<Guid>> datasetIdsPerKind = new List<List<Guid>>();
 			if (request.DatasetIds != null && request.DatasetIds.Count > 0) 
 			{
-				List<DataManagement.Model.Dataset> directDatasets = await this._queryFactory.Query<DatasetHttpQuery>()
+				List<DataManagement.Model.Dataset> directDatasets = (await this._queryFactory.Query<DatasetHttpQuery>()
 					.Ids(request.DatasetIds)
-					.CollectAsync();
+					.CollectAsync())?.Items ?? [];
 
 				if (directDatasets.Count > 0) datasetIdsPerKind.Add(directDatasets.Select(x => x.Id).ToList());
 			}
 			if (request.CollectionIds != null && request.CollectionIds.Count > 0) 
 			{
-				List<DataManagement.Model.Dataset> collectionDatasets = await this._queryFactory.Query<DatasetHttpQuery>()
+				List<DataManagement.Model.Dataset> collectionDatasets = (await this._queryFactory.Query<DatasetHttpQuery>()
 					.CollectionIds(request.CollectionIds)
-					.CollectAsync();
+					.CollectAsync())?.Items ?? [];
 
 				if (collectionDatasets.Count > 0) datasetIdsPerKind.Add(collectionDatasets.Select(x => x.Id).ToList());
 			}

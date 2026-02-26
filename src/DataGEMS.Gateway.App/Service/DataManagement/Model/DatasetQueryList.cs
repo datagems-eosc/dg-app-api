@@ -10,6 +10,12 @@ namespace DataGEMS.Gateway.App.Service.DataManagement.Model
 		public string Message { get; set; }
 		[JsonProperty("datasets")]
 		public List<Dataset> Datasets { get; set; }
+		[JsonProperty("offset")]
+		public int Offset { get; set; }
+		[JsonProperty("count")]
+		public int Count { get; set; }
+		[JsonProperty("total")]
+		public int Total { get; set; }
 
 		public class Dataset
 		{

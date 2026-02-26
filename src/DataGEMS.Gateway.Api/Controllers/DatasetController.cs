@@ -82,9 +82,9 @@ namespace DataGEMS.Gateway.Api.Controllers
 			if (lookup.Project.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
 
 			DatasetHttpQuery query = lookup.Enrich(this._queryFactory);
-			List<App.Service.DataManagement.Model.Dataset> datas = await query.CollectAsync();
-			int count = (lookup.Metadata != null && lookup.Metadata.CountAll) ? await query.CountAsync() : datas.Count;
-			List<App.Model.Dataset> models = await this._builderFactory.Builder<DatasetBuilder>().Authorize(AuthorizationFlags.Any).Build(censoredFields, datas);
+			DatasetHttpQuery.QueryResult queryResult = await query.CollectAsync();
+			int count = (lookup.Metadata != null && lookup.Metadata.CountAll) ? queryResult.Count : queryResult.Total;
+			List<App.Model.Dataset> models = await this._builderFactory.Builder<DatasetBuilder>().Authorize(AuthorizationFlags.Any).Build(censoredFields, queryResult.Items);
 
 			this._accountingService.AccountFor(KnownActions.Query, KnownResources.Dataset.AsAccountable());
 
@@ -118,7 +118,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			if (fieldSet.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
 
 			DatasetHttpQuery query = this._queryFactory.Query<DatasetHttpQuery>().Ids(id);
-			App.Service.DataManagement.Model.Dataset data = (await query.CollectAsync())?.FirstOrDefault();
+			App.Service.DataManagement.Model.Dataset data = ((await query.CollectAsync()))?.Items.FirstOrDefault();
 			if (data == null) throw new DGNotFoundException(this._localizer["general_notFound", id, nameof(App.Model.Dataset)]);
 			App.Model.Dataset model = await this._builderFactory.Builder<DatasetBuilder>().Authorize(AuthorizationFlags.Any).Build(censoredFields, data);
 			if (model == null) throw new DGNotFoundException(this._localizer["general_notFound", id, nameof(App.Model.Dataset)]);
