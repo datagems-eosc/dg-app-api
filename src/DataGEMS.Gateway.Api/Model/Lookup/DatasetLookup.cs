@@ -17,6 +17,8 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 		public List<Guid> ExcludedIds { get; set; }
 		[SwaggerSchema(description: "Limit lookup to items belonging to the specific collection ids. If set, the list of ids must not be empty")]
 		public List<Guid> CollectionIds { get; set; }
+		[SwaggerSchema(description: "Limit lookup to items with specific mime types. If set, the list of mime types must not be empty")]
+		public List<String> MimeTypes { get; set; }
 		[SwaggerSchema(description: "Limit lookup to items whose name matches the pattern")]
 		public String Like { get; set; }
 
@@ -27,6 +29,7 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 			if (this.Ids != null) query.Ids(this.Ids);
 			if (this.ExcludedIds != null) query.ExcludedIds(this.ExcludedIds);
 			if (this.CollectionIds != null) query.CollectionIds(this.CollectionIds);
+			if (this.MimeTypes != null) query.MimeTypes(this.MimeTypes);
 			if (!String.IsNullOrEmpty(this.Like)) query.Like(this.Like);
 
 			this.EnrichCommon(query);
@@ -62,10 +65,14 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 					this.Spec()
 						.Must(() => !item.CollectionIds.IsNotNullButEmpty())
 						.FailOn(nameof(DatasetLookup.CollectionIds)).FailWith(this._localizer["validation_setButEmpty", nameof(DatasetLookup.CollectionIds)]),
+					//MimeTypes must be null or not empty
+					this.Spec()
+						.Must(() => !item.MimeTypes.IsNotNullButEmpty())
+						.FailOn(nameof(DatasetLookup.MimeTypes)).FailWith(this._localizer["validation_setButEmpty", nameof(DatasetLookup.MimeTypes)]),
 					//paging without ordering not supported
 					this.Spec()
 						.If(()=> item.Page != null && !item.Page.IsEmpty)
-						.Must(() => !item.Order.IsEmpty)
+						.Must(() => item.Order != null && !item.Order.IsEmpty)
 						.FailOn(nameof(DatasetLookup.Page)).FailWith(this._localizer["validation_pagingWithoutOrdering"]),
 				};
 			}

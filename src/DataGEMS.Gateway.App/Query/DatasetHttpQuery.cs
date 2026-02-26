@@ -23,6 +23,7 @@ namespace DataGEMS.Gateway.App.Query
 		//TODO: Apply exclude filter
 		private List<Guid> _excludedIds { get; set; }
 		private List<Guid> _collectionIds { get; set; }
+		private List<String> _mimeTypes { get; set; }
 		private List<string> _types { get; set; }
 		private Common.Enum.DatasetState? _datasetStatus { get; set; }
 		private DateTime? _publishedDateFrom { get; set; }
@@ -79,6 +80,8 @@ namespace DataGEMS.Gateway.App.Query
 		public DatasetHttpQuery Like(String like) { this._like = like; return this; }
 		public DatasetHttpQuery Types(IEnumerable<string> types) { this._types = types?.ToList(); return this; }
 		public DatasetHttpQuery Types(string type) { this._types = type.AsList(); return this; }
+		public DatasetHttpQuery MimeTypes(IEnumerable<string> mimeTypes) { this._mimeTypes = mimeTypes?.ToList(); return this; }
+		public DatasetHttpQuery MimeTypes(string mimeType) { this._mimeTypes = mimeType.AsList(); return this; }
 		public DatasetHttpQuery State(Common.Enum.DatasetState state) { this._datasetStatus = state; return this; }
 		public DatasetHttpQuery PublishedDateFrom(DateTime date) { this._publishedDateFrom = date; return this; }
 		public DatasetHttpQuery PublishedDateTo(DateTime date) { this._publishedDateTo = date; return this; }
@@ -86,7 +89,8 @@ namespace DataGEMS.Gateway.App.Query
 
 		protected bool IsFalseQuery()
 		{
-			return this._ids.IsNotNullButEmpty() || this._excludedIds.IsNotNullButEmpty() || this._collectionIds.IsNotNullButEmpty() || this._types.IsNotNullButEmpty();
+			return this._ids.IsNotNullButEmpty() || this._excludedIds.IsNotNullButEmpty() || this._collectionIds.IsNotNullButEmpty() || 
+				this._types.IsNotNullButEmpty() || this._mimeTypes.IsNotNullButEmpty();
 		}
 
 		public async Task<QueryResult> CollectAsync()
@@ -214,6 +218,7 @@ namespace DataGEMS.Gateway.App.Query
 			if (this._publishedDateFrom != null) qs = qs.Add("publishedDateFrom", this._publishedDateFrom.Value.ToString("yyyy-MM-dd"));
 			if (this._publishedDateTo != null) qs = qs.Add("publishedDateTo", this._publishedDateTo.Value.ToString("yyyy-MM-dd"));
 			if (this._datasetStatus != null) qs = qs.Add("dataset_status", this._datasetStatus.Value.ToString().ToLower());
+			if (this._mimeTypes != null) this._mimeTypes.ForEach(x => qs = qs.Add("mimeTypes", x));
 
 			return qs;
 		}
@@ -229,8 +234,19 @@ namespace DataGEMS.Gateway.App.Query
 		private QueryString BuildOrdering(QueryString qs, Ordering ordering)
 		{
 			if (ordering == null || ordering.IsEmpty) return qs;
-			ordering.Items.Select(x => qs = qs.Add("orderBy", new OrderingFieldResolver(x).Field));
-			qs = qs.Add("direction", new OrderingFieldResolver(ordering.Items.FirstOrDefault()).IsAscending ? "1" : "-1");
+
+			Boolean matched = true;
+			foreach(OrderingFieldResolver orderBy in ordering.Items.Select(x=> new OrderingFieldResolver(x)).ToList())
+			{
+				if (orderBy.Match(nameof(Model.Dataset.Id))) qs = qs.Add("orderBy", "id");
+				else if (orderBy.Match(nameof(Model.Dataset.Name))) qs = qs.Add("orderBy", "name");
+				else if (orderBy.Match(nameof(Model.Dataset.License))) qs = qs.Add("orderBy", "license");
+				else if (orderBy.Match(nameof(Model.Dataset.Version))) qs = qs.Add("orderBy", "version");
+				else if (orderBy.Match(nameof(Model.Dataset.DatePublished))) qs = qs.Add("orderBy", "datePublished");
+				else matched = false;
+			}
+			if (matched) qs = qs.Add("direction", new OrderingFieldResolver(ordering.Items.FirstOrDefault()).IsAscending ? "1" : "-1");
+
 			return qs;
 		}
 
