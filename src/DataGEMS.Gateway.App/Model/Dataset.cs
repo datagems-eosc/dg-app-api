@@ -35,7 +35,7 @@ namespace DataGEMS.Gateway.App.Model
 		public string ArchivedAt { get; set; }
 		public string ConformsTo { get; set; }
 		public string CiteAs { get; set; }
-		public String ProfileRaw { get; set; }
+		public Object ProfileRaw { get; set; }
 		public String Status { get; set; }
 		public string Doi { get; set; }
 		public List<Model.Collection> Collections { get; set; }

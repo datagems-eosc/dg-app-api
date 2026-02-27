@@ -105,59 +105,7 @@ namespace DataGEMS.Gateway.App.Query
 			if (collectedItems == null || collectedItems.Datasets == null) return new QueryResult() { Items = new List<Dataset>() };
 
 			QueryResult result = new QueryResult() { Count = collectedItems.Count, Offset = collectedItems.Offset, Total = collectedItems.Total };
-			result.Items = collectedItems.Datasets
-				.SelectMany(x => x.Nodes)
-				.Where(x => x.ContainsKey("labels") && Common.Extensions.JArrayToList(x["labels"]) != null && Common.Extensions.JArrayToList(x["labels"]).Contains("sc:Dataset"))
-				.Select(x => 
-				{
-					try
-					{
-						JObject properties = x.ContainsKey("properties") && x["properties"] != null && x["properties"] is JObject ? (JObject)x["properties"] : null;
-						if (properties == null)
-						{
-							return null;
-						}
-						return new Dataset
-						{
-							Id = Common.Extensions.TransformJTokenToGuid(properties, "id"),
-							Name = Common.Extensions.TransformJTokenToString(properties, "name"),
-							ArchivedAt = Common.Extensions.TransformJTokenToString(properties, "sc:archivedAt"),
-							Description = Common.Extensions.TransformJTokenToString(properties, "description"),
-							ConformsTo = Common.Extensions.TransformJTokenToString(properties, "conformsTo"),
-							CiteAs = Common.Extensions.TransformJTokenToString(properties, "citeAs"),
-							License = Common.Extensions.TransformJTokenToString(properties, "license"),
-							Url = Common.Extensions.TransformJTokenToString(properties, "url"),
-							Version = Common.Extensions.TransformJTokenToString(properties, "version"),
-							Headline = Common.Extensions.TransformJTokenToString(properties, "dg:headline"),
-							Keywords = Common.Extensions.TransformJTokenToStringList(properties, "dg:keywords"),
-							FieldOfScience = Common.Extensions.TransformJTokenToStringList(properties, "dg:fieldOfScience"),
-							Language = Common.Extensions.TransformJTokenToStringList(properties, "inLanguage"),
-							Country = [Common.Extensions.TransformJTokenToString(properties, "country")],
-							DatePublished = Common.Extensions.TransformJTokenToDateOnly(properties, "datePublished"),
-							Status = Common.Extensions.TransformJTokenToString(properties, "dg:status"),
-							Code = Common.Extensions.TransformJTokenToString(properties, "code"),
-							Size = Common.Extensions.TransformJTokenToLong(properties, "size"),
-							MimeType = Common.Extensions.TransformJTokenToString(properties, "mime_type"),
-							Doi = Common.Extensions.TransformJTokenToString(properties, "dg:doi"),
-							//TODO: Access
-							//TODO: UploadedBy
-							//TODO: Distribution
-							//TODO: RecordSet
-							//TODO: Type
-							//TODO: code
-							//TODO: size
-							//TODO: mime_type
-
-						};
-					}
-					catch (System.Exception ex)
-					{
-						this._logger.Error(ex, "problem converting dataset properties. Skipping item {item}", x);
-						return null;
-					}
-				})
-				.Where(x => x != null)
-				.ToList() ?? [];
+			result.Items = this.ConvertDataset(collectedItems.Datasets);
 			return result;
 		}
 
@@ -298,6 +246,66 @@ namespace DataGEMS.Gateway.App.Query
 			}
 			String content = await response.Content.ReadAsStringAsync();
 			return content;
+		}
+
+		private List<Dataset> ConvertDataset(List<DatasetQueryList.Dataset> responseDatasets)
+		{
+			List<Dataset> items = new List<Dataset>();
+			foreach (DatasetQueryList.Dataset ds in responseDatasets)
+			{
+				foreach (Dictionary<String, Object> node in ds.Nodes.Where(x => x.ContainsKey("labels") && Common.Extensions.JArrayToList(x["labels"]) != null && Common.Extensions.JArrayToList(x["labels"]).Contains("sc:Dataset")))
+				{
+					try
+					{
+						JObject properties = node.ContainsKey("properties") && node["properties"] != null && node["properties"] is JObject ? (JObject)node["properties"] : null;
+						if (properties == null)
+						{
+							continue;
+						}
+						items.Add(new Dataset
+						{
+							Id = Common.Extensions.TransformJTokenToGuid(properties, "id"),
+							Name = Common.Extensions.TransformJTokenToString(properties, "name"),
+							ArchivedAt = Common.Extensions.TransformJTokenToString(properties, "sc:archivedAt"),
+							Description = Common.Extensions.TransformJTokenToString(properties, "description"),
+							ConformsTo = Common.Extensions.TransformJTokenToString(properties, "conformsTo"),
+							CiteAs = Common.Extensions.TransformJTokenToString(properties, "citeAs"),
+							License = Common.Extensions.TransformJTokenToString(properties, "license"),
+							Url = Common.Extensions.TransformJTokenToString(properties, "url"),
+							Version = Common.Extensions.TransformJTokenToString(properties, "version"),
+							Headline = Common.Extensions.TransformJTokenToString(properties, "dg:headline"),
+							Keywords = Common.Extensions.TransformJTokenToStringList(properties, "dg:keywords"),
+							FieldOfScience = Common.Extensions.TransformJTokenToStringList(properties, "dg:fieldOfScience"),
+							Language = Common.Extensions.TransformJTokenToStringList(properties, "inLanguage"),
+							Country = [Common.Extensions.TransformJTokenToString(properties, "country")],
+							DatePublished = Common.Extensions.TransformJTokenToDateOnly(properties, "datePublished"),
+							Status = Common.Extensions.TransformJTokenToString(properties, "dg:status"),
+							Code = Common.Extensions.TransformJTokenToString(properties, "code"),
+							Size = Common.Extensions.TransformJTokenToLong(properties, "size"),
+							MimeType = Common.Extensions.TransformJTokenToString(properties, "mime_type"),
+							Doi = Common.Extensions.TransformJTokenToString(properties, "dg:doi"),
+							//TODO: Must hide sensite information
+							ProfileRaw = ds,
+							//TODO: Access
+							//TODO: UploadedBy
+							//TODO: Distribution
+							//TODO: RecordSet
+							//TODO: Type
+							//TODO: code
+							//TODO: size
+							//TODO: mime_type
+
+						});
+					}
+					catch (System.Exception ex)
+					{
+						this._logger.Error(ex, "problem converting dataset properties. Skipping item {item}", node);
+						continue;
+					}
+
+				}
+			}
+			return items;
 		}
 
 		public class QueryResult
