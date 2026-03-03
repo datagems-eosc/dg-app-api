@@ -104,7 +104,7 @@ namespace DataGEMS.Gateway.App.Query
 
 			if (collectedItems == null || collectedItems.Datasets == null) return new QueryResult() { Items = new List<Dataset>() };
 
-			QueryResult result = new QueryResult() { Count = collectedItems.Count, Offset = collectedItems.Offset, Total = collectedItems.Total };
+			QueryResult result = new QueryResult() { Count = collectedItems.Count ?? 0, Offset = collectedItems.Offset ?? 0, Total = collectedItems.Total ?? 0 };
 			result.Items = this.ConvertDataset(collectedItems.Datasets);
 			return result;
 		}
