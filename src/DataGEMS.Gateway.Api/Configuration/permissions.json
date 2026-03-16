@@ -245,56 +245,6 @@
 				"AllowAnonymous": false,
 				"AllowAuthenticated": false
 			},
-			//UserCollection
-			"BrowseUserCollection": {
-				"Roles": [ "GLOBAL_dg_admin" ],
-				"ContextRoles": [],
-				"Claims": [],
-				"Clients": [],
-				"AllowAnonymous": false,
-				"AllowAuthenticated": false
-			},
-			"EditUserCollection": {
-				"Roles": [ "GLOBAL_dg_admin" ],
-				"ContextRoles": [],
-				"Claims": [],
-				"Clients": [],
-				"AllowAnonymous": false,
-				"AllowAuthenticated": false
-			},
-			"DeleteUserCollection": {
-				"Roles": [ "GLOBAL_dg_admin" ],
-				"ContextRoles": [],
-				"Claims": [],
-				"Clients": [],
-				"AllowAnonymous": false,
-				"AllowAuthenticated": false
-			},
-			//UserDatasetCollection
-			"BrowseUserDatasetCollection": {
-				"Roles": [ "GLOBAL_dg_admin" ],
-				"ContextRoles": [],
-				"Claims": [],
-				"Clients": [],
-				"AllowAnonymous": false,
-				"AllowAuthenticated": false
-			},
-			"EditUserDatasetCollection": {
-				"Roles": [ "GLOBAL_dg_admin" ],
-				"ContextRoles": [],
-				"Claims": [],
-				"Clients": [],
-				"AllowAnonymous": false,
-				"AllowAuthenticated": false
-			},
-			"DeleteUserDatasetCollection": {
-				"Roles": [ "GLOBAL_dg_admin" ],
-				"ContextRoles": [],
-				"Claims": [],
-				"Clients": [],
-				"AllowAnonymous": false,
-				"AllowAuthenticated": false
-			},
 			//Vocabulary
 			"BrowseFieldsOfScienceVocabulary": {
 				"Roles": [],

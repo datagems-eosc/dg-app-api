@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace DataGEMS.Gateway.App.Service.DataManagement.Data
+namespace DataGEMS.Gateway.App.Data
 {
     public class Collection
     {
@@ -30,7 +30,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement.Data
 
         public override void Configure(EntityTypeBuilder<Collection> builder)
         {
-            builder.ToTable("dm_collection");
+            builder.ToTable("collection");
             builder.Property(x => x.Id).HasColumnName("id");
             builder.Property(x => x.Code).HasColumnName("code");
             builder.Property(x => x.Name).HasColumnName("name");

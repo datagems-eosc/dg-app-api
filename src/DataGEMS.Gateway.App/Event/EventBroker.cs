@@ -151,154 +151,6 @@ namespace DataGEMS.Gateway.App.Event
 
 		#endregion
 
-		#region UserCollection Deleted
-
-		private EventHandler<OnEventArgs<Guid>> _userCollectionDeleted;
-		public event EventHandler<OnEventArgs<Guid>> UserCollectionDeleted
-		{
-			add { this._userCollectionDeleted += value; }
-			remove { this._userCollectionDeleted -= value; }
-		}
-
-		public void EmitUserCollectionDeleted(Guid id)
-		{
-			this.EmitUserCollectionDeleted(this, new List<Guid>() { id });
-		}
-
-		public void EmitUserCollectionDeleted(IEnumerable<Guid> ids)
-		{
-			this.EmitUserCollectionDeleted(this, ids);
-		}
-
-		public void EmitUserCollectionDeleted(IEnumerable<OnEventArgs<Guid>> events)
-		{
-			this.EmitUserCollectionDeleted(this, events);
-		}
-
-		public void EmitUserCollectionDeleted(Object sender, IEnumerable<Guid> ids)
-		{
-			this._userCollectionDeleted?.Invoke(sender, new OnEventArgs<Guid>(ids));
-		}
-
-		public void EmitUserCollectionDeleted(Object sender, IEnumerable<OnEventArgs<Guid>> events)
-		{
-			if (events == null) return;
-			foreach (OnEventArgs<Guid> ev in events) this._userCollectionDeleted?.Invoke(sender, ev);
-		}
-
-		#endregion
-
-		#region UserCollection Touched
-
-		private EventHandler<OnEventArgs<Guid>> _userCollectionTouched;
-		public event EventHandler<OnEventArgs<Guid>> UserCollectionTouched
-		{
-			add { this._userCollectionTouched += value; }
-			remove { this._userCollectionTouched -= value; }
-		}
-
-		public void EmitUserCollectionTouched(Guid id)
-		{
-			this.EmitUserCollectionTouched(this, new List<Guid>() { id });
-		}
-
-		public void EmitUserCollectionTouched(IEnumerable<Guid> ids)
-		{
-			this.EmitUserCollectionTouched(this, ids);
-		}
-
-		public void EmitUserCollectionTouched(IEnumerable<OnEventArgs<Guid>> events)
-		{
-			this.EmitUserCollectionTouched(this, events);
-		}
-
-		public void EmitUserCollectionTouched(Object sender, IEnumerable<Guid> ids)
-		{
-			this._userCollectionTouched?.Invoke(sender, new OnEventArgs<Guid>(ids));
-		}
-
-		public void EmitUserCollectionTouched(Object sender, IEnumerable<OnEventArgs<Guid>> events)
-		{
-			if (events == null) return;
-			foreach (OnEventArgs<Guid> ev in events) this._userCollectionTouched?.Invoke(sender, ev);
-		}
-
-		#endregion
-
-		#region UserDatasetCollection Deleted
-
-		private EventHandler<OnEventArgs<Guid>> _userDatasetCollectionDeleted;
-		public event EventHandler<OnEventArgs<Guid>> UserDatasetCollectionDeleted
-		{
-			add { this._userDatasetCollectionDeleted += value; }
-			remove { this._userDatasetCollectionDeleted -= value; }
-		}
-
-		public void EmitUserDatasetCollectionDeleted(Guid id)
-		{
-			this.EmitUserDatasetCollectionDeleted(this, new List<Guid>() { id });
-		}
-
-		public void EmitUserDatasetCollectionDeleted(IEnumerable<Guid> ids)
-		{
-			this.EmitUserDatasetCollectionDeleted(this, ids);
-		}
-
-		public void EmitUserDatasetCollectionDeleted(IEnumerable<OnEventArgs<Guid>> events)
-		{
-			this.EmitUserDatasetCollectionDeleted(this, events);
-		}
-
-		public void EmitUserDatasetCollectionDeleted(Object sender, IEnumerable<Guid> ids)
-		{
-			this._userDatasetCollectionDeleted?.Invoke(sender, new OnEventArgs<Guid>(ids));
-		}
-
-		public void EmitUserDatasetCollectionDeleted(Object sender, IEnumerable<OnEventArgs<Guid>> events)
-		{
-			if (events == null) return;
-			foreach (OnEventArgs<Guid> ev in events) this._userDatasetCollectionDeleted?.Invoke(sender, ev);
-		}
-
-		#endregion
-
-		#region UserDatasetCollection Touched
-
-		private EventHandler<OnEventArgs<Guid>> _userDatasetCollectionTouched;
-		public event EventHandler<OnEventArgs<Guid>> UserDatasetCollectionTouched
-		{
-			add { this._userDatasetCollectionTouched += value; }
-			remove { this._userDatasetCollectionTouched -= value; }
-		}
-
-		public void EmitUserDatasetCollectionTouched(Guid id)
-		{
-			this.EmitUserDatasetCollectionTouched(this, new List<Guid>() { id });
-		}
-
-		public void EmitUserDatasetCollectionTouched(IEnumerable<Guid> ids)
-		{
-			this.EmitUserDatasetCollectionTouched(this, ids);
-		}
-
-		public void EmitUserDatasetCollectionTouched(IEnumerable<OnEventArgs<Guid>> events)
-		{
-			this.EmitUserDatasetCollectionTouched(this, events);
-		}
-
-		public void EmitUserDatasetCollectionTouched(Object sender, IEnumerable<Guid> ids)
-		{
-			this._userDatasetCollectionTouched?.Invoke(sender, new OnEventArgs<Guid>(ids));
-		}
-
-		public void EmitUserDatasetCollectionTouched(Object sender, IEnumerable<OnEventArgs<Guid>> events)
-		{
-			if (events == null) return;
-			foreach (OnEventArgs<Guid> ev in events) this._userDatasetCollectionTouched?.Invoke(sender, ev);
-		}
-
-		#endregion
-
 		#region Conversation Deleted
 
 		private EventHandler<OnEventArgs<Guid>> _conversationDeleted;
@@ -668,6 +520,81 @@ namespace DataGEMS.Gateway.App.Event
 		}
 
 		#endregion
+
+		#region DatasetCollection Deleted
+
+		private EventHandler<OnDatasetCollectionEventArgs> _datasetCollectionDeleted;
+		public event EventHandler<OnDatasetCollectionEventArgs> DatasetCollectionDeleted
+		{
+			add { this._datasetCollectionDeleted += value; }
+			remove { this._datasetCollectionDeleted -= value; }
+		}
+
+		public void EmitDatasetCollectionDeleted(OnDatasetCollectionEventArgs.DatasetCollectionIdentifier id)
+		{
+			this.EmitDatasetCollectionDeleted(this, new List<OnDatasetCollectionEventArgs.DatasetCollectionIdentifier>() { id });
+		}
+
+		public void EmitDatasetCollectionDeleted(IEnumerable<OnDatasetCollectionEventArgs.DatasetCollectionIdentifier> ids)
+		{
+			this.EmitDatasetCollectionDeleted(this, ids);
+		}
+
+		public void EmitDatasetCollectionDeleted(IEnumerable<OnDatasetCollectionEventArgs> events)
+		{
+			this.EmitDatasetCollectionDeleted(this, events);
+		}
+
+		public void EmitDatasetCollectionDeleted(Object sender, IEnumerable<OnDatasetCollectionEventArgs.DatasetCollectionIdentifier> ids)
+		{
+			this._datasetCollectionDeleted?.Invoke(sender, new OnDatasetCollectionEventArgs(ids));
+		}
+
+		public void EmitDatasetCollectionDeleted(Object sender, IEnumerable<OnDatasetCollectionEventArgs> events)
+		{
+			if (events == null) return;
+			foreach (OnDatasetCollectionEventArgs ev in events) this._datasetCollectionDeleted?.Invoke(sender, ev);
+		}
+
+		#endregion
+
+		#region DatasetCollection Touched
+
+		private EventHandler<OnDatasetCollectionEventArgs> _datasetCollectionTouched;
+		public event EventHandler<OnDatasetCollectionEventArgs> DatasetCollectionTouched
+		{
+			add { this._datasetCollectionTouched += value; }
+			remove { this._datasetCollectionTouched -= value; }
+		}
+
+		public void EmitDatasetCollectionTouched(OnDatasetCollectionEventArgs.DatasetCollectionIdentifier id)
+		{
+			this.EmitDatasetCollectionTouched(this, new List<OnDatasetCollectionEventArgs.DatasetCollectionIdentifier>() { id });
+		}
+
+		public void EmitDatasetCollectionTouched(IEnumerable<OnDatasetCollectionEventArgs.DatasetCollectionIdentifier> ids)
+		{
+			this.EmitDatasetCollectionTouched(this, ids);
+		}
+
+		public void EmitDatasetCollectionTouched(IEnumerable<OnDatasetCollectionEventArgs> events)
+		{
+			this.EmitDatasetCollectionTouched(this, events);
+		}
+
+		public void EmitDatasetCollectionTouched(Object sender, IEnumerable<OnDatasetCollectionEventArgs.DatasetCollectionIdentifier> ids)
+		{
+			this._datasetCollectionTouched?.Invoke(sender, new OnDatasetCollectionEventArgs(ids));
+		}
+
+		public void EmitDatasetCollectionTouched(Object sender, IEnumerable<OnDatasetCollectionEventArgs> events)
+		{
+			if (events == null) return;
+			foreach (OnDatasetCollectionEventArgs ev in events) this._datasetCollectionTouched?.Invoke(sender, ev);
+		}
+
+		#endregion
+
 
 		#region Dataset Deleted
 

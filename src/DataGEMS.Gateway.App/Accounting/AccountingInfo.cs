@@ -34,7 +34,8 @@ namespace DataGEMS.Gateway.App.Accounting
 		Dataset = 0,
 		Collection = 1,
 		User = 2,
-		UserCollection = 3,
+		//No longer available. Reserving ordinal number
+		//UserCollection = 3,
 		Conversation = 4,
 		CrossDatasetDiscovery = 5,
 		Vocabulary = 6,

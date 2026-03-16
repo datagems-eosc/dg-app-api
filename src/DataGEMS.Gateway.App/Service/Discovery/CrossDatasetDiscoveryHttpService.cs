@@ -139,39 +139,24 @@ namespace DataGEMS.Gateway.App.Service.Discovery
 		private async Task<DatasetSubsetInfo> DiscoverDatasetSubset(DiscoverInfo request)
 		{
 			if ((request.DatasetIds == null || request.DatasetIds.Count == 0) &&
-				(request.CollectionIds == null || request.CollectionIds.Count == 0) &&
-				(request.UserCollectionIds == null || request.UserCollectionIds.Count == 0)) return new DatasetSubsetInfo() { BreakQuery = false, DatasetIds = null };
+				(request.CollectionIds == null || request.CollectionIds.Count == 0)) return new DatasetSubsetInfo() { BreakQuery = false, DatasetIds = null };
 
 			List<List<Guid>> datasetIdsPerKind = new List<List<Guid>>();
 			if (request.DatasetIds != null && request.DatasetIds.Count > 0) 
 			{
-				List<DataManagement.Model.Dataset> directDatasets = await this._queryFactory.Query<DatasetHttpQuery>()
+				List<DataManagement.Model.Dataset> directDatasets = (await this._queryFactory.Query<DatasetHttpQuery>()
 					.Ids(request.DatasetIds)
-					.CollectAsync();
+					.CollectAsync())?.Items ?? [];
 
 				if (directDatasets.Count > 0) datasetIdsPerKind.Add(directDatasets.Select(x => x.Id).ToList());
 			}
 			if (request.CollectionIds != null && request.CollectionIds.Count > 0) 
 			{
-				List<DataManagement.Model.Dataset> collectionDatasets = await this._queryFactory.Query<DatasetHttpQuery>()
+				List<DataManagement.Model.Dataset> collectionDatasets = (await this._queryFactory.Query<DatasetHttpQuery>()
 					.CollectionIds(request.CollectionIds)
-					.CollectAsync();
+					.CollectAsync())?.Items ?? [];
 
 				if (collectionDatasets.Count > 0) datasetIdsPerKind.Add(collectionDatasets.Select(x => x.Id).ToList());
-			}
-			if (request.UserCollectionIds != null && request.UserCollectionIds.Count > 0)
-			{
-				List<Guid> userCollectionDatasetIds = await this._queryFactory.Query<UserDatasetCollectionQuery>()
-					.UserCollectionIds(request.UserCollectionIds)
-					.DisableTracking()
-					.Authorize(AuthorizationFlags.Any)
-					.CollectAsync(x => x.DatasetId);
-
-				List<DataManagement.Model.Dataset> userCollectionDatasets = await this._queryFactory.Query<DatasetHttpQuery>()
-					.CollectionIds(userCollectionDatasetIds)
-					.CollectAsync();
-
-				if (userCollectionDatasetIds.Count > 0) datasetIdsPerKind.Add(userCollectionDatasets.Select(x => x.Id).ToList());
 			}
 
 			if (!datasetIdsPerKind.SelectMany(x => x).Any()) return new DatasetSubsetInfo() { BreakQuery = true };

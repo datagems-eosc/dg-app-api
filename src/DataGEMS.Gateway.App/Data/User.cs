@@ -29,9 +29,6 @@ namespace DataGEMS.Gateway.App.Data
 
 		[Required]
 		public DateTime UpdatedAt { get; set; }
-
-		[InverseProperty(nameof(UserCollection.User))]
-		public List<UserCollection> UserCollections { get; set; }
 	}
 
 	public class UserEntityConfiguration : EntityTypeConfigurationBase<User>

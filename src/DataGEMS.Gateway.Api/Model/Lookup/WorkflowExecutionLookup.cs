@@ -78,7 +78,7 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 					//Paging with Ordering is only supported !
 					this.Spec()
 						.If(()=> item.Page != null && !item.Page.IsEmpty)
-						.Must(() => !item.Order.IsEmpty)
+						.Must(() =>  item.Order != null && !item.Order.IsEmpty)
 						.FailOn(nameof(WorkflowExecutionLookup.Page)).FailWith(this._localizer["validation_pagingWithoutOrdering"]),
 				};
 			}

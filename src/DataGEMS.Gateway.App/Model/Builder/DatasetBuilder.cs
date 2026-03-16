@@ -7,7 +7,6 @@ using Cite.Tools.Logging.Extensions;
 using DataGEMS.Gateway.App.Authorization;
 using DataGEMS.Gateway.App.Common;
 using DataGEMS.Gateway.App.Query;
-using DataGEMS.Gateway.App.Service.DataManagement.Model;
 using Microsoft.Extensions.Logging;
 
 namespace DataGEMS.Gateway.App.Model.Builder
@@ -88,11 +87,11 @@ namespace DataGEMS.Gateway.App.Model.Builder
 			if (fields.IsEmpty() || !datas.Any()) return null;
 			this._logger.Debug(new MapLogEntry("collecting").And("type", nameof(Model.Collection)).And("fields", fields).And("data", datas?.Count()));
 
-			List<DatasetCollection> datasetCollections = await this._queryFactory.Query<DatasetCollectionLocalQuery>().DatasetIds(datas.Select(x => x.Id).Distinct().ToList()).DisableTracking().Authorize(this._authorize).CollectAsyncAsModels();
+			List<Data.DatasetCollection> datasetCollections = await this._queryFactory.Query<DatasetCollectionQuery>().DatasetIds(datas.Select(x => x.Id).Distinct().ToList()).DisableTracking().Authorize(this._authorize).CollectAsync();
 			List<Guid> collectionIds = datasetCollections.Select(x=> x.CollectionId).Distinct().ToList();
 			Dictionary<Guid, List<Guid>> collectionsOfDataset = datasetCollections.ToDictionaryOfList(x => x.DatasetId).ToDictionary(x => x.Key, x => x.Value.Select(y => y.CollectionId).ToList());
 
-			List<Service.DataManagement.Model.Collection> collections = await this._queryFactory.Query<CollectionLocalQuery>().Ids(collectionIds).DisableTracking().Authorize(this._authorize).CollectAsyncAsModels();
+			List<Data.Collection> collections = await this._queryFactory.Query<CollectionQuery>().Ids(collectionIds).DisableTracking().Authorize(this._authorize).CollectAsync();
 			IFieldSet clone = new FieldSet(fields.Fields).Ensure(nameof(Model.Collection.Id));
 			List<Model.Collection> collectionModels = await this._builderFactory.Builder<CollectionBuilder>().Authorize(this._authorize).Build(clone, collections);
 			Dictionary<Guid, Model.Collection> collectionMap = collectionModels.ToDictionary(x => x.Id.Value);

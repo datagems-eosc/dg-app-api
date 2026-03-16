@@ -16,6 +16,5 @@ namespace DataGEMS.Gateway.App.Service.Discovery
 		public int? ResultCount { get; set; }
 		public List<Guid> DatasetIds { get; set; }
 		public List<Guid> CollectionIds { get; set; }
-		public List<Guid> UserCollectionIds { get; set; }
 	}
 }

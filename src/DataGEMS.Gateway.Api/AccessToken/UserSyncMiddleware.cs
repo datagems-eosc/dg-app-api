@@ -1,10 +1,8 @@
 ﻿using Cite.Tools.Auth.Claims;
-using Cite.Tools.Logging;
 using Cite.Tools.Logging.Extensions;
 using Cite.WebTools.CurrentPrincipal;
 using DataGEMS.Gateway.App.Data;
 using DataGEMS.Gateway.App.Service.AAI;
-using DataGEMS.Gateway.App.Service.UserCollection;
 
 namespace DataGEMS.Gateway.Api.AccessToken
 {
@@ -23,7 +21,6 @@ namespace DataGEMS.Gateway.Api.AccessToken
 			AppDbContext dbContext, 
 			ICurrentPrincipalResolverService currentPrincipalResolverService, 
 			ClaimExtractor extractor, 
-			IUserCollectionService userCollectionService, 
 			IAAIService aaiService)
 		{
 			String idpSubjectId = extractor.SubjectString(currentPrincipalResolverService.CurrentPrincipal());
@@ -60,7 +57,6 @@ namespace DataGEMS.Gateway.Api.AccessToken
 				}
 			}
 
-			await userCollectionService.BootstrapFavorites();
 			await aaiService.BootstrapUserContextGrants(idpSubjectId);
 
 			await _next(context);

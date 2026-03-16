@@ -24,9 +24,9 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 		[SwaggerSchema(description: "Limit lookup to items that the provided user has explicit access kind. This should only be set in combination with ContextRoles. If left empty, the current user is used")]
 		public String ContextRoleSubjectId { get; set; }
 
-		public CollectionLocalQuery Enrich(QueryFactory factory)
+		public CollectionQuery Enrich(QueryFactory factory)
 		{
-			CollectionLocalQuery query = factory.Query<CollectionLocalQuery>();
+			CollectionQuery query = factory.Query<CollectionQuery>();
 
 			if (this.Ids != null) query.Ids(this.Ids);
 			if (this.ExcludedIds != null) query.ExcludedIds(this.ExcludedIds);

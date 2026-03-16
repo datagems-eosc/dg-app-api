@@ -1,7 +1,7 @@
 ﻿using Cite.Tools.Data.Deleter;
 using Cite.Tools.Data.Query;
-using Cite.Tools.Logging;
 using Cite.Tools.Logging.Extensions;
+using Cite.Tools.Logging;
 using DataGEMS.Gateway.App.Common;
 using DataGEMS.Gateway.App.ErrorCode;
 using DataGEMS.Gateway.App.Event;
@@ -11,26 +11,29 @@ using Microsoft.Extensions.Logging;
 
 namespace DataGEMS.Gateway.App.Deleter
 {
-	public class UserDatasetCollectionDeleter : IDeleter
+	public class DatasetCollectionDeleter : IDeleter
 	{
 		private readonly QueryFactory _queryFactory = null;
+		private readonly DeleterFactory _deleterFactory = null;
 		private readonly Data.AppDbContext _dbContext;
-		private readonly ILogger<UserDatasetCollectionDeleter> _logger;
+		private readonly ILogger<DatasetCollectionDeleter> _logger;
 		private readonly EventBroker _eventBroker;
 		private readonly ErrorThesaurus _errors;
 		private readonly IStringLocalizer<Resources.MySharedResources> _localizer;
 
-		public UserDatasetCollectionDeleter(
+		public DatasetCollectionDeleter(
 			Data.AppDbContext dbContext,
 			QueryFactory queryFactory,
+			DeleterFactory deleterFactory,
 			EventBroker eventBroker,
-			ILogger<UserDatasetCollectionDeleter> logger,
+			ILogger<DatasetCollectionDeleter> logger,
 			ErrorThesaurus errors,
 			IStringLocalizer<Resources.MySharedResources> localizer)
 		{
 			this._logger = logger;
 			this._dbContext = dbContext;
 			this._queryFactory = queryFactory;
+			this._deleterFactory = deleterFactory;
 			this._eventBroker = eventBroker;
 			this._errors = errors;
 			this._localizer = localizer;
@@ -38,31 +41,25 @@ namespace DataGEMS.Gateway.App.Deleter
 
 		public async Task DeleteAndSave(IEnumerable<Guid> ids)
 		{
-			List<Data.UserDatasetCollection> datas = await this._queryFactory.Query<UserDatasetCollectionQuery>().Ids(ids).Authorize(Authorization.AuthorizationFlags.None).CollectAsync();
+			List<Data.DatasetCollection> datas = await this._queryFactory.Query<DatasetCollectionQuery>().Ids(ids).Authorize(Authorization.AuthorizationFlags.None).CollectAsync();
 			await this.DeleteAndSave(datas);
 		}
 
-		public async Task DeleteAndSave(IEnumerable<Data.UserDatasetCollection> datas)
+		public async Task DeleteAndSave(IEnumerable<Data.DatasetCollection> datas)
 		{
 			await this.Delete(datas);
 			await this._dbContext.SaveChangesAsync();
 		}
 
-		public Task Delete(IEnumerable<Data.UserDatasetCollection> datas)
+		public Task Delete(IEnumerable<Data.DatasetCollection> datas)
 		{
-			this._logger.Debug(new MapLogEntry("deleting").And("type", nameof(App.Model.UserDatasetCollection)).And("count", datas?.Count()));
+			this._logger.Debug(new MapLogEntry("deleting").And("type", nameof(App.Model.DatasetCollection)).And("count", datas?.Count()));
 			if (datas == null || !datas.Any()) return Task.CompletedTask;
 
-			DateTime now = DateTime.UtcNow;
+			this._dbContext.RemoveRange(datas);
 
-			foreach (Data.UserDatasetCollection item in datas)
-			{
-				item.IsActive = IsActive.Inactive;
-				item.UpdatedAt = now;
-				this._dbContext.Update(item);
-			}
+			this._eventBroker.EmitDatasetCollectionDeleted(datas.Select(x => new OnDatasetCollectionEventArgs.DatasetCollectionIdentifier() { DatasetId = x.DatasetId, CollectionId = x.CollectionId }).ToList());
 
-			this._eventBroker.EmitUserDatasetCollectionDeleted(datas.Select(x => x.Id).ToList());
 			return Task.CompletedTask;
 		}
 	}

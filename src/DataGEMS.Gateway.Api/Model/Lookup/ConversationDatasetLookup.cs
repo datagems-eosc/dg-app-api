@@ -76,7 +76,7 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 					//paging without ordering not supported
 					this.Spec()
 						.If(()=> item.Page != null && !item.Page.IsEmpty)
-						.Must(() => !item.Order.IsEmpty)
+						.Must(() =>  item.Order != null && !item.Order.IsEmpty)
 						.FailOn(nameof(ConversationDatasetLookup.Page)).FailWith(this._localizer["validation_pagingWithoutOrdering"]),
 				};
 			}

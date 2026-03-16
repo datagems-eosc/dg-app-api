@@ -9,7 +9,6 @@ namespace DataGEMS.Gateway.App.Model
 		public String IdpSubjectId { get; set; }
 		public DateTime? CreatedAt { get; set; }
 		public DateTime? UpdatedAt { get; set; }
-		public List<UserCollection> UserCollections { get; set; }
 		public String ETag { get; set; }
 	}
 }
