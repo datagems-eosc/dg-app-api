@@ -3,6 +3,7 @@
     "Scope": "cross-dataset-discovery-api",
     "BaseUrl": "%{CrossDatasetDiscoveryBaseUrl}%",
     "SearchEndpoint": "search/",
-    "DefaultResultCount": 5
+    "DefaultResultCount": 5,
+    "DirectContact": false
   }
 }

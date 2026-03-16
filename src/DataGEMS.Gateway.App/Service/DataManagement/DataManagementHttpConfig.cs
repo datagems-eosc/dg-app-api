@@ -6,6 +6,7 @@
         public string BaseUrl { get; set; }
         public string DatasetQueryEndpoint { get; set; }
         public string DatasetCountEndpoint { get; set; }
-    }
+		public string CrossDatasetDiscoverySearchEndpoint { get; set; }
+	}
 }
 

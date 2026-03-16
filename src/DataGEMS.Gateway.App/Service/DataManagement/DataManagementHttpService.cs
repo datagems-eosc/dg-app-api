@@ -1,0 +1,85 @@
+﻿using Cite.Tools.Data.Builder;
+using Cite.Tools.Data.Query;
+using Cite.Tools.Json;
+using Cite.Tools.Logging.Extensions;
+using DataGEMS.Gateway.App.AccessToken;
+using DataGEMS.Gateway.App.Common;
+using DataGEMS.Gateway.App.ErrorCode;
+using DataGEMS.Gateway.App.Exception;
+using DataGEMS.Gateway.App.LogTracking;
+using Microsoft.Extensions.Logging;
+
+namespace DataGEMS.Gateway.App.Service.DataManagement
+{
+	public class DataManagementHttpService
+	{
+		private readonly IAccessTokenService _accessTokenService;
+		private readonly IHttpClientFactory _httpClientFactory;
+		private readonly DataManagementHttpConfig _config;
+		private readonly LogTrackingCorrelationConfig _logTrackingCorrelationConfig;
+		private readonly LogCorrelationScope _logCorrelationScope;
+		private readonly ILogger<DataManagementHttpService> _logger;
+		private readonly RequestTokenIntercepted _requestAccessToken;
+		private readonly QueryFactory _queryFactory;
+		private readonly ErrorThesaurus _errors;
+		private readonly JsonHandlingService _jsonHandlingService;
+		private readonly BuilderFactory _builderFactory;
+
+		public DataManagementHttpService(IAccessTokenService accessTokenService,
+		IHttpClientFactory httpClientFactory,
+		DataManagementHttpConfig config,
+		LogTrackingCorrelationConfig logTrackingCorrelationConfig,
+		LogCorrelationScope logCorrelationScope,
+		ILogger<DataManagementHttpService> logger,
+		RequestTokenIntercepted requestAccessToken,
+		QueryFactory queryFactory,
+		ErrorThesaurus errors,
+		JsonHandlingService jsonHandlingService,
+		BuilderFactory builderFactory)
+		{
+			this._accessTokenService = accessTokenService;
+			this._httpClientFactory = httpClientFactory;
+			this._config = config;
+			this._logTrackingCorrelationConfig = logTrackingCorrelationConfig;
+			this._logCorrelationScope = logCorrelationScope;
+			this._logger = logger;
+			this._queryFactory = queryFactory;
+			this._errors = errors;
+			_jsonHandlingService = jsonHandlingService;
+			_builderFactory = builderFactory;
+			this._requestAccessToken = requestAccessToken;
+		}
+
+		//TODO: create an AP mapping object
+		public async Task CrossDatasetDiscoverySearch()
+		{
+			String token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
+			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
+
+			//TODO: use SendRequest
+		}
+
+		private async Task<string> SendRequest(HttpRequestMessage request)
+		{
+			HttpResponseMessage response = null;
+			try { response = await this._httpClientFactory.CreateClient().SendAsync(request); }
+			catch (System.Exception ex)
+			{
+				this._logger.Error(ex, $"could not complete the request. response was {response?.StatusCode}");
+				throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, (int?)response?.StatusCode, UnderpinningServiceType.CrossDatasetDiscovery, this._logCorrelationScope.CorrelationId);
+			}
+
+			try { response.EnsureSuccessStatusCode(); }
+			catch (System.Exception ex)
+			{
+				String errorPayload = null;
+				try { errorPayload = await response.Content.ReadAsStringAsync(); } catch (System.Exception) { }
+				this._logger.Error(ex, "non successful response. StatusCode was {statusCode} and Payload {errorPayload}", response?.StatusCode, errorPayload);
+				Boolean includeErrorPayload = response != null && response.StatusCode == System.Net.HttpStatusCode.BadRequest;
+				throw new Exception.DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, (int?)response?.StatusCode, UnderpinningServiceType.CrossDatasetDiscovery, this._logCorrelationScope.CorrelationId, includeErrorPayload ? errorPayload : null);
+			}
+			String content = await response.Content.ReadAsStringAsync();
+			return content;
+		}
+	}
+}

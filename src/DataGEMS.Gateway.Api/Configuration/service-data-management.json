@@ -4,7 +4,8 @@
 			"Scope": "data-model-management-api",
 			"BaseUrl": "%{DataModelManagementBaseUrl}%",
 			"DatasetQueryEndpoint": "api/v1/dataset/search",
-			"DatasetCountEndpoint": "api/v1/dataset/count"
+			"DatasetCountEndpoint": "api/v1/dataset/count",
+			"CrossDatasetDiscoverySearchEndpoint": "api/v1/cross-dataset-discovery/search"
 		},
 		"Local": {
 			"ConnectionStrings": {

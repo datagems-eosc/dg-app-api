@@ -32,6 +32,7 @@ namespace DataGEMS.Gateway.App.Service.Discovery
 		private readonly ErrorThesaurus _errors;
 		private readonly JsonHandlingService _jsonHandlingService;
 		private readonly BuilderFactory _builderFactory;
+		private readonly DataManagement.DataManagementHttpService _dataManagementHttpService;
 
 		public CrossDatasetDiscoveryHttpService(
 			IHttpClientFactory httpClientFactory,
@@ -44,7 +45,8 @@ namespace DataGEMS.Gateway.App.Service.Discovery
 			ILogger<CrossDatasetDiscoveryHttpService> logger,
 			JsonHandlingService jsonHandlingService,
 			ErrorThesaurus errors,
-			BuilderFactory builderFactory)
+			BuilderFactory builderFactory,
+			DataManagement.DataManagementHttpService dataManagementHttpService)
 		{
 			this._httpClientFactory = httpClientFactory;
 			this._accessTokenService = accessTokenService;
@@ -57,6 +59,7 @@ namespace DataGEMS.Gateway.App.Service.Discovery
 			this._jsonHandlingService = jsonHandlingService;
 			this._errors = errors;
 			this._builderFactory = builderFactory;
+			this._dataManagementHttpService = dataManagementHttpService;
 		}
 
 		public async Task<List<CrossDatasetDiscovery>> DiscoverAsync(DiscoverInfo request, IFieldSet fieldSet)
@@ -74,23 +77,34 @@ namespace DataGEMS.Gateway.App.Service.Discovery
 				DatasetIds = datasetSubset.DatasetIds,
 			};
 
-			HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, $"{this._config.BaseUrl}{this._config.SearchEndpoint}")
+			IEnumerable<CrossDatasetDiscoveryResult> results = null;
+			if (this._config.DirectContact)
 			{
-				Content = new StringContent(this._jsonHandlingService.ToJson(httpRequestModel), Encoding.UTF8, "application/json")
-			};
-			httpRequest.Headers.Add(HeaderNames.Accept, "application/json");
-			httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-			httpRequest.Headers.Add(this._logTrackingCorrelationConfig.HeaderName, this._logCorrelationScope.CorrelationId);
+				HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, $"{this._config.BaseUrl}{this._config.SearchEndpoint}")
+				{
+					Content = new StringContent(this._jsonHandlingService.ToJson(httpRequestModel), Encoding.UTF8, "application/json")
+				};
+				httpRequest.Headers.Add(HeaderNames.Accept, "application/json");
+				httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+				httpRequest.Headers.Add(this._logTrackingCorrelationConfig.HeaderName, this._logCorrelationScope.CorrelationId);
 
-			String content = await this.SendRequest(httpRequest);
-			Model.CrossDatasetDiscoveryResponse rawResponse = null;
-			try { rawResponse = this._jsonHandlingService.FromJson<Model.CrossDatasetDiscoveryResponse>(content); }
-			catch (System.Exception ex)
-			{
-				this._logger.LogError(ex, "Failed to parse response: {content}", content);
-				throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.CrossDatasetDiscovery, this._logCorrelationScope.CorrelationId);
+				String content = await this.SendRequest(httpRequest);
+				Model.CrossDatasetDiscoveryResponse rawResponse = null;
+				try { rawResponse = this._jsonHandlingService.FromJson<Model.CrossDatasetDiscoveryResponse>(content); }
+				catch (System.Exception ex)
+				{
+					this._logger.LogError(ex, "Failed to parse response: {content}", content);
+					throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.CrossDatasetDiscovery, this._logCorrelationScope.CorrelationId);
+				}
+				results = rawResponse?.Results;
 			}
-			return await this._builderFactory.Builder<App.Model.Builder.CrossDatasetDiscoveryBuilder>().Authorize(AuthorizationFlags.Any).Build(fieldSet, rawResponse?.Results);
+			else
+			{
+				results = await this._dataManagementHttpService.CrossDatasetDiscoverySearch();
+			}
+
+			
+			return await this._builderFactory.Builder<App.Model.Builder.CrossDatasetDiscoveryBuilder>().Authorize(AuthorizationFlags.Any).Build(fieldSet, results);
 		}
 
 		private async Task<string> SendRequest(HttpRequestMessage request)
