@@ -59,7 +59,7 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 			this._analyticalPatternTemplates = analyticalPatternTemplates;
 		}
 
-		public async Task<IEnumerable<CrossDatasetDiscoveryResult>> CrossDatasetDiscoverySearch(string query)
+		public async Task<IEnumerable<CrossDatasetDiscoveryResult>> CrossDatasetDiscoverySearch(Model.CrossDatasetDiscoveryRequest request)
 		{
 			String token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
@@ -70,7 +70,8 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 				.Replace("{{Task_node_Id}}", Guid.NewGuid().ToString())
 				.Replace("{{User_node_Id}}", Guid.NewGuid().ToString())
 				.Replace("{{start_time}}", DateTime.UtcNow.ToString("O"))
-				.Replace("{{query}}", query);
+				.Replace("{{query}}", request.Query)
+				.Replace("{{k}}", request.ResultCount.ToString());
 
 			HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, $"{this._config.BaseUrl}{this._config.CrossDatasetDiscoverySearchEndpoint}")
 			{

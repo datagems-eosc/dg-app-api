@@ -57,7 +57,7 @@
 				],
 				"properties": {
 					"description": "Dataset search executed via Cross-Dataset Discovery",
-					"k": 2,
+					"k": {{k}},
 					"name": "Cross-Dataset Discovery Operator",
 					"query": "{{query}}",
 					"startTime": "{{start_time}}"

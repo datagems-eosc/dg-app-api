@@ -4,6 +4,6 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 {
 	public interface ITaskOrchestratorService
 	{
-		Task<IEnumerable<CrossDatasetDiscoveryResult>> CrossDatasetDiscoverySearch(string query);
+		Task<IEnumerable<CrossDatasetDiscoveryResult>> CrossDatasetDiscoverySearch(Model.CrossDatasetDiscoveryRequest request);
 	}
 }

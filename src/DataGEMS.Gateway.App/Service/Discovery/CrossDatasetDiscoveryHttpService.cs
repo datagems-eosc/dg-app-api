@@ -80,7 +80,12 @@ namespace DataGEMS.Gateway.App.Service.Discovery
 			IEnumerable<CrossDatasetDiscoveryResult> results = null;
 			if (this._config.UseTaskOrcherstrator)
 			{
-				results = await this._taskOrchestratorService.CrossDatasetDiscoverySearch(request.Query);
+				results = await this._taskOrchestratorService.CrossDatasetDiscoverySearch(new TaskOrchestrator.Model.CrossDatasetDiscoveryRequest
+				{
+					DatasetIds = httpRequestModel.DatasetIds,
+					Query = httpRequestModel.Query,
+					ResultCount = httpRequestModel.ResultCount,
+				});
 			}
 			else
 			{
@@ -103,6 +108,7 @@ namespace DataGEMS.Gateway.App.Service.Discovery
 				results = rawResponse?.Results;
 			}
 
+			if (results == null) return new List<CrossDatasetDiscovery>();
 			
 			return await this._builderFactory.Builder<App.Model.Builder.CrossDatasetDiscoveryBuilder>().Authorize(AuthorizationFlags.Any).Build(fieldSet, results);
 		}
