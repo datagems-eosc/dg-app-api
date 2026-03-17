@@ -63,15 +63,13 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 		{
 			String token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
-			DateTime now = DateTime.UtcNow;
 			var apRequest = this._analyticalPatternTemplates.CrossDatasetDiscoveryLookup
 				.Replace("{{AP_node_Id}}", Guid.NewGuid().ToString())
 				.Replace("{{Op_node_Id}}", Guid.NewGuid().ToString())
 				.Replace("{{File_Obj_node_Id}}", Guid.NewGuid().ToString())
 				.Replace("{{Task_node_Id}}", Guid.NewGuid().ToString())
 				.Replace("{{User_node_Id}}", Guid.NewGuid().ToString())
-				.Replace("{{published_date}}", now.ToString("yyyyy-MM-dd"))
-				.Replace("{{start_time}}", now.ToString("HH:mm:ss"))
+				.Replace("{{start_time}}", DateTime.UtcNow.ToString("O"))
 				.Replace("{{query}}", query);
 
 			HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, $"{this._config.BaseUrl}{this._config.CrossDatasetDiscoverySearchEndpoint}")
