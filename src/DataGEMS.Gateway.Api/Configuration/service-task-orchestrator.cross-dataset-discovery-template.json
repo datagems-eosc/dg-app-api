@@ -1,0 +1,86 @@
+{
+	"ap": {
+		"edges": [
+			{
+				"from": "{{AP_node_Id}}",
+				"labels": [
+					"consist_of"
+				],
+				"to": "{{Op_node_Id}}"
+			},
+			{
+				"from": "{{Op_node_Id}}",
+				"labels": [
+					"output"
+				],
+				"to": "{{File_Obj_node_Id}}"
+			},
+			{
+				"from": "{{Task_node_Id}}",
+				"labels": [
+					"is_accomplished"
+				],
+				"to": "{{AP_node_Id}}"
+			},
+			{
+				"from": "{{User_node_Id}}",
+				"labels": [
+					"request"
+				],
+				"to": "{{Task_node_Id}}"
+			}
+		],
+		"nodes": [
+			{
+				"id": "{{User_node_Id}}",
+				"labels": [
+					"User"
+				]
+			},
+			{
+				"id": "{{AP_node_Id}}",
+				"labels": [
+					"Analytical_Pattern"
+				],
+				"properties": {
+					"description": "Analytical Pattern to retrieve a list of datasets",
+					"name": "Retrieve Datasets AP",
+					"process": "cross_dataset_discovery",
+					"publishedDate": "{{published_date}}",
+					"startTime": "{{start_time}}"
+				}
+			},
+			{
+				"id": "{{Op_node_Id}}",
+				"labels": [
+					"Query_Operator",
+					"CDD_Operator"
+				],
+				"properties": {
+					"description": "Dataset search executed via Cross-Dataset Discovery",
+					"k": 2,
+					"name": "Cross-Dataset Discovery Operator",
+					"publishedDate": "{{published_date}}",
+					"query": "{{query}}",
+					"startTime": "{{start_time}}"
+				}
+			},
+			{
+				"id": "{{File_Obj_node_Id}}",
+				"labels": [
+					"cr:FileObject"
+				]
+			},
+			{
+				"id": "{{Task_node_Id}}",
+				"labels": [
+					"Task"
+				],
+				"properties": {
+					"description": "Task to find a dataset",
+					"name": "Dataset Retrieval Task"
+				}
+			}
+		]
+	}
+}

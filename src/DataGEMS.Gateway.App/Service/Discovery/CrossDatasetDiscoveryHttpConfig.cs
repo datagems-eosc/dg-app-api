@@ -7,6 +7,6 @@ namespace DataGEMS.Gateway.App.Service.Discovery
 		public String BaseUrl { get; set; }
 		public String SearchEndpoint {  get; set; }
 		public int DefaultResultCount { get; set; }
-		public bool DirectContact { get; set; }
+		public bool UseTaskOrcherstrator { get; set; }
 	}
 }

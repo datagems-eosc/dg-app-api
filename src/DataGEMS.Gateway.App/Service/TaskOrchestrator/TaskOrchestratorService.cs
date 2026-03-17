@@ -7,30 +7,37 @@ using DataGEMS.Gateway.App.Common;
 using DataGEMS.Gateway.App.ErrorCode;
 using DataGEMS.Gateway.App.Exception;
 using DataGEMS.Gateway.App.LogTracking;
+using DataGEMS.Gateway.App.Service.DataManagement;
+using DataGEMS.Gateway.App.Service.Discovery.Model;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace DataGEMS.Gateway.App.Service.DataManagement
+namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 {
-	public class DataManagementHttpService
+	public class TaskOrchestratorService : ITaskOrchestratorService
 	{
 		private readonly IAccessTokenService _accessTokenService;
 		private readonly IHttpClientFactory _httpClientFactory;
-		private readonly DataManagementHttpConfig _config;
+		private readonly TaskOrchestratorHttpConfig _config;
 		private readonly LogTrackingCorrelationConfig _logTrackingCorrelationConfig;
 		private readonly LogCorrelationScope _logCorrelationScope;
-		private readonly ILogger<DataManagementHttpService> _logger;
+		private readonly ILogger<TaskOrchestratorService> _logger;
 		private readonly RequestTokenIntercepted _requestAccessToken;
 		private readonly QueryFactory _queryFactory;
 		private readonly ErrorThesaurus _errors;
 		private readonly JsonHandlingService _jsonHandlingService;
 		private readonly BuilderFactory _builderFactory;
 
-		public DataManagementHttpService(IAccessTokenService accessTokenService,
+		public TaskOrchestratorService(IAccessTokenService accessTokenService,
 		IHttpClientFactory httpClientFactory,
-		DataManagementHttpConfig config,
+		TaskOrchestratorHttpConfig config,
 		LogTrackingCorrelationConfig logTrackingCorrelationConfig,
 		LogCorrelationScope logCorrelationScope,
-		ILogger<DataManagementHttpService> logger,
+		ILogger<TaskOrchestratorService> logger,
 		RequestTokenIntercepted requestAccessToken,
 		QueryFactory queryFactory,
 		ErrorThesaurus errors,
@@ -51,11 +58,12 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 		}
 
 		//TODO: create an AP mapping object
-		public async Task CrossDatasetDiscoverySearch()
+		public async Task<IEnumerable<CrossDatasetDiscoveryResult>> CrossDatasetDiscoverySearch()
 		{
 			String token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
 
+			return null;
 			//TODO: use SendRequest
 		}
 
@@ -82,4 +90,5 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 			return content;
 		}
 	}
+
 }

@@ -4,6 +4,6 @@
     "BaseUrl": "%{CrossDatasetDiscoveryBaseUrl}%",
     "SearchEndpoint": "search/",
     "DefaultResultCount": 5,
-    "DirectContact": false
+    "UseTaskOrcherstrator": true
   }
 }

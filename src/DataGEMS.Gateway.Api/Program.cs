@@ -111,6 +111,10 @@ namespace DataGEMS.Gateway.Api
 							.AddJsonFileInPaths("service-query-recommender.json", sharedConfigPath, "Configuration")
 							.AddJsonFileInPaths("service-query-recommender.override.json", sharedConfigPath, "Configuration")
 							.AddJsonFileInPaths($"service-query-recommender.{env.EnvironmentName}.json", sharedConfigPath, "Configuration")
+							// service task orchestrator
+							.AddJsonFileInPaths("service-task-orchestrator.json", sharedConfigPath, "Configuration")
+							.AddJsonFileInPaths("service-task-orchestrator.override.json", sharedConfigPath, "Configuration")
+							.AddJsonFileInPaths($"service-task-orchestrator.{env.EnvironmentName}.json", sharedConfigPath, "Configuration")
 							//storage
 							.AddJsonFileInPaths("storage.json", sharedConfigPath, "Configuration")
 							.AddJsonFileInPaths("storage.override.json", sharedConfigPath, "Configuration")

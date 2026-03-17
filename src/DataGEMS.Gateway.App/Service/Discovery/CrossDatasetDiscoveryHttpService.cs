@@ -32,7 +32,7 @@ namespace DataGEMS.Gateway.App.Service.Discovery
 		private readonly ErrorThesaurus _errors;
 		private readonly JsonHandlingService _jsonHandlingService;
 		private readonly BuilderFactory _builderFactory;
-		private readonly DataManagement.DataManagementHttpService _dataManagementHttpService;
+		private readonly TaskOrchestrator.ITaskOrchestratorService _taskOrchestratorService;
 
 		public CrossDatasetDiscoveryHttpService(
 			IHttpClientFactory httpClientFactory,
@@ -46,7 +46,7 @@ namespace DataGEMS.Gateway.App.Service.Discovery
 			JsonHandlingService jsonHandlingService,
 			ErrorThesaurus errors,
 			BuilderFactory builderFactory,
-			DataManagement.DataManagementHttpService dataManagementHttpService)
+			TaskOrchestrator.ITaskOrchestratorService taskOrchestratorService)
 		{
 			this._httpClientFactory = httpClientFactory;
 			this._accessTokenService = accessTokenService;
@@ -59,7 +59,7 @@ namespace DataGEMS.Gateway.App.Service.Discovery
 			this._jsonHandlingService = jsonHandlingService;
 			this._errors = errors;
 			this._builderFactory = builderFactory;
-			this._dataManagementHttpService = dataManagementHttpService;
+			this._taskOrchestratorService = taskOrchestratorService;
 		}
 
 		public async Task<List<CrossDatasetDiscovery>> DiscoverAsync(DiscoverInfo request, IFieldSet fieldSet)
@@ -78,7 +78,11 @@ namespace DataGEMS.Gateway.App.Service.Discovery
 			};
 
 			IEnumerable<CrossDatasetDiscoveryResult> results = null;
-			if (this._config.DirectContact)
+			if (this._config.UseTaskOrcherstrator)
+			{
+				results = await this._taskOrchestratorService.CrossDatasetDiscoverySearch();
+			}
+			else
 			{
 				HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, $"{this._config.BaseUrl}{this._config.SearchEndpoint}")
 				{
@@ -97,10 +101,6 @@ namespace DataGEMS.Gateway.App.Service.Discovery
 					throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.CrossDatasetDiscovery, this._logCorrelationScope.CorrelationId);
 				}
 				results = rawResponse?.Results;
-			}
-			else
-			{
-				results = await this._dataManagementHttpService.CrossDatasetDiscoverySearch();
 			}
 
 			

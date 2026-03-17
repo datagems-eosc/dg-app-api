@@ -40,6 +40,7 @@ using DataGEMS.Gateway.App.Service.AAI;
 using DataGEMS.Gateway.App.Service.Storage;
 using DataGEMS.Gateway.App.Service.QueryRecommender;
 using DataGEMS.Gateway.App.Service.Collection;
+using DataGEMS.Gateway.App.Service.TaskOrchestrator;
 
 namespace DataGEMS.Gateway.Api
 {
@@ -89,6 +90,7 @@ namespace DataGEMS.Gateway.Api
 
 			services
 				.AddDataManagementServices(this._config.GetSection("DataManagementService")) //Data Management API
+				.AddTaskOrchestratorServices(this._config.GetSection("TaskOrchestratorService")) //Task Orchestrator API
 				.AddCrossDatasetDiscoveryServices(this._config.GetSection("CrossDatasetDiscoveryService")) //Cross Dataset Discovery API
 				.AddInDataExplorationServices(this._config.GetSection("InDataExplorationService"))  //In Data Exploration API
 				.AddAirflowServices(this._config.GetSection("AirflowService")) //Airflow
