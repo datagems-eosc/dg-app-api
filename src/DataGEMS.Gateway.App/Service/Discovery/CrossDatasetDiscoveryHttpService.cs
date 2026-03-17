@@ -80,7 +80,7 @@ namespace DataGEMS.Gateway.App.Service.Discovery
 			IEnumerable<CrossDatasetDiscoveryResult> results = null;
 			if (this._config.UseTaskOrcherstrator)
 			{
-				results = await this._taskOrchestratorService.CrossDatasetDiscoverySearch();
+				results = await this._taskOrchestratorService.CrossDatasetDiscoverySearch(request.Query);
 			}
 			else
 			{

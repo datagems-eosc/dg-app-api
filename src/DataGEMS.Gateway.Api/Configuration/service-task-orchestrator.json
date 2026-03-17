@@ -3,6 +3,6 @@
 		"Scope": "data-model-management-api",
 		"BaseUrl": "%{DataModelManagementBaseUrl}%",
 		"CrossDatasetDiscoverySearchEndpoint": "api/v1/cross-dataset-discovery/search",
-		"CrossDatasetDiscoveryTemplatePath": "Configuration/service-task-orchestrator.cross-dataset-discovery.template.json"
+		"CrossDatasetDiscoveryTemplatePath": "Configuration/service-task-orchestrator.cross-dataset-discovery-template.json"
 	}
 }
