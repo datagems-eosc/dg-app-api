@@ -75,7 +75,7 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 
 			HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, $"{this._config.BaseUrl}{this._config.CrossDatasetDiscoverySearchEndpoint}")
 			{
-				Content = new StringContent(this._jsonHandlingService.ToJson(apRequest), Encoding.UTF8, "application/json")
+				Content = new StringContent(apRequest, Encoding.UTF8, "application/json")
 			};
 			httpRequest.Headers.Add(HeaderNames.Accept, "application/json");
 			httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
