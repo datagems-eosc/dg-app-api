@@ -2,43 +2,43 @@
 	"ap": {
 		"edges": [
 			{
-				"from": "{{AP_node_Id}}",
+				"from": "{{ap_node_id}}",
 				"labels": [
 					"consist_of"
 				],
-				"to": "{{Op_node_Id}}"
+				"to": "{{op_node_id}}"
 			},
 			{
-				"from": "{{Op_node_Id}}",
+				"from": "{{op_node_id}}",
 				"labels": [
 					"output"
 				],
-				"to": "{{File_Obj_node_Id}}"
+				"to": "{{file_obj_node_id}}"
 			},
 			{
-				"from": "{{Task_node_Id}}",
+				"from": "{{task_node_id}}",
 				"labels": [
 					"is_accomplished"
 				],
-				"to": "{{AP_node_Id}}"
+				"to": "{{ap_node_id}}"
 			},
 			{
-				"from": "{{User_node_Id}}",
+				"from": "{{user_node_id}}",
 				"labels": [
 					"request"
 				],
-				"to": "{{Task_node_Id}}"
+				"to": "{{task_node_id}}"
 			}
 		],
 		"nodes": [
 			{
-				"id": "{{User_node_Id}}",
+				"id": "{{user_node_id}}",
 				"labels": [
 					"User"
 				]
 			},
 			{
-				"id": "{{AP_node_Id}}",
+				"id": "{{ap_node_id}}",
 				"labels": [
 					"Analytical_Pattern"
 				],
@@ -50,7 +50,7 @@
 				}
 			},
 			{
-				"id": "{{Op_node_Id}}",
+				"id": "{{op_node_id}}",
 				"labels": [
 					"Query_Operator",
 					"CDD_Operator"
@@ -64,13 +64,13 @@
 				}
 			},
 			{
-				"id": "{{File_Obj_node_Id}}",
+				"id": "{{file_obj_node_id}}",
 				"labels": [
 					"cr:FileObject"
 				]
 			},
 			{
-				"id": "{{Task_node_Id}}",
+				"id": "{{task_node_id}}",
 				"labels": [
 					"Task"
 				],

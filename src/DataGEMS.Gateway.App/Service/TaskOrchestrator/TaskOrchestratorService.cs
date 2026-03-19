@@ -64,11 +64,11 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 			String token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
 			var apRequest = this._analyticalPatternTemplates.CrossDatasetDiscoveryLookup
-				.Replace("{{AP_node_Id}}", Guid.NewGuid().ToString())
-				.Replace("{{Op_node_Id}}", Guid.NewGuid().ToString())
-				.Replace("{{File_Obj_node_Id}}", Guid.NewGuid().ToString())
-				.Replace("{{Task_node_Id}}", Guid.NewGuid().ToString())
-				.Replace("{{User_node_Id}}", Guid.NewGuid().ToString())
+				.Replace("{{ap_node_id}}", Guid.NewGuid().ToString())
+				.Replace("{{op_node_id}}", Guid.NewGuid().ToString())
+				.Replace("{{file_obj_node_id}}", Guid.NewGuid().ToString())
+				.Replace("{{task_node_id}}", Guid.NewGuid().ToString())
+				.Replace("{{user_node_id}}", Guid.NewGuid().ToString())
 				.Replace("{{start_time}}", DateTime.UtcNow.ToString("O"))
 				.Replace("{{query}}", request.Query)
 				.Replace("{{k}}", request.ResultCount.ToString());
