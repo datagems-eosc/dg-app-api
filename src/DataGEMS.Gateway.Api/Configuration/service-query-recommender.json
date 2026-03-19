@@ -1,6 +1,6 @@
 {
   "QueryRecommenderService": {
-    "Scope": "query-recommender",
+    "Scope": "datagems",
     "BaseUrl": "%{QueryRecommenderBaseUrl}%",
     "RecommendEndpoint": "api/v1/recommend-next-queries"
   }

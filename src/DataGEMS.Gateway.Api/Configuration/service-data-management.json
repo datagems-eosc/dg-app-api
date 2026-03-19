@@ -1,6 +1,6 @@
 {
 	"DataManagementService": {
-		"Scope": "data-model-management-api",
+		"Scope": "datagems",
 		"BaseUrl": "%{DataModelManagementBaseUrl}%",
 		"DatasetQueryEndpoint": "api/v1/dataset/search"
 	}

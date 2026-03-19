@@ -1,6 +1,6 @@
 {
   "InDataExplorationService": {
-    "Scope": "in-data-exploration",
+    "Scope": "datagems",
     "BaseUrl": "%{InDataExplorationBaseUrl}%",
     "ExploreEndpoint": "explore"
   }

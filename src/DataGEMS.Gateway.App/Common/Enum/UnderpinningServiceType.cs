@@ -8,6 +8,7 @@ namespace DataGEMS.Gateway.App.Common
 		CrossDatasetDiscovery = 2,
 		InDataExploration = 3,
 		Workflow = 4,
-		QueryRecommender = 5
+		QueryRecommender = 5,
+		TaskOrchestrator = 6,
 	}
 }

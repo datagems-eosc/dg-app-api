@@ -1,9 +1,9 @@
 {
   "CrossDatasetDiscoveryService": {
-    "Scope": "cross-dataset-discovery-api",
+    "Scope": "datagems",
     "BaseUrl": "%{CrossDatasetDiscoveryBaseUrl}%",
     "SearchEndpoint": "search/",
     "DefaultResultCount": 5,
-    "UseTaskOrcherstrator": true
+    "UseTaskOrcherstrator": false
   }
 }
