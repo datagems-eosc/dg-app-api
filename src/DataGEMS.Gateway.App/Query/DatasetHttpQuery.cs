@@ -258,13 +258,14 @@ namespace DataGEMS.Gateway.App.Query
 					try
 					{
 						JObject properties = node.ContainsKey("properties") && node["properties"] != null && node["properties"] is JObject ? (JObject)node["properties"] : null;
+						var extractedId = node.ContainsKey("id") && node["id"] != null ? node["id"] : null;
 						if (properties == null)
 						{
 							continue;
 						}
 						items.Add(new Dataset
 						{
-							Id = Common.Extensions.TransformJTokenToGuid(properties, "id"),
+							Id = new Guid((string)extractedId),
 							Name = Common.Extensions.TransformJTokenToString(properties, "name"),
 							ArchivedAt = Common.Extensions.TransformJTokenToString(properties, "sc:archivedAt"),
 							Description = Common.Extensions.TransformJTokenToString(properties, "description"),
