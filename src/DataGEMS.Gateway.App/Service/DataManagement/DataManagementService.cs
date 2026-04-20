@@ -285,27 +285,7 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 			if (datas == null || datas.Count == 0) throw new DGNotFoundException(this._localizer["general_notFound", viewModel.Id.Value, nameof(App.Model.Dataset)]);
 			if (datas.Count > 1) throw new DGFoundManyException(this._localizer["general_nonUnique", viewModel.Id.Value, nameof(App.Model.Dataset)]);
 
-			FieldSet fields = new FieldSet(
-				nameof(App.Model.Dataset.Id),
-				nameof(App.Model.Dataset.Code),
-				nameof(App.Model.Dataset.Name),
-				nameof(App.Model.Dataset.Description),
-				nameof(App.Model.Dataset.License),
-				nameof(App.Model.Dataset.MimeType),
-				nameof(App.Model.Dataset.Size),
-				nameof(App.Model.Dataset.Url),
-				nameof(App.Model.Dataset.Version),
-				nameof(App.Model.Dataset.Headline),
-				nameof(App.Model.Dataset.Keywords),
-				nameof(App.Model.Dataset.FieldOfScience),
-				nameof(App.Model.Dataset.Language),
-				nameof(App.Model.Dataset.Country),
-				nameof(App.Model.Dataset.DatePublished),
-				nameof(App.Model.Dataset.ArchivedAt),
-				nameof(App.Model.Dataset.ConformsTo),
-				nameof(App.Model.Dataset.CiteAs),
-				nameof(App.Model.Dataset.Status),
-				nameof(App.Model.Dataset.Doi));
+			FieldSet fields = new FieldSet(nameof(App.Model.Dataset.Id));
 			App.Model.Dataset model = await this._builderFactory.Builder<App.Model.Builder.DatasetBuilder>().Build(fields, datas.First());
 			await this.ExecutePackagingFlow(model);
 

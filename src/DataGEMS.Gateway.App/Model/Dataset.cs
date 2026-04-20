@@ -382,7 +382,7 @@ namespace DataGEMS.Gateway.App.Model
 					//id must be set
 					this.Spec()
 						.Must(() => this.IsValidGuid(item.Id))
-						.FailOn(nameof(DatasetProfiling.Id)).FailWith(this._localizer["validation_required", nameof(DatasetPackaging.Id)]),
+						.FailOn(nameof(DatasetPackaging.Id)).FailWith(this._localizer["validation_required", nameof(DatasetPackaging.Id)]),
 				];
 			}
 		}
