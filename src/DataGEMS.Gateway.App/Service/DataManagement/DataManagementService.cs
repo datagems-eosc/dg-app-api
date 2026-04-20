@@ -79,6 +79,11 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 			await this._authorizationService.AuthorizeForce(Permission.CanExecuteDatasetProfiling);
 		}
 
+		private async Task AuthorizeExecutePackagingWorkflowForce()
+		{
+			await this._authorizationService.AuthorizeForce(Permission.CanExecuteDatasetPackaging);
+		}
+
 		private async Task AuthorizeCreateForce()
 		{
 			await this._authorizationService.AuthorizeForce(Permission.OnboardDataset);
@@ -87,6 +92,11 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 		private async Task AuthorizeProfileForce()
 		{
 			await this._authorizationService.AuthorizeForce(Permission.ProfileDataset);
+		}
+
+		private async Task AuthorizePackageForce()
+		{
+			await this._authorizationService.AuthorizeForce(Permission.PackageDataset);
 		}
 
 		private async Task AutoAssignNewDatasetRoles(Guid datasetId)
@@ -261,5 +271,74 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 				]
 			});
 		}
+
+		public async Task<Guid> PackageAsync(App.Model.DatasetPackaging viewModel)
+		{
+			this._logger.Debug(new MapLogEntry("packaging").And("model", viewModel));
+
+			await this.AuthorizePackageForce();
+			await this.AuthorizeExecutePackagingWorkflowForce();
+
+			List<Dataset> datas = (await this._queryFactory.Query<DatasetHttpQuery>()
+				.Ids(viewModel.Id.Value)
+				.CollectAsync())?.Items ?? [];
+			if (datas == null || datas.Count == 0) throw new DGNotFoundException(this._localizer["general_notFound", viewModel.Id.Value, nameof(App.Model.Dataset)]);
+			if (datas.Count > 1) throw new DGFoundManyException(this._localizer["general_nonUnique", viewModel.Id.Value, nameof(App.Model.Dataset)]);
+
+			FieldSet fields = new FieldSet(
+				nameof(App.Model.Dataset.Id),
+				nameof(App.Model.Dataset.Code),
+				nameof(App.Model.Dataset.Name),
+				nameof(App.Model.Dataset.Description),
+				nameof(App.Model.Dataset.License),
+				nameof(App.Model.Dataset.MimeType),
+				nameof(App.Model.Dataset.Size),
+				nameof(App.Model.Dataset.Url),
+				nameof(App.Model.Dataset.Version),
+				nameof(App.Model.Dataset.Headline),
+				nameof(App.Model.Dataset.Keywords),
+				nameof(App.Model.Dataset.FieldOfScience),
+				nameof(App.Model.Dataset.Language),
+				nameof(App.Model.Dataset.Country),
+				nameof(App.Model.Dataset.DatePublished),
+				nameof(App.Model.Dataset.ArchivedAt),
+				nameof(App.Model.Dataset.ConformsTo),
+				nameof(App.Model.Dataset.CiteAs),
+				nameof(App.Model.Dataset.Status),
+				nameof(App.Model.Dataset.Doi));
+			App.Model.Dataset model = await this._builderFactory.Builder<App.Model.Builder.DatasetBuilder>().Build(fields, datas.First());
+			await this.ExecutePackagingFlow(model);
+
+			return viewModel.Id.Value;
+		}
+
+		private async Task ExecutePackagingFlow(App.Model.Dataset model)
+		{
+			this._logger.Debug(new MapLogEntry("packaging").And("type", nameof(ExecutePackagingFlow)).And("model", model));
+
+			List<Airflow.Model.AirflowDag> definitions = await this._queryFactory.Query<WorkflowDefinitionHttpQuery>()
+				.Kinds(Common.WorkflowDefinitionKind.DatasetPackaging)
+				.ExcludeStaled(true)
+				.CollectAsync();
+
+			if (definitions == null || definitions.Count == 0) throw new DGNotFoundException(this._localizer["general_notFound", Common.WorkflowDefinitionKind.DatasetPackaging.ToString(), nameof(App.Model.WorkflowDefinition)]);
+			if (definitions.Count > 1) throw new DGFoundManyException(this._localizer["general_nonUnique", Common.WorkflowDefinitionKind.DatasetPackaging.ToString(), nameof(App.Model.WorkflowDefinition)]);
+			Airflow.Model.AirflowDag selectedDefinition = definitions.FirstOrDefault();
+			_ = await this._airflowService.ExecuteWorkflowAsync(new App.Model.WorkflowExecutionArgs
+			{
+				WorkflowId = selectedDefinition.Id,
+				Configurations = new
+				{
+					id = model.Id,
+				}
+			}, new FieldSet
+			{
+				Fields = [
+				nameof(App.Model.WorkflowExecution.Id),
+				nameof(App.Model.WorkflowExecution.WorkflowId),
+				]
+			});
+		}
+
 	}
 }

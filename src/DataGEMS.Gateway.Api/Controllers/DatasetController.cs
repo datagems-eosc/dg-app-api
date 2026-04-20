@@ -196,5 +196,35 @@ namespace DataGEMS.Gateway.Api.Controllers
 
 			return idProfiled;
 		}
+
+		[HttpPost("package")]
+		[Authorize]
+		[ModelStateValidationFilter]
+		[ValidationFilter(typeof(App.Model.DatasetPackaging.PackagingValidator), "model")]
+		[ServiceFilter(typeof(AppTransactionFilter))]
+		[SwaggerOperation(Summary = "Package dataset")]
+		[SwaggerResponse(statusCode: 200, description: "The packaged dataset id", type: typeof(Guid))]
+		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
+		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
+		[SwaggerResponse(statusCode: 404, description: "Could not locate item with the provided id")]
+		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
+		[SwaggerResponse(statusCode: 500, description: "Internal error")]
+		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
+		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
+		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
+		public async Task<Guid> Package(
+			[FromBody]
+			[SwaggerRequestBody(description: "The package to apply", Required = true)]
+			App.Model.DatasetPackaging model)
+		{
+			this._logger.Debug(new MapLogEntry("packaging").And("model", model));
+
+			Guid idPackaged = await this._datasetService.PackageAsync(model);
+
+			this._accountingService.AccountFor(KnownActions.Package, KnownResources.Dataset.AsAccountable());
+			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.Workflow.AsAccountable());
+
+			return idPackaged;
+		}
 	}
 }

@@ -357,4 +357,34 @@ namespace DataGEMS.Gateway.App.Model
 			}
 		}
 	}
+
+	public class DatasetPackaging
+	{
+		public Guid? Id { get; set; }
+
+
+		public class PackagingValidator : BaseValidator<DatasetPackaging>
+		{
+			public PackagingValidator(
+				IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> localizer,
+				ValidatorFactory validatorFactory,
+				ILogger<PackagingValidator> logger,
+				ErrorThesaurus errors) : base(validatorFactory, logger, errors)
+			{
+				this._localizer = localizer;
+			}
+
+			private readonly IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> _localizer;
+
+			protected override IEnumerable<ISpecification> Specifications(DatasetPackaging item)
+			{
+				return [
+					//id must be set
+					this.Spec()
+						.Must(() => this.IsValidGuid(item.Id))
+						.FailOn(nameof(DatasetProfiling.Id)).FailWith(this._localizer["validation_required", nameof(DatasetPackaging.Id)]),
+				];
+			}
+		}
+	}
 }

@@ -195,6 +195,14 @@
 				"AllowAnonymous": false,
 				"AllowAuthenticated": false
 			},
+			"PackageDataset": {
+				"Roles": [ "GLOBAL_dg_system" ],
+				"ContextRoles": [],
+				"Claims": [],
+				"Clients": [],
+				"AllowAnonymous": false,
+				"AllowAuthenticated": false
+			},
 			"EditDataset": {
 				"Roles": [ "GLOBAL_dg_admin" ],
 				"ContextRoles": [ "dg_ds-edit" ],
@@ -281,6 +289,14 @@
 			},
 			"CanExecuteDatasetProfiling": {
 				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_dataset-curator" ],
+				"ContextRoles": [],
+				"Claims": [],
+				"Clients": [],
+				"AllowAnonymous": false,
+				"AllowAuthenticated": false
+			},
+			"CanExecuteDatasetPackaging": {
+				"Roles": [ "GLOBAL_dg_system" ],
 				"ContextRoles": [],
 				"Claims": [],
 				"Clients": [],
