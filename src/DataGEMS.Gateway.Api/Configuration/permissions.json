@@ -196,7 +196,7 @@
 				"AllowAuthenticated": false
 			},
 			"PackageDataset": {
-				"Roles": [ "GLOBAL_dg_system" ],
+				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_dataset-curator" ],
 				"ContextRoles": [],
 				"Claims": [],
 				"Clients": [],
@@ -296,7 +296,7 @@
 				"AllowAuthenticated": false
 			},
 			"CanExecuteDatasetPackaging": {
-				"Roles": [ "GLOBAL_dg_system" ],
+				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_dataset-curator" ],
 				"ContextRoles": [],
 				"Claims": [],
 				"Clients": [],

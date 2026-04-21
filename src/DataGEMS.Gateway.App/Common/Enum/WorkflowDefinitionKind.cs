@@ -10,6 +10,6 @@ namespace DataGEMS.Gateway.App.Common
 		[Description("Dataset Profiling")]
 		DatasetProfiling = 1,
 		[Description("Dataset Packaging")]
-		DatasetPackaging = 1,
+		DatasetPackaging = 2,
 	}
 }
