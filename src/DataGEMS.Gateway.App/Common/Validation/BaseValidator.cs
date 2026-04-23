@@ -74,6 +74,11 @@ namespace DataGEMS.Gateway.App.Common.Validation
 			return value.IsValidEmail();
 		}
 
+		protected Boolean IsValidStoragePath(String value)
+		{
+			return value.IsValidPath();
+		}
+
 		protected Boolean IsValidE164Phone(String value)
 		{
 			return value.IsValidE164Phone();

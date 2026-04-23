@@ -6,6 +6,7 @@ namespace DataGEMS.Gateway.App.Service.Storage
 	{
 		public IEnumerable<StorageTypeConfig> Storages { get; set; }
 		public FileRestrictions UploadRules { get; set; }
+		public FileRestrictions DownloadRules { get; set; }
 	}
 
 	public class FileRestrictions

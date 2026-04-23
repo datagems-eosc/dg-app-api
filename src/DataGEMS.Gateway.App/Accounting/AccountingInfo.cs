@@ -13,6 +13,7 @@ namespace DataGEMS.Gateway.App.Accounting
 		Upload = 7,
 		Rerun = 8,
 		Package = 9,
+		Download = 10,
 	}
 
 	public enum KnownUnits : short

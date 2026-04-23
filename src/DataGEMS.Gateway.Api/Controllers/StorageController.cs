@@ -9,12 +9,15 @@ using DataGEMS.Gateway.App.Authorization;
 using DataGEMS.Gateway.App.Censor;
 using DataGEMS.Gateway.App.ErrorCode;
 using DataGEMS.Gateway.App.Exception;
+using DataGEMS.Gateway.App.Model;
 using DataGEMS.Gateway.App.Model.Builder;
 using DataGEMS.Gateway.App.Query;
 using DataGEMS.Gateway.App.Service.Storage;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using System.Net.Mime;
+using System.Security;
 
 namespace DataGEMS.Gateway.Api.Controllers
 {
@@ -26,19 +29,22 @@ namespace DataGEMS.Gateway.Api.Controllers
 		private readonly IAccountingService _accountingService;
 		private readonly App.Authorization.IAuthorizationService _authorizationService;
 		private readonly ErrorThesaurus _errors;
+		private readonly IAuthorizationContentResolver _authorizationContentResolver;
 
 		public StorageController(
 			ILogger<StorageController> logger,
 			IStorageService storageService,
 			IAccountingService accountingService,
 			ErrorThesaurus errors,
-			App.Authorization.IAuthorizationService authorizationService)
+			App.Authorization.IAuthorizationService authorizationService,
+			IAuthorizationContentResolver authorizationContentResolver)
 		{
 			this._logger = logger;
 			this._storageService = storageService;
 			this._accountingService = accountingService;
 			this._errors = errors;
 			this._authorizationService = authorizationService;
+			this._authorizationContentResolver = authorizationContentResolver;
 		}
 
 		[HttpGet("upload/allowed-extension")]
@@ -113,5 +119,40 @@ namespace DataGEMS.Gateway.Api.Controllers
 			return uploaded;
 		}
 
+		[HttpPost("download/dataset")]
+		[Authorize]
+		[ModelStateValidationFilter]
+		[SwaggerOperation(Summary = "Download dataset files")]
+		[SwaggerResponse(statusCode: 200, description: "The downloaded dataset file", type: typeof(FileContentResult))]
+		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
+		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
+		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
+		[SwaggerResponse(statusCode: 500, description: "Internal error")]
+		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
+		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
+		public async Task<FileContentResult> DownloadDatasetFile(
+			[FromBody][SwaggerParameter(description: "The id of the dataset the file belongs to", Required = true)]
+			DownloadDatasetRequest request
+		)
+		{
+			this._logger.Debug(new MapLogEntry("downloading").And("request", request));
+
+			HashSet<string> userDatasetRoles = await _authorizationContentResolver.EffectiveContextRolesForDatasetOfUser(request.Id.Value);
+			await _authorizationService.AuthorizeOrAffiliatedContextForce(new AffiliatedContextResource(userDatasetRoles), Permission.DownloadDatasetFile);
+
+			string path = Path.GetDirectoryName(Path.Combine(request.Id.ToString(), request.Path));
+			string filename = Path.GetFileNameWithoutExtension(request.Path);
+			string extension = Path.GetExtension(request.Path);
+			byte[] downloadedFile = await this._storageService.GetAsync(new StorageFile()
+				{
+					Name = Path.Combine(path, filename),
+					Extension = extension,
+					StorageType = App.Common.StorageType.Dataset
+				});
+
+			this._accountingService.AccountFor(KnownActions.Download, KnownResources.Dataset.AsAccountable());
+
+			return File(downloadedFile, MediaTypeNames.Application.Octet, Path.GetFileNameWithoutExtension(request.Path));
+		}
 	}
 }

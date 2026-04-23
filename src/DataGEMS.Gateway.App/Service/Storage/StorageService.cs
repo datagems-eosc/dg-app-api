@@ -53,6 +53,8 @@ namespace DataGEMS.Gateway.App.Service.Storage
 			return Task.FromResult(this._config.UploadRules.MaxFileSize);
 		}
 
+		public Task<long> MaxFileDownloadSize() => Task.FromResult(this._config.DownloadRules.MaxFileSize);
+
 		public async Task<String> PersistAsync(StorageFile model, String payload, Encoding encoding)
 		{
 			byte[] bytes = encoding.GetBytes(payload);
@@ -144,12 +146,20 @@ namespace DataGEMS.Gateway.App.Service.Storage
 			return Task.FromResult(targetDirectoryPath);
 		}
 
+		public async Task<byte[]> GetAsync(StorageFile model)
+		{
+			String path = this.FilePath(model);
+			return await this.ReadByteSafeAsync(path);
+		}
+
 		public async Task<byte[]> ReadByteSafeAsync(String path)
 		{
 			try
 			{
 				FileInfo file = new FileInfo(path);
 				if (!file.Exists) return null;
+				long maxFileSize = await this.MaxFileDownloadSize();
+				if (file.Length > maxFileSize) throw new DGApplicationException($"File size exceeds maximum allowed size of {maxFileSize} bytes");
 				return await File.ReadAllBytesAsync(file.FullName);
 			}
 			catch (System.Exception ex)

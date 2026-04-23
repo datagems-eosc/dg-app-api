@@ -8,12 +8,14 @@ namespace DataGEMS.Gateway.App.Service.Storage
 	{
 		Task<List<String>> AllowedExtensions();
 		Task<long> MaxFileUploadSize();
+		Task<long> MaxFileDownloadSize();
 		Task<String> PersistAsync(StorageFile model, String payload, Encoding encoding);
 		Task<String> PersistAsync(StorageFile model, byte[] payload);
 		Task<String> PersistAsync(StorageFile model, IFormFile formFile);
 		Task<String> PersistZipAsync(StorageFile model, String payload, Encoding encoding);
 		Task<String> PersistZipAsync(StorageFile model, byte[] payload);
 		Task<String> MoveToStorage(String filePath, StorageType type, String subDirectory = null);
+		Task<byte[]> GetAsync(StorageFile model);
 		Task<byte[]> ReadByteSafeAsync(String path);
 		Task<String> DirectoryOf(StorageType type, String subDirectory);
 		bool DirectoryExists(StorageType type, string directoryName);
