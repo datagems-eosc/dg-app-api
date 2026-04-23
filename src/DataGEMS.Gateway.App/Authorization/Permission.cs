@@ -40,6 +40,7 @@ namespace DataGEMS.Gateway.App.Authorization
 		public const String DeleteDataset = "DeleteDataset";
 		public const String PowerSearchDataset = "PowerSearchDataset";
 		public const String DownloadDatasetFile = "DownloadDatasetFile";
+		public const String BrowseDatasetFiles = "BrowseDatasetFiles";
 		//DatasetCollection
 		public const String BrowseDatasetCollection = "BrowseDatasetCollection";
 		//User

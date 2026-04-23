@@ -387,40 +387,5 @@ namespace DataGEMS.Gateway.App.Model
 			}
 		}
 	}
-	
-	public class DownloadDatasetRequest
-	{
-		public Guid? Id { get; set; }
-		public string Path { get; set; }
-
-
-		public class DownloadDatasetRequestValidator : BaseValidator<DownloadDatasetRequest>
-		{
-			public DownloadDatasetRequestValidator(
-				IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> localizer,
-				ValidatorFactory validatorFactory,
-				ILogger<DownloadDatasetRequestValidator> logger,
-				ErrorThesaurus errors) : base(validatorFactory, logger, errors)
-			{
-				this._localizer = localizer;
-			}
-
-			private readonly IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> _localizer;
-
-			protected override IEnumerable<ISpecification> Specifications(DownloadDatasetRequest item)
-			{
-				return [
-					//id must be set
-					this.Spec()
-						.Must(() => this.IsValidGuid(item.Id))
-						.FailOn(nameof(DownloadDatasetRequest.Id)).FailWith(this._localizer["validation_required", nameof(DownloadDatasetRequest.Id)]),
-					//path must always be set
-					this.Spec()
-						.Must(() => this.IsValidStoragePath(item.Path))
-						.FailOn(nameof(DownloadDatasetRequest.Path)).FailWith(this._localizer["validation_required", nameof(DownloadDatasetRequest.Path)]),
-				];
-			}
-		}
-	}
 
 }

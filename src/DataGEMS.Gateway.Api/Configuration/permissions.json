@@ -235,6 +235,14 @@
 				"AllowAnonymous": false,
 				"AllowAuthenticated": false
 			},
+			"BrowseDatasetFiles": {
+				"Roles": [ "GLOBAL_dg_admin" ],
+				"ContextRoles": [ "dg_download" ],
+				"Claims": [],
+				"Clients": [],
+				"AllowAnonymous": false,
+				"AllowAuthenticated": false
+			},
 			//DatasetCollection
 			"BrowseDatasetCollection": {
 				"Roles": [ "GLOBAL_dg_admin" ],

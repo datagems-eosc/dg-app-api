@@ -1,4 +1,6 @@
-﻿namespace DataGEMS.Gateway.App.Service.DataManagement.Model
+﻿using Newtonsoft.Json;
+
+namespace DataGEMS.Gateway.App.Service.DataManagement.Model
 {
 	public class Dataset
 	{
@@ -23,5 +25,19 @@
 		public string CiteAs { get; set; }
 		public string Status { get; set; }
 		public string Doi { get; set; }
+	}
+
+	public class RawProfile
+	{
+		public List<object> Nodes { get; set; }
+
+		public class DatasetNode
+		{
+			[JsonProperty("id")]
+			public Guid Id { get; set; }
+
+			[JsonProperty("properties")]
+			public Dictionary<string, object> Properties { get; set; }
+		}
 	}
 }
