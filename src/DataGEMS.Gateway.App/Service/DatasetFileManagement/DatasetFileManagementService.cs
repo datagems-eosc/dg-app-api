@@ -62,7 +62,14 @@ namespace DataGEMS.Gateway.App.Service.DatasetFileManagement
 			if (datas == null || datas.Count == 0) throw new DGNotFoundException(this._localizer["general_notFound", datasetId, nameof(App.Model.Dataset)]);
 			if (datas.Count > 1) throw new DGFoundManyException(this._localizer["general_nonUnique", datasetId, nameof(App.Model.Dataset)]);
 
-			return [];
+			Profile.ProfileNode node = this._jsonHandlingService.FromJsonSafe<Profile>(this._jsonHandlingService.ToJsonSafe(datas.First().ProfileRaw)).Nodes.FirstOrDefault(x => x.Id == fileObjectNodeId);
+			if (node == null) throw new DGNotFoundException(this._localizer["general_notFound", fileObjectNodeId, nameof(Profile.ProfileNode)]);
+			if (node.Properties == null ||  node.Properties.Count == 0 || !node.Properties.ContainsKey("contentUrl")) throw new DGApplicationException(this._localizer["datasetFile_noContentUrl", datasetId, fileObjectNodeId]);
+
+			string path = (string)node.Properties["contentUrl"];
+
+			return await this._storageService.ReadByteSafeAsync(path);
+
 		}
 	}
 }

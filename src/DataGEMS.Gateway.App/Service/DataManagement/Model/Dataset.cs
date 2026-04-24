@@ -27,15 +27,17 @@ namespace DataGEMS.Gateway.App.Service.DataManagement.Model
 		public string Doi { get; set; }
 	}
 
-	public class RawProfile
+	public class Profile
 	{
-		public List<object> Nodes { get; set; }
+		public List<object> Edges { get; set; }
+		public List<ProfileNode> Nodes { get; set; }
 
-		public class DatasetNode
+		public class ProfileNode
 		{
 			[JsonProperty("id")]
 			public Guid Id { get; set; }
-
+			[JsonProperty("labels")]
+			public List<string> Labels { get; set; }
 			[JsonProperty("properties")]
 			public Dictionary<string, object> Properties { get; set; }
 		}
