@@ -120,6 +120,9 @@
   <data name="datasetFile_noContentUrl" xml:space="preserve">
     <value>Dataset {0} node {1} has no property 'ContentUrl'</value>
   </data>
+  <data name="dataset_noProfile" xml:space="preserve">
+    <value>Failed to retrieve profile for dataset with id {0}.</value>
+  </data>
   <data name="general_nonUnique" xml:space="preserve">
     <value>Expected unique item {0} of type {1}, instead found duplicates</value>
   </data>

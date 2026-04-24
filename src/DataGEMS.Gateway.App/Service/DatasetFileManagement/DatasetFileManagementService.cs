@@ -61,8 +61,9 @@ namespace DataGEMS.Gateway.App.Service.DatasetFileManagement
 			List<App.Service.DataManagement.Model.Dataset> datas = (await this._queryFactory.Query<DatasetHttpQuery>().Ids(datasetId).CollectAsync())?.Items ?? [];
 			if (datas == null || datas.Count == 0) throw new DGNotFoundException(this._localizer["general_notFound", datasetId, nameof(App.Model.Dataset)]);
 			if (datas.Count > 1) throw new DGFoundManyException(this._localizer["general_nonUnique", datasetId, nameof(App.Model.Dataset)]);
+			if (datas.First().ProfileRaw == null) throw new DGApplicationException(this._localizer["dataset_noProfile", datasetId]);
 
-			Profile.ProfileNode node = this._jsonHandlingService.FromJsonSafe<Profile>(this._jsonHandlingService.ToJsonSafe(datas.First().ProfileRaw)).Nodes.FirstOrDefault(x => x.Id == fileObjectNodeId);
+			Profile.ProfileNode node = this._jsonHandlingService.FromJsonSafe<Profile>(this._jsonHandlingService.ToJsonSafe(datas.First().ProfileRaw)).Nodes?.FirstOrDefault(x => x.Id == fileObjectNodeId);
 			if (node == null) throw new DGNotFoundException(this._localizer["general_notFound", fileObjectNodeId, nameof(Profile.ProfileNode)]);
 			if (node.Properties == null ||  node.Properties.Count == 0 || !node.Properties.ContainsKey("contentUrl")) throw new DGApplicationException(this._localizer["datasetFile_noContentUrl", datasetId, fileObjectNodeId]);
 
