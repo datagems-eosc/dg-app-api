@@ -6,7 +6,7 @@ using DataGEMS.Gateway.App.Authorization;
 using DataGEMS.Gateway.App.ErrorCode;
 using DataGEMS.Gateway.App.Exception;
 using DataGEMS.Gateway.App.Query;
-using DataGEMS.Gateway.App.Service.DataManagement.Model;
+using DataGEMS.Gateway.App.Service.DatasetFileManagement.Model;
 using DataGEMS.Gateway.App.Service.Storage;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
@@ -51,6 +51,20 @@ namespace DataGEMS.Gateway.App.Service.DatasetFileManagement
 			this._authorizationContentResolver = authorizationContentResolver;
 			this._authorizationService = authorizationService;
 			this._localizer = localizer;
+		}
+
+		public async Task<DatasetFileSet> BrowseDatasetFilesAsync(Guid datasetId, Guid? fileSetNodeId)
+		{
+			HashSet<string> userDatasetRoles = await _authorizationContentResolver.EffectiveContextRolesForDatasetOfUser(datasetId);
+			await _authorizationService.AuthorizeOrAffiliatedContextForce(new AffiliatedContextResource(userDatasetRoles), Permission.BrowseDatasetFiles);
+
+			List<App.Service.DataManagement.Model.Dataset> datas = (await this._queryFactory.Query<DatasetHttpQuery>().Ids(datasetId).CollectAsync())?.Items ?? [];
+			if (datas == null || datas.Count == 0) throw new DGNotFoundException(this._localizer["general_notFound", datasetId, nameof(App.Model.Dataset)]);
+			if (datas.Count > 1) throw new DGFoundManyException(this._localizer["general_nonUnique", datasetId, nameof(App.Model.Dataset)]);
+			if (datas.First().ProfileRaw == null) throw new DGApplicationException(this._localizer["dataset_noProfile", datasetId]);
+			Profile profile = this._jsonHandlingService.FromJsonSafe<Profile>(this._jsonHandlingService.ToJsonSafe(datas.First().ProfileRaw));
+			
+			return new DatasetFileSet();
 		}
 
 		public async Task<byte[]> DownloadDatasetFileAsync(Guid datasetId, Guid fileObjectNodeId)

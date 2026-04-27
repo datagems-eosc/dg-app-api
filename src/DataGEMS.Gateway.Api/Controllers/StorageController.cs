@@ -7,6 +7,7 @@ using DataGEMS.Gateway.App.Authorization;
 using DataGEMS.Gateway.App.ErrorCode;
 using DataGEMS.Gateway.App.Exception;
 using DataGEMS.Gateway.App.Service.DatasetFileManagement;
+using DataGEMS.Gateway.App.Service.DatasetFileManagement.Model;
 using DataGEMS.Gateway.App.Service.Storage;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -141,6 +142,33 @@ namespace DataGEMS.Gateway.Api.Controllers
 			this._accountingService.AccountFor(KnownActions.Download, KnownResources.Dataset.AsAccountable());
 
 			return File(downloadedFile, MediaTypeNames.Application.Octet);
+		}
+
+		[HttpGet("browse/dataset/{datasetId}")]
+		[Authorize]
+		[ModelStateValidationFilter]
+		[SwaggerOperation(Summary = "Browse dataset files")]
+		[SwaggerResponse(statusCode: 200, description: "The dataset files", type: typeof(DatasetFileSet))]
+		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
+		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
+		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
+		[SwaggerResponse(statusCode: 500, description: "Internal error")]
+		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
+		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
+		public async Task<DatasetFileSet> BrowseDatasetFile(
+			[FromRoute][SwaggerParameter(description: "The id of the dataset", Required = true)]
+			Guid datasetId,
+			[FromQuery][SwaggerParameter(description: "The id of the node", Required = true)]
+			Guid? nodeId
+		)
+		{
+			this._logger.Debug(new MapLogEntry("browsing").And("dataset id", datasetId).And("node id", nodeId));
+
+			var datasetFileSet = await this._datasetFileManagementService.BrowseDatasetFilesAsync(datasetId, nodeId);
+
+			this._accountingService.AccountFor(KnownActions.Browse, KnownResources.Dataset.AsAccountable());
+
+			return datasetFileSet;
 		}
 	}
 }

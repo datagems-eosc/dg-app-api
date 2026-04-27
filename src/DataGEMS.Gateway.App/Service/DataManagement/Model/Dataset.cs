@@ -26,20 +26,4 @@ namespace DataGEMS.Gateway.App.Service.DataManagement.Model
 		public string Status { get; set; }
 		public string Doi { get; set; }
 	}
-
-	public class Profile
-	{
-		public List<object> Edges { get; set; }
-		public List<ProfileNode> Nodes { get; set; }
-
-		public class ProfileNode
-		{
-			[JsonProperty("id")]
-			public Guid Id { get; set; }
-			[JsonProperty("labels")]
-			public List<string> Labels { get; set; }
-			[JsonProperty("properties")]
-			public Dictionary<string, object> Properties { get; set; }
-		}
-	}
 }
