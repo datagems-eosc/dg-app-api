@@ -148,14 +148,14 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[Authorize]
 		[ModelStateValidationFilter]
 		[SwaggerOperation(Summary = "Browse dataset files")]
-		[SwaggerResponse(statusCode: 200, description: "The dataset files", type: typeof(DatasetFileSet))]
+		[SwaggerResponse(statusCode: 200, description: "The dataset files", type: typeof(DatasetObject))]
 		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
 		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
 		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
 		[SwaggerResponse(statusCode: 500, description: "Internal error")]
 		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
 		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
-		public async Task<DatasetFileSet> BrowseDatasetFile(
+		public async Task<DatasetObject> BrowseDatasetFile(
 			[FromRoute][SwaggerParameter(description: "The id of the dataset", Required = true)]
 			Guid datasetId,
 			[FromQuery][SwaggerParameter(description: "The id of the node", Required = true)]

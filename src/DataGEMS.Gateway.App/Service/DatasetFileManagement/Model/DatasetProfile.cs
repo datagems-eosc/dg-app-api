@@ -19,10 +19,12 @@ namespace DataGEMS.Gateway.App.Service.DatasetFileManagement.Model
 
 		public class ProfileEdge
 		{
-			[JsonProperty("from")]
+			[JsonProperty("from_")]
 			public Guid From { get; set; }
+
 			[JsonProperty("to")]
 			public Guid To { get; set; }
+
 			[JsonProperty("labels")]
 			public List<string> Labels { get; set; }
 		}

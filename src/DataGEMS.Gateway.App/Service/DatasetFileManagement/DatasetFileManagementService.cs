@@ -53,7 +53,7 @@ namespace DataGEMS.Gateway.App.Service.DatasetFileManagement
 			this._localizer = localizer;
 		}
 
-		public async Task<DatasetFileSet> BrowseDatasetFilesAsync(Guid datasetId, Guid? fileSetNodeId)
+		public async Task<DatasetObject> BrowseDatasetFilesAsync(Guid datasetId, Guid? fileSetNodeId)
 		{
 			HashSet<string> userDatasetRoles = await _authorizationContentResolver.EffectiveContextRolesForDatasetOfUser(datasetId);
 			await _authorizationService.AuthorizeOrAffiliatedContextForce(new AffiliatedContextResource(userDatasetRoles), Permission.BrowseDatasetFiles);
@@ -63,8 +63,8 @@ namespace DataGEMS.Gateway.App.Service.DatasetFileManagement
 			if (datas.Count > 1) throw new DGFoundManyException(this._localizer["general_nonUnique", datasetId, nameof(App.Model.Dataset)]);
 			if (datas.First().ProfileRaw == null) throw new DGApplicationException(this._localizer["dataset_noProfile", datasetId]);
 			Profile profile = this._jsonHandlingService.FromJsonSafe<Profile>(this._jsonHandlingService.ToJsonSafe(datas.First().ProfileRaw));
-			
-			return new DatasetFileSet();
+
+            return new DatasetFileSet();
 		}
 
 		public async Task<byte[]> DownloadDatasetFileAsync(Guid datasetId, Guid fileObjectNodeId)
