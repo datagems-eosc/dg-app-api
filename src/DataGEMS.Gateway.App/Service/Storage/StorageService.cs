@@ -175,6 +175,23 @@ namespace DataGEMS.Gateway.App.Service.Storage
 			return Task.FromResult(path);
 		}
 
+		public String RemoveDirectoryFromPath(StorageType type, string prefix, string path)
+		{
+			var normalizedPath = NormalizePath(path);
+			String directoryPath = NormalizePath(this.DirectoryPath(type, prefix));
+			if (normalizedPath.StartsWith(directoryPath, StringComparison.Ordinal))
+				return normalizedPath.Substring(directoryPath.Length).TrimStart(Path.DirectorySeparatorChar);
+			return normalizedPath.TrimStart(Path.DirectorySeparatorChar);
+		}
+
+		public string NormalizePath(string path)
+		{
+			return path
+				.Replace('\\', Path.DirectorySeparatorChar)
+				.Replace('/', Path.DirectorySeparatorChar)
+				.Trim(Path.DirectorySeparatorChar);
+		}
+
 		private String FilePath(StorageFile model, String subDirectory = null)
 		{
 			StorageTypeConfig storageTypeConfig = this._config.Storages.FirstOrDefault(x => x.Type == model.StorageType);

@@ -3,6 +3,6 @@
 	public class DatasetFileSet : DatasetObject
     {
 		public List<DatasetFile> Files { get; set; }
-		public List<DatasetFileSet> DatasetFileSets { get; set; }
+		public List<DatasetFileSet> FileSets { get; set; }
 	}
 }
