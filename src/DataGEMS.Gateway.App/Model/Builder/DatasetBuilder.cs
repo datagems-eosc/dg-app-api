@@ -76,9 +76,10 @@ namespace DataGEMS.Gateway.App.Model.Builder
 				if (fields.HasField(nameof(Model.Dataset.Doi))) m.Doi = d.Doi;
 				if (fields.HasField(nameof(Model.Dataset.Features)))
 				{
+					AnalyticalPattern profile = d.ProfileRaw != null ? this._jsonHandlingService.FromJsonSafe<AnalyticalPattern>(this._jsonHandlingService.ToJsonSafe(d.ProfileRaw)) : null;
 					m.Features = new DatasetFeaturesStatus
 					{
-						Profiled = d.ProfileRaw != null,
+						Profiled = profile != null && profile.Nodes != null && profile.Nodes.Any(x => x.Labels != null && !x.Labels.Contains("sc:Dataset")),
 					};
 				}
 				if (!collectionFields.IsEmpty() && collectionMap != null && collectionMap.ContainsKey(d.Id)) m.Collections = collectionMap[d.Id];
