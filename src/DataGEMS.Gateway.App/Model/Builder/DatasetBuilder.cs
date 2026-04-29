@@ -2,20 +2,23 @@
 using Cite.Tools.Data.Builder;
 using Cite.Tools.Data.Query;
 using Cite.Tools.FieldSet;
+using Cite.Tools.Json;
 using Cite.Tools.Logging;
 using Cite.Tools.Logging.Extensions;
 using DataGEMS.Gateway.App.Authorization;
 using DataGEMS.Gateway.App.Common;
 using DataGEMS.Gateway.App.Query;
+using DataGEMS.Gateway.App.Service.DatasetFileManagement.Model;
 using Microsoft.Extensions.Logging;
 
 namespace DataGEMS.Gateway.App.Model.Builder
 {
-    public class DatasetBuilder : PrimitiveBuilder<Model.Dataset, Service.DataManagement.Model.Dataset>
+	public class DatasetBuilder : PrimitiveBuilder<Model.Dataset, Service.DataManagement.Model.Dataset>
 	{
 		private readonly QueryFactory _queryFactory;
 		private readonly BuilderFactory _builderFactory;
 		private readonly IAuthorizationContentResolver _authorizationContentResolver;
+		private readonly JsonHandlingService _jsonHandlingService;
 
 		private AuthorizationFlags _authorize { get; set; } = AuthorizationFlags.None;
 
@@ -23,11 +26,13 @@ namespace DataGEMS.Gateway.App.Model.Builder
 			QueryFactory queryFactory,
 			BuilderFactory builderFactory,
 			IAuthorizationContentResolver authorizationContentResolver,
-			ILogger<DatasetBuilder> logger) : base(logger)
+			ILogger<DatasetBuilder> logger,
+			JsonHandlingService jsonHandlingService) : base(logger)
 		{
 			this._queryFactory = queryFactory;
 			this._builderFactory = builderFactory;
 			this._authorizationContentResolver = authorizationContentResolver;
+			this._jsonHandlingService = jsonHandlingService;
 		}
 
 		public DatasetBuilder Authorize(AuthorizationFlags flags) { this._authorize = flags; return this; }
@@ -69,7 +74,13 @@ namespace DataGEMS.Gateway.App.Model.Builder
 				if (fields.HasField(nameof(Model.Dataset.CiteAs))) m.CiteAs = d.CiteAs;
 				if (fields.HasField(nameof(Model.Dataset.Status))) m.Status = d.Status;
 				if (fields.HasField(nameof(Model.Dataset.Doi))) m.Doi = d.Doi;
-
+				if (fields.HasField(nameof(Model.Dataset.Features)))
+				{
+					m.Features = new DatasetFeaturesStatus
+					{
+						Profiled = d.ProfileRaw != null,
+					};
+				}
 				if (!collectionFields.IsEmpty() && collectionMap != null && collectionMap.ContainsKey(d.Id)) m.Collections = collectionMap[d.Id];
 				if (!permissionFields.IsEmpty() && datasetAffiliatedRoles != null && datasetAffiliatedRoles.ContainsKey(d.Id))
 				{

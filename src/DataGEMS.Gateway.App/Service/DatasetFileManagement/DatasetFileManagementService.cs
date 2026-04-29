@@ -63,7 +63,7 @@ namespace DataGEMS.Gateway.App.Service.DatasetFileManagement
 			if (datas == null || datas.Count == 0) throw new DGNotFoundException(this._localizer["general_notFound", datasetId, nameof(App.Model.Dataset)]);
 			if (datas.Count > 1) throw new DGFoundManyException(this._localizer["general_nonUnique", datasetId, nameof(App.Model.Dataset)]);
 			if (datas.First().ProfileRaw == null) throw new DGApplicationException(this._localizer["dataset_noProfile", datasetId]);
-			Profile profile = this._jsonHandlingService.FromJsonSafe<Profile>(this._jsonHandlingService.ToJsonSafe(datas.First().ProfileRaw));
+			AnalyticalPattern profile = this._jsonHandlingService.FromJsonSafe<AnalyticalPattern>(this._jsonHandlingService.ToJsonSafe(datas.First().ProfileRaw));
 			
 			List<AnalyticalPatternNode> fileSets = profile.Nodes?.Where(x => x.Labels.Contains("cr:FileSet") && x.Properties != null && x.Properties.ContainsKey("contentUrl")).ToList();
 			List<DatasetFileSet> nodes = fileSets.Select(x => new DatasetFileSet
@@ -159,7 +159,7 @@ namespace DataGEMS.Gateway.App.Service.DatasetFileManagement
 			if (datas.Count > 1) throw new DGFoundManyException(this._localizer["general_nonUnique", datasetId, nameof(App.Model.Dataset)]);
 			if (datas.First().ProfileRaw == null) throw new DGApplicationException(this._localizer["dataset_noProfile", datasetId]);
 
-			AnalyticalPatternNode node = this._jsonHandlingService.FromJsonSafe<Profile>(this._jsonHandlingService.ToJsonSafe(datas.First().ProfileRaw)).Nodes?.FirstOrDefault(x => x.Id == fileObjectNodeId);
+			AnalyticalPatternNode node = this._jsonHandlingService.FromJsonSafe<AnalyticalPattern>(this._jsonHandlingService.ToJsonSafe(datas.First().ProfileRaw)).Nodes?.FirstOrDefault(x => x.Id == fileObjectNodeId);
 			if (node == null) throw new DGNotFoundException(this._localizer["general_notFound", fileObjectNodeId, nameof(AnalyticalPatternNode)]);
 			if (node.Properties == null ||  node.Properties.Count == 0 || !node.Properties.ContainsKey("contentUrl")) throw new DGApplicationException(this._localizer["datasetFile_noContentUrl", datasetId, fileObjectNodeId]);
 

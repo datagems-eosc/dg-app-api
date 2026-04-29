@@ -40,6 +40,7 @@ namespace DataGEMS.Gateway.App.Model
 		public string Doi { get; set; }
 		public List<Model.Collection> Collections { get; set; }
 		public List<String> Permissions { get; set; }
+		public DatasetFeaturesStatus Features { get; set; }
 	}
 
 	public class DatasetPersist
