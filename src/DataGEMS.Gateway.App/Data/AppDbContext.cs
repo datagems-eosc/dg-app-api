@@ -6,6 +6,7 @@ namespace DataGEMS.Gateway.App.Data
 	{
 		public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
+		public DbSet<AdHocQueryResult> AdHocQueryResults { get; set; }
 		public DbSet<Collection> Collections { get; set; }
 		public DbSet<Conversation> Conversations { get; set; }
 		public DbSet<ConversationDataset> ConversationDatasets { get; set; }
@@ -17,6 +18,7 @@ namespace DataGEMS.Gateway.App.Data
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
+			new AdHocQueryResultEntityConfiguration().Configure(modelBuilder.Entity<AdHocQueryResult>());
 			new CollectionEntityConfiguration().Configure(modelBuilder.Entity<Collection>());
 			new ConversationEntityConfiguration().Configure(modelBuilder.Entity<Conversation>());
 			new ConversationDatasetEntityConfiguration().Configure(modelBuilder.Entity<ConversationDataset>());
