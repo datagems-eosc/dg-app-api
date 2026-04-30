@@ -389,4 +389,35 @@ namespace DataGEMS.Gateway.App.Model
 		}
 	}
 
+
+	public class DatasetRecommendationRegistering
+	{
+		public Guid? Id { get; set; }
+
+
+		public class RecommendationRegisteringValidator : BaseValidator<DatasetRecommendationRegistering>
+		{
+			public RecommendationRegisteringValidator(
+				IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> localizer,
+				ValidatorFactory validatorFactory,
+				ILogger<RecommendationRegisteringValidator> logger,
+				ErrorThesaurus errors) : base(validatorFactory, logger, errors)
+			{
+				this._localizer = localizer;
+			}
+
+			private readonly IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> _localizer;
+
+			protected override IEnumerable<ISpecification> Specifications(DatasetRecommendationRegistering item)
+			{
+				return [
+					//id must be set
+					this.Spec()
+						.Must(() => this.IsValidGuid(item.Id))
+						.FailOn(nameof(DatasetRecommendationRegistering.Id)).FailWith(this._localizer["validation_required", nameof(DatasetRecommendationRegistering.Id)]),
+				];
+			}
+		}
+	}
+
 }

@@ -11,5 +11,7 @@ namespace DataGEMS.Gateway.App.Common
 		DatasetProfiling = 1,
 		[Description("Dataset Packaging")]
 		DatasetPackaging = 2,
+		[Description("Dataset Recommendation Registering")]
+		DatasetRecommendationRegistering = 3
 	}
 }

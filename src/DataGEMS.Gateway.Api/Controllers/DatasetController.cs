@@ -226,5 +226,35 @@ namespace DataGEMS.Gateway.Api.Controllers
 
 			return idPackaged;
 		}
+
+		[HttpPost("recommendation-register")]
+		[Authorize]
+		[ModelStateValidationFilter]
+		[ValidationFilter(typeof(App.Model.DatasetRecommendationRegistering.RecommendationRegisteringValidator), "model")]
+		[ServiceFilter(typeof(AppTransactionFilter))]
+		[SwaggerOperation(Summary = "Register dataset to recommendation")]
+		[SwaggerResponse(statusCode: 200, description: "The registered dataset id", type: typeof(Guid))]
+		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
+		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
+		[SwaggerResponse(statusCode: 404, description: "Could not locate item with the provided id")]
+		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
+		[SwaggerResponse(statusCode: 500, description: "Internal error")]
+		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
+		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
+		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
+		public async Task<Guid> RecommendationRegister(
+			[FromBody]
+			[SwaggerRequestBody(description: "The dataset to register to recommendation", Required = true)]
+			App.Model.DatasetRecommendationRegistering model)
+		{
+			this._logger.Debug(new MapLogEntry("recommendation-registering").And("model", model));
+
+			Guid id = await this._datasetService.RecommendationRegisterAsync(model);
+
+			this._accountingService.AccountFor(KnownActions.RecommendationRegister, KnownResources.Dataset.AsAccountable());
+			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.Workflow.AsAccountable());
+
+			return id;
+		}
 	}
 }
