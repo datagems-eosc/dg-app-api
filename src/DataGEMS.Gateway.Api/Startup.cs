@@ -42,6 +42,7 @@ using DataGEMS.Gateway.App.Service.QueryRecommender;
 using DataGEMS.Gateway.App.Service.Collection;
 using DataGEMS.Gateway.App.Service.TaskOrchestrator;
 using DataGEMS.Gateway.App.Service.DatasetFileManagement;
+using DataGEMS.Gateway.App.Service.DatasetRecommender;
 
 namespace DataGEMS.Gateway.Api
 {
@@ -98,6 +99,7 @@ namespace DataGEMS.Gateway.Api
 				.AddAAIServices(this._config.GetSection("AAIService:Service"), this._config.GetSection("AAIService:Cache")) //AAI Keycloak
 				.AddQueryRecommenderServices(this._config.GetSection("QueryRecommenderService")) //Query Recommender API
 				.AddDatasetFileManagementServices(null) //Dataset File Management API (no configuration needed at the moment)
+				.AddDatasetRecommenderServices(this._config.GetSection("DatasetRecommenderService")) //Dataset Recommender API
 			;
 
 			services

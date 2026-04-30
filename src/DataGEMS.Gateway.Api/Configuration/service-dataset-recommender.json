@@ -1,0 +1,7 @@
+{
+  "DatasetRecommenderService": {
+    "Scope": "datagems",
+    "BaseUrl": "%{DatasetRecommenderBaseUrl}%",
+    "ExistEndpoint": "dataset/exist?application=ds2ds"
+  }
+}

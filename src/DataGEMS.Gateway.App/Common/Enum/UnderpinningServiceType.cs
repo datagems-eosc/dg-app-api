@@ -10,5 +10,6 @@ namespace DataGEMS.Gateway.App.Common
 		Workflow = 4,
 		QueryRecommender = 5,
 		TaskOrchestrator = 6,
+		DatasetRecommender = 7
 	}
 }
