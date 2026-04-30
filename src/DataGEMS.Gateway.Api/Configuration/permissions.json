@@ -243,6 +243,14 @@
 				"AllowAnonymous": false,
 				"AllowAuthenticated": false
 			},
+			"AdHocQueryRequest": {
+				"Roles": [ "GLOBAL_dg_admin" ],
+				"ContextRoles": [ "dg_ds-browse" ],
+				"Claims": [],
+				"Clients": [],
+				"AllowAnonymous": false,
+				"AllowAuthenticated": false
+			},
 			//DatasetCollection
 			"BrowseDatasetCollection": {
 				"Roles": [ "GLOBAL_dg_admin" ],

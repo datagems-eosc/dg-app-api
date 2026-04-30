@@ -596,6 +596,81 @@ namespace DataGEMS.Gateway.App.Event
 		#endregion
 
 
+		#region AdHocQueryResult Deleted
+
+		private EventHandler<OnAdHocQueryResultEventArgs> _adHocQueryResultDeleted;
+		public event EventHandler<OnAdHocQueryResultEventArgs> AdHocQueryResultDeleted
+		{
+			add { this._adHocQueryResultDeleted += value; }
+			remove { this._adHocQueryResultDeleted -= value; }
+		}
+
+		public void EmitAdHocQueryResultDeleted(Guid id)
+		{
+			this.EmitAdHocQueryResultDeleted(this, new List<Guid>() { id });
+		}
+
+		public void EmitAdHocQueryResultDeleted(IEnumerable<Guid> ids)
+		{
+			this.EmitAdHocQueryResultDeleted(this, ids);
+		}
+
+		public void EmitAdHocQueryResultDeleted(IEnumerable<OnAdHocQueryResultEventArgs> events)
+		{
+			this.EmitAdHocQueryResultDeleted(this, events);
+		}
+
+		public void EmitAdHocQueryResultDeleted(Object sender, IEnumerable<Guid> ids)
+		{
+			this._adHocQueryResultDeleted?.Invoke(sender, new OnAdHocQueryResultEventArgs(ids));
+		}
+
+		public void EmitAdHocQueryResultDeleted(Object sender, IEnumerable<OnAdHocQueryResultEventArgs> events)
+		{
+			if (events == null) return;
+			foreach (OnAdHocQueryResultEventArgs ev in events) this._adHocQueryResultDeleted?.Invoke(sender, ev);
+		}
+
+		#endregion
+
+		#region AdHocQueryResult Touched
+
+		private EventHandler<OnAdHocQueryResultEventArgs> _adHocQueryResultTouched;
+		public event EventHandler<OnAdHocQueryResultEventArgs> AdHocQueryResultTouched
+		{
+			add { this._adHocQueryResultTouched += value; }
+			remove { this._adHocQueryResultTouched -= value; }
+		}
+
+		public void EmitAdHocQueryResultTouched(Guid id)
+		{
+			this.EmitAdHocQueryResultTouched(this, new List<Guid>() { id });
+		}
+
+		public void EmitAdHocQueryResultTouched(IEnumerable<Guid> ids)
+		{
+			this.EmitAdHocQueryResultTouched(this, ids);
+		}
+
+		public void EmitAdHocQueryResultTouched(IEnumerable<OnAdHocQueryResultEventArgs> events)
+		{
+			this.EmitAdHocQueryResultTouched(this, events);
+		}
+
+		public void EmitAdHocQueryResultTouched(Object sender, IEnumerable<Guid> ids)
+		{
+			this._adHocQueryResultTouched?.Invoke(sender, new OnAdHocQueryResultEventArgs(ids));
+		}
+
+		public void EmitAdHocQueryResultTouched(Object sender, IEnumerable<OnAdHocQueryResultEventArgs> events)
+		{
+			if (events == null) return;
+			foreach (OnAdHocQueryResultEventArgs ev in events) this._adHocQueryResultTouched?.Invoke(sender, ev);
+		}
+
+		#endregion
+
+
 		#region Dataset Deleted
 
 		private EventHandler<OnEventArgs<Guid>> _datasetDeleted;

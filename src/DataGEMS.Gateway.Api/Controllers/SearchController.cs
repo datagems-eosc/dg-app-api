@@ -5,6 +5,7 @@ using Cite.Tools.Logging.Extensions;
 using Cite.WebTools.Validation;
 using DataGEMS.Gateway.Api.Model;
 using DataGEMS.Gateway.Api.Model.Lookup;
+using DataGEMS.Gateway.Api.OpenApi;
 using DataGEMS.Gateway.Api.Validation;
 using DataGEMS.Gateway.App.Accounting;
 using DataGEMS.Gateway.App.Censor;
@@ -16,6 +17,7 @@ using DataGEMS.Gateway.App.Service.Conversation;
 using DataGEMS.Gateway.App.Service.Discovery;
 using DataGEMS.Gateway.App.Service.InDataExploration;
 using DataGEMS.Gateway.App.Service.QueryRecommender;
+using DataGEMS.Gateway.App.Service.TaskOrchestrator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -34,6 +36,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		private readonly IAccountingService _accountingService;
 		private readonly ErrorThesaurus _errors;
 		private readonly IConversationService _conversationService;
+		private readonly ITaskOrchestratorService _taskOrchestratorService;
 
 		public SearchController(
 			CensorFactory censorFactory,
@@ -43,7 +46,8 @@ namespace DataGEMS.Gateway.Api.Controllers
 			IAccountingService accountingService,
 			ILogger<SearchController> logger,
 			IConversationService conversationService,
-			ErrorThesaurus errors)
+			ErrorThesaurus errors,
+			ITaskOrchestratorService taskOrchestratorService)
 		{
 			this._censorFactory = censorFactory;
 			this._crossDatasetDiscoveryService = crossDatasetDiscoveryService;
@@ -53,6 +57,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			this._conversationService = conversationService;
 			this._logger = logger;
 			this._errors = errors;
+			this._taskOrchestratorService = taskOrchestratorService;
 		}
 
 		[HttpPost("cross-dataset")]
@@ -229,6 +234,43 @@ namespace DataGEMS.Gateway.Api.Controllers
 			await this._conversationService.AppendToConversation(conversationId.Value, entries);
 			await this._conversationService.SetConversationDatasets(conversationId.Value, datasetIds);
 			return conversationId.Value;
+		}
+
+
+		[HttpPost("ad-hoc")]
+		[Authorize]
+		[ModelStateValidationFilter]
+		[ValidationFilter(typeof(AdHocQueryPersist.PersistValidator), "query")]
+		[SwaggerOperation(Summary = "Execute an ad-hoc query")]
+		[SwaggerResponse(statusCode: 200, description: "Matching results", type: typeof(SearchResult<List<App.Model.AdHocQuery>>))]
+		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
+		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
+		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
+		[SwaggerResponse(statusCode: 500, description: "Internal error")]
+		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
+		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
+		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
+		public async Task<App.Model.AdHocQuery> AdHocQueryAsync(
+			[FromBody]
+			[SwaggerRequestBody(description: "The ad-hoc query", Required = true)]
+			AdHocQueryPersist query,
+
+			[FromQuery]
+			[ModelBinder(Name = "f")]
+			[SwaggerParameter(description: "The fields to include in the response model", Required = true)]
+			[LookupFieldSetQueryStringOpenApi]
+			IFieldSet fieldSet)
+		{
+			this._logger.Debug(new MapLogEntry("Ad-hoc query").And("type", nameof(App.Model.AdHocQuery)).And("query", query).And("fields", fieldSet));
+
+			//IFieldSet censoredFields = await this._censorFactory.Censor<AdHocQueryCensor>().Censor(fieldSet, CensorContext.AsCensor(), true);
+			//if (fieldSet.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+
+			var results = await this._taskOrchestratorService.AdHocQueryAsync(query, fieldSet);
+
+			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.InDataExploration.AsAccountable());
+
+			return results;
 		}
 	}
 }

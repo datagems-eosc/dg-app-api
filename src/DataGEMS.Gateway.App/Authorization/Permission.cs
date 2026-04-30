@@ -41,6 +41,7 @@ namespace DataGEMS.Gateway.App.Authorization
 		public const String PowerSearchDataset = "PowerSearchDataset";
 		public const String DownloadDatasetFile = "DownloadDatasetFile";
 		public const String BrowseDatasetFiles = "BrowseDatasetFiles";
+		public const String AdHocQueryRequest = "AdHocQueryRequest";
 		//DatasetCollection
 		public const String BrowseDatasetCollection = "BrowseDatasetCollection";
 		//User

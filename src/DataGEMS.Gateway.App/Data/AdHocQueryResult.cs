@@ -17,9 +17,6 @@ namespace DataGEMS.Gateway.App.Data
 		public Guid UserId { get; set; }
 
 		[Required]
-		public string FilePath { get; set; }
-
-		[Required]
 		public string AnalyticalPattern { get; set; }
 
 		[Required]
@@ -43,7 +40,6 @@ namespace DataGEMS.Gateway.App.Data
 		{
 			builder.ToTable("ad_hoc_query_result");
 			builder.Property(x => x.Id).HasColumnName("id");
-			builder.Property(x => x.FilePath).HasColumnName("file_path");
 			builder.Property(x => x.AnalyticalPattern).HasColumnName("analytical_pattern");
 			builder.Property(x => x.UserId).HasColumnName("user_id");
 			builder.Property(x => x.IsActive).HasColumnName("is_active");
