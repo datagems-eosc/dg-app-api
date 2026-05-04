@@ -13,6 +13,7 @@ using DataGEMS.Gateway.App.Exception;
 using DataGEMS.Gateway.App.LogTracking;
 using DataGEMS.Gateway.App.Model;
 using DataGEMS.Gateway.App.Service.Discovery.Model;
+using DataGEMS.Gateway.App.Service.TaskOrchestrator.Model;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json;
@@ -95,13 +96,24 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 			httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 			httpRequest.Headers.Add(this._logTrackingCorrelationConfig.HeaderName, this._logCorrelationScope.CorrelationId);
 			string content = await this.SendRequest(httpRequest, this._httpClientFactory.CreateClient("AdHocQueryClient"));
+			AnalyticalPattern deserializedResponse = this._jsonHandlingService.FromJsonSafe<AdHocQueryTaskOrchestratorResponse>(content).ap;
 			DateTime now = DateTime.UtcNow;
+			
+			string resultFilePath = deserializedResponse?.Nodes?.FirstOrDefault(x => 
+				x.Labels != null && 
+				x.Properties != null && 
+				x.Properties.ContainsKey("contentUrl") && 
+				x.Labels.Contains("cr:FileObject") && 
+				x.Labels.Contains("Data"))?.Properties["contentUrl"].ToString();
+			Guid userId = (await this._authorizationContentResolver.CurrentUserId()).Value;
+
 			var data = new AdHocQueryResult
 			{
 				AnalyticalPattern = content,
+				ResultFilePath = resultFilePath,
 				CreatedAt = now,
 				Id = Guid.NewGuid(),
-				UserId = (await this._authorizationContentResolver.CurrentUserId()).Value,
+				UserId = userId,
 				IsActive = IsActive.Active,
 				UpdatedAt = now,
 			};

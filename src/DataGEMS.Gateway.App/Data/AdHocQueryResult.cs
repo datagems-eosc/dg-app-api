@@ -20,6 +20,9 @@ namespace DataGEMS.Gateway.App.Data
 		public string AnalyticalPattern { get; set; }
 
 		[Required]
+		public string ResultFilePath { get; set; }
+
+		[Required]
 		public IsActive IsActive { get; set; }
 
 		[Required]
