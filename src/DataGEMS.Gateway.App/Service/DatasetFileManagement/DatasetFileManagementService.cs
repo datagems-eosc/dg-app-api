@@ -66,14 +66,14 @@ namespace DataGEMS.Gateway.App.Service.DatasetFileManagement
 			AnalyticalPattern profile = this._jsonHandlingService.FromJsonSafe<AnalyticalPattern>(this._jsonHandlingService.ToJsonSafe(datas.First().ProfileRaw));
 			
 			List<AnalyticalPatternNode> fileSets = profile.Nodes?.Where(x => x.Labels.Contains("cr:FileSet") && x.Properties != null && x.Properties.ContainsKey("contentUrl")).ToList();
-			List<DatasetFileSet> nodes = fileSets.Select(x => new DatasetFileSet
+			List<DatasetFileSet> nodes = fileSets?.Select(x => new DatasetFileSet
 			{
 				Id = x.Id,
 				Path = this._storageService.NormalizePath((string)x.Properties["contentUrl"]),
 				FileSets = [],
 				Files = []
 			})
-			.OrderBy(x => x.Path.Count(y => y == Path.DirectorySeparatorChar)).ToList();
+			.OrderBy(x => x.Path.Count(y => y == Path.DirectorySeparatorChar)).ToList() ?? [];
 
 			var roots = new List<DatasetFileSet>();
 
@@ -104,7 +104,7 @@ namespace DataGEMS.Gateway.App.Service.DatasetFileManagement
 				Id = x.Id,
 				Path = x.Properties != null && x.Properties.ContainsKey("contentUrl") ? (string)x.Properties["contentUrl"] : "",
 				Size = x.Properties != null && x.Properties.ContainsKey("contentSize") ? (string)x.Properties["contentSize"] : "0 B",
-			});
+			}) ?? [];
 
 			foreach (var file in fileObjects)
 			{
