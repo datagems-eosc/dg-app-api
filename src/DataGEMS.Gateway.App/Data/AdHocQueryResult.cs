@@ -17,6 +17,9 @@ namespace DataGEMS.Gateway.App.Data
 		public Guid UserId { get; set; }
 
 		[Required]
+		public Guid DatasetId { get; set; }
+
+		[Required]
 		public string AnalyticalPattern { get; set; }
 
 		[Required]
@@ -42,6 +45,7 @@ namespace DataGEMS.Gateway.App.Data
 			builder.Property(x => x.Id).HasColumnName("id");
 			builder.Property(x => x.AnalyticalPattern).HasColumnName("analytical_pattern");
 			builder.Property(x => x.UserId).HasColumnName("user_id");
+			builder.Property(x => x.DatasetId).HasColumnName("dataset_id");
 			builder.Property(x => x.IsActive).HasColumnName("is_active");
 			builder.Property(x => x.CreatedAt).HasColumnName("created_at");
 			builder.Property(x => x.UpdatedAt).HasColumnName("updated_at");

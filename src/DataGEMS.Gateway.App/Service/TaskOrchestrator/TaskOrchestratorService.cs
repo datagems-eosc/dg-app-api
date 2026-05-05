@@ -79,7 +79,6 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 		{
 			string token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
-			
 			var apRequest = new 
 			{ 
 				ap = BuildAdHocAnalyticalPattern(persist)
@@ -97,11 +96,13 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 			httpRequest.Headers.Add(this._logTrackingCorrelationConfig.HeaderName, this._logCorrelationScope.CorrelationId);
 			string content = await this.SendRequest(httpRequest, this._httpClientFactory.CreateClient("AdHocQueryClient"));
 			DateTime now = DateTime.UtcNow;
+
 			Guid userId = (await this._authorizationContentResolver.CurrentUserId()).Value;
 
 			var data = new AdHocQueryResult
 			{
 				AnalyticalPattern = content,
+				DatasetId = persist.DatasetId.Value,
 				CreatedAt = now,
 				Id = Guid.NewGuid(),
 				UserId = userId,
@@ -114,8 +115,8 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 
 			this._eventBroker.EmitAdHocQueryResultTouched(data.Id);
 
-			//App.Model.AdHocQuery model = await _builderFactory.Builder<App.Model.Builder.AdHocQueryBuilder>().Build(FieldSet.Build(fields, nameof(App.Model.AdHocQuery.Id)), data);
-			return new AdHocQuery();
+			App.Model.AdHocQuery model = await _builderFactory.Builder<App.Model.Builder.AdHocQueryBuilder>().Build(FieldSet.Build(fields, nameof(App.Model.AdHocQuery.Id)), data);
+			return model;
 		}
 
 		

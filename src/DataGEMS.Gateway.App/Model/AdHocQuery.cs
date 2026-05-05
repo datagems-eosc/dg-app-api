@@ -1,4 +1,5 @@
 ﻿using Cite.Tools.Validation;
+using DataGEMS.Gateway.App.Common;
 using DataGEMS.Gateway.App.Common.Validation;
 using DataGEMS.Gateway.App.ErrorCode;
 using Microsoft.Extensions.Localization;
@@ -10,7 +11,12 @@ namespace DataGEMS.Gateway.App.Model
 	{
 		public Guid? Id { get; set; }
 
-		public string FilePath { get; set; }
+		public Dataset Dataset { get; set; }
+
+		public User User { get; set; }
+		public IsActive? IsActive { get; set; }
+		public DateTime? CreatedAt { get; set; }
+		public DateTime? UpdatedAt { get; set; }
 
 		public string AnalyticalPattern { get; set; }
 	}

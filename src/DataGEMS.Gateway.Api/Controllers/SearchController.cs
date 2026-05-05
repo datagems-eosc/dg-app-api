@@ -8,6 +8,7 @@ using DataGEMS.Gateway.Api.Model.Lookup;
 using DataGEMS.Gateway.Api.OpenApi;
 using DataGEMS.Gateway.Api.Validation;
 using DataGEMS.Gateway.App.Accounting;
+using DataGEMS.Gateway.App.Authorization;
 using DataGEMS.Gateway.App.Censor;
 using DataGEMS.Gateway.App.Common;
 using DataGEMS.Gateway.App.ErrorCode;
@@ -37,6 +38,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		private readonly ErrorThesaurus _errors;
 		private readonly IConversationService _conversationService;
 		private readonly ITaskOrchestratorService _taskOrchestratorService;
+		private readonly IAuthorizationContentResolver _authorizationContentResolver;
 
 		public SearchController(
 			CensorFactory censorFactory,
@@ -47,7 +49,8 @@ namespace DataGEMS.Gateway.Api.Controllers
 			ILogger<SearchController> logger,
 			IConversationService conversationService,
 			ErrorThesaurus errors,
-			ITaskOrchestratorService taskOrchestratorService)
+			ITaskOrchestratorService taskOrchestratorService,
+			IAuthorizationContentResolver authorizationContentResolver)
 		{
 			this._censorFactory = censorFactory;
 			this._crossDatasetDiscoveryService = crossDatasetDiscoveryService;
@@ -58,6 +61,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			this._logger = logger;
 			this._errors = errors;
 			this._taskOrchestratorService = taskOrchestratorService;
+			this._authorizationContentResolver = authorizationContentResolver;
 		}
 
 		[HttpPost("cross-dataset")]
@@ -262,13 +266,14 @@ namespace DataGEMS.Gateway.Api.Controllers
 			IFieldSet fieldSet)
 		{
 			this._logger.Debug(new MapLogEntry("Ad-hoc query").And("type", nameof(App.Model.AdHocQuery)).And("query", query).And("fields", fieldSet));
-
-			//IFieldSet censoredFields = await this._censorFactory.Censor<AdHocQueryCensor>().Censor(fieldSet, CensorContext.AsCensor(), true);
-			//if (fieldSet.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+			Guid? userId = await this._authorizationContentResolver.CurrentUserId();
+			if (!userId.HasValue) throw new DGApplicationException(this._errors.UserSync.Code, this._errors.UserSync.Message);
+			IFieldSet censoredFields = await this._censorFactory.Censor<AdHocQueryCensor>().Censor(fieldSet, CensorContext.AsCensor(), userId);
+			if (fieldSet.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
 
 			var results = await this._taskOrchestratorService.AdHocQueryAsync(query, fieldSet);
 
-			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.InDataExploration.AsAccountable());
+			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.AdHocQuery.AsAccountable());
 
 			return results;
 		}
