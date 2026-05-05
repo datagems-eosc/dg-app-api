@@ -53,7 +53,7 @@ namespace DataGEMS.Gateway.App.Service.DatasetRecommender
 			_authorizationContentResolver = authorizationContentResolver;
 		}
 
-		public async Task<Dictionary<Guid, bool>> ExistAsync(List<Guid> datasetIds)
+		public async Task<HashSet<Guid>> IsInRecommender(List<Guid> datasetIds)
 		{
 			string token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
@@ -73,7 +73,8 @@ namespace DataGEMS.Gateway.App.Service.DatasetRecommender
 				this._logger.LogError(ex, "Failed to parse response: {content}", content);
 				throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.DatasetRecommender, this._logCorrelationScope.CorrelationId);
 			}
-			return rawResponse;
+			HashSet<Guid> inRecommender = rawResponse?.Where(x => x.Value)?.Select(x => x.Key)?.ToHashSet() ?? new HashSet<Guid>();
+			return inRecommender;
 		}
 
 		private async Task<string> SendRequest(HttpRequestMessage request)

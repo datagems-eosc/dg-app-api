@@ -188,7 +188,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 
 			var datasetFileSet = await this._datasetFileManagementService.BrowseDatasetFilesAsync(datasetId, nodeId);
 
-			this._accountingService.AccountFor(KnownActions.Browse, KnownResources.Dataset.AsAccountable());
+			this._accountingService.AccountFor(KnownActions.BrowseData, KnownResources.Dataset.AsAccountable());
 
 			return datasetFileSet;
 		}

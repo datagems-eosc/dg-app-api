@@ -8,7 +8,6 @@ using Cite.Tools.Logging.Extensions;
 using DataGEMS.Gateway.App.Authorization;
 using DataGEMS.Gateway.App.Common;
 using DataGEMS.Gateway.App.Query;
-using DataGEMS.Gateway.App.Service.DatasetFileManagement.Model;
 using DataGEMS.Gateway.App.Service.DatasetRecommender;
 using Microsoft.Extensions.Logging;
 
@@ -53,7 +52,9 @@ namespace DataGEMS.Gateway.App.Model.Builder
 			Dictionary<Guid, HashSet<String>> datasetAffiliatedRoles = null;
 			if (!permissionFields.IsEmpty()) datasetAffiliatedRoles = await this._authorizationContentResolver.EffectiveContextRolesForDatasetOfUser(datas.Select(x => x.Id).Distinct().ToList());
 
-			Dictionary<Guid, DatasetFeaturesStatus> features = fields.HasField(nameof(Model.Dataset.Features)) ? await this.CollectDatasetFeaturesStatuses(fields.ExtractPrefixed(this.AsPrefix(nameof(Model.Dataset.Features))), datas) ?? [] : [];
+			IFieldSet featureFields = fields.ExtractPrefixed(this.AsPrefix(nameof(Model.Dataset.Features)));
+			Dictionary<Guid, Model.Dataset.FeatureStatus> features = null;
+			if (!featureFields.IsEmpty()) features = await this.CollectDatasetFeaturesStatuses(featureFields, datas);
 
 			List<Model.Dataset> models = new List<Model.Dataset>();
 			foreach(Service.DataManagement.Model.Dataset d in datas ?? Enumerable.Empty<Service.DataManagement.Model.Dataset>())
@@ -120,21 +121,21 @@ namespace DataGEMS.Gateway.App.Model.Builder
 
 		}
 
-		private async Task<Dictionary<Guid, DatasetFeaturesStatus>> CollectDatasetFeaturesStatuses(IFieldSet fields, IEnumerable<Service.DataManagement.Model.Dataset> datas)
+		private async Task<Dictionary<Guid, Model.Dataset.FeatureStatus>> CollectDatasetFeaturesStatuses(IFieldSet fields, IEnumerable<Service.DataManagement.Model.Dataset> datas)
 		{
 			if (!datas.Any()) return null;
-			this._logger.Debug(new MapLogEntry("collecting").And("type", nameof(DatasetFeaturesStatus)).And("fields", fields).And("data", datas?.Count()));
+			this._logger.Debug(new MapLogEntry("collecting").And("type", nameof(Model.Dataset.FeatureStatus)).And("fields", fields).And("data", datas?.Count()));
 
-			Dictionary<Guid, bool> recommenderStatuses = await this._datasetRecommenderService.ExistAsync(datas.Select(x => x.Id).ToList());
+			HashSet<Guid> inRecommender = await this._datasetRecommenderService.IsInRecommender(datas.Select(x => x.Id).ToList());
 
-			Dictionary<Guid, DatasetFeaturesStatus> result = [];
+			Dictionary<Guid, Model.Dataset.FeatureStatus> result = [];
 			foreach (Service.DataManagement.Model.Dataset d in datas)
 			{
 				AnalyticalPattern profile = d.ProfileRaw != null ? this._jsonHandlingService.FromJsonSafe<AnalyticalPattern>(this._jsonHandlingService.ToJsonSafe(d.ProfileRaw)) : null;
-				result.Add(d.Id, new DatasetFeaturesStatus
+				result.Add(d.Id, new Model.Dataset.FeatureStatus
 				{
 					Profiled = profile != null && profile.Nodes != null && profile.Nodes.Any(x => x.Labels != null && !x.Labels.Contains("sc:Dataset")),
-					Recommendation = recommenderStatuses!= null && recommenderStatuses.ContainsKey(d.Id) && recommenderStatuses[d.Id]
+					Recommendation = inRecommender != null && inRecommender.Contains(d.Id)
 				});
 			}
 			return result;

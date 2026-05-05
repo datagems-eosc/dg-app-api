@@ -12,6 +12,13 @@ namespace DataGEMS.Gateway.App.Model
 {
 	public class Dataset
 	{
+		public class FeatureStatus
+		{
+			public bool Profiled { get; set; }
+			public bool Packaged { get; set; }
+			public bool Recommendation { get; set; }
+		}
+
 		public Guid? Id { get; set; }
 		[MaxLength(50)]
 		public String Code { get; set; }
@@ -40,7 +47,7 @@ namespace DataGEMS.Gateway.App.Model
 		public string Doi { get; set; }
 		public List<Model.Collection> Collections { get; set; }
 		public List<String> Permissions { get; set; }
-		public DatasetFeaturesStatus Features { get; set; }
+		public FeatureStatus Features { get; set; }
 	}
 
 	public class DatasetPersist
@@ -363,7 +370,6 @@ namespace DataGEMS.Gateway.App.Model
 	{
 		public Guid? Id { get; set; }
 
-
 		public class PackagingValidator : BaseValidator<DatasetPackaging>
 		{
 			public PackagingValidator(
@@ -389,11 +395,9 @@ namespace DataGEMS.Gateway.App.Model
 		}
 	}
 
-
 	public class DatasetRecommendationRegistering
 	{
 		public Guid? Id { get; set; }
-
 
 		public class RecommendationRegisteringValidator : BaseValidator<DatasetRecommendationRegistering>
 		{

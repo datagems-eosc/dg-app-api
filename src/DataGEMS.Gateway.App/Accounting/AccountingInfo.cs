@@ -14,7 +14,7 @@ namespace DataGEMS.Gateway.App.Accounting
 		Rerun = 8,
 		Package = 9,
 		Download = 10,
-		Browse = 11,
+		BrowseData = 11,
 		RecommendationRegister = 12,
 	}
 

@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-
-namespace DataGEMS.Gateway.App.Service.DataManagement.Model
+﻿namespace DataGEMS.Gateway.App.Service.DataManagement.Model
 {
 	public class Dataset
 	{

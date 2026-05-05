@@ -98,7 +98,7 @@ namespace DataGEMS.Gateway.Api
 				.AddAirflowServices(this._config.GetSection("AirflowService")) //Airflow
 				.AddAAIServices(this._config.GetSection("AAIService:Service"), this._config.GetSection("AAIService:Cache")) //AAI Keycloak
 				.AddQueryRecommenderServices(this._config.GetSection("QueryRecommenderService")) //Query Recommender API
-				.AddDatasetFileManagementServices(null) //Dataset File Management API (no configuration needed at the moment)
+				.AddDatasetFileManagementServices() //Dataset File Management API
 				.AddDatasetRecommenderServices(this._config.GetSection("DatasetRecommenderService")) //Dataset Recommender API
 			;
 
