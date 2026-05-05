@@ -12,6 +12,7 @@ namespace DataGEMS.Gateway.App.Data
 		public DbSet<ConversationDataset> ConversationDatasets { get; set; }
 		public DbSet<ConversationMessage> ConversationMessages { get; set; }
 		public DbSet<DatasetCollection> DatasetCollections { get; set; }
+		public DbSet<UserFavorite> UserFavorites { get; set; }
 		public DbSet<User> Users { get; set; }
 		public DbSet<UserSettings> UserSettings { get; set; }
 		public DbSet<VersionInfo> VersionInfos { get; set; }

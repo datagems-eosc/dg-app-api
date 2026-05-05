@@ -151,6 +151,80 @@ namespace DataGEMS.Gateway.App.Event
 
 		#endregion
 
+		#region UserFavorite Deleted
+
+		private EventHandler<OnEventArgs<Guid>> _userFavoriteDeleted;
+		public event EventHandler<OnEventArgs<Guid>> UserFavoriteDeleted
+		{
+			add { this._userFavoriteDeleted += value; }
+			remove { this._userFavoriteDeleted -= value; }
+		}
+
+		public void EmitUserFavoriteDeleted(Guid id)
+		{
+			this.EmitUserFavoriteDeleted(this, new List<Guid>() { id });
+		}
+
+		public void EmitUserFavoriteDeleted(IEnumerable<Guid> ids)
+		{
+			this.EmitUserFavoriteDeleted(this, ids);
+		}
+
+		public void EmitUserFavoriteDeleted(IEnumerable<OnEventArgs<Guid>> events)
+		{
+			this.EmitUserFavoriteDeleted(this, events);
+		}
+
+		public void EmitUserFavoriteDeleted(Object sender, IEnumerable<Guid> ids)
+		{
+			this._userFavoriteDeleted?.Invoke(sender, new OnEventArgs<Guid>(ids));
+		}
+
+		public void EmitUserFavoriteDeleted(Object sender, IEnumerable<OnEventArgs<Guid>> events)
+		{
+			if (events == null) return;
+			foreach (OnEventArgs<Guid> ev in events) this._userFavoriteDeleted?.Invoke(sender, ev);
+		}
+
+		#endregion
+
+		#region UserFavorite Touched
+
+		private EventHandler<OnEventArgs<Guid>> _userFavoriteTouched;
+		public event EventHandler<OnEventArgs<Guid>> UserFavoriteTouched
+		{
+			add { this._userFavoriteTouched += value; }
+			remove { this._userFavoriteTouched -= value; }
+		}
+
+		public void EmitUserFavoriteTouched(Guid id)
+		{
+			this.EmitUserFavoriteTouched(this, new List<Guid>() { id });
+		}
+
+		public void EmitUserFavoriteTouched(IEnumerable<Guid> ids)
+		{
+			this.EmitUserFavoriteTouched(this, ids);
+		}
+
+		public void EmitUserFavoriteTouched(IEnumerable<OnEventArgs<Guid>> events)
+		{
+			this.EmitUserFavoriteTouched(this, events);
+		}
+
+		public void EmitUserFavoriteTouched(Object sender, IEnumerable<Guid> ids)
+		{
+			this._userFavoriteTouched?.Invoke(sender, new OnEventArgs<Guid>(ids));
+		}
+
+		public void EmitUserFavoriteTouched(Object sender, IEnumerable<OnEventArgs<Guid>> events)
+		{
+			if (events == null) return;
+			foreach (OnEventArgs<Guid> ev in events) this._userFavoriteTouched?.Invoke(sender, ev);
+		}
+
+		#endregion
+
 		#region Conversation Deleted
 
 		private EventHandler<OnEventArgs<Guid>> _conversationDeleted;

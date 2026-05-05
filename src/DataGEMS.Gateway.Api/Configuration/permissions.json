@@ -294,6 +294,31 @@
 				"AllowAnonymous": false,
 				"AllowAuthenticated": false
 			},
+			//User Favorite
+			"BrowseUserFavorite": {
+				"Roles": [ "GLOBAL_dg_admin" ],
+				"ContextRoles": [ "dg_user-favorite-browse" ],
+				"Claims": [],
+				"Clients": [],
+				"AllowAnonymous": false,
+				"AllowAuthenticated": false
+			},
+			"AddUserFavorite": {
+				"Roles": [ "GLOBAL_dg_admin" ],
+				"ContextRoles": [ "dg_user-favorite-manage" ],
+				"Claims": [],
+				"Clients": [],
+				"AllowAnonymous": false,
+				"AllowAuthenticated": false
+			},
+			"DeleteUserFavorite": {
+				"Roles": [ "GLOBAL_dg_admin" ],
+				"ContextRoles": [ "dg_user-favorite-manage" ],
+				"Claims": [],
+				"Clients": [],
+				"AllowAnonymous": false,
+				"AllowAuthenticated": false
+			},
 			//Vocabulary
 			"BrowseFieldsOfScienceVocabulary": {
 				"Roles": [],
