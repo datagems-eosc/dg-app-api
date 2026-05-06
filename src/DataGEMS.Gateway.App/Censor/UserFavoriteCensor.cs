@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 
 namespace DataGEMS.Gateway.App.Censor
 {
-	internal class UserFavoriteCensor : ICensor
+	public class UserFavoriteCensor : ICensor
 	{
 		private readonly CensorFactory _censorFactory;
 		private readonly IAuthorizationService _authService;

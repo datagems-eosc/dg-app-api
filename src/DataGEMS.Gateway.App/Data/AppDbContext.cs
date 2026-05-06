@@ -26,6 +26,7 @@ namespace DataGEMS.Gateway.App.Data
 			new ConversationMessageEntityConfiguration().Configure(modelBuilder.Entity<ConversationMessage>());
 			new DatasetCollectionEntityConfiguration().Configure(modelBuilder.Entity<DatasetCollection>());
 			new UserEntityConfiguration().Configure(modelBuilder.Entity<User>());
+			new UserFavoriteEntityConfiguration().Configure(modelBuilder.Entity<UserFavorite>());
 			new UserSettingsEntityConfiguration().Configure(modelBuilder.Entity<UserSettings>());
 			new VersionInfoEntityConfiguration().Configure(modelBuilder.Entity<VersionInfo>());
 		}

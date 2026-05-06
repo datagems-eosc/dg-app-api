@@ -43,10 +43,11 @@ using DataGEMS.Gateway.App.Service.Collection;
 using DataGEMS.Gateway.App.Service.TaskOrchestrator;
 using DataGEMS.Gateway.App.Service.DatasetFileManagement;
 using DataGEMS.Gateway.App.Service.DatasetRecommender;
+using DataGEMS.Gateway.App.Service.UserFavorite;
 
 namespace DataGEMS.Gateway.Api
 {
-    public class Startup
+	public class Startup
 	{
 		public Startup(IConfiguration configuration, IWebHostEnvironment env)
 		{
@@ -106,6 +107,7 @@ namespace DataGEMS.Gateway.Api
 				.AddScoped<IVersionInfoService, VersionInfoService>()
 				.AddUserSettingsServices()
 				.AddCollectionServices()
+				.AddUserFavoriteServices()
 				.AddConversationServices(this._config.GetSection("Conversation"))
 				.AddScoped<IConversationDatasetService, ConversationDatasetService>()
 				.AddVocabularyServices(this._config.GetSection("Vocabulary:FieldsOfScience"), this._config.GetSection("Vocabulary:License"))

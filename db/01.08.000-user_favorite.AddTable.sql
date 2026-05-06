@@ -1,6 +1,7 @@
 CREATE TABLE if not exists public.user_favorite (
     id UUID NOT NULL,
     user_id UUID NOT NULL,
+	dataset_id UUID NOT NULL,
     is_active SMALLINT NOT NULL,
     created_at timestamp with time zone NOT NULL,
     CONSTRAINT user_favorite_pkey PRIMARY KEY (id),
