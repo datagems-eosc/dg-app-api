@@ -296,24 +296,24 @@
 			},
 			//User Favorite
 			"BrowseUserFavorite": {
-				"Roles": [ "GLOBAL_dg_admin" ],
-				"ContextRoles": [ "dg_user-favorite-browse" ],
+				"Roles": [],
+				"ContextRoles": [],
 				"Claims": [],
 				"Clients": [],
 				"AllowAnonymous": false,
 				"AllowAuthenticated": false
 			},
 			"AddUserFavorite": {
-				"Roles": [ "GLOBAL_dg_admin" ],
-				"ContextRoles": [ "dg_user-favorite-manage" ],
+				"Roles": [],
+				"ContextRoles": [],
 				"Claims": [],
 				"Clients": [],
 				"AllowAnonymous": false,
 				"AllowAuthenticated": false
 			},
 			"DeleteUserFavorite": {
-				"Roles": [ "GLOBAL_dg_admin" ],
-				"ContextRoles": [ "dg_user-favorite-manage" ],
+				"Roles": [],
+				"ContextRoles": [],
 				"Claims": [],
 				"Clients": [],
 				"AllowAnonymous": false,

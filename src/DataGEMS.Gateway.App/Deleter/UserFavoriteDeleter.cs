@@ -57,8 +57,6 @@ namespace DataGEMS.Gateway.App.Deleter
 			if (datas == null || !datas.Any()) return;
 
 			List<Guid> ids = datas.Select(x => x.Id).Distinct().ToList();
-
-			DateTime now = DateTime.UtcNow;
 			foreach (Data.UserFavorite item in datas)
 			{
 				item.IsActive = IsActive.Inactive;
