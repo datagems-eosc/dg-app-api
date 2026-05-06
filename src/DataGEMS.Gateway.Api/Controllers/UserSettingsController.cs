@@ -239,7 +239,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[Authorize]
 		[ModelStateValidationFilter]
 		[SwaggerOperation(Summary = "Lookup user dataset favorites")]
-		[SwaggerResponse(statusCode: 200, description: "The matching user favorites", type: typeof(QueryResult<App.Model.UserFavorite>))]
+		[SwaggerResponse(statusCode: 200, description: "The matching user favorites", type: typeof(List<App.Model.UserFavorite>))]
 		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
 		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
 		[SwaggerResponse(statusCode: 404, description: "Could not locate item with the provided id")]
