@@ -48,6 +48,7 @@ namespace DataGEMS.Gateway.App.Model.Builder
 				if (fields.HasField(nameof(UserFavorite.Id))) m.Id = d.Id;
 				if (fields.HasField(nameof(UserFavorite.IsActive))) m.IsActive = d.IsActive;
 				if (fields.HasField(nameof(UserFavorite.CreatedAt))) m.CreatedAt = d.CreatedAt;
+				if (fields.HasField(nameof(UserFavorite.UpdatedAt))) m.UpdatedAt = d.UpdatedAt;
 				if (!datasetFields.IsEmpty() && datasetMap != null && datasetMap.ContainsKey(d.DatasetId)) m.Dataset = datasetMap[d.DatasetId];
 				if (!userFields.IsEmpty() && userMap != null && userMap.ContainsKey(d.UserId)) m.User = userMap[d.UserId];
 

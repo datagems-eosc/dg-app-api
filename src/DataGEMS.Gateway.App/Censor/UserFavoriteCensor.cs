@@ -47,9 +47,9 @@ namespace DataGEMS.Gateway.App.Censor
 			Boolean authZPass = false;
 			switch (context?.Behavior)
 			{
-				case CensorBehavior.Censor: { authZPass = await this._authService.AuthorizeOrOwner(!String.IsNullOrEmpty(subjectId) ? new OwnedResource(subjectId) : null, Permission.BrowseUserFavorite); break; }
+				case CensorBehavior.Censor: { authZPass = await this._authService.AuthorizeOwner(!String.IsNullOrEmpty(subjectId) ? new OwnedResource(subjectId) : null); break; }
 				case CensorBehavior.Throw:
-				default: { authZPass = await this._authService.AuthorizeOrOwnerForce(!String.IsNullOrEmpty(subjectId) ? new OwnedResource(subjectId) : null, Permission.BrowseUserFavorite); break; }
+				default: { authZPass = await this._authService.AuthorizeOwnerForce(!String.IsNullOrEmpty(subjectId) ? new OwnedResource(subjectId) : null); break; }
 			}
 			if (authZPass)
 			{

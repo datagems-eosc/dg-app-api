@@ -10,6 +10,7 @@ using DataGEMS.Gateway.App.Common;
 using DataGEMS.Gateway.App.ErrorCode;
 using DataGEMS.Gateway.App.Event;
 using DataGEMS.Gateway.App.Exception;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 
@@ -54,25 +55,25 @@ namespace DataGEMS.Gateway.App.Service.UserFavorite
 			this._jsonHandlingService = jsonHandlingService;
 		}
 
-		private async Task AuthorizDeleteForce(Guid? conversationId)
+		private async Task AuthorizeForce(Guid? id)
 		{
-			await this.AuthorizeForce(conversationId, Permission.DeleteUserFavorite);
-		}
+			if (!id.HasValue) return;
 
-		private async Task AuthorizeForce(Guid? userFavoriteId, String permission)
-		{
-			if (!userFavoriteId.HasValue) return;
+			Guid? userId = await this._authorizationContentResolver.CurrentUserId();
+			if (!userId.HasValue) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
 
-			Data.UserFavorite data = await this._dbContext.UserFavorites.FindAsync(userFavoriteId);
-			if (data == null) throw new DGNotFoundException(this._localizer["general_notFound", userFavoriteId.Value, nameof(Model.UserFavorite)]);
+			Data.UserFavorite data = await this._dbContext.UserFavorites.Where(x=> (x.Id == id.Value || x.DatasetId == id.Value) && x.UserId == userId && x.IsActive == IsActive.Active).FirstOrDefaultAsync();
+			if (data == null) throw new DGNotFoundException(this._localizer["general_notFound", id.Value, nameof(Model.UserFavorite)]);
 
 			String subjectId = await this._authorizationContentResolver.SubjectIdOfUserId(data.UserId);
-			await this._authorizationService.AuthorizeOrOwnerForce(!String.IsNullOrEmpty(subjectId) ? new OwnedResource(subjectId) : null, permission);
+			await this._authorizationService.AuthorizeOwnerForce(!String.IsNullOrEmpty(subjectId) ? new OwnedResource(subjectId) : null);
 		}
 
 		public async Task<Model.UserFavorite> PersistAsync(Model.UserFavoritePersist model, IFieldSet fields = null)
 		{
 			this._logger.Debug(new MapLogEntry("persisting").And("type", nameof(App.Model.UserFavoritePersist)).And("model", model).And("fields", fields));
+
+			await this.AuthorizeForce(null);
 
 			Data.UserFavorite data = await this.PatchAndSave(model);
 			Model.UserFavorite persisted = await this._builderFactory.Builder<Model.Builder.UserFavoriteBuilder>().Build(FieldSet.Build(fields, nameof(Model.UserFavorite.Id)), data);
@@ -94,7 +95,8 @@ namespace DataGEMS.Gateway.App.Service.UserFavorite
 				DatasetId = model.DatasetId.Value,
 				IsActive = IsActive.Active,
 				UserId = userId.Value,
-				CreatedAt = DateTime.UtcNow
+				CreatedAt = DateTime.UtcNow,
+				UpdatedAt = DateTime.UtcNow,
 			};
 			this._dbContext.Add(data);
 			await this._dbContext.SaveChangesAsync();
@@ -104,9 +106,9 @@ namespace DataGEMS.Gateway.App.Service.UserFavorite
 			return data;
 		}
 
-		public async Task DeleteAsync(Guid id)
+		public async Task DeleteByIdOrDatasetIdAsync(Guid id)
 		{
-			await this.AuthorizDeleteForce(id);
+			await this.AuthorizeForce(id);
 
 			await this._deleterFactory.Deleter<Deleter.UserFavoriteDeleter>().DeleteAndSave([id]);
 		}

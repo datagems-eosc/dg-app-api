@@ -50,10 +50,6 @@ namespace DataGEMS.Gateway.App.Authorization
 		//User
 		public const String BrowseUser = "BrowseUser";
 		public const String BrowseUserGroup = "BrowseUserGroup";
-		//User Favorite
-		public const String BrowseUserFavorite = "BrowseUserFavorite";
-		public const String CreateUserFavorite = "CreateUserFavorite";
-		public const String DeleteUserFavorite = "DeleteUserFavorite";
 		//Vocabulary
 		public const String BrowseFieldsOfScienceVocabulary = "BrowseFieldsOfScienceVocabulary";
 		public const String BrowseLicenseVocabulary = "BrowseLicenseVocabulary";

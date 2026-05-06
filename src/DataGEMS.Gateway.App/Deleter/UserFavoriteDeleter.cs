@@ -60,6 +60,7 @@ namespace DataGEMS.Gateway.App.Deleter
 			foreach (Data.UserFavorite item in datas)
 			{
 				item.IsActive = IsActive.Inactive;
+				item.UpdatedAt = DateTime.UtcNow;
 				this._dbContext.Update(item);
 			}
 

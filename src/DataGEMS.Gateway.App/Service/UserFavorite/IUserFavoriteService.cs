@@ -5,7 +5,7 @@ namespace DataGEMS.Gateway.App.Service.UserFavorite
 {
 	public interface IUserFavoriteService
 	{
-		Task DeleteAsync(Guid id);
+		Task DeleteByIdOrDatasetIdAsync(Guid id);
 		Task<Model.UserFavorite> PersistAsync(UserFavoritePersist model, IFieldSet fields = null);
 	}
 }

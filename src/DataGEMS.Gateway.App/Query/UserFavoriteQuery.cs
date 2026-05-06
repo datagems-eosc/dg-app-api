@@ -63,27 +63,23 @@ namespace DataGEMS.Gateway.App.Query
 		protected override async Task<IQueryable<UserFavorite>> ApplyAuthzAsync(IQueryable<UserFavorite> query)
 		{
 			if (this._authorize.HasFlag(AuthorizationFlags.None)) return query;
-			if (this._authorize.HasFlag(AuthorizationFlags.Permission))
-			{
-				if (await this._authorizationContentResolver.HasPermission(Permission.BrowseUserFavorite)) return query;
-			}
 			if (this._authorize.HasFlag(AuthorizationFlags.Owner))
 			{
-				String currentUser = this._authorizationContentResolver.CurrentUser();
-				if (!String.IsNullOrEmpty(currentUser)) return query.Where(x => x.User.IdpSubjectId == currentUser);
+				Guid? currentUser = await this._authorizationContentResolver.CurrentUserId();
+				if (currentUser.HasValue) return query.Where(x => x.UserId == currentUser);
 			}
-			//AuthorizationFlags.Context not applicable
+			//AuthorizationFlags.Context, AuthorizationFlags.Permission not applicable
 			return query.Where(x => false);
 		}
 
-		protected override async Task<IQueryable<UserFavorite>> ApplyFiltersAsync(IQueryable<UserFavorite> query)
+		protected override Task<IQueryable<UserFavorite>> ApplyFiltersAsync(IQueryable<UserFavorite> query)
 		{
 			if (this._ids != null) query = query.Where(x => this._ids.Contains(x.Id));
 			if (this._userIds != null) query = query.Where(x => this._userIds.Contains(x.UserId));
 			if (this._isActive != null) query = query.Where(x => this._isActive.Contains(x.IsActive));
 			if (this._excludedIds != null) query = query.Where(x => !this._excludedIds.Contains(x.Id));
 			if (this._datasetIds != null) query = query.Where(x => this._datasetIds.Contains(x.DatasetId));
-			return query;
+			return Task.FromResult(query);
 		}
 
 		protected override IOrderedQueryable<UserFavorite> OrderClause(IQueryable<UserFavorite> query, OrderingFieldResolver item)
@@ -98,6 +94,7 @@ namespace DataGEMS.Gateway.App.Query
 			else if (item.Match(nameof(Model.UserFavorite.User), nameof(Model.UserFavorite.User.Name))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.User.Name);
 			else if (item.Match(nameof(Model.UserFavorite.User), nameof(Model.UserFavorite.User.Email))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.User.Email);
 			else if (item.Match(nameof(Model.UserFavorite.CreatedAt))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.CreatedAt);
+			else if (item.Match(nameof(Model.UserFavorite.UpdatedAt))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.UpdatedAt);
 			else return null;
 
 			return orderedQuery;
@@ -113,6 +110,7 @@ namespace DataGEMS.Gateway.App.Query
 				else if (item.Prefix(nameof(Model.UserFavorite.Dataset))) projectionFields.Add(nameof(UserFavorite.DatasetId));
 				else if (item.Match(nameof(Model.UserFavorite.IsActive))) projectionFields.Add(nameof(UserFavorite.IsActive));
 				else if (item.Match(nameof(Model.UserFavorite.CreatedAt))) projectionFields.Add(nameof(UserFavorite.CreatedAt));
+				else if (item.Match(nameof(Model.UserFavorite.UpdatedAt))) projectionFields.Add(nameof(UserFavorite.UpdatedAt));
 			}
 			return projectionFields.ToList();
 		}

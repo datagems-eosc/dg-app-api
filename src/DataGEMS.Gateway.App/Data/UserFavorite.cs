@@ -25,6 +25,9 @@ namespace DataGEMS.Gateway.App.Data
 		[Required]
 		public DateTime CreatedAt { get; set; }
 
+		[Required]
+		public DateTime UpdatedAt { get; set; }
+
 		[ForeignKey(nameof(UserFavorite.UserId))]
 		public User User { get; set; }
 	}
@@ -41,6 +44,7 @@ namespace DataGEMS.Gateway.App.Data
 			builder.Property(x => x.DatasetId).HasColumnName("dataset_id");
 			builder.Property(x => x.IsActive).HasColumnName("is_active");
 			builder.Property(x => x.CreatedAt).HasColumnName("created_at");
+			builder.Property(x => x.UpdatedAt).HasColumnName("updated_at");
 		}
 	}
 }
