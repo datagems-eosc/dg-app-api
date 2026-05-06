@@ -201,8 +201,8 @@ namespace DataGEMS.Gateway.App.AccessToken
 			}
 			if (info != null)
 			{
-				DateTime threashold = DateTime.Now.Subtract(TimeSpan.FromSeconds(AccessTokenService.PreemptiveExpirationSeconds));
-				if (info.IssuedAt.AddSeconds(info.ExpiresIn) >= threashold) info = null;
+				DateTime threashold = DateTime.UtcNow.Subtract(TimeSpan.FromSeconds(AccessTokenService.PreemptiveExpirationSeconds));
+				if (info.IssuedAt.AddSeconds(info.ExpiresIn) <= threashold) info = null;
 			}
 
 			return info;
@@ -223,8 +223,7 @@ namespace DataGEMS.Gateway.App.AccessToken
 
 		private async Task CacheUpdateBase(String cacheKey, ClientAccessToken value)
 		{
-			DateTime threashold = DateTime.Now.Subtract(TimeSpan.FromSeconds(AccessTokenService.PreemptiveExpirationSeconds));
-			if (value == null || (value!=null && value.IssuedAt.AddSeconds(value.ExpiresIn) >= threashold))
+			if(value == null || value.ExpiresIn <= AccessTokenService.PreemptiveExpirationSeconds)
 			{
 				await this._cache.RemoveAsync(cacheKey);
 				return;
@@ -240,7 +239,7 @@ namespace DataGEMS.Gateway.App.AccessToken
 					payload = null;
 				}
 			}
-			if (payload == null || value.ExpiresIn <= 30) return;
+			if (payload == null) return;
 
 			await this._cache.SetStringAsync(cacheKey, payload, new DistributedCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(value.ExpiresIn - AccessTokenService.PreemptiveExpirationSeconds)));
 		}
