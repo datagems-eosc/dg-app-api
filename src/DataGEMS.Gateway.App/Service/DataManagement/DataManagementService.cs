@@ -173,19 +173,14 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 					keywords = model.Keywords,
 					countries = model.Country,
 					publishedUrl = model.Url,
-					size = model.Size,
 					citeAs = model.CiteAs,
-					conformsTo = model.ConformsTo,
 					license = model.License,
 					dataLocations = this._jsonHandlingService.ToJsonSafe(model.DataLocations.Select(x => new
 					{
 						kind = x.Kind,
 						location = x.Location,
 					})),
-					version = model.Version,
-					mime_type = model.MimeType,
 					date_published = model.DatePublished,
-					code = model.Code,
 					userId = await this._authorizationContentResolver.CurrentUserId(),
 					doi = model.Doi,
 				}
@@ -207,25 +202,20 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 
 			FieldSet fields = new FieldSet(
 				nameof(App.Model.Dataset.Id),
-				nameof(App.Model.Dataset.Code),
 				nameof(App.Model.Dataset.Name),
 				nameof(App.Model.Dataset.Description),
-				nameof(App.Model.Dataset.License),
-				nameof(App.Model.Dataset.MimeType),
-				nameof(App.Model.Dataset.Size),
-				nameof(App.Model.Dataset.Url),
-				nameof(App.Model.Dataset.Version),
 				nameof(App.Model.Dataset.Headline),
-				nameof(App.Model.Dataset.Keywords),
 				nameof(App.Model.Dataset.FieldOfScience),
 				nameof(App.Model.Dataset.Language),
+				nameof(App.Model.Dataset.Keywords),
 				nameof(App.Model.Dataset.Country),
+				nameof(App.Model.Dataset.Url),
+				nameof(App.Model.Dataset.Doi),
 				nameof(App.Model.Dataset.DatePublished),
-				nameof(App.Model.Dataset.ArchivedAt),
-				nameof(App.Model.Dataset.ConformsTo),
 				nameof(App.Model.Dataset.CiteAs),
-				nameof(App.Model.Dataset.Status),
-				nameof(App.Model.Dataset.Doi));
+				nameof(App.Model.Dataset.License),
+				nameof(App.Model.Dataset.ArchivedAt),
+				nameof(App.Model.Dataset.Status));
 			App.Model.Dataset model = await this._builderFactory.Builder<App.Model.Builder.DatasetBuilder>().Build(fields, datas.First());
 			await this.ExecuteProfilingFlow(model, viewModel.DataStoreKind, viewModel.DatabaseName);
 
@@ -250,27 +240,22 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 				Configurations = new
 				{
 					id = model.Id,
-					code = model.Code,
 					name = model.Name,
 					description = model.Description,
-					license = model.License,
-					mime_type = model.MimeType,
-					size = model.Size,
-					url = model.Url,
-					version = model.Version,
 					headline = model.Headline,
-					keywords = model.Keywords,
 					fields_of_science = model.FieldOfScience,
 					languages = model.Language,
+					keywords = model.Keywords,
 					countries = model.Country,
+					url = model.Url,
+					doi = model.Doi,
 					date_published = model.DatePublished,
+					citeAs = model.CiteAs,
+					license = model.License,
 					dataset_file_path = await this._storageService.DirectoryOf(Common.StorageType.Dataset, model.Id.ToString()),
 					userId = await this._authorizationContentResolver.CurrentUserId(),
 					data_store_kind = dataStoreKind,
-					citeAs = model.CiteAs,
-					conformsTo = model.ConformsTo,
 					archivedAt = model.ArchivedAt,
-					doi = model.Doi,
 					database_name = databaseName,
 				}
 			}, new FieldSet

@@ -189,7 +189,6 @@ namespace DataGEMS.Gateway.App.Query
 				if (orderBy.Match(nameof(Model.Dataset.Id))) qs = qs.Add("orderBy", "id");
 				else if (orderBy.Match(nameof(Model.Dataset.Name))) qs = qs.Add("orderBy", "name");
 				else if (orderBy.Match(nameof(Model.Dataset.License))) qs = qs.Add("orderBy", "license");
-				else if (orderBy.Match(nameof(Model.Dataset.Version))) qs = qs.Add("orderBy", "version");
 				else if (orderBy.Match(nameof(Model.Dataset.DatePublished))) qs = qs.Add("orderBy", "datePublished");
 				else matched = false;
 			}
@@ -206,14 +205,12 @@ namespace DataGEMS.Gateway.App.Query
 			if (projection.HasField(nameof(Model.Dataset.Headline))) fields.Add("dg:headline");
 			if (projection.HasField(nameof(Model.Dataset.FieldOfScience))) fields.Add("dg:fieldOfScience");
 			if (projection.HasField(nameof(Model.Dataset.Name))) fields.Add("name");
-			if (projection.HasField(nameof(Model.Dataset.ConformsTo))) fields.Add("conformsTo");
 			if (projection.HasField(nameof(Model.Dataset.Url))) fields.Add("url");
 			if (projection.HasField(nameof(Model.Dataset.DatePublished))) fields.Add("datePublished");
 			if (projection.HasField(nameof(Model.Dataset.License))) fields.Add("license");
 			if (projection.HasField(nameof(Model.Dataset.Keywords))) fields.Add("dg:keywords");
 			if (projection.HasField(nameof(Model.Dataset.Description))) fields.Add("description");
 			if (projection.HasField(nameof(Model.Dataset.Language))) fields.Add("inLanguage");
-			if (projection.HasField(nameof(Model.Dataset.Version))) fields.Add("version");
 			if (projection.HasField(nameof(Model.Dataset.ArchivedAt))) fields.Add("sc:archivedAt");
 			if (projection.HasField(nameof(Model.Dataset.CiteAs))) fields.Add("citeAs");
 			if (projection.HasField(nameof(Model.Dataset.Country))) fields.Add("country");
@@ -269,11 +266,9 @@ namespace DataGEMS.Gateway.App.Query
 							Name = Common.Extensions.TransformJTokenToString(properties, "name"),
 							ArchivedAt = Common.Extensions.TransformJTokenToString(properties, "archivedAt"),
 							Description = Common.Extensions.TransformJTokenToString(properties, "description"),
-							ConformsTo = Common.Extensions.TransformJTokenToString(properties, "conformsTo"),
 							CiteAs = Common.Extensions.TransformJTokenToString(properties, "citeAs"),
 							License = Common.Extensions.TransformJTokenToString(properties, "license"),
 							Url = Common.Extensions.TransformJTokenToString(properties, "url"),
-							Version = Common.Extensions.TransformJTokenToString(properties, "version"),
 							Headline = Common.Extensions.TransformJTokenToString(properties, "headline"),
 							Keywords = Common.Extensions.TransformJTokenToStringList(properties, "keywords"),
 							FieldOfScience = Common.Extensions.TransformJTokenToStringList(properties, "fieldOfScience"),
@@ -281,9 +276,6 @@ namespace DataGEMS.Gateway.App.Query
 							Country = [Common.Extensions.TransformJTokenToString(properties, "country")],
 							DatePublished = Common.Extensions.TransformJTokenToDateOnly(properties, "datePublished"),
 							Status = Common.Extensions.TransformJTokenToString(properties, "status"),
-							Code = Common.Extensions.TransformJTokenToString(properties, "code"),
-							Size = Common.Extensions.TransformJTokenToLong(properties, "size"),
-							MimeType = Common.Extensions.TransformJTokenToString(properties, "mime_type"),
 							Doi = Common.Extensions.TransformJTokenToString(properties, "doi"),
 							//TODO: Must hide sensite information
 							ProfileRaw = ds,
@@ -292,9 +284,6 @@ namespace DataGEMS.Gateway.App.Query
 							//TODO: Distribution
 							//TODO: RecordSet
 							//TODO: Type
-							//TODO: code
-							//TODO: size
-							//TODO: mime_type
 
 						});
 					}

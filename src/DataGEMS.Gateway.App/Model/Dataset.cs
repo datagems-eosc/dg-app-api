@@ -20,19 +20,12 @@ namespace DataGEMS.Gateway.App.Model
 		}
 
 		public Guid? Id { get; set; }
-		[MaxLength(50)]
-		public String Code { get; set; }
 		[MaxLength(250)]
 		public String Name { get; set; }
 		public String Description { get; set; }
 		public String License { get; set; }
-		[MaxLength(250)]
-		public String MimeType { get; set; }
-		public long? Size { get; set; }
 		[MaxLength(300)]
 		public String Url { get; set; }
-		[MaxLength(50)]
-		public String Version { get; set; }
 		public String Headline { get; set; }
 		public List<String> Keywords { get; set; }
 		public List<String> FieldOfScience { get; set; }
@@ -40,7 +33,6 @@ namespace DataGEMS.Gateway.App.Model
 		public List<String> Country { get; set; }
 		public DateOnly? DatePublished { get; set; }
 		public string ArchivedAt { get; set; }
-		public string ConformsTo { get; set; }
 		public string CiteAs { get; set; }
 		public Object ProfileRaw { get; set; }
 		public String Status { get; set; }
@@ -53,14 +45,10 @@ namespace DataGEMS.Gateway.App.Model
 	public class DatasetPersist
 	{
 		public Guid? Id { get; set; }
-		public String Code { get; set; }
 		public String Name { get; set; }
 		public String Description { get; set; }
 		public String License { get; set; }
-		public String MimeType { get; set; }
-		public long? Size { get; set; }
 		public String Url { get; set; }
-		public String Version { get; set; }
 		public String Headline { get; set; }
 		public List<String> Keywords { get; set; }
 		public List<String> FieldOfScience { get; set; }
@@ -69,16 +57,12 @@ namespace DataGEMS.Gateway.App.Model
 		public DateOnly? DatePublished { get; set; }
 		public List<DataLocation> DataLocations { get; set; }
 		public string CiteAs { get; set; }
-		public string ConformsTo { get; set; }
 		public string Doi { get; set; }
 
 		public class OnboardValidator : BaseValidator<DatasetPersist>
 		{
-			private static int CodeMaxLength = typeof(Dataset).MaxLengthOf(nameof(Dataset.Code));
 			private static int NameMaxLength = typeof(Dataset).MaxLengthOf(nameof(Dataset.Name));
 			private static int UrlMaxLength = typeof(Dataset).MaxLengthOf(nameof(Dataset.Url));
-			private static int VersionMaxLength = typeof(Dataset).MaxLengthOf(nameof(Dataset.Version));
-			private static int MimeTypeMaxLength = typeof(Dataset).MaxLengthOf(nameof(Dataset.MimeType));
 
 			public OnboardValidator(
 				IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> localizer,
@@ -98,15 +82,6 @@ namespace DataGEMS.Gateway.App.Model
 					this.Spec()
 						.Must(() => !this.IsValidGuid(item.Id))
 						.FailOn(nameof(DatasetPersist.Id)).FailWith(this._localizer["validation_overPosting", nameof(DatasetPersist.Id)]),
-					//code must always be set
-					this.Spec()
-						.Must(() => !this.IsEmpty(item.Code))
-						.FailOn(nameof(DatasetPersist.Code)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.Code)]),
-					//code max length
-					this.Spec()
-						.If(() => !this.IsEmpty(item.Code))
-						.Must(() => this.LessEqual(item.Code, OnboardValidator.CodeMaxLength))
-						.FailOn(nameof(DatasetPersist.Code)).FailWith(this._localizer["validation_maxLength", nameof(DatasetPersist.Code)]),
 					//name must always be set
 					this.Spec()
 						.Must(() => !this.IsEmpty(item.Name))
@@ -124,19 +99,6 @@ namespace DataGEMS.Gateway.App.Model
 					this.Spec()
 						.Must(() => !this.IsEmpty(item.License))
 						.FailOn(nameof(DatasetPersist.License)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.License)]),
-					//MimeType must always be set
-					this.Spec()
-						.Must(() => !this.IsEmpty(item.MimeType))
-						.FailOn(nameof(DatasetPersist.MimeType)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.MimeType)]),
-					//VersMimeTypeion max length
-					this.Spec()
-						.If(() => !this.IsEmpty(item.MimeType))
-						.Must(() => this.LessEqual(item.MimeType, OnboardValidator.MimeTypeMaxLength))
-						.FailOn(nameof(DatasetPersist.MimeType)).FailWith(this._localizer["validation_maxLength", nameof(DatasetPersist.MimeType)]),
-					//Size must always be set
-					this.Spec()
-						.Must(() => item.Size.HasValue)
-						.FailOn(nameof(DatasetPersist.Size)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.Size)]),
 					//Location must always be set
 					this.Spec()
 						.Must(() => !this.IsEmpty(item.Url))
@@ -146,11 +108,6 @@ namespace DataGEMS.Gateway.App.Model
 						.If(() => !this.IsEmpty(item.Url))
 						.Must(() => this.LessEqual(item.Url, OnboardValidator.UrlMaxLength))
 						.FailOn(nameof(DatasetPersist.Url)).FailWith(this._localizer["validation_maxLength", nameof(DatasetPersist.Url)]),
-					//Version max length
-					this.Spec()
-						.If(() => !this.IsEmpty(item.Version))
-						.Must(() => this.LessEqual(item.Version, OnboardValidator.VersionMaxLength))
-						.FailOn(nameof(DatasetPersist.Version)).FailWith(this._localizer["validation_maxLength", nameof(DatasetPersist.Version)]),
 					//Headline must always be set
 					this.Spec()
 						.Must(() => !this.IsEmpty(item.Headline))
@@ -163,14 +120,6 @@ namespace DataGEMS.Gateway.App.Model
 					this.Spec()
 						.Must(() => item.FieldOfScience != null && item.FieldOfScience.Count > 0)
 						.FailOn(nameof(DatasetPersist.FieldOfScience)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.FieldOfScience)]),
-					//Language must always be set
-					this.Spec()
-						.Must(() => item.Language != null && item.Language.Count > 0)
-						.FailOn(nameof(DatasetPersist.Language)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.Language)]),
-					//Country must always be set
-					this.Spec()
-						.Must(() => item.Country != null && item.Country.Count > 0)
-						.FailOn(nameof(DatasetPersist.Country)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.Country)]),
 					//DatePublished must always be set
 					this.Spec()
 						.Must(() => item.DatePublished.HasValue)
@@ -190,29 +139,14 @@ namespace DataGEMS.Gateway.App.Model
 						.If(() => item.DataLocations != null && item.DataLocations.Any(x => x.Kind == DataLocationKind.Staged))
 						.Must(() => item.DataLocations.Count() == 1)
 						.FailOn(nameof(DatasetPersist.DataLocations)).FailWith(this._localizer["validation_onlyOneStagedDataStore"]),
-					//citeAs must always be set
-					this.Spec()
-						.Must(() => !this.IsEmpty(item.CiteAs))
-						.FailOn(nameof(DatasetPersist.CiteAs)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.CiteAs)]),
-					//conformsTo must always be set
-					this.Spec()
-						.Must(() => !this.IsEmpty(item.ConformsTo))
-						.FailOn(nameof(DatasetPersist.ConformsTo)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.ConformsTo)]),
-					//doi must always be set
-					this.Spec()
-						.Must(() => !this.IsEmpty(item.Doi))
-						.FailOn(nameof(DatasetPersist.Doi)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.Doi)]),
 				};
 			}
 		}
 
 		public class PersistValidator : BaseValidator<DatasetPersist>
 		{
-			private static int CodeMaxLength = typeof(Dataset).MaxLengthOf(nameof(Dataset.Code));
 			private static int NameMaxLength = typeof(Dataset).MaxLengthOf(nameof(Dataset.Name));
 			private static int UrlMaxLength = typeof(Dataset).MaxLengthOf(nameof(Dataset.Url));
-			private static int VersionMaxLength = typeof(Dataset).MaxLengthOf(nameof(Dataset.Version));
-			private static int MimeTypeMaxLength = typeof(Dataset).MaxLengthOf(nameof(Dataset.MimeType));
 
 			public PersistValidator(
 				IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> localizer,
@@ -232,15 +166,6 @@ namespace DataGEMS.Gateway.App.Model
 					this.Spec()
 						.Must(() => this.IsValidGuid(item.Id))
 						.FailOn(nameof(DatasetPersist.Id)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.Id)]),
-					//code must always be set
-					this.Spec()
-						.Must(() => !this.IsEmpty(item.Code))
-						.FailOn(nameof(DatasetPersist.Code)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.Code)]),
-					//code max length
-					this.Spec()
-						.If(() => !this.IsEmpty(item.Code))
-						.Must(() => this.LessEqual(item.Code, PersistValidator.CodeMaxLength))
-						.FailOn(nameof(DatasetPersist.Code)).FailWith(this._localizer["validation_maxLength", nameof(DatasetPersist.Code)]),
 					//name must always be set
 					this.Spec()
 						.Must(() => !this.IsEmpty(item.Name))
@@ -258,19 +183,6 @@ namespace DataGEMS.Gateway.App.Model
 					this.Spec()
 						.Must(() => !this.IsEmpty(item.License))
 						.FailOn(nameof(DatasetPersist.License)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.License)]),
-					//MimeType must always be set
-					this.Spec()
-						.Must(() => !this.IsEmpty(item.MimeType))
-						.FailOn(nameof(DatasetPersist.MimeType)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.MimeType)]),
-					//VersMimeTypeion max length
-					this.Spec()
-						.If(() => !this.IsEmpty(item.MimeType))
-						.Must(() => this.LessEqual(item.MimeType, PersistValidator.MimeTypeMaxLength))
-						.FailOn(nameof(DatasetPersist.MimeType)).FailWith(this._localizer["validation_maxLength", nameof(DatasetPersist.MimeType)]),
-					//Size must always be set
-					this.Spec()
-						.Must(() => item.Size.HasValue)
-						.FailOn(nameof(DatasetPersist.Size)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.Size)]),
 					//Location must always be set
 					this.Spec()
 						.Must(() => !this.IsEmpty(item.Url))
@@ -280,11 +192,6 @@ namespace DataGEMS.Gateway.App.Model
 						.If(() => !this.IsEmpty(item.Url))
 						.Must(() => this.LessEqual(item.Url, PersistValidator.UrlMaxLength))
 						.FailOn(nameof(DatasetPersist.Url)).FailWith(this._localizer["validation_maxLength", nameof(DatasetPersist.Url)]),
-					//Version max length
-					this.Spec()
-						.If(() => !this.IsEmpty(item.Version))
-						.Must(() => this.LessEqual(item.Version, PersistValidator.VersionMaxLength))
-						.FailOn(nameof(DatasetPersist.Version)).FailWith(this._localizer["validation_maxLength", nameof(DatasetPersist.Version)]),
 					//Headline must always be set
 					this.Spec()
 						.Must(() => !this.IsEmpty(item.Headline))
@@ -297,14 +204,6 @@ namespace DataGEMS.Gateway.App.Model
 					this.Spec()
 						.Must(() => item.FieldOfScience != null || item.FieldOfScience.Count > 0)
 						.FailOn(nameof(DatasetPersist.FieldOfScience)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.FieldOfScience)]),
-					//Language must always be set
-					this.Spec()
-						.Must(() => item.Language != null || item.Language.Count > 0)
-						.FailOn(nameof(DatasetPersist.Language)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.Language)]),
-					//Country must always be set
-					this.Spec()
-						.Must(() => item.Country != null || item.Country.Count > 0)
-						.FailOn(nameof(DatasetPersist.Country)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.Country)]),
 					//DatePublished must always be set
 					this.Spec()
 						.Must(() => item.DatePublished.HasValue)
@@ -313,18 +212,6 @@ namespace DataGEMS.Gateway.App.Model
 					this.Spec()
 						.Must(() => item.DataLocations == null)
 						.FailOn(nameof(DatasetPersist.DataLocations)).FailWith(this._localizer["validation_overPosting", nameof(DatasetPersist.DataLocations)]),
-					//citeAs must always be set
-					this.Spec()
-						.Must(() => !this.IsEmpty(item.CiteAs))
-						.FailOn(nameof(DatasetPersist.CiteAs)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.CiteAs)]),
-					//conformsTo must always be set
-					this.Spec()
-						.Must(() => !this.IsEmpty(item.ConformsTo))
-						.FailOn(nameof(DatasetPersist.ConformsTo)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.ConformsTo)]),
-					//doi must always be set
-					this.Spec()
-						.Must(() => !this.IsEmpty(item.Doi))
-						.FailOn(nameof(DatasetPersist.Doi)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.Doi)]),
 				};
 			}
 		}

@@ -61,14 +61,10 @@ namespace DataGEMS.Gateway.App.Model.Builder
 			{
 				Model.Dataset m = new Model.Dataset();
 				if (fields.HasField(nameof(Model.Dataset.Id))) m.Id = d.Id;
-				if (fields.HasField(nameof(Model.Dataset.Code))) m.Code = d.Code;
 				if (fields.HasField(nameof(Model.Dataset.Name))) m.Name = d.Name;
 				if (fields.HasField(nameof(Model.Dataset.Description))) m.Description = d.Description;
 				if (fields.HasField(nameof(Model.Dataset.License))) m.License = d.License;
-				if (fields.HasField(nameof(Model.Dataset.MimeType))) m.MimeType = d.MimeType;
-				if (fields.HasField(nameof(Model.Dataset.Size))) m.Size = d.Size;
 				if (fields.HasField(nameof(Model.Dataset.Url))) m.Url = d.Url;
-				if (fields.HasField(nameof(Model.Dataset.Version))) m.Version = d.Version;
 				if (fields.HasField(nameof(Model.Dataset.Headline))) m.Headline = d.Headline;
 				if (fields.HasField(nameof(Model.Dataset.Keywords))) m.Keywords = d.Keywords;
 				if (fields.HasField(nameof(Model.Dataset.FieldOfScience))) m.FieldOfScience = d.FieldOfScience;
@@ -77,7 +73,6 @@ namespace DataGEMS.Gateway.App.Model.Builder
 				if (fields.HasField(nameof(Model.Dataset.DatePublished))) m.DatePublished = d.DatePublished;
 				if (fields.HasField(nameof(Model.Dataset.ProfileRaw))) m.ProfileRaw = d.ProfileRaw;
 				if (fields.HasField(nameof(Model.Dataset.ArchivedAt))) m.ArchivedAt = d.ArchivedAt;
-				if (fields.HasField(nameof(Model.Dataset.ConformsTo))) m.ConformsTo = d.ConformsTo;
 				if (fields.HasField(nameof(Model.Dataset.CiteAs))) m.CiteAs = d.CiteAs;
 				if (fields.HasField(nameof(Model.Dataset.Status))) m.Status = d.Status;
 				if (fields.HasField(nameof(Model.Dataset.Doi))) m.Doi = d.Doi;
