@@ -82,7 +82,7 @@ namespace DataGEMS.Gateway.App.Service.UserFavorite
 		private async Task<Data.UserFavorite> PatchAndSave(Model.UserFavoritePersist model)
 		{
 			var existingData = this._dbContext.UserFavorites.FirstOrDefault(x => x.DatasetId == model.DatasetId.Value && x.IsActive == IsActive.Active);
-			if (existingData != null) throw new DGFoundManyException(this._localizer["general_nonUnique", existingData.Id, nameof(Model.UserFavorite)]);
+			if (existingData != null) return existingData;
 
 			Data.UserFavorite data = null;
 			Guid? userId = await this._authorizationContentResolver.CurrentUserId();
