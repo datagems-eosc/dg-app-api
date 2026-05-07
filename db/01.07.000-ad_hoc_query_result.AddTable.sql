@@ -15,7 +15,7 @@ CREATE TABLE if not exists public.ad_hoc_query_result (
 
 UPDATE version_info 
 SET 
-  version = '01.06.000',
+  version = '01.07.000',
   released_at = '2026-05-05 00:00:00.00000+00', 
   deployed_at = now(),
   description = 'CreateTable.AdHocQueryResult'
