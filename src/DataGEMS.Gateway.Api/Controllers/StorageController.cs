@@ -191,7 +191,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			return datasetFileSet;
 		}
 
-		[HttpGet("download/ad-hoc-result/{id}")]
+		[HttpGet("download/ad-hoc-query/{id}")]
 		[Authorize]
 		[ModelStateValidationFilter]
 		[SwaggerOperation(Summary = "Download ad-hoc query results")]
@@ -203,7 +203,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
 		public async Task<FileContentResult> DownloadAdHocResult(
 			[FromRoute]
-			[SwaggerParameter(description: "The id of the item to lookup", Required = true)]
+			[SwaggerParameter(description: "The id of the ad-hoc query evaluation item whose output nmust be downloaded", Required = true)]
 			Guid id)
 		{
 			this._logger.Debug(new MapLogEntry("download").And("type", nameof(App.Model.AdHocQuery)).And("id", id));
@@ -212,6 +212,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 
 			this._accountingService.AccountFor(KnownActions.Download, KnownResources.AdHocQuery.AsAccountable());
 
+			Response.Headers["Access-Control-Expose-Headers"] = "Content-Disposition";
 			return File(fileContents: downloadedFile.Contents, contentType: downloadedFile.ContentType, fileDownloadName: downloadedFile.FileName);
 		}
 	}

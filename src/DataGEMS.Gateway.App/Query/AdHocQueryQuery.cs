@@ -14,7 +14,6 @@ namespace DataGEMS.Gateway.App.Query
 		private List<Guid> _excludedIds { get; set; }
 		private List<Guid> _userIds { get; set; }
 		private List<Guid> _datasetIds { get; set; }
-		private String _like { get; set; }
 		private List<IsActive> _isActive { get; set; }
 		private AuthorizationFlags _authorize { get; set; } = AuthorizationFlags.None;
 
@@ -37,7 +36,6 @@ namespace DataGEMS.Gateway.App.Query
 		public AdHocQueryQuery UserIds(Guid userId) { this._userIds = this.ToList(userId.AsArray()); return this; }
 		public AdHocQueryQuery DatasetIds(IEnumerable<Guid> datasetIds) { this._datasetIds = this.ToList(datasetIds); return this; }
 		public AdHocQueryQuery DatasetIds(Guid datasetId) { this._datasetIds = this.ToList(datasetId.AsArray()); return this; }
-		public AdHocQueryQuery Like(String like) { this._like = like; return this; }
 		public AdHocQueryQuery IsActive(IEnumerable<IsActive> isActive) { this._isActive = this.ToList(isActive); return this; }
 		public AdHocQueryQuery IsActive(IsActive isActive) { this._isActive = this.ToList(isActive.AsArray()); return this; }
 		public AdHocQueryQuery EnableTracking() { base.NoTracking = false; return this; }
@@ -67,16 +65,12 @@ namespace DataGEMS.Gateway.App.Query
 		protected override async Task<IQueryable<AdHocQueryResult>> ApplyAuthzAsync(IQueryable<AdHocQueryResult> query)
 		{
 			if (this._authorize.HasFlag(AuthorizationFlags.None)) return query;
-			if (this._authorize.HasFlag(AuthorizationFlags.Permission))
-			{
-				if (await this._authorizationContentResolver.HasPermission(Permission.BrowseAdHocQuery)) return query;
-			}
 			if (this._authorize.HasFlag(AuthorizationFlags.Owner))
 			{
-				String currentUser = this._authorizationContentResolver.CurrentUser();
-				if (!String.IsNullOrEmpty(currentUser)) return query.Where(x => x.User.IdpSubjectId == currentUser);
+				Guid? currentUser = await this._authorizationContentResolver.CurrentUserId();
+				if (currentUser.HasValue) return query.Where(x => x.UserId == currentUser);
 			}
-			//AuthorizationFlags.Context not applicable
+			//AuthorizationFlags.Context, AuthorizationFlags.Permission not applicable
 			return query.Where(x => false);
 		}
 
@@ -114,7 +108,7 @@ namespace DataGEMS.Gateway.App.Query
 			foreach (FieldResolver item in items)
 			{
 				if (item.Match(nameof(Model.AdHocQuery.Id))) projectionFields.Add(nameof(AdHocQueryResult.Id));
-				else if (item.Prefix(nameof(Model.AdHocQuery.AnalyticalPattern))) projectionFields.Add(nameof(AdHocQueryResult.AnalyticalPattern));
+				else if (item.Match(nameof(Model.AdHocQuery.AnalyticalPattern))) projectionFields.Add(nameof(AdHocQueryResult.AnalyticalPattern));
 				else if (item.Prefix(nameof(Model.AdHocQuery.User))) projectionFields.Add(nameof(AdHocQueryResult.UserId));
 				else if (item.Prefix(nameof(Model.AdHocQuery.Dataset))) projectionFields.Add(nameof(AdHocQueryResult.DatasetId));
 				else if (item.Match(nameof(Model.AdHocQuery.IsActive))) projectionFields.Add(nameof(AdHocQueryResult.IsActive));

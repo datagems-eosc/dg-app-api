@@ -254,10 +254,10 @@ namespace DataGEMS.Gateway.Api.Controllers
 			return conversationId.Value;
 		}
 
-		[HttpPost("ad-hoc")]
+		[HttpPost("ad-hoc/evaluate")]
 		[Authorize]
 		[ModelStateValidationFilter]
-		[ValidationFilter(typeof(AdHocQueryPersist.PersistValidator), "query")]
+		[ValidationFilter(typeof(AdHocQueryEvaluate.EvaluateValidator), "query")]
 		[SwaggerOperation(Summary = "Execute an ad-hoc query")]
 		[SwaggerResponse(statusCode: 200, description: "Matching results", type: typeof(SearchResult<List<App.Model.AdHocQuery>>))]
 		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
@@ -270,7 +270,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		public async Task<App.Model.AdHocQuery> AdHocQueryAsync(
 			[FromBody]
 			[SwaggerRequestBody(description: "The ad-hoc query", Required = true)]
-			AdHocQueryPersist query,
+			AdHocQueryEvaluate query,
 
 			[FromQuery]
 			[ModelBinder(Name = "f")]

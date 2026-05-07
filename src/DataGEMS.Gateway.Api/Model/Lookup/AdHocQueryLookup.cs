@@ -21,8 +21,6 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 		public List<Guid> ExcludedIds { get; set; }
 		[SwaggerSchema(description: "Limit lookup to items that are active, or inactive or both. If set, the list of flags must not be empty")]
 		public List<IsActive> IsActive { get; set; }
-		[SwaggerSchema(description: "Limit lookup to items whose name or email matches the pattern")]
-		public String Like { get; set; }
 
 		public AdHocQueryQuery Enrich(QueryFactory factory)
 		{
@@ -33,7 +31,6 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 			if (this.DatasetIds != null) query.UserIds(this.DatasetIds);
 			if (this.ExcludedIds != null) query.ExcludedIds(this.ExcludedIds);
 			if (this.IsActive != null) query.IsActive(this.IsActive);
-			if (!String.IsNullOrEmpty(this.Like)) query.Like(this.Like);
 
 			this.EnrichCommon(query);
 

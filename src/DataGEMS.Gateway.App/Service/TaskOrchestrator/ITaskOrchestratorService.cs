@@ -7,6 +7,6 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 	public interface ITaskOrchestratorService
 	{
 		Task<IEnumerable<CrossDatasetDiscoveryResult>> CrossDatasetDiscoverySearch(Model.CrossDatasetDiscoveryRequest request);
-		Task<AdHocQuery> AdHocQueryAsync(AdHocQueryPersist persist, IFieldSet fields = null);
+		Task<AdHocQuery> AdHocQueryAsync(AdHocQueryEvaluate evaluate, IFieldSet fields = null);
 	}
 }

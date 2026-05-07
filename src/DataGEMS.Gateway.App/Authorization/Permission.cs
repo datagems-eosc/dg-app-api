@@ -8,8 +8,6 @@ namespace DataGEMS.Gateway.App.Authorization
 		public const String LookupContextGrantGroups = "LookupContextGrantGroups";
 		public const String AddUserToContextGrantGroup = "AddUserToContextGrantGroup";
 		public const String RemoveUserFromContextGrantGroup = "RemoveUserFromContextGrantGroup";
-		//Ad Hoc Query
-		public const String BrowseAdHocQuery = "BrowseAdHocQuery";
 		//Collection
 		public const String BrowseCollection = "BrowseCollection";
 		public const String CreateCollection = "CreateCollection";
@@ -44,7 +42,6 @@ namespace DataGEMS.Gateway.App.Authorization
 		public const String PowerSearchDataset = "PowerSearchDataset";
 		public const String DownloadDatasetFile = "DownloadDatasetFile";
 		public const String BrowseDatasetFiles = "BrowseDatasetFiles";
-		public const String AdHocQueryRequest = "AdHocQueryRequest";
 		//DatasetCollection
 		public const String BrowseDatasetCollection = "BrowseDatasetCollection";
 		//User

@@ -75,13 +75,13 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 			this._eventBroker = eventBroker;
 		}
 
-		public async Task<AdHocQuery> AdHocQueryAsync(AdHocQueryPersist persist, IFieldSet fields = null)
+		public async Task<AdHocQuery> AdHocQueryAsync(AdHocQueryEvaluate evaluate, IFieldSet fields = null)
 		{
 			string token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
 			var apRequest = new 
 			{ 
-				ap = BuildAdHocAnalyticalPattern(persist)
+				ap = BuildAdHocAnalyticalPattern(evaluate)
 			};
 			string apRequestJson = JsonConvert.SerializeObject(apRequest, new JsonSerializerSettings
 			{
@@ -99,14 +99,14 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 
 			Guid userId = (await this._authorizationContentResolver.CurrentUserId()).Value;
 
-			var data = new AdHocQueryResult
+			AdHocQueryResult data = new AdHocQueryResult
 			{
-				AnalyticalPattern = content,
-				DatasetId = persist.DatasetId.Value,
-				CreatedAt = now,
 				Id = Guid.NewGuid(),
+				AnalyticalPattern = content,
+				DatasetId = evaluate.DatasetId.Value,
 				UserId = userId,
 				IsActive = IsActive.Active,
+				CreatedAt = now,
 				UpdatedAt = now,
 			};
 
@@ -115,11 +115,9 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 
 			this._eventBroker.EmitAdHocQueryResultTouched(data.Id);
 
-			App.Model.AdHocQuery model = await _builderFactory.Builder<App.Model.Builder.AdHocQueryBuilder>().Build(FieldSet.Build(fields, nameof(App.Model.AdHocQuery.Id)), data);
+			App.Model.AdHocQuery model = await _builderFactory.Builder<App.Model.Builder.AdHocQueryBuilder>().Build(FieldSet.Build(fields, nameof(App.Model.AdHocQuery.Id)).Ensure(nameof(App.Model.AdHocQuery.Id)), data);
 			return model;
 		}
-
-		
 
 		public async Task<IEnumerable<CrossDatasetDiscoveryResult>> CrossDatasetDiscoverySearch(Model.CrossDatasetDiscoveryRequest request)
 		{
@@ -174,7 +172,7 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 			return content;
 		}
 
-		private static AnalyticalPattern BuildAdHocAnalyticalPattern(AdHocQueryPersist persist)
+		private static AnalyticalPattern BuildAdHocAnalyticalPattern(AdHocQueryEvaluate persist)
 		{
 			DateTime now = DateTime.UtcNow;
 			AnalyticalPatternNode analyticalPatternNode = new AnalyticalPatternNode
@@ -183,7 +181,7 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 				Labels = ["Analytical_Pattern"],
 				Properties = new Dictionary<string, object>
 				{
-					{ "description", "Analytical Pattern to query a dataset" },
+					{ "description", "Ad-Hoc query Analytical Pattern" },
 					{ "name", "Query Dataset AP" },
 					{ "process", "query" },
 					{ "startTime", now.ToString("O") }
@@ -195,11 +193,11 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 				Labels = ["SQL_Operator", "Query_Operator"],
 				Properties = new Dictionary<string, object>
 				{
-					{"description", "Query executed via DuckDB on Postgres" },
-					{  "name", "DuckDB Query Operator" },
-					{  "query", persist.Query },
-					{  "queryType", "SELECT" },
-					{  "startTime", now.ToString("O") }
+					{ "description", "Query execution Operator" },
+					{ "name", "Query Operator" },
+					{ "query", persist.Query },
+					{ "queryType", "SELECT" },
+					{ "startTime", now.ToString("O") }
 				}
 			};
 			AnalyticalPatternNode datasetNode = new AnalyticalPatternNode
