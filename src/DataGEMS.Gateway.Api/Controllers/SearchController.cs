@@ -1,4 +1,6 @@
-﻿using Cite.Tools.Data.Censor;
+﻿using Cite.Tools.Data.Builder;
+using Cite.Tools.Data.Censor;
+using Cite.Tools.Data.Query;
 using Cite.Tools.FieldSet;
 using Cite.Tools.Logging;
 using Cite.Tools.Logging.Extensions;
@@ -14,6 +16,8 @@ using DataGEMS.Gateway.App.Common;
 using DataGEMS.Gateway.App.ErrorCode;
 using DataGEMS.Gateway.App.Exception;
 using DataGEMS.Gateway.App.Model;
+using DataGEMS.Gateway.App.Model.Builder;
+using DataGEMS.Gateway.App.Query;
 using DataGEMS.Gateway.App.Service.Conversation;
 using DataGEMS.Gateway.App.Service.Discovery;
 using DataGEMS.Gateway.App.Service.InDataExploration;
@@ -21,6 +25,7 @@ using DataGEMS.Gateway.App.Service.QueryRecommender;
 using DataGEMS.Gateway.App.Service.TaskOrchestrator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace DataGEMS.Gateway.Api.Controllers
@@ -39,6 +44,9 @@ namespace DataGEMS.Gateway.Api.Controllers
 		private readonly IConversationService _conversationService;
 		private readonly ITaskOrchestratorService _taskOrchestratorService;
 		private readonly IAuthorizationContentResolver _authorizationContentResolver;
+		private readonly IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> _localizer;
+		private readonly BuilderFactory _builderFactory;
+		private readonly QueryFactory _queryFactory;
 
 		public SearchController(
 			CensorFactory censorFactory,
@@ -50,7 +58,10 @@ namespace DataGEMS.Gateway.Api.Controllers
 			IConversationService conversationService,
 			ErrorThesaurus errors,
 			ITaskOrchestratorService taskOrchestratorService,
-			IAuthorizationContentResolver authorizationContentResolver)
+			IAuthorizationContentResolver authorizationContentResolver,
+			IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> localizer,
+			BuilderFactory builderFactory,
+			QueryFactory queryFactory)
 		{
 			this._censorFactory = censorFactory;
 			this._crossDatasetDiscoveryService = crossDatasetDiscoveryService;
@@ -62,6 +73,9 @@ namespace DataGEMS.Gateway.Api.Controllers
 			this._errors = errors;
 			this._taskOrchestratorService = taskOrchestratorService;
 			this._authorizationContentResolver = authorizationContentResolver;
+			this._localizer = localizer;
+			this._builderFactory = builderFactory;
+			this._queryFactory = queryFactory;
 		}
 
 		[HttpPost("cross-dataset")]
@@ -240,7 +254,6 @@ namespace DataGEMS.Gateway.Api.Controllers
 			return conversationId.Value;
 		}
 
-
 		[HttpPost("ad-hoc")]
 		[Authorize]
 		[ModelStateValidationFilter]
@@ -276,6 +289,74 @@ namespace DataGEMS.Gateway.Api.Controllers
 			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.AdHocQuery.AsAccountable());
 
 			return results;
+		}
+
+		[HttpPost("ad-hoc/query")]
+		[Authorize]
+		[ModelStateValidationFilter]
+		[ValidationFilter(typeof(AdHocQueryLookup.QueryValidator), "lookup")]
+		[SwaggerOperation(Summary = "Query ad-hoc queries")]
+		[SwaggerResponse(statusCode: 200, description: "The list of matching ad-hoc query results along with the count", type: typeof(QueryResult<App.Model.AdHocQuery>))]
+		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
+		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
+		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
+		[SwaggerResponse(statusCode: 500, description: "Internal error")]
+		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
+		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
+		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
+		public async Task<QueryResult<App.Model.AdHocQuery>> Query(
+			[FromBody]
+			[SwaggerRequestBody(description: "The query predicates", Required = true)]
+			AdHocQueryLookup lookup)
+		{
+			this._logger.Debug(new MapLogEntry("querying").And("type", nameof(App.Model.AdHocQuery)).And("lookup", lookup));
+
+			IFieldSet censoredFields = await this._censorFactory.Censor<AdHocQueryCensor>().Censor(lookup.Project, CensorContext.AsCensor());
+			if (lookup.Project.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+
+			AdHocQueryQuery query = lookup.Enrich(this._queryFactory).DisableTracking().Authorize(AuthorizationFlags.Any);
+			List<App.Data.AdHocQueryResult> datas = await query.CollectAsync();
+			int count = (lookup.Metadata != null && lookup.Metadata.CountAll) ? await query.CountAsync() : datas.Count;
+			List<App.Model.AdHocQuery> models = await this._builderFactory.Builder<AdHocQueryBuilder>().Authorize(AuthorizationFlags.Any).Build(censoredFields, datas);
+
+			this._accountingService.AccountFor(KnownActions.Query, KnownResources.AdHocQuery.AsAccountable());
+			return new QueryResult<App.Model.AdHocQuery>(models, count);
+		}
+
+		[HttpGet("ad-hoc/{id}")]
+		[Authorize]
+		[ModelStateValidationFilter]
+		[SwaggerOperation(Summary = "Retrieve ad-hoc query results")]
+		[SwaggerResponse(statusCode: 200, description: "The result", type: typeof(AdHocQuery))]
+		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
+		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
+		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
+		[SwaggerResponse(statusCode: 500, description: "Internal error")]
+		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
+		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
+		public async Task<AdHocQuery> GetAdHocResult(
+			[FromRoute]
+			[SwaggerParameter(description: "The id of the item to lookup", Required = true)]
+			Guid id,
+			[ModelBinder(Name = "f")]
+			[SwaggerParameter(description: "The fields to include in the response model", Required = true)]
+			[LookupFieldSetQueryStringOpenApi]
+			IFieldSet fieldSet)
+		{
+			this._logger.Debug(new MapLogEntry("get").And("type", nameof(App.Model.AdHocQuery)).And("id", id).And("fields", fieldSet));
+			Guid? userId = await this._authorizationContentResolver.CurrentUserId();
+			if (!userId.HasValue) throw new DGApplicationException(this._errors.UserSync.Code, this._errors.UserSync.Message);
+			IFieldSet censoredFields = await this._censorFactory.Censor<AdHocQueryCensor>().Censor(fieldSet, CensorContext.AsCensor(), userId);
+			if (fieldSet.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+
+			AdHocQueryQuery query = this._queryFactory.Query<AdHocQueryQuery>().Ids(id).DisableTracking().Authorize(AuthorizationFlags.Any);
+			App.Data.AdHocQueryResult data = await query.FirstAsync();
+			App.Model.AdHocQuery model = await this._builderFactory.Builder<AdHocQueryBuilder>().Authorize(AuthorizationFlags.Any).Build(censoredFields, data);
+			if (model == null) throw new DGNotFoundException(this._localizer["general_notFound", id, nameof(App.Model.AdHocQuery)]);
+
+			this._accountingService.AccountFor(KnownActions.Query, KnownResources.AdHocQuery.AsAccountable());
+
+			return model;
 		}
 	}
 }

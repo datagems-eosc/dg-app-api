@@ -191,40 +191,28 @@ namespace DataGEMS.Gateway.Api.Controllers
 			return datasetFileSet;
 		}
 
-		[HttpGet("ad-hoc-result/{id}")]
+		[HttpGet("download/ad-hoc-result/{id}")]
 		[Authorize]
 		[ModelStateValidationFilter]
-		[SwaggerOperation(Summary = "Retrieve ad-hoc query results")]
-		[SwaggerResponse(statusCode: 200, description: "The result", type: typeof(AdHocQuery))]
+		[SwaggerOperation(Summary = "Download ad-hoc query results")]
+		[SwaggerResponse(statusCode: 200, description: "The result", type: typeof(FileContentResult))]
 		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
 		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
 		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
 		[SwaggerResponse(statusCode: 500, description: "Internal error")]
 		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
-		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
-		public async Task<AdHocQuery> GetAdHocResult(
+		public async Task<FileContentResult> DownloadAdHocResult(
 			[FromRoute]
 			[SwaggerParameter(description: "The id of the item to lookup", Required = true)]
-			Guid id,
-			[ModelBinder(Name = "f")]
-			[SwaggerParameter(description: "The fields to include in the response model", Required = true)]
-			[LookupFieldSetQueryStringOpenApi]
-			IFieldSet fieldSet)
+			Guid id)
 		{
-			this._logger.Debug(new MapLogEntry("get").And("type", nameof(App.Model.AdHocQuery)).And("id", id).And("fields", fieldSet));
-			Guid? userId = await this._authorizationContentResolver.CurrentUserId();
-			if (!userId.HasValue) throw new DGApplicationException(this._errors.UserSync.Code, this._errors.UserSync.Message);
-			IFieldSet censoredFields = await this._censorFactory.Censor<AdHocQueryCensor>().Censor(fieldSet, CensorContext.AsCensor(), userId);
-			if (fieldSet.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+			this._logger.Debug(new MapLogEntry("download").And("type", nameof(App.Model.AdHocQuery)).And("id", id));
+			
+			FileDetails downloadedFile = await this._datasetFileManagementService.DownloadFromAdHocQueryAsync(id);
 
-			AdHocQueryQuery query = this._queryFactory.Query<AdHocQueryQuery>().Ids(id).DisableTracking().Authorize(AuthorizationFlags.Any);
-			App.Data.AdHocQueryResult data = await query.FirstAsync();
-			App.Model.AdHocQuery model = await this._builderFactory.Builder<AdHocQueryBuilder>().Authorize(AuthorizationFlags.Any).Build(censoredFields, data);
-			if (model == null) throw new DGNotFoundException(this._localizer["general_notFound", id, nameof(App.Model.AdHocQuery)]);
+			this._accountingService.AccountFor(KnownActions.Download, KnownResources.AdHocQuery.AsAccountable());
 
-			this._accountingService.AccountFor(KnownActions.Query, KnownResources.AdHocQuery.AsAccountable());
-
-			return model;
+			return File(fileContents: downloadedFile.Contents, contentType: downloadedFile.ContentType, fileDownloadName: downloadedFile.FileName);
 		}
 	}
 }

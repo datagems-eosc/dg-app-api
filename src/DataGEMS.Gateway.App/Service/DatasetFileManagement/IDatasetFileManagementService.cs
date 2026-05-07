@@ -6,5 +6,6 @@ namespace DataGEMS.Gateway.App.Service.DatasetFileManagement
 	{
 		Task<DatasetObject> BrowseDatasetFilesAsync(Guid datasetId, Guid? nodeId);
 		Task<FileDetails> DownloadDatasetFileAsync(Guid datasetId, Guid fileObjectNodeId);
+		Task<FileDetails> DownloadFromAdHocQueryAsync(Guid adHocQueryId);
 	}
 }
