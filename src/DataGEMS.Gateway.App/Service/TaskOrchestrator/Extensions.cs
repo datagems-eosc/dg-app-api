@@ -13,10 +13,6 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 			String crossDatasetDiscoveryTemplatePath = taskOrchestratorSection.GetSection("CrossDatasetDiscoveryTemplatePath").Get<String>();
 			string crossDatasetDiscoveryTemplateContent = File.ReadAllText(crossDatasetDiscoveryTemplatePath);
 			services.AddSingleton<AnalyticalPatternTemplates>(new AnalyticalPatternTemplates() { CrossDatasetDiscoveryLookup = crossDatasetDiscoveryTemplateContent });
-			services.AddHttpClient("AdHocQueryClient", client => //TODO: consider renaming this to something more generic as it may be used for more than just adhoc queries in the future
-			{
-				client.Timeout = TimeSpan.FromMinutes(10);
-			});
 			services.AddScoped<ITaskOrchestratorService, TaskOrchestratorService>();
 
 			return services;
