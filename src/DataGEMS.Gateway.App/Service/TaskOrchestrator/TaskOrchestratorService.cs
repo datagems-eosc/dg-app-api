@@ -195,7 +195,7 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 				Properties = new Dictionary<string, object>
 				{
 					{ "description", "Query execution Operator" },
-					{ "name", "Query Operator" },
+					{ "name", "DuckDB Query Operator" },
 					{ "query", persist.Query },
 					{ "queryType", "SELECT" },
 					{ "startTime", now.ToString("O") }
