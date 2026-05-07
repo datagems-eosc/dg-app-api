@@ -238,6 +238,8 @@ namespace DataGEMS.Gateway.App.Query
 				String errorPayload = null;
 				try { errorPayload = await response.Content.ReadAsStringAsync(); } catch (System.Exception) { }
 				this._logger.Error(ex, "non successful response. StatusCode was {statusCode} and Payload {errorPayload}", response?.StatusCode, errorPayload);
+				//TODO: Remove this after debugging
+				if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized) this._logger.Error(ex, "Unauthorized in DMM with access token: {accessToken} and timestamp {utcNow}", request.Headers.Authorization?.ToString(), DateTime.UtcNow.ToString());
 				Boolean includeErrorPayload = response != null && response.StatusCode == System.Net.HttpStatusCode.BadRequest;
 				throw new Exception.DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, (int?)response?.StatusCode, UnderpinningServiceType.DataManagement, this._logCorrelationScope.CorrelationId, includeErrorPayload ? errorPayload : null);
 			}
