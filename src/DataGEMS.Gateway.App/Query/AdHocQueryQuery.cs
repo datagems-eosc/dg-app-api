@@ -80,14 +80,14 @@ namespace DataGEMS.Gateway.App.Query
 			return query.Where(x => false);
 		}
 
-		protected override async Task<IQueryable<AdHocQueryResult>> ApplyFiltersAsync(IQueryable<AdHocQueryResult> query)
+		protected override Task<IQueryable<AdHocQueryResult>> ApplyFiltersAsync(IQueryable<AdHocQueryResult> query)
 		{
 			if (this._ids != null) query = query.Where(x => this._ids.Contains(x.Id));
 			if (this._userIds != null) query = query.Where(x => this._userIds.Contains(x.UserId));
 			if (this._isActive != null) query = query.Where(x => this._isActive.Contains(x.IsActive));
 			if (this._excludedIds != null) query = query.Where(x => !this._excludedIds.Contains(x.Id));
 			if (this._datasetIds != null) query = query.Where(x => this._datasetIds.Contains(x.DatasetId));
-			return query;
+			return Task.FromResult(query);
 		}
 
 		protected override IOrderedQueryable<AdHocQueryResult> OrderClause(IQueryable<AdHocQueryResult> query, OrderingFieldResolver item)

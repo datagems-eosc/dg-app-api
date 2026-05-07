@@ -51,10 +51,10 @@ namespace DataGEMS.Gateway.App.Deleter
 			await this._dbContext.SaveChangesAsync();
 		}
 
-		public async Task Delete(IEnumerable<Data.UserFavorite> datas)
+		public Task Delete(IEnumerable<Data.UserFavorite> datas)
 		{
 			this._logger.Debug(new MapLogEntry("deleting").And("type", nameof(App.Model.UserFavorite)).And("count", datas?.Count()));
-			if (datas == null || !datas.Any()) return;
+			if (datas == null || !datas.Any()) return Task.CompletedTask;
 
 			List<Guid> ids = datas.Select(x => x.Id).Distinct().ToList();
 			foreach (Data.UserFavorite item in datas)
@@ -65,6 +65,8 @@ namespace DataGEMS.Gateway.App.Deleter
 			}
 
 			this._eventBroker.EmitUserFavoriteDeleted(datas.Select(x => x.Id).ToList());
+
+			return Task.CompletedTask;
 		}
 	}
 }
