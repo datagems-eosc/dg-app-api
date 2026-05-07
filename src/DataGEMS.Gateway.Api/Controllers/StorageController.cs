@@ -149,7 +149,6 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
 		[SwaggerResponse(statusCode: 500, description: "Internal error")]
 		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
-		[Produces(System.Net.Mime.MediaTypeNames.Application.Octet)]
 		public async Task<FileContentResult> DownloadDatasetFile(
 			[FromRoute][SwaggerParameter(description: "The id of the dataset", Required = true)]
 			Guid datasetId,
@@ -159,11 +158,10 @@ namespace DataGEMS.Gateway.Api.Controllers
 		{
 			this._logger.Debug(new MapLogEntry("downloading").And("dataset id", datasetId).And("file object node id", fileObjectNodeId));
 
-			var downloadedFile = await this._datasetFileManagementService.DownloadDatasetFileAsync(datasetId, fileObjectNodeId);
-
+			FileDetails downloadedFile = await this._datasetFileManagementService.DownloadDatasetFileAsync(datasetId, fileObjectNodeId);
 			this._accountingService.AccountFor(KnownActions.Download, KnownResources.Dataset.AsAccountable());
 
-			return File(downloadedFile, MediaTypeNames.Application.Octet);
+			return File(fileContents: downloadedFile.Contents, contentType: downloadedFile.ContentType, fileDownloadName: downloadedFile.FileName);
 		}
 
 		[HttpGet("browse/dataset/{datasetId}")]
@@ -186,7 +184,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		{
 			this._logger.Debug(new MapLogEntry("browsing").And("dataset id", datasetId).And("node id", nodeId));
 
-			var datasetFileSet = await this._datasetFileManagementService.BrowseDatasetFilesAsync(datasetId, nodeId);
+			DatasetObject datasetFileSet = await this._datasetFileManagementService.BrowseDatasetFilesAsync(datasetId, nodeId);
 
 			this._accountingService.AccountFor(KnownActions.BrowseData, KnownResources.Dataset.AsAccountable());
 

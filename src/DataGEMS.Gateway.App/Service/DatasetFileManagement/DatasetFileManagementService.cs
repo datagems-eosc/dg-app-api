@@ -11,6 +11,7 @@ using DataGEMS.Gateway.App.Service.DatasetFileManagement.Model;
 using DataGEMS.Gateway.App.Service.Storage;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
+using System.Net.Mime;
 
 namespace DataGEMS.Gateway.App.Service.DatasetFileManagement
 {
@@ -149,7 +150,7 @@ namespace DataGEMS.Gateway.App.Service.DatasetFileManagement
 			return childPath.StartsWith(parentPath + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase);
 		}
 
-		public async Task<byte[]> DownloadDatasetFileAsync(Guid datasetId, Guid fileObjectNodeId)
+		public async Task<FileDetails> DownloadDatasetFileAsync(Guid datasetId, Guid fileObjectNodeId)
 		{
 			HashSet<string> userDatasetRoles = await _authorizationContentResolver.EffectiveContextRolesForDatasetOfUser(datasetId);
 			await _authorizationService.AuthorizeOrAffiliatedContextForce(new AffiliatedContextResource(userDatasetRoles), Permission.DownloadDatasetFile);
@@ -165,8 +166,12 @@ namespace DataGEMS.Gateway.App.Service.DatasetFileManagement
 
 			string path = (string)node.Properties["contentUrl"];
 
-			return await this._storageService.ReadByteSafeAsync(path);
-
+			return new FileDetails
+			{
+				Contents = await this._storageService.ReadByteSafeAsync(path),
+				FileName = node.Properties.ContainsKey("name") ? (string)node.Properties["name"] : null,
+				ContentType = node.Properties.ContainsKey("encodingFormat") ? (string)node.Properties["encodingFormat"] : MediaTypeNames.Application.Octet,
+			};
 		}
 	}
 }

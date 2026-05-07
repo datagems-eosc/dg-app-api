@@ -5,6 +5,6 @@ namespace DataGEMS.Gateway.App.Service.DatasetFileManagement
 	public interface IDatasetFileManagementService
 	{
 		Task<DatasetObject> BrowseDatasetFilesAsync(Guid datasetId, Guid? nodeId);
-		Task<byte[]> DownloadDatasetFileAsync(Guid datasetId, Guid fileObjectNodeId);
+		Task<FileDetails> DownloadDatasetFileAsync(Guid datasetId, Guid fileObjectNodeId);
 	}
 }
