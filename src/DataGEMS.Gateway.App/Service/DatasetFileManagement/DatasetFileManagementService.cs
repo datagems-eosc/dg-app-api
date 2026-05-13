@@ -10,6 +10,7 @@ using DataGEMS.Gateway.App.Exception;
 using DataGEMS.Gateway.App.Query;
 using DataGEMS.Gateway.App.Service.DatasetFileManagement.Model;
 using DataGEMS.Gateway.App.Service.Storage;
+using DataGEMS.Gateway.App.Service.TaskOrchestrator.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
@@ -179,8 +180,9 @@ namespace DataGEMS.Gateway.App.Service.DatasetFileManagement
 			if (data == null) throw new DGNotFoundException(this._localizer["general_notFound", adHocQueryId, nameof(AdHocQueryResult)]);
 			String subjectId = await this._authorizationContentResolver.SubjectIdOfUserId(data.UserId);
 			await this._authorizationService.AuthorizeOwnerForce(!String.IsNullOrEmpty(subjectId) ? new OwnedResource(subjectId) : null);
-
-			var ap = this._jsonHandlingService.FromJsonSafe<AnalyticalPattern>(this._jsonHandlingService.ToJsonSafe(data.AnalyticalPattern));
+			AdHocQueryTaskOrchestratorResponse response = this._jsonHandlingService.FromJsonSafe<AdHocQueryTaskOrchestratorResponse>(data.AnalyticalPattern);
+			if (response.Code != 200) throw new DGApplicationException(response.Code, response.Message);
+			AnalyticalPattern ap = response.AnalyticalPattern;
 			AnalyticalPatternNode node = ap.Nodes?.FirstOrDefault(x => x.Labels != null && x.Labels.Contains("cr:FileObject") && x.Labels.Contains("Data"));
 			if (node == null) throw new DGApplicationException(this._localizer["adHocQueryResult_notSupportedFormat", adHocQueryId]);
 
