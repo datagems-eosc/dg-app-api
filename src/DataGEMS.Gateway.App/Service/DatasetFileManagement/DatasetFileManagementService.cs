@@ -198,10 +198,10 @@ namespace DataGEMS.Gateway.App.Service.DatasetFileManagement
 			if (node.Properties == null || node.Properties.Count == 0 || !node.Properties.ContainsKey("contentUrl")) return null;
 
 			string path = (string)node.Properties["contentUrl"];
-
+			string normalized = path.StartsWith("s3://") ? "/s3/" + path.Substring("s3://".Length) : path;
 			return new FileDetails
 			{
-				Contents = await this._storageService.ReadByteSafeAsync(path),
+				Contents = await this._storageService.ReadByteSafeAsync(normalized),
 				FileName = node.Properties.ContainsKey("name") ? (string)node.Properties["name"] : null,
 				ContentType = node.Properties.ContainsKey("encodingFormat") ? (string)node.Properties["encodingFormat"] : MediaTypeNames.Application.Octet,
 			};
