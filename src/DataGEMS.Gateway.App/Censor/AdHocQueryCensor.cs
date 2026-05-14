@@ -57,7 +57,6 @@ namespace DataGEMS.Gateway.App.Censor
 			}
 
 			censored = censored.MergeAsPrefixed(await this._censorFactory.Censor<UserCensor>().Censor(fields.ExtractPrefixed(nameof(Model.AdHocQuery.User).AsIndexerPrefix()), context, userId), nameof(Model.AdHocQuery.User));
-			censored = censored.MergeAsPrefixed(await this._censorFactory.Censor<DatasetCensor>().Censor(fields.ExtractPrefixed(nameof(Model.AdHocQuery.Dataset).AsIndexerPrefix()), context), nameof(Model.AdHocQuery.Dataset));
 
 			return censored;
 		}

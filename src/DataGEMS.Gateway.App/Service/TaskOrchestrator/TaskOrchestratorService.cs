@@ -1,4 +1,5 @@
-﻿using Cite.Tools.Data.Builder;
+﻿using Cite.Tools.Common.Extensions;
+using Cite.Tools.Data.Builder;
 using Cite.Tools.Data.Query;
 using Cite.Tools.FieldSet;
 using Cite.Tools.Json;
@@ -77,10 +78,13 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 
 		public async Task<AdHocQuery> AdHocQueryAsync(AdHocQueryEvaluate evaluate, IFieldSet fields = null)
 		{
+			List<Guid> datasetIds = await this._authorizationContentResolver.EffectiveContextAffiliatedDatasets(Permission.EvaluateAdHocQuery);
+			if (evaluate.Arguments!= null && evaluate.Arguments.Select(x => x.DatasetId).Any(x => !datasetIds.Contains(x.Value))) throw new DGUnauthorizedException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+
 			string token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
-			var apRequest = new 
-			{ 
+			var apRequest = new
+			{
 				ap = BuildAdHocAnalyticalPattern(evaluate)
 			};
 			string apRequestJson = JsonConvert.SerializeObject(apRequest, new JsonSerializerSettings
@@ -103,7 +107,6 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 			{
 				Id = Guid.NewGuid(),
 				AnalyticalPattern = content,
-				DatasetId = evaluate.DatasetId.Value,
 				UserId = userId,
 				IsActive = IsActive.Active,
 				CreatedAt = now,
@@ -149,7 +152,8 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 		private async Task<string> SendRequest(HttpRequestMessage request, TimeSpan? timeout = null)
 		{
 			HttpResponseMessage response = null;
-			try {
+			try
+			{
 				var chosenClient = this._httpClientFactory.CreateClient();
 				if (timeout.HasValue) chosenClient.Timeout = timeout.Value;
 				response = await chosenClient.SendAsync(request);
@@ -173,6 +177,30 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 			return content;
 		}
 
+		/// <summary>
+		/// Builds an AnalyticalPattern representing an ad-hoc query evaluation with operator, task, user, data, and related
+		/// file/dataset/database connection nodes.	
+		/// </summary>
+		/// <remarks>
+		/// The algorith is the following:
+		/// <code>
+		/// make (user node)-[request]->(task node)-[is_accomplished]->(analytical pattern node)-[consist_of]->(SQL operator node)-[output]->(output node)
+		/// for each argument:
+		///     if there is already FileObjectNode, continue
+		///     make a FileObjectNode for the argument and add to nodes
+		///     make an input edge from FileObjectNode to SQLOperatorNode, add to edges
+		///     if DatasetNode is not already added, add DatasetNode
+		///     make a distribution edge from DatasetNode to FileObjectNode, add to edges
+		///     if argument has DatabaseConnectionId:
+		///			make a DatabaseConnectionNode if not already made, add to nodes
+		///			make a contained_in edge from FileObjectNode to DatabaseConnectionNode, add to edges
+		///	return the generated analytical pattern with nodes and edges
+		/// </code>
+		/// </remarks>
+		/// <param name="persist">AdHocQueryEvaluate that provides the SQL query and argument list used to populate operator properties and related
+		/// nodes and edges.</param>
+		/// <returns>An AnalyticalPattern containing nodes and edges that model the query execution graph, including the analytical
+		/// pattern, SQL operator, output, task, user, file objects, datasets, and database connections.</returns>
 		private static AnalyticalPattern BuildAdHocAnalyticalPattern(AdHocQueryEvaluate persist)
 		{
 			DateTime now = DateTime.UtcNow;
@@ -200,27 +228,12 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 					{ "queryType", "SELECT" },
 					{ "startTime", now.ToString("O") }
 				}
-			};
-			AnalyticalPatternNode datasetNode = new AnalyticalPatternNode
-			{
-				Id = persist.DatasetId.Value,
-				Labels = ["sc:Dataset"]
-			};
+			};			
 			AnalyticalPatternNode outputNode = new AnalyticalPatternNode
 			{
 				Id = Guid.NewGuid(),
 				Labels = ["cr:FileObject", "Data"]
-			};
-			AnalyticalPatternNode databaseConnectionNode = new AnalyticalPatternNode
-			{
-				Id = persist.DatabaseConnectionId.Value,
-				Labels = ["dg:DatabaseConnection"]
-			};
-			var argumentsNodes = persist.Arguments?.Select(x => new AnalyticalPatternNode
-			{
-				Id = x.Key,
-				Labels = ["cr:FileObject"],
-			});
+			};			
 			AnalyticalPatternNode userNode = new AnalyticalPatternNode
 			{
 				Id = Guid.NewGuid(),
@@ -241,35 +254,7 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 				From = analyticalPatternNode.Id,
 				To = sqlOperatorNode.Id,
 				Labels = ["consist_of"]
-			};
-			IEnumerable<AnalyticalPatternEdge> inputEdges = persist.Arguments?.Select(x => new AnalyticalPatternEdge
-			{
-				From = x.Key,
-				To = sqlOperatorNode.Id,
-				Labels = ["input"],
-				Properties = new Dictionary<string, object>
-				{
-					{ "argname", x.Value }
-				}
-			});
-			IEnumerable<AnalyticalPatternEdge> containedEdges = argumentsNodes?.Select(x => new AnalyticalPatternEdge
-			{
-				From = x.Id,
-				To = databaseConnectionNode.Id,
-				Labels = ["contained_in"]
-			});
-			AnalyticalPatternEdge distributionEdge = new AnalyticalPatternEdge
-			{
-				From = datasetNode.Id,
-				To = databaseConnectionNode.Id,
-				Labels = ["distribution"]
-			};
-			IEnumerable<AnalyticalPatternEdge> distributionEdges = argumentsNodes?.Select(x => new AnalyticalPatternEdge
-			{
-				From = datasetNode.Id,
-				To = x.Id,
-				Labels = ["distribution"]
-			});
+			};			
 			AnalyticalPatternEdge outputEdge = new AnalyticalPatternEdge
 			{
 				From = sqlOperatorNode.Id,
@@ -290,15 +275,66 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 			};
 			AnalyticalPattern ap = new AnalyticalPattern
 			{
-				Nodes = [analyticalPatternNode, sqlOperatorNode, datasetNode, outputNode, databaseConnectionNode, userNode, taskNode],
-				Edges = [consistEdge, outputEdge, distributionEdge, accomplishedEdge, requestEdge]
+				Nodes = [analyticalPatternNode, sqlOperatorNode, outputNode, userNode, taskNode],
+				Edges = [consistEdge, outputEdge, accomplishedEdge, requestEdge]
 			};
-			if (persist.Arguments != null && persist.Arguments.Count > 0)
+
+			HashSet<Guid> fileObjectNodes = [];
+			HashSet<Guid> datasetNodes = [];
+			HashSet<Guid> dbConnNodes = [];
+
+			foreach (AdHocQueryEvaluateArgument argument in persist.Arguments ?? [])
 			{
-				ap.Nodes.AddRange(argumentsNodes);
-				ap.Edges.AddRange(inputEdges);
-				ap.Edges.AddRange(containedEdges);
-				ap.Edges.AddRange(distributionEdges);
+				if (fileObjectNodes.Contains(argument.FileObjectId.Value)) continue;
+				ap.Nodes.Add(new AnalyticalPatternNode
+				{
+					Id = argument.FileObjectId.Value,
+					Labels = ["cr:FileObject", "Data"],
+				});
+				fileObjectNodes.Add(argument.FileObjectId.Value);
+				ap.Edges.Add(new AnalyticalPatternEdge
+				{
+					From = argument.FileObjectId.Value,
+					To = sqlOperatorNode.Id,
+					Labels = ["input"],
+					Properties = new Dictionary<string, object>
+					{
+						{ "argname", argument.ArgName },
+					},
+				});
+				if (!datasetNodes.Contains(argument.DatasetId.Value))
+				{
+					ap.Nodes.Add(new AnalyticalPatternNode
+					{
+						Id = argument.DatasetId.Value,
+						Labels = ["sc:Dataset"],
+					});
+					datasetNodes.Add(argument.DatasetId.Value);
+				}
+				ap.Edges.Add(new AnalyticalPatternEdge
+				{
+					From = argument.DatasetId.Value,
+					To = argument.FileObjectId.Value,
+					Labels = ["distribution"],
+				});
+				if (argument.DatabaseConnectionId.HasValue)
+				{
+					if (!dbConnNodes.Contains(argument.DatabaseConnectionId.Value))
+					{
+						ap.Nodes.Add(new AnalyticalPatternNode
+						{
+							Id = argument.DatabaseConnectionId.Value,
+							Labels = ["dg:DatabaseConnection"],
+						});
+						dbConnNodes.Add(argument.DatabaseConnectionId.Value);
+					}
+					ap.Edges.Add(new AnalyticalPatternEdge
+					{
+						From = argument.FileObjectId.Value,
+						To = argument.DatabaseConnectionId.Value,
+						Labels = ["contained_in"]
+					});
+				}
 			}
 
 			return ap;

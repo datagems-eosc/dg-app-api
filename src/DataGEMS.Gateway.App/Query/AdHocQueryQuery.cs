@@ -80,7 +80,6 @@ namespace DataGEMS.Gateway.App.Query
 			if (this._userIds != null) query = query.Where(x => this._userIds.Contains(x.UserId));
 			if (this._isActive != null) query = query.Where(x => this._isActive.Contains(x.IsActive));
 			if (this._excludedIds != null) query = query.Where(x => !this._excludedIds.Contains(x.Id));
-			if (this._datasetIds != null) query = query.Where(x => this._datasetIds.Contains(x.DatasetId));
 			return Task.FromResult(query);
 		}
 
@@ -91,7 +90,6 @@ namespace DataGEMS.Gateway.App.Query
 
 			if (item.Match(nameof(Model.AdHocQuery.Id))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.Id);
 			else if (item.Match(nameof(Model.AdHocQuery.IsActive))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.IsActive);
-			else if (item.Match(nameof(Model.AdHocQuery.Dataset), nameof(Model.AdHocQuery.Dataset.Id))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.DatasetId);
 			else if (item.Match(nameof(Model.AdHocQuery.User), nameof(Model.AdHocQuery.User.Id))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.UserId);
 			else if (item.Match(nameof(Model.AdHocQuery.User), nameof(Model.AdHocQuery.User.Name))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.User.Name);
 			else if (item.Match(nameof(Model.AdHocQuery.User), nameof(Model.AdHocQuery.User.Email))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.User.Email);
@@ -110,7 +108,6 @@ namespace DataGEMS.Gateway.App.Query
 				if (item.Match(nameof(Model.AdHocQuery.Id))) projectionFields.Add(nameof(AdHocQueryResult.Id));
 				else if (item.Match(nameof(Model.AdHocQuery.AnalyticalPattern))) projectionFields.Add(nameof(AdHocQueryResult.AnalyticalPattern));
 				else if (item.Prefix(nameof(Model.AdHocQuery.User))) projectionFields.Add(nameof(AdHocQueryResult.UserId));
-				else if (item.Prefix(nameof(Model.AdHocQuery.Dataset))) projectionFields.Add(nameof(AdHocQueryResult.DatasetId));
 				else if (item.Match(nameof(Model.AdHocQuery.IsActive))) projectionFields.Add(nameof(AdHocQueryResult.IsActive));
 				else if (item.Match(nameof(Model.AdHocQuery.CreatedAt))) projectionFields.Add(nameof(AdHocQueryResult.CreatedAt));
 				else if (item.Match(nameof(Model.AdHocQuery.UpdatedAt))) projectionFields.Add(nameof(AdHocQueryResult.UpdatedAt));
