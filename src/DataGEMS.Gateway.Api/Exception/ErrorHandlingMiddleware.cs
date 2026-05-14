@@ -67,6 +67,15 @@ namespace DataGEMS.Gateway.Api.Exception
                 if (code > 0) result = new { code, error = exception.Message };
                 else result = new { error = exception.Message };
             }
+			else if (exception is DGUnauthorizedException)
+			{
+				logLevel = LogLevel.Debug;
+				statusCode = HttpStatusCode.Unauthorized;
+
+				int code = ((DGUnauthorizedException)exception).Code;
+				if (code > 0) result = new { code, error = exception.Message };
+				else result = new { error = exception.Message };
+			}
 			else if (exception is DGUnderpinningException)
 			{
 				logLevel = LogLevel.Error;

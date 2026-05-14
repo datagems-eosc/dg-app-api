@@ -39,6 +39,10 @@
     "UploadRestricted": {
       "Code": 109,
       "Message": "upload not allowed based on restrictions"
+    },
+    "UnauthorizedToken": {
+      "Code": 110,
+      "Message": "authorization token not exchangeable"
     }
   }
 }

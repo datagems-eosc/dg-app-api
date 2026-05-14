@@ -166,6 +166,7 @@ namespace DataGEMS.Gateway.App.AccessToken
 				}
 			}
 			if (token == null) return null;
+			if(token.ExpiresIn <=0) throw new Exception.DGUnauthorizedException(this._errors.UnauthorizedToken.Code, this._errors.UnauthorizedToken.Message);
 
 			await this.CacheUpdateExchange(requestAccessToken, scope, token);
 
