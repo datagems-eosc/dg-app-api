@@ -8,6 +8,7 @@ using Cite.Tools.Logging.Extensions;
 using DataGEMS.Gateway.App.Authorization;
 using DataGEMS.Gateway.App.Common;
 using DataGEMS.Gateway.App.Query;
+using DataGEMS.Gateway.App.Service.DatasetPackaging;
 using DataGEMS.Gateway.App.Service.DatasetRecommender;
 using Microsoft.Extensions.Logging;
 
@@ -20,6 +21,7 @@ namespace DataGEMS.Gateway.App.Model.Builder
 		private readonly IAuthorizationContentResolver _authorizationContentResolver;
 		private readonly JsonHandlingService _jsonHandlingService;
 		private readonly IDatasetRecommenderService _datasetRecommenderService;
+		private readonly IDatasetPackagingService _datasetPackagingService;
 
 		private AuthorizationFlags _authorize { get; set; } = AuthorizationFlags.None;
 
@@ -29,13 +31,15 @@ namespace DataGEMS.Gateway.App.Model.Builder
 			IAuthorizationContentResolver authorizationContentResolver,
 			ILogger<DatasetBuilder> logger,
 			JsonHandlingService jsonHandlingService,
-			IDatasetRecommenderService datasetRecommenderService) : base(logger)
+			IDatasetRecommenderService datasetRecommenderService,
+			IDatasetPackagingService datasetPackagingService) : base(logger)
 		{
 			this._queryFactory = queryFactory;
 			this._builderFactory = builderFactory;
 			this._authorizationContentResolver = authorizationContentResolver;
 			this._jsonHandlingService = jsonHandlingService;
 			this._datasetRecommenderService = datasetRecommenderService;
+			this._datasetPackagingService = datasetPackagingService;
 		}
 
 		public DatasetBuilder Authorize(AuthorizationFlags flags) { this._authorize = flags; return this; }
@@ -52,9 +56,8 @@ namespace DataGEMS.Gateway.App.Model.Builder
 			Dictionary<Guid, HashSet<String>> datasetAffiliatedRoles = null;
 			if (!permissionFields.IsEmpty()) datasetAffiliatedRoles = await this._authorizationContentResolver.EffectiveContextRolesForDatasetOfUser(datas.Select(x => x.Id).Distinct().ToList());
 
-			IFieldSet featureFields = fields.ExtractPrefixed(this.AsPrefix(nameof(Model.Dataset.Features)));
 			Dictionary<Guid, Model.Dataset.FeatureStatus> features = null;
-			if (!featureFields.IsEmpty()) features = await this.CollectDatasetFeaturesStatuses(featureFields, datas);
+			if (fields.HasField(nameof(Model.Dataset.Features))) features = await this.CollectDatasetFeaturesStatuses(new FieldSet(nameof(Model.Dataset.Features)), datas);
 
 			List<Model.Dataset> models = new List<Model.Dataset>();
 			foreach(Service.DataManagement.Model.Dataset d in datas ?? Enumerable.Empty<Service.DataManagement.Model.Dataset>())
@@ -122,6 +125,7 @@ namespace DataGEMS.Gateway.App.Model.Builder
 			this._logger.Debug(new MapLogEntry("collecting").And("type", nameof(Model.Dataset.FeatureStatus)).And("fields", fields).And("data", datas?.Count()));
 
 			HashSet<Guid> inRecommender = await this._datasetRecommenderService.IsInRecommender(datas.Select(x => x.Id).ToList());
+			HashSet<Guid> inPackaging = await this._datasetPackagingService.IsInPackaging(datas.Select(x => x.Id).ToList());
 
 			Dictionary<Guid, Model.Dataset.FeatureStatus> result = [];
 			foreach (Service.DataManagement.Model.Dataset d in datas)
@@ -130,7 +134,8 @@ namespace DataGEMS.Gateway.App.Model.Builder
 				result.Add(d.Id, new Model.Dataset.FeatureStatus
 				{
 					Profiled = profile != null && profile.Nodes != null && profile.Nodes.Any(x => x.Labels != null && !x.Labels.Contains("sc:Dataset")),
-					Recommendation = inRecommender != null && inRecommender.Contains(d.Id)
+					Recommendation = inRecommender != null && inRecommender.Contains(d.Id),
+					Packaged = inPackaging != null && inPackaging.Contains(d.Id),
 				});
 			}
 			return result;

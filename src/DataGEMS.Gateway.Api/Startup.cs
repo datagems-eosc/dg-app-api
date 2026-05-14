@@ -44,6 +44,7 @@ using DataGEMS.Gateway.App.Service.TaskOrchestrator;
 using DataGEMS.Gateway.App.Service.DatasetFileManagement;
 using DataGEMS.Gateway.App.Service.DatasetRecommender;
 using DataGEMS.Gateway.App.Service.UserFavorite;
+using DataGEMS.Gateway.App.Service.DatasetPackaging;
 
 namespace DataGEMS.Gateway.Api
 {
@@ -101,6 +102,7 @@ namespace DataGEMS.Gateway.Api
 				.AddQueryRecommenderServices(this._config.GetSection("QueryRecommenderService")) //Query Recommender API
 				.AddDatasetFileManagementServices() //Dataset File Management API
 				.AddDatasetRecommenderServices(this._config.GetSection("DatasetRecommenderService")) //Dataset Recommender API
+				.AddDatasetPackagingServices(this._config.GetSection("DatasetPackagingService")) //Dataset Packaging API
 			;
 
 			services
