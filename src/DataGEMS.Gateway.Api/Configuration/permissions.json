@@ -170,6 +170,15 @@
 				"AllowAnonymous": false,
 				"AllowAuthenticated": false
 			},
+			//Package Recommender
+			"CanRetrievePackage": {
+				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_user" ],
+				"ContextRoles": [ "dg_ds-browse" ],
+				"Claims": [],
+				"Clients": [],
+				"AllowAnonymous": false,
+				"AllowAuthenticated": false
+			},
 			//Dataset
 			"BrowseDataset": {
 				"Roles": [ "GLOBAL_dg_admin" ],

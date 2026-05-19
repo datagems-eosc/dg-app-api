@@ -132,6 +132,9 @@
   <data name="general_notFound" xml:space="preserve">
     <value>Item {0} of type {1} not found</value>
   </data>
+  <data name="validation_tooFew_datasets" xml:space="preserve">
+    <value>{0} Datasets where provided, while the required minimum are {1}.</value>
+  </data>
   <data name="validation_invalidValue" xml:space="preserve">
     <value>The value is not valid for {0}</value>
   </data>
@@ -155,5 +158,8 @@
   </data>
   <data name="validation_stagedDataStoreNotExists" xml:space="preserve">
     <value>The provided dataset directory should be already staged</value>
+  </data>
+  <data name="validation_positive_integer" xml:space="preserve">
+    <value>{0} must be a positive integer.</value>
   </data>
 </root>

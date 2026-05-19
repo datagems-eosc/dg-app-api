@@ -19,6 +19,7 @@ using DataGEMS.Gateway.App.Model;
 using DataGEMS.Gateway.App.Model.Builder;
 using DataGEMS.Gateway.App.Query;
 using DataGEMS.Gateway.App.Service.Conversation;
+using DataGEMS.Gateway.App.Service.DatasetPackaging;
 using DataGEMS.Gateway.App.Service.Discovery;
 using DataGEMS.Gateway.App.Service.InDataExploration;
 using DataGEMS.Gateway.App.Service.QueryRecommender;
@@ -47,6 +48,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		private readonly IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> _localizer;
 		private readonly BuilderFactory _builderFactory;
 		private readonly QueryFactory _queryFactory;
+		private readonly IDatasetPackagingService _packagingService;
 
 		public SearchController(
 			CensorFactory censorFactory,
@@ -61,7 +63,8 @@ namespace DataGEMS.Gateway.Api.Controllers
 			IAuthorizationContentResolver authorizationContentResolver,
 			IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> localizer,
 			BuilderFactory builderFactory,
-			QueryFactory queryFactory)
+			QueryFactory queryFactory,
+			IDatasetPackagingService datasetPackagingService)
 		{
 			this._censorFactory = censorFactory;
 			this._crossDatasetDiscoveryService = crossDatasetDiscoveryService;
@@ -76,6 +79,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			this._localizer = localizer;
 			this._builderFactory = builderFactory;
 			this._queryFactory = queryFactory;
+			this._packagingService = datasetPackagingService;
 		}
 
 		[HttpPost("cross-dataset")]
@@ -357,6 +361,41 @@ namespace DataGEMS.Gateway.Api.Controllers
 			this._accountingService.AccountFor(KnownActions.Query, KnownResources.AdHocQuery.AsAccountable());
 
 			return model;
+		}
+
+		[HttpPost("package/recommend")]
+		[Authorize]
+		[ModelStateValidationFilter]
+		[ValidationFilter(typeof(PackageRecommendationLookup.PackageRecommendationLookupValidator), "lookup")]
+		[SwaggerOperation(Summary = "Recommend possible packages")]
+		[SwaggerResponse(statusCode: 200, description: "Matching results", type: typeof(SearchResult<List<App.Model.PackageRecommendation>>))]
+		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
+		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
+		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
+		[SwaggerResponse(statusCode: 500, description: "Internal error")]
+		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
+		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
+		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
+		public async Task<App.Model.PackageRecommendation> PackageRecommendAsync(
+			[FromBody]
+			[SwaggerRequestBody(description: "The package recommendation options", Required = true)]
+			PackageRecommendationLookup lookup)
+		{
+			this._logger.Debug(new MapLogEntry("package recommendation").And("type", nameof(App.Model.PackageRecommendation)).And("lookup", lookup));
+
+			IFieldSet censoredFields = await this._censorFactory.Censor<PackageRecommenderCensor>().Censor(lookup.Project, CensorContext.AsCensor());
+			if (lookup.Project.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+
+			PackageRecommendation results = await this._packagingService.RecommendAsync(new PackageRecommendationRequest
+			{
+				DatasetIds = lookup.DatasetIds,
+				DatasetsPerPackage = lookup.DatasetsPerPackage,
+				PackagesCount = lookup.PackagesCount,
+			}, censoredFields);
+
+			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.DatasetPackaging.AsAccountable());
+
+			return results;
 		}
 	}
 }

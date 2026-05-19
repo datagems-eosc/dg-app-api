@@ -2,6 +2,7 @@
   "DatasetPackagingService": {
     "Scope": "datagems",
     "BaseUrl": "%{DatasetPackagingBaseUrl}%",
-    "ExistEndpoint": "datasets/missing"
+    "ExistEndpoint": "datasets/missing",
+    "RecommendEndpoint": "recommend/"
   }
 }

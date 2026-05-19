@@ -1,4 +1,6 @@
 ﻿using Cite.Tools.Data.Builder;
+using Cite.Tools.Data.Query;
+using Cite.Tools.FieldSet;
 using Cite.Tools.Json;
 using Cite.Tools.Logging.Extensions;
 using DataGEMS.Gateway.App.AccessToken;
@@ -7,6 +9,9 @@ using DataGEMS.Gateway.App.Common;
 using DataGEMS.Gateway.App.ErrorCode;
 using DataGEMS.Gateway.App.Exception;
 using DataGEMS.Gateway.App.LogTracking;
+using DataGEMS.Gateway.App.Model;
+using DataGEMS.Gateway.App.Query;
+using DataGEMS.Gateway.App.Service.DatasetPackaging.Model;
 using Microsoft.Extensions.Logging;
 using System.Net.Http.Headers;
 using System.Text;
@@ -26,6 +31,7 @@ namespace DataGEMS.Gateway.App.Service.DatasetPackaging
 		private readonly JsonHandlingService _jsonHandlingService;
 		private readonly BuilderFactory _builderFactory;
 		private readonly IAuthorizationContentResolver _authorizationContentResolver;
+		private readonly QueryFactory _queryFactory;
 
 		public DatasetPackagingHttpService(
 			IAccessTokenService accessTokenService,
@@ -38,19 +44,21 @@ namespace DataGEMS.Gateway.App.Service.DatasetPackaging
 			ErrorThesaurus errors,
 			JsonHandlingService jsonHandlingService,
 			BuilderFactory builderFactory,
-			IAuthorizationContentResolver authorizationContentResolver)
+			IAuthorizationContentResolver authorizationContentResolver,
+			QueryFactory queryFactory)
 		{
-			_accessTokenService = accessTokenService;
-			_httpClientFactory = httpClientFactory;
-			_config = config;
-			_logTrackingCorrelationConfig = logTrackingCorrelationConfig;
-			_logCorrelationScope = logCorrelationScope;
-			_logger = logger;
-			_requestAccessToken = requestAccessToken;
-			_errors = errors;
-			_jsonHandlingService = jsonHandlingService;
-			_builderFactory = builderFactory;
-			_authorizationContentResolver = authorizationContentResolver;
+			this._accessTokenService = accessTokenService;
+			this._httpClientFactory = httpClientFactory;
+			this._config = config;
+			this._logTrackingCorrelationConfig = logTrackingCorrelationConfig;
+			this._logCorrelationScope = logCorrelationScope;
+			this._logger = logger;
+			this._requestAccessToken = requestAccessToken;
+			this._errors = errors;
+			this._jsonHandlingService = jsonHandlingService;
+			this._builderFactory = builderFactory;
+			this._authorizationContentResolver = authorizationContentResolver;
+			this._queryFactory = queryFactory;
 		}
 
 		public async Task<HashSet<Guid>> IsInPackaging(List<Guid> datasetIds)
@@ -78,6 +86,44 @@ namespace DataGEMS.Gateway.App.Service.DatasetPackaging
 			}
 			HashSet<Guid> inPackaging = rawResponse?.Where(x => x.Value)?.Select(x => x.Key)?.ToHashSet() ?? [];
 			return inPackaging;
+		}
+
+		public async Task<PackageRecommendation> RecommendAsync(PackageRecommendationRequest request, IFieldSet fields)
+		{
+			string token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
+			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
+
+			HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, $"{this._config.BaseUrl}{this._config.RecommendEndpoint}")
+			{
+				Content = new StringContent(this._jsonHandlingService.ToJson(new
+				{
+					ids = request.DatasetIds,
+					k = request.DatasetsPerPackage,
+					n = request.PackagesCount,
+				}), Encoding.UTF8, "application/json")
+			};
+			httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+			httpRequest.Headers.Add(this._logTrackingCorrelationConfig.HeaderName, this._logCorrelationScope.CorrelationId);
+
+			string content = await this.SendRequest(httpRequest);
+			DatasetPackagingRecommendationResponse rawResponse = null;
+			try { rawResponse = this._jsonHandlingService.FromJson<DatasetPackagingRecommendationResponse>(content); }
+			catch (System.Exception ex)
+			{
+				this._logger.LogError(ex, "Failed to parse response: {content}", content);
+				throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.DatasetPackaging, this._logCorrelationScope.CorrelationId);
+			}
+			HashSet<Guid> datasetIds = rawResponse.Packages.SelectMany(x => x.DatasetIds).ToHashSet();
+			List<Service.DataManagement.Model.Dataset> datasets = (await this._queryFactory.Query<DatasetHttpQuery>().Ids(datasetIds).CollectAsync())?.Items ?? [];
+			List<App.Model.Dataset> models = await this._builderFactory.Builder<App.Model.Builder.DatasetBuilder>().Build(fields, datasets);
+			return new PackageRecommendation
+			{
+				Packages = rawResponse.Packages.Select(x => new PackageRecommendation.Package
+				{
+					Name = x.Name,
+					Datasets = x.DatasetIds.Where(id => models.Any(y => y.Id == id)).Select(id => models.First(y => y.Id == id)).ToList()
+				}).ToList()
+			};
 		}
 
 		private async Task<string> SendRequest(HttpRequestMessage request)

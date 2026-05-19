@@ -5,5 +5,6 @@
 		public String Scope { get; set; }
 		public String BaseUrl { get; set; }
 		public String ExistEndpoint { get; set; }
+		public String RecommendEndpoint { get; set; }
 	}
 }
