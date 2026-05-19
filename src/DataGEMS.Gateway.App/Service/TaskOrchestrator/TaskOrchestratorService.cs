@@ -289,7 +289,7 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 				ap.Nodes.Add(new AnalyticalPatternNode
 				{
 					Id = argument.FileObjectId.Value,
-					Labels = ["cr:FileObject", "Data"],
+					Labels = ["cr:FileObject"],
 				});
 				fileObjectNodes.Add(argument.FileObjectId.Value);
 				ap.Edges.Add(new AnalyticalPatternEdge
