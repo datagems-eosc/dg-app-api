@@ -19,6 +19,8 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 		public List<Guid> CollectionIds { get; set; }
 		[SwaggerSchema(description: "Limit lookup to items with specific mime types. If set, the list of mime types must not be empty")]
 		public List<String> MimeTypes { get; set; }
+		[SwaggerSchema(description: "Limit lookup to items with specific state.")]
+		public App.Common.Enum.DatasetState? State { get; set; }
 		[SwaggerSchema(description: "Limit lookup to items whose name matches the pattern")]
 		public String Like { get; set; }
 
@@ -30,6 +32,7 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 			if (this.ExcludedIds != null) query.ExcludedIds(this.ExcludedIds);
 			if (this.CollectionIds != null) query.CollectionIds(this.CollectionIds);
 			if (this.MimeTypes != null) query.MimeTypes(this.MimeTypes);
+			if (this.State != null) query.State(this.State.Value);
 			if (!String.IsNullOrEmpty(this.Like)) query.Like(this.Like);
 
 			this.EnrichCommon(query);
