@@ -63,6 +63,7 @@ namespace DataGEMS.Gateway.App.Service.DatasetPackaging
 
 		public async Task<HashSet<Guid>> IsInPackaging(List<Guid> datasetIds)
 		{
+			if (datasetIds == null || datasetIds.Count == 0) return new HashSet<Guid>();
 			string token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
 
@@ -77,14 +78,14 @@ namespace DataGEMS.Gateway.App.Service.DatasetPackaging
 			httpRequest.Headers.Add(this._logTrackingCorrelationConfig.HeaderName, this._logCorrelationScope.CorrelationId);
 
 			string content = await this.SendRequest(httpRequest);
-			Dictionary<Guid, bool> rawResponse = null;
-			try { rawResponse = this._jsonHandlingService.FromJson<Dictionary<Guid, bool>>(content); }
+			MissingFromPackagingResponse rawResponse = null;
+			try { rawResponse = this._jsonHandlingService.FromJson<MissingFromPackagingResponse>(content); }
 			catch (System.Exception ex)
 			{
 				this._logger.LogError(ex, "Failed to parse response: {content}", content);
 				throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.DatasetPackaging, this._logCorrelationScope.CorrelationId);
 			}
-			HashSet<Guid> inPackaging = rawResponse?.Where(x => x.Value)?.Select(x => x.Key)?.ToHashSet() ?? [];
+			HashSet<Guid> inPackaging = datasetIds.Except(rawResponse.MissingIds).ToHashSet();
 			return inPackaging;
 		}
 

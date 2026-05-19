@@ -133,7 +133,7 @@ namespace DataGEMS.Gateway.App.Model.Builder
 				AnalyticalPattern profile = d.ProfileRaw != null ? this._jsonHandlingService.FromJsonSafe<AnalyticalPattern>(this._jsonHandlingService.ToJsonSafe(d.ProfileRaw)) : null;
 				result.Add(d.Id, new Model.Dataset.FeatureStatus
 				{
-					Profiled = profile != null && profile.Nodes != null && profile.Nodes.Any(x => x.Labels != null && !x.Labels.Contains("sc:Dataset")),
+					Profiled = profile != null && profile.Nodes != null && profile.Nodes.Any(x => x.Labels != null && x.Labels.Contains("sc:Dataset")),
 					Recommendation = inRecommender != null && inRecommender.Contains(d.Id),
 					Packaged = inPackaging != null && inPackaging.Contains(d.Id),
 				});
