@@ -127,13 +127,15 @@ namespace DataGEMS.Gateway.App.Model.Builder
 			HashSet<Guid> inRecommender = await this._datasetRecommenderService.IsInRecommender(datas.Select(x => x.Id).ToList());
 			HashSet<Guid> inPackaging = await this._datasetPackagingService.IsInPackaging(datas.Select(x => x.Id).ToList());
 
+			DatasetHttpQuery.QueryResult queryResult = await this._queryFactory.Query<DatasetHttpQuery>().State(Common.Enum.DatasetState.Ready).Ids(datas.Select(x => x.Id)).CollectAsync();
+			HashSet<Guid> inDmm = queryResult.Items?.Select(x => x.Id).ToHashSet();
+
 			Dictionary<Guid, Model.Dataset.FeatureStatus> result = [];
 			foreach (Service.DataManagement.Model.Dataset d in datas)
 			{
-				AnalyticalPattern profile = d.ProfileRaw != null ? this._jsonHandlingService.FromJsonSafe<AnalyticalPattern>(this._jsonHandlingService.ToJsonSafe(d.ProfileRaw)) : null;
 				result.Add(d.Id, new Model.Dataset.FeatureStatus
 				{
-					Profiled = profile != null && profile.Nodes != null && profile.Nodes.Any(x => x.Labels != null && x.Labels.Contains("sc:Dataset")),
+					Profiled = inDmm != null && inDmm.Contains(d.Id),
 					Recommendation = inRecommender != null && inRecommender.Contains(d.Id),
 					Packaged = inPackaging != null && inPackaging.Contains(d.Id),
 				});
