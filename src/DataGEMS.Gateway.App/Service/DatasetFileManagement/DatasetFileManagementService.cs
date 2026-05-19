@@ -111,6 +111,10 @@ namespace DataGEMS.Gateway.App.Service.DatasetFileManagement
 				Id = x.Id,
 				Path = x.Properties != null && x.Properties.ContainsKey("contentUrl") ? (string)x.Properties["contentUrl"] : "",
 				Size = x.Properties != null && x.Properties.ContainsKey("contentSize") ? (string)x.Properties["contentSize"] : "0 B",
+				Name = x.Properties != null && x.Properties.ContainsKey("name") ? (string)x.Properties["name"] : "",
+				MimeType = x.Properties != null && x.Properties.ContainsKey("encodingFormat") ? (string)x.Properties["encodingFormat"] : null,
+				Description = x.Properties != null && x.Properties.ContainsKey("description") ? (string)x.Properties["description"] : null,
+				Sha256 = x.Properties != null && x.Properties.ContainsKey("sha256") ? (string)x.Properties["sha256"] : null,
 			}) ?? [];
 
 			foreach (var file in fileObjects)
