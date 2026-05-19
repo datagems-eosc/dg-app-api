@@ -90,6 +90,9 @@ namespace DataGEMS.Gateway.App.Service.DatasetPackaging
 
 		public async Task<PackageRecommendation> RecommendAsync(PackageRecommendationRequest request, IFieldSet fields)
 		{
+			List<Guid> allowedDatasetIds = await this._authorizationContentResolver.EffectiveContextAffiliatedDatasets(Permission.CanRetrievePackage);
+			if (request.DatasetIds != null && request.DatasetIds.Any(x => !allowedDatasetIds.Contains(x))) throw new DGUnauthorizedException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+
 			string token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
 
