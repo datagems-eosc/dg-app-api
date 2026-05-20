@@ -2,6 +2,8 @@
   "DatasetRecommenderService": {
     "Scope": "datagems",
     "BaseUrl": "%{DatasetRecommenderBaseUrl}%",
-    "ExistEndpoint": "dataset/exist?application=ds2ds"
+    "ExistEndpoint": "dataset/exist?application=ds2ds",
+    "RecommendEndpoint": "recommend?entity_id={entityId}&n={recommendationsCount}",
+    "DefaultRecommendationDatasets": 5
   }
 }

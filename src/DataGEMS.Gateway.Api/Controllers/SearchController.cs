@@ -20,6 +20,7 @@ using DataGEMS.Gateway.App.Model.Builder;
 using DataGEMS.Gateway.App.Query;
 using DataGEMS.Gateway.App.Service.Conversation;
 using DataGEMS.Gateway.App.Service.DatasetPackaging;
+using DataGEMS.Gateway.App.Service.DatasetRecommender;
 using DataGEMS.Gateway.App.Service.Discovery;
 using DataGEMS.Gateway.App.Service.InDataExploration;
 using DataGEMS.Gateway.App.Service.QueryRecommender;
@@ -49,6 +50,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		private readonly BuilderFactory _builderFactory;
 		private readonly QueryFactory _queryFactory;
 		private readonly IDatasetPackagingService _packagingService;
+		private readonly IDatasetRecommenderService _datasetRecommenderService;
 
 		public SearchController(
 			CensorFactory censorFactory,
@@ -64,7 +66,8 @@ namespace DataGEMS.Gateway.Api.Controllers
 			IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> localizer,
 			BuilderFactory builderFactory,
 			QueryFactory queryFactory,
-			IDatasetPackagingService datasetPackagingService)
+			IDatasetPackagingService datasetPackagingService,
+			IDatasetRecommenderService datasetRecommenderService)
 		{
 			this._censorFactory = censorFactory;
 			this._crossDatasetDiscoveryService = crossDatasetDiscoveryService;
@@ -80,6 +83,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			this._builderFactory = builderFactory;
 			this._queryFactory = queryFactory;
 			this._packagingService = datasetPackagingService;
+			this._datasetRecommenderService = datasetRecommenderService;
 		}
 
 		[HttpPost("cross-dataset")]
@@ -256,6 +260,47 @@ namespace DataGEMS.Gateway.Api.Controllers
 			await this._conversationService.AppendToConversation(conversationId.Value, entries);
 			await this._conversationService.SetConversationDatasets(conversationId.Value, datasetIds);
 			return conversationId.Value;
+		}
+
+		[HttpGet("dataset/{datasetId}/recommend")]
+		[Authorize]
+		[ModelStateValidationFilter]
+		[SwaggerOperation(Summary = "Recommend possible datasets")]
+		[SwaggerResponse(statusCode: 200, description: "Matching results", type: typeof(SearchResult<List<App.Model.Dataset>>))]
+		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
+		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
+		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
+		[SwaggerResponse(statusCode: 500, description: "Internal error")]
+		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
+		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
+		public async Task<List<App.Model.Dataset>> RecommendDatasetsAsync(
+			[FromRoute]
+			[SwaggerRequestBody(description: "The dataset id", Required = true)]
+			Guid datasetId,
+
+			[FromQuery]
+			[SwaggerRequestBody(description: "The number of recommendations to return", Required = false)]
+			uint? n,
+			
+			[ModelBinder(Name = "f")]
+			[SwaggerParameter(description: "The fields to include in the response model", Required = true)]
+			[LookupFieldSetQueryStringOpenApi]
+			IFieldSet fieldSet)
+		{
+			this._logger.Debug(new MapLogEntry("dataset recommendation").And("type", nameof(App.Model.Dataset)).And("datasetId", datasetId).And("recommendationsCount", n));
+
+			IFieldSet censoredFields = await this._censorFactory.Censor<DatasetCensor>().Censor(fieldSet, CensorContext.AsCensor());
+			if (fieldSet.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+
+			List<Guid> datasetIds = await this._datasetRecommenderService.RecommendAsync(datasetId, n);
+
+			DatasetHttpQuery query = this._queryFactory.Query<DatasetHttpQuery>().Ids(datasetIds);
+			DatasetHttpQuery.QueryResult results = await query.CollectAsync();
+			List<Dataset> models = await this._builderFactory.Builder<DatasetBuilder>().Authorize(AuthorizationFlags.Any).Build(censoredFields, results.Items);
+
+			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.DatasetRecommender.AsAccountable());
+
+			return models;
 		}
 
 		[HttpPost("ad-hoc/evaluate")]

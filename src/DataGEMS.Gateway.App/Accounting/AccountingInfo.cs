@@ -54,6 +54,7 @@ namespace DataGEMS.Gateway.App.Accounting
 		AdHocQuery = 14,
 		UserFavorite = 15,
 		DatasetPackaging = 16,
+		DatasetRecommender = 17,
 	}
 
 	public class AccountingInfo

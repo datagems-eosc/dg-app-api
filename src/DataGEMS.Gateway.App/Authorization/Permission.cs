@@ -35,6 +35,7 @@ namespace DataGEMS.Gateway.App.Authorization
 		public const String CanExecuteQueryRecommendation = "CanExecuteQueryRecommendation";
 		//DatasetRecommendation
 		public const String CanRetrievePackage = "CanRetrievePackage";
+		public const String CanRecommend = "CanRecommend";
 		//Dataset
 		public const String BrowseDataset = "BrowseDataset";
 		public const String OnboardDataset = "OnboardDataset";
