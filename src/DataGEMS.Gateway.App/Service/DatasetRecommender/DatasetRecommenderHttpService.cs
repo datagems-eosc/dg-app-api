@@ -7,12 +7,10 @@ using DataGEMS.Gateway.App.Common;
 using DataGEMS.Gateway.App.ErrorCode;
 using DataGEMS.Gateway.App.Exception;
 using DataGEMS.Gateway.App.LogTracking;
-using DataGEMS.Gateway.App.Model;
 using DataGEMS.Gateway.App.Service.DatasetRecommender.Model;
 using Microsoft.Extensions.Logging;
 using System.Net.Http.Headers;
 using System.Text;
-using static DataGEMS.Gateway.App.Model.CrossDatasetDiscovery;
 
 namespace DataGEMS.Gateway.App.Service.DatasetRecommender
 {
@@ -100,6 +98,27 @@ namespace DataGEMS.Gateway.App.Service.DatasetRecommender
 				throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.DatasetRecommender, this._logCorrelationScope.CorrelationId);
 			}
 			return rawResponse?.Recommendations?.Select(x => x.DatasetId)?.ToList() ?? [];
+		}
+
+		public async Task<MatheRecommendationResponse> RecommendMatheAsync(MatheRecommendationRequest request)
+		{
+			string token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
+			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
+			HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, $"{this._config.BaseUrl}{this._config.MatheRecommendationsEndpoint}")
+			{
+				Content = new StringContent(this._jsonHandlingService.ToJson(request), Encoding.UTF8, "application/json")
+			};
+			httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+			httpRequest.Headers.Add(this._logTrackingCorrelationConfig.HeaderName, this._logCorrelationScope.CorrelationId);
+			string content = await this.SendRequest(httpRequest);
+			MatheRecommendationResponse rawResponse = null;
+			try { rawResponse = this._jsonHandlingService.FromJson<MatheRecommendationResponse>(content); }
+			catch (System.Exception ex)
+			{
+				this._logger.LogError(ex, "Failed to parse response: {content}", content);
+				throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.DatasetRecommender, this._logCorrelationScope.CorrelationId);
+			}
+			return rawResponse;
 		}
 
 		private async Task<string> SendRequest(HttpRequestMessage request)

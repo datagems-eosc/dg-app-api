@@ -6,6 +6,7 @@
 		public String BaseUrl { get; set; }
 		public String ExistEndpoint { get; set; }
 		public string RecommendEndpoint { get; set; }
+		public string MatheRecommendationsEndpoint { get; set; }
 		public int DefaultRecommendationDatasets { get; set; }
 	}
 }

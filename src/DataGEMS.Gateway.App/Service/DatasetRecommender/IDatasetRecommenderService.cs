@@ -1,4 +1,4 @@
-﻿using DataGEMS.Gateway.App.Model;
+﻿using DataGEMS.Gateway.App.Service.DatasetRecommender.Model;
 
 namespace DataGEMS.Gateway.App.Service.DatasetRecommender
 {
@@ -6,5 +6,6 @@ namespace DataGEMS.Gateway.App.Service.DatasetRecommender
 	{
 		Task<HashSet<Guid>> IsInRecommender(List<Guid> datasetIds);
 		Task<List<Guid>> RecommendAsync(Guid datasetId, uint? recommendationsCount);
+		Task<MatheRecommendationResponse> RecommendMatheAsync(MatheRecommendationRequest request);
 	}
 }
