@@ -8,5 +8,6 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 	{
 		Task<IEnumerable<CrossDatasetDiscoveryResult>> CrossDatasetDiscoverySearch(Model.CrossDatasetDiscoveryRequest request);
 		Task<AdHocQuery> AdHocQueryAsync(AdHocQueryEvaluate evaluate, IFieldSet fields = null);
+		Task<string> AdHocQueryPreviewAsync(Guid adHocId, int lines);
 	}
 }

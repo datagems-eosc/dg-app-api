@@ -6,6 +6,7 @@
 		public string BaseUrl { get; set; }
 		public string CrossDatasetDiscoverySearchEndpoint { get; set; }
 		public string AdHocQueryEndpoint { get; set; }
+		public string AdHocQueryPreviewEndpoint { get; set; }
 
 		public String CrossDatasetDiscoveryTemplatePath { get; set; }
 	}

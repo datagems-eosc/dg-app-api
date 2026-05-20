@@ -363,6 +363,35 @@ namespace DataGEMS.Gateway.Api.Controllers
 			return model;
 		}
 
+		[HttpGet("ad-hoc/{id}/preview/{lines}")]
+		[Authorize]
+		[ModelStateValidationFilter]
+		[SwaggerOperation(Summary = "Retrieve ad-hoc query results preview")]
+		[SwaggerResponse(statusCode: 200, description: "The result", type: typeof(string))]
+		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
+		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
+		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
+		[SwaggerResponse(statusCode: 500, description: "Internal error")]
+		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
+		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
+		public async Task<string> GetAdHocPreview(
+			[FromRoute]
+			[SwaggerParameter(description: "The id of the item to lookup", Required = true)]
+			Guid id,
+
+			[FromRoute]
+			[SwaggerParameter(description: "The number of lines to include in the preview", Required = true)]
+			uint lines)
+		{
+			this._logger.Debug(new MapLogEntry("get").And("type", nameof(App.Model.AdHocQuery)).And("id", id).And("lines", lines));
+			
+			string model = await this._taskOrchestratorService.AdHocQueryPreviewAsync(id, (int)lines);
+
+			this._accountingService.AccountFor(KnownActions.Preview, KnownResources.AdHocQuery.AsAccountable());
+
+			return model;
+		}
+
 		[HttpPost("package/recommend")]
 		[Authorize]
 		[ModelStateValidationFilter]

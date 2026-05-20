@@ -13,8 +13,11 @@ using DataGEMS.Gateway.App.Event;
 using DataGEMS.Gateway.App.Exception;
 using DataGEMS.Gateway.App.LogTracking;
 using DataGEMS.Gateway.App.Model;
+using DataGEMS.Gateway.App.Query;
 using DataGEMS.Gateway.App.Service.Discovery.Model;
 using DataGEMS.Gateway.App.Service.TaskOrchestrator.Model;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json;
@@ -41,7 +44,8 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 		private readonly IAuthorizationContentResolver _authorizationContentResolver;
 		private readonly Data.AppDbContext _dbContext;
 		private readonly EventBroker _eventBroker;
-
+		private readonly IAuthorizationService _authorizationService;
+		private readonly IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> _localizer;
 
 		public TaskOrchestratorService(IAccessTokenService accessTokenService,
 		IHttpClientFactory httpClientFactory,
@@ -57,7 +61,9 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 		AnalyticalPatternTemplates analyticalPatternTemplates,
 		IAuthorizationContentResolver authorizationContentResolver,
 		Data.AppDbContext dbContext,
-		EventBroker eventBroker)
+		EventBroker eventBroker,
+		IAuthorizationService authorizationService,
+		IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> localizer)
 		{
 			this._accessTokenService = accessTokenService;
 			this._httpClientFactory = httpClientFactory;
@@ -74,6 +80,8 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 			this._authorizationContentResolver = authorizationContentResolver;
 			this._dbContext = dbContext;
 			this._eventBroker = eventBroker;
+			this._authorizationService = authorizationService;
+			this._localizer = localizer;
 		}
 
 		public async Task<AdHocQuery> AdHocQueryAsync(AdHocQueryEvaluate evaluate, IFieldSet fields = null)
@@ -120,6 +128,29 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 
 			App.Model.AdHocQuery model = await _builderFactory.Builder<App.Model.Builder.AdHocQueryBuilder>().Build(FieldSet.Build(fields, nameof(App.Model.AdHocQuery.Id)).Ensure(nameof(App.Model.AdHocQuery.Id)), data);
 			return model;
+		}
+
+		public async Task<string> AdHocQueryPreviewAsync(Guid adHocId, int lines)
+		{
+			Guid? userId = await this._authorizationContentResolver.CurrentUserId();
+			if (!userId.HasValue) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+			AdHocQueryResult data = await this._dbContext.AdHocQueryResults.Where(x => (x.Id == adHocId) && x.UserId == userId && x.IsActive == IsActive.Active).FirstOrDefaultAsync();
+			if (data == null) throw new DGNotFoundException(this._localizer["general_notFound", adHocId, nameof(AdHocQueryResult)]);
+			String subjectId = await this._authorizationContentResolver.SubjectIdOfUserId(data.UserId);
+			await this._authorizationService.AuthorizeOwnerForce(!String.IsNullOrEmpty(subjectId) ? new OwnedResource(subjectId) : null);
+
+			AnalyticalPattern ap = JsonConvert.DeserializeObject<AdHocQueryTaskOrchestratorResponse>(data.AnalyticalPattern)?.AnalyticalPattern;
+			AnalyticalPatternNode datasetNode = ap?.Nodes?.FirstOrDefault(x => x.Labels.Contains("sc:Dataset") && x.Properties != null && x.Properties.ContainsKey("archivedAt"));
+			if (datasetNode == null) throw new DGNotFoundException(this._localizer["general_notFound", "sc:Dataset", nameof(AnalyticalPatternNode)]);
+
+			string token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
+			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
+			HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Get, $"{this._config.BaseUrl}{this._config.AdHocQueryPreviewEndpoint}".Replace("{id}", datasetNode.Id.ToString()).Replace("{lines}", lines.ToString()));
+			httpRequest.Headers.Add(HeaderNames.Accept, "application/json");
+			httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+			httpRequest.Headers.Add(this._logTrackingCorrelationConfig.HeaderName, this._logCorrelationScope.CorrelationId);
+			string content = await this.SendRequest(httpRequest);
+			return content;
 		}
 
 		public async Task<IEnumerable<CrossDatasetDiscoveryResult>> CrossDatasetDiscoverySearch(Model.CrossDatasetDiscoveryRequest request)

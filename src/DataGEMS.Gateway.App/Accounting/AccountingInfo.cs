@@ -16,6 +16,7 @@ namespace DataGEMS.Gateway.App.Accounting
 		Download = 10,
 		BrowseData = 11,
 		RecommendationRegister = 12,
+		Preview = 13,
 	}
 
 	public enum KnownUnits : short
