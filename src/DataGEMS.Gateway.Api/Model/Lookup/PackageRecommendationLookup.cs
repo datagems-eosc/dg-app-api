@@ -44,11 +44,11 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 						.Must(() => item.DatasetsPerPackage > 0)
 						.FailOn(nameof(PackageRecommendationLookup.DatasetsPerPackage))
 						.FailWith(this._localizer["validation_positive_integer", nameof(PackageRecommendationLookup.DatasetsPerPackage)]),
-					//The product of packages times the datasets per package must be less than or equal to the number of dataset ids provided
+					//The datasets per package must be less than or equal to the number of dataset ids provided
 					this.Spec()
-						.Must(() => item.PackagesCount * item.DatasetsPerPackage <= item.DatasetIds.Count)
-						.FailOn(nameof(PackageRecommendationLookup.PackagesCount))
-						.FailWith(this._localizer["validation_tooFew_datasets", item.DatasetIds.Count, item.PackagesCount * item.DatasetsPerPackage]),
+						.Must(() => item.DatasetsPerPackage <= item.DatasetIds.Count)
+						.FailOn(nameof(PackageRecommendationLookup.DatasetsPerPackage))
+						.FailWith(this._localizer["validation_tooFew_datasets", item.DatasetIds.Count, item.DatasetsPerPackage]),
 				];
 			}
 		}
