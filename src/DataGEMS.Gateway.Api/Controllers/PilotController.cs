@@ -13,11 +13,11 @@ using DataGEMS.Gateway.App.Authorization;
 using DataGEMS.Gateway.App.Censor;
 using DataGEMS.Gateway.App.ErrorCode;
 using DataGEMS.Gateway.App.Exception;
+using DataGEMS.Gateway.App.Model;
 using DataGEMS.Gateway.App.Model.Builder;
 using DataGEMS.Gateway.App.Query;
 using DataGEMS.Gateway.App.Service.DataManagement;
 using DataGEMS.Gateway.App.Service.DatasetRecommender;
-using DataGEMS.Gateway.App.Service.DatasetRecommender.Model;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
@@ -65,7 +65,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[Authorize]
 		[ModelStateValidationFilter]
 		[SwaggerOperation(Summary = "Generate material-based recommendations")]
-		[SwaggerResponse(statusCode: 200, description: "Matching results", type: typeof(MatheRecommendationResponse))]
+		[SwaggerResponse(statusCode: 200, description: "Matching results", type: typeof(App.Service.DatasetRecommender.Model.MatheRecommendationResponse))]
 		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
 		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
 		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
@@ -73,7 +73,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
 		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
 		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
-		public async Task<MatheRecommendationResponse> RecommendDatasetsAsync(
+		public async Task<App.Service.DatasetRecommender.Model.MatheRecommendationResponse> RecommendDatasetsAsync(
 			[FromBody]
 			[SwaggerRequestBody(description: "The field set to apply for building the results", Required = true)]
 			MatheRecommendationRequest request
@@ -81,7 +81,12 @@ namespace DataGEMS.Gateway.Api.Controllers
 		{
 			this._logger.Debug(new MapLogEntry("mathE recommendation").And("type", nameof(App.Model.Dataset)).And("request", request));
 
-			MatheRecommendationResponse response = await this._datasetRecommenderService.RecommendMatheAsync(request);
+			App.Service.DatasetRecommender.Model.MatheRecommendationResponse response = await this._datasetRecommenderService.RecommendMatheAsync(new App.Service.DatasetRecommender.Model.MatheRecommendationRequest
+			{
+				QuestionId = request.QuestionId,
+				Question = request.Question,
+				RecommendedMaterialsCount = request.RecommendedMaterialsCount
+            });
 
 			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.DatasetRecommender.AsAccountable());
 
