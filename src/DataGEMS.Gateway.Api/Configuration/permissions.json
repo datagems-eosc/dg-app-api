@@ -179,14 +179,22 @@
 				"AllowAnonymous": false,
 				"AllowAuthenticated": false
 			},
-      "CanRecommend": {
-        "Roles": [ "GLOBAL_dg_admin" ],
-        "ContextRoles": [ "dg_ds-browse" ],
-        "Claims": [],
-        "Clients": [],
-        "AllowAnonymous": false,
-        "AllowAuthenticated": false
-      },
+			"CanRecommend": {
+				"Roles": [ "GLOBAL_dg_admin" ],
+				"ContextRoles": [ "dg_ds-browse" ],
+				"Claims": [],
+				"Clients": [],
+				"AllowAnonymous": false,
+				"AllowAuthenticated": false
+			},
+			"CanRecommendMathE": {
+				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_user" ],
+				"ContextRoles": [ ],
+				"Claims": [],
+				"Clients": [],
+				"AllowAnonymous": false,
+				"AllowAuthenticated": false
+			},
 			//Dataset
 			"BrowseDataset": {
 				"Roles": [ "GLOBAL_dg_admin" ],

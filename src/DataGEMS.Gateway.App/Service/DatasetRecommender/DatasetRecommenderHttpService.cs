@@ -27,6 +27,7 @@ namespace DataGEMS.Gateway.App.Service.DatasetRecommender
 		private readonly JsonHandlingService _jsonHandlingService;
 		private readonly BuilderFactory _builderFactory;
 		private readonly IAuthorizationContentResolver _authorizationContentResolver;
+		private readonly IAuthorizationService _authorizationService;
 
 		public DatasetRecommenderHttpService(
 			IAccessTokenService accessTokenService,
@@ -39,19 +40,21 @@ namespace DataGEMS.Gateway.App.Service.DatasetRecommender
 			ErrorThesaurus errors,
 			JsonHandlingService jsonHandlingService,
 			BuilderFactory builderFactory,
-			IAuthorizationContentResolver authorizationContentResolver)
+			IAuthorizationContentResolver authorizationContentResolver,
+			IAuthorizationService authorizationService)
 		{
-			_accessTokenService = accessTokenService;
-			_httpClientFactory = httpClientFactory;
-			_config = config;
-			_logTrackingCorrelationConfig = logTrackingCorrelationConfig;
-			_logCorrelationScope = logCorrelationScope;
-			_logger = logger;
-			_requestAccessToken = requestAccessToken;
-			_errors = errors;
-			_jsonHandlingService = jsonHandlingService;
-			_builderFactory = builderFactory;
-			_authorizationContentResolver = authorizationContentResolver;
+			this._accessTokenService = accessTokenService;
+			this._httpClientFactory = httpClientFactory;
+			this._config = config;
+			this._logTrackingCorrelationConfig = logTrackingCorrelationConfig;
+			this._logCorrelationScope = logCorrelationScope;
+			this._logger = logger;
+			this._requestAccessToken = requestAccessToken;
+			this._errors = errors;
+			this._jsonHandlingService = jsonHandlingService;
+			this._builderFactory = builderFactory;
+			this._authorizationContentResolver = authorizationContentResolver;
+			this._authorizationService = authorizationService;
 		}
 
 		public async Task<HashSet<Guid>> IsInRecommender(List<Guid> datasetIds)
@@ -102,6 +105,7 @@ namespace DataGEMS.Gateway.App.Service.DatasetRecommender
 
 		public async Task<MatheRecommendationResponse> RecommendMatheAsync(MatheRecommendationRequest request)
 		{
+			await this._authorizationService.AuthorizeForce(Permission.CanRecommendMathE);
 			string token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
 			HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, $"{this._config.BaseUrl}{this._config.MatheRecommendationsEndpoint}")
