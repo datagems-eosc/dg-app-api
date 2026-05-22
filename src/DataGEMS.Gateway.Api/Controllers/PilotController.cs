@@ -6,6 +6,7 @@ using Cite.Tools.Logging;
 using Cite.Tools.Logging.Extensions;
 using Cite.WebTools.Validation;
 using DataGEMS.Gateway.Api.Model;
+using DataGEMS.Gateway.Api.Model.Lookup;
 using DataGEMS.Gateway.Api.OpenApi;
 using DataGEMS.Gateway.Api.Validation;
 using DataGEMS.Gateway.App.Accounting;
@@ -64,6 +65,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[HttpPost("mathe/recommend")]
 		[Authorize]
 		[ModelStateValidationFilter]
+		[ValidationFilter(typeof(MatheRecommendationRequest.RequestValidator), "request")]
 		[SwaggerOperation(Summary = "Generate material-based recommendations")]
 		[SwaggerResponse(statusCode: 200, description: "Matching results", type: typeof(App.Service.DatasetRecommender.Model.MatheRecommendationResponse))]
 		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
@@ -91,6 +93,32 @@ namespace DataGEMS.Gateway.Api.Controllers
 			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.DatasetRecommender.AsAccountable());
 
 			return response;
+		}
+
+		[HttpPost("language/linguistic-features")]
+		[Authorize]
+		[ModelStateValidationFilter]
+		[ValidationFilter(typeof(LanguagePilotRequest.RequestValidator), "request")]
+		[SwaggerOperation(Summary = "Discover linguistic features")]
+		[SwaggerResponse(statusCode: 200, description: "Matching results", type: typeof(LanguagePilotResponse))]
+		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
+		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
+		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
+		[SwaggerResponse(statusCode: 500, description: "Internal error")]
+		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
+		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
+		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
+		public async Task<LanguagePilotResponse> LinguisticFeaturesAsync(
+			[FromBody]
+			[SwaggerRequestBody(description: "The field set to apply for building the results", Required = true)]
+			LanguagePilotRequest request
+			)
+		{
+			this._logger.Debug(new MapLogEntry("linguistic features").And("request", request));
+
+			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.CrossDatasetDiscovery.AsAccountable());
+
+			return new LanguagePilotResponse();
 		}
 	}
 }
