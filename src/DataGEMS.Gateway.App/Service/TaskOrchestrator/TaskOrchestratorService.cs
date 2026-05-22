@@ -86,7 +86,7 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 
 		public async Task<AdHocQuery> AdHocQueryAsync(AdHocQueryEvaluate evaluate, IFieldSet fields = null)
 		{
-			List<Guid> datasetIds = await this._authorizationContentResolver.EffectiveContextAffiliatedDatasets(Permission.EvaluateAdHocQuery);
+			List<Guid> datasetIds = await this._authorizationContentResolver.EffectiveContextAffiliatedDatasets(Permission.PowerSearchDataset);
 			if (evaluate.Arguments!= null && evaluate.Arguments.Select(x => x.DatasetId).Any(x => !datasetIds.Contains(x.Value))) throw new DGUnauthorizedException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
 
 			string token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);

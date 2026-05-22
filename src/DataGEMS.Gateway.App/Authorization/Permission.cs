@@ -3,8 +3,6 @@ namespace DataGEMS.Gateway.App.Authorization
 {
 	public static class Permission
 	{
-		//Ad Hoc Query
-		public const String EvaluateAdHocQuery = "EvaluateAdHocQuery";
 		//Authorization
 		public const String LookupContextGrantOther = "LookupContextGrantOther";
 		public const String LookupContextGrantGroups = "LookupContextGrantGroups";

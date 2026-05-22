@@ -407,15 +407,6 @@
 				"Clients": [],
 				"AllowAnonymous": false,
 				"AllowAuthenticated": false
-			},
-			// AdHoc Query
-			"EvaluateAdHocQuery": {
-				"Roles": [ "GLOBAL_dg_admin" ],
-				"ContextRoles": [ "dg_ds-browse" ],
-				"Claims": [],
-				"Clients": [],
-				"AllowAnonymous": false,
-				"AllowAuthenticated": false
 			}
 		}
 	}
