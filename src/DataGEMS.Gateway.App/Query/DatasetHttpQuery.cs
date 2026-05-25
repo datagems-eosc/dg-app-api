@@ -165,7 +165,7 @@ namespace DataGEMS.Gateway.App.Query
 			if (this._types != null) this._types.ForEach(x => qs = qs.Add("types", x));
 			if (this._publishedDateFrom != null) qs = qs.Add("publishedDateFrom", this._publishedDateFrom.Value.ToString("yyyy-MM-dd"));
 			if (this._publishedDateTo != null) qs = qs.Add("publishedDateTo", this._publishedDateTo.Value.ToString("yyyy-MM-dd"));
-			if (this._datasetStatus != null) qs = qs.Add("dataset_status", this._datasetStatus.Value.ToString().ToLower());
+			if (this._datasetStatus != null) qs = qs.Add("status", this._datasetStatus.Value.ToString().ToLower());
 			if (this._mimeTypes != null) this._mimeTypes.ForEach(x => qs = qs.Add("mimeTypes", x));
 
 			return qs;
