@@ -1,10 +1,13 @@
 ﻿using Cite.Tools.FieldSet;
+using DataGEMS.Gateway.App.Model;
+using DataGEMS.Gateway.App.Service.InDataExploration.Model;
 
 namespace DataGEMS.Gateway.App.Service.InDataExploration
 {
 	public interface IInDataExplorationService
 	{
 		Task<App.Model.InDataExplore> ExploreAsync(Service.InDataExploration.ExploreInfo request, IFieldSet fieldSet);
+		Task<LanguagePilotResponse> LinguisticFeaturesAsync(LinguisticFeaturesRequest request);
 	}
 
 	public class ExploreInfo

@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace DataGEMS.Gateway.App.Service.InDatasetDiscovery.Model
+namespace DataGEMS.Gateway.App.Service.InDataExploration.Model
 {
 	public class LinguisticFeaturesRequest
 	{
@@ -8,6 +8,6 @@ namespace DataGEMS.Gateway.App.Service.InDatasetDiscovery.Model
 		public string Question { get; set; }
 
 		[JsonProperty("rag_output")]
-		public Service.Discovery.Model.CorpusAnalysisResponse RagOutput { get; set; }
+		public Discovery.Model.CorpusAnalysisResponse RagOutput { get; set; }
 	}
 }

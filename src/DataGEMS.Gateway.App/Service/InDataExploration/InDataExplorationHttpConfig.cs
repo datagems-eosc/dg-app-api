@@ -6,5 +6,6 @@ namespace DataGEMS.Gateway.App.Service.InDataExploration
 		public String Scope { get; set; }
 		public String BaseUrl { get; set; }
 		public String ExploreEndpoint { get; set; }
+		public string LinguisticFeaturesEndpoint { get; set; }
 	}
 }

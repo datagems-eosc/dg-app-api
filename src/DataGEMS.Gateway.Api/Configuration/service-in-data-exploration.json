@@ -2,6 +2,7 @@
   "InDataExplorationService": {
     "Scope": "datagems",
     "BaseUrl": "%{InDataExplorationBaseUrl}%",
-    "ExploreEndpoint": "explore"
+    "ExploreEndpoint": "explore",
+    "LinguisticFeaturesEndpoint": "linguisticFeatures"
   }
 }

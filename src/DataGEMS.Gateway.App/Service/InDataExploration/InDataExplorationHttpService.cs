@@ -9,10 +9,12 @@ using DataGEMS.Gateway.App.ErrorCode;
 using DataGEMS.Gateway.App.Exception;
 using DataGEMS.Gateway.App.LogTracking;
 using DataGEMS.Gateway.App.Model;
+using DataGEMS.Gateway.App.Service.InDataExploration.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using System.Net.Http.Headers;
+using System.Text;
 
 namespace DataGEMS.Gateway.App.Service.InDataExploration
 {
@@ -72,6 +74,30 @@ namespace DataGEMS.Gateway.App.Service.InDataExploration
 				throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.InDataExploration, this._logCorrelationScope.CorrelationId);
 			}
 			return await this._builderFactory.Builder<App.Model.Builder.InDataExplorationBuilder>().Authorize(AuthorizationFlags.Any).Build(fieldSet, rawResponse);
+		}
+
+
+		public async Task<LanguagePilotResponse> LinguisticFeaturesAsync(LinguisticFeaturesRequest request)
+		{
+			String token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
+			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
+			HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, $"{this._config.BaseUrl}{this._config.LinguisticFeaturesEndpoint}")
+			{
+				Content = new StringContent(this._jsonHandlingService.ToJson(request), Encoding.UTF8, "application/json")
+			};
+			httpRequest.Headers.Add(HeaderNames.Accept, "application/json");
+			httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+			httpRequest.Headers.Add(this._logTrackingCorrelationConfig.HeaderName, this._logCorrelationScope.CorrelationId);
+
+			String content = await this.SendRequest(httpRequest);
+			LanguagePilotResponse rawResponse = null;
+			try { rawResponse = this._jsonHandlingService.FromJson<LanguagePilotResponse>(content); }
+			catch (System.Exception ex)
+			{
+				this._logger.LogError(ex, "Failed to parse response: {content}", content);
+				throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.InDatasetDiscovery, this._logCorrelationScope.CorrelationId);
+			}
+			return rawResponse;
 		}
 
 		private async Task<string> SendRequest(HttpRequestMessage request)

@@ -21,7 +21,8 @@ using DataGEMS.Gateway.App.Service.DataManagement;
 using DataGEMS.Gateway.App.Service.DatasetRecommender;
 using DataGEMS.Gateway.App.Service.Discovery;
 using DataGEMS.Gateway.App.Service.Discovery.Model;
-using DataGEMS.Gateway.App.Service.InDatasetDiscovery;
+using DataGEMS.Gateway.App.Service.InDataExploration;
+using DataGEMS.Gateway.App.Service.InDataExploration.Model;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
@@ -44,7 +45,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		private readonly IDatasetRecommenderService _datasetRecommenderService;
 		private readonly ICrossDatasetDiscoveryService _crossDatasetDiscoveryService;
 		private readonly IAuthorizationContentResolver _authorizationContentResolver;
-		private readonly IInDatasetDiscoveryService _inDatasetDiscoveryService;
+		private readonly IInDataExplorationService _inDatasetDiscoveryService;
 
 		public PilotController(
 			CensorFactory censorFactory,
@@ -58,7 +59,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			IDatasetRecommenderService datasetRecommenderService,
 			ICrossDatasetDiscoveryService crossDatasetDiscoveryService,
 			IAuthorizationContentResolver authorizationContentResolver,
-			IInDatasetDiscoveryService inDatasetDiscoveryService)
+			IInDataExplorationService inDatasetDiscoveryService)
 		{
 			this._censorFactory = censorFactory;
 			this._queryFactory = queryFactory;
@@ -133,7 +134,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 
 			CorpusAnalysisResponse crossDatasetDiscoveryResponse = await this._crossDatasetDiscoveryService.CorpusAnalysisAsync(request);
 
-			var inDatasetDiscoveryResponse = await this._inDatasetDiscoveryService.LinguisticFeaturesAsync(new App.Service.InDatasetDiscovery.Model.LinguisticFeaturesRequest
+			var inDatasetDiscoveryResponse = await this._inDatasetDiscoveryService.LinguisticFeaturesAsync(new LinguisticFeaturesRequest
 			{
 				Question = request.Query,
 				RagOutput = crossDatasetDiscoveryResponse
