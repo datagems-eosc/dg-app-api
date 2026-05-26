@@ -115,6 +115,10 @@ namespace DataGEMS.Gateway.Api
 							.AddJsonFileInPaths("service-in-data-exploration.json", sharedConfigPath, "Configuration")
 							.AddJsonFileInPaths("service-in-data-exploration.override.json", sharedConfigPath, "Configuration")
 							.AddJsonFileInPaths($"service-in-data-exploration.{env.EnvironmentName}.json", sharedConfigPath, "Configuration")
+							//service in dataset discovery
+							.AddJsonFileInPaths("service-in-dataset-discovery.json", sharedConfigPath, "Configuration")
+							.AddJsonFileInPaths("service-in-dataset-discovery.override.json", sharedConfigPath, "Configuration")
+							.AddJsonFileInPaths($"service-in-dataset-discovery.{env.EnvironmentName}.json", sharedConfigPath, "Configuration")
 							// service query recommender
 							.AddJsonFileInPaths("service-query-recommender.json", sharedConfigPath, "Configuration")
 							.AddJsonFileInPaths("service-query-recommender.override.json", sharedConfigPath, "Configuration")

@@ -1,0 +1,7 @@
+{
+  "InDatasetDiscoveryService": {
+    "Scope": "datagems",
+    "BaseUrl": "%{InDatasetDiscoveryBaseUrl}%",
+    "LinguisticFeaturesEndpoint": "linguisticFeatures"
+  }
+}
