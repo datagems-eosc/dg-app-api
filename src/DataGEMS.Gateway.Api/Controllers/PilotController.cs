@@ -141,7 +141,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			});
 
 			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.CrossDatasetDiscovery.AsAccountable());
-			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.InDatasetDiscovery.AsAccountable());
+			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.InDataExploration.AsAccountable());
 
 			return inDatasetDiscoveryResponse;
 		}

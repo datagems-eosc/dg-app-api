@@ -12,6 +12,5 @@ namespace DataGEMS.Gateway.App.Common
 		TaskOrchestrator = 6,
 		DatasetRecommender = 7,
 		DatasetPackaging = 8,
-		InDatasetDiscovery = 9,
 	}
 }

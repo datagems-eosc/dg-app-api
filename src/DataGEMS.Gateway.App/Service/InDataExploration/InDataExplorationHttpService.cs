@@ -95,7 +95,7 @@ namespace DataGEMS.Gateway.App.Service.InDataExploration
 			catch (System.Exception ex)
 			{
 				this._logger.LogError(ex, "Failed to parse response: {content}", content);
-				throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.InDatasetDiscovery, this._logCorrelationScope.CorrelationId);
+				throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.InDataExploration, this._logCorrelationScope.CorrelationId);
 			}
 			return rawResponse;
 		}
