@@ -55,6 +55,7 @@ namespace DataGEMS.Gateway.App.Accounting
 		UserFavorite = 15,
 		DatasetPackaging = 16,
 		DatasetRecommender = 17,
+		InDatasetDiscovery = 18,
 	}
 
 	public class AccountingInfo
