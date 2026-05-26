@@ -1,11 +1,13 @@
 ﻿using Cite.Tools.FieldSet;
 using DataGEMS.Gateway.App.Model;
+using DataGEMS.Gateway.App.Service.Discovery.Model;
 
 namespace DataGEMS.Gateway.App.Service.Discovery
 {
 	public interface ICrossDatasetDiscoveryService
 	{
 		Task<List<CrossDatasetDiscovery>> DiscoverAsync(DiscoverInfo request, IFieldSet fieldSet);
+		Task<CorpusAnalysisResponse> CorpusAnalysisAsync(LanguagePilotRequest languagePilotRequest);
 	}
 
 	public class DiscoverInfo

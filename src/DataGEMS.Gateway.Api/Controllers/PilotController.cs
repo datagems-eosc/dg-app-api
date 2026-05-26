@@ -19,6 +19,8 @@ using DataGEMS.Gateway.App.Model.Builder;
 using DataGEMS.Gateway.App.Query;
 using DataGEMS.Gateway.App.Service.DataManagement;
 using DataGEMS.Gateway.App.Service.DatasetRecommender;
+using DataGEMS.Gateway.App.Service.Discovery;
+using DataGEMS.Gateway.App.Service.Discovery.Model;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
@@ -39,6 +41,8 @@ namespace DataGEMS.Gateway.Api.Controllers
 		private readonly ErrorThesaurus _errors;
 		private readonly IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> _localizer;
 		private readonly IDatasetRecommenderService _datasetRecommenderService;
+		private readonly ICrossDatasetDiscoveryService _crossDatasetDiscoveryService;
+		private readonly IAuthorizationContentResolver _authorizationContentResolver;
 
 		public PilotController(
 			CensorFactory censorFactory,
@@ -49,7 +53,9 @@ namespace DataGEMS.Gateway.Api.Controllers
 			IDataManagementService datasetService,
 			ErrorThesaurus errors,
 			IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> localizer,
-			IDatasetRecommenderService datasetRecommenderService)
+			IDatasetRecommenderService datasetRecommenderService,
+			ICrossDatasetDiscoveryService crossDatasetDiscoveryService,
+			IAuthorizationContentResolver authorizationContentResolver)
 		{
 			this._censorFactory = censorFactory;
 			this._queryFactory = queryFactory;
@@ -60,6 +66,8 @@ namespace DataGEMS.Gateway.Api.Controllers
 			this._errors = errors;
 			this._localizer = localizer;
 			this._datasetRecommenderService = datasetRecommenderService;
+			this._crossDatasetDiscoveryService = crossDatasetDiscoveryService;
+			this._authorizationContentResolver = authorizationContentResolver;
 		}
 
 		[HttpPost("mathe/recommend")]
@@ -116,9 +124,130 @@ namespace DataGEMS.Gateway.Api.Controllers
 		{
 			this._logger.Debug(new MapLogEntry("linguistic features").And("request", request));
 
+			List<Guid> datasetIds = await this._authorizationContentResolver.EffectiveContextAffiliatedDatasets(Permission.CanExecuteLinguisticFeatures);
+			if (datasetIds == null || request.DatasetIds.Any(x => !datasetIds.Contains(x))) throw new DGUnauthorizedException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+
+			CorpusAnalysisResponse crossDatasetDiscoveryResponse = await this._crossDatasetDiscoveryService.CorpusAnalysisAsync(request);
+
+			//InDatasetDiscoveryRequest(crossDatasetDiscoveryResponse) = LanguagePilotResponse
+
 			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.CrossDatasetDiscovery.AsAccountable());
 
-			return new LanguagePilotResponse();
+			return new LanguagePilotResponse
+			{
+				UsedChunks = [
+					new LanguagePilotResponse.BaseMetric{
+						DatasetId = Guid.NewGuid(),
+						ObjectId = "kp-eb0707-031203-1328-v2.xml",
+						Similarity = 1
+					}
+				],
+				Features = [
+					new LanguagePilotResponse.Metric{
+						DatasetId = Guid.Parse("d84d1a2e-127d-4393-91d0-afb7e4fd9c68"),
+						ObjectId = "kp-eb0707-031203-1328-v2.xml",
+						Similarity = 1,
+						TermFrequencies = [
+							new LanguagePilotResponse.Metric.TermFrequency
+							{
+							  Term =  "chief",
+							  Count =  1,
+							  Frequency =  0.142857
+							},
+							new LanguagePilotResponse.Metric.TermFrequency{
+							  Term =  "copraja",
+							  Count =  1,
+							  Frequency =  0.142857
+							},
+							new LanguagePilotResponse.Metric.TermFrequency{
+							  Term =  "island",
+							  Count =  1,
+							  Frequency =  0.142857
+							},
+							new LanguagePilotResponse.Metric.TermFrequency{
+							  Term =  "mediterranean",
+							  Count =  1,
+							  Frequency =  0.142857
+							},
+							new LanguagePilotResponse.Metric.TermFrequency{
+							  Term =  "sea",
+							  Count =  1,
+							  Frequency =  0.142857
+							},
+							new LanguagePilotResponse.Metric.TermFrequency{
+							  Term =  "town",
+							  Count =  1,
+							  Frequency =  0.142857
+							},
+							new LanguagePilotResponse.Metric.TermFrequency{
+							  Term =  "tratozzio",
+							  Count =  1,
+							  Frequency =  0.142857
+							}
+						],
+						SentimentProfile = new LanguagePilotResponse.Metric.MetricSentimentProfile{
+							Label = "Neutral",
+							PositiveTerms = 0,
+							NegativeTerms = 0,
+							NeutralTerms = 12,
+							TotalTerms = 12,
+							PolarityScore = 0,
+							SubjectivityScore = 0
+						},
+						Collocations = [
+							new LanguagePilotResponse.Metric.Collocation
+							{
+								Terms =  [
+								"chief",
+								"town"
+								],
+								Count =  1,
+								AssociationScore =  2.807355
+							},
+							new LanguagePilotResponse.Metric.Collocation{
+								Terms =  [
+								"copraja",
+								"island"
+								],
+								Count =  1,
+								AssociationScore =  2.807355
+							},
+							new LanguagePilotResponse.Metric.Collocation{
+								Terms =  [
+								"island",
+								"mediterranean"
+								],
+								Count =  1,
+								AssociationScore =  2.807355
+							},
+							new LanguagePilotResponse.Metric.Collocation{
+								Terms =  [
+								"mediterranean",
+								"sea"
+								],
+								Count =  1,
+								AssociationScore =  2.807355
+							},
+							new LanguagePilotResponse.Metric.Collocation{
+								Terms =  [
+								"sea",
+								"chief"
+								],
+								Count =  1,
+								AssociationScore =  2.807355
+							},
+							new LanguagePilotResponse.Metric.Collocation{
+								Terms =  [
+								"town",
+								"tratozzio"
+								],
+								Count =  1,
+								AssociationScore =  2.807355
+							}
+						]
+					}
+				]
+			};
 		}
 	}
 }

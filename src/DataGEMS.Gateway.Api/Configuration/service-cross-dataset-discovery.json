@@ -3,6 +3,7 @@
     "Scope": "datagems",
     "BaseUrl": "%{CrossDatasetDiscoveryBaseUrl}%",
     "SearchEndpoint": "search/",
+    "CorpusAnalysisEndpoint": "corpus-analysis-search/",
     "DefaultResultCount": 5,
     "UseTaskOrcherstrator": true
   }

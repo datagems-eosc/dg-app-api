@@ -43,7 +43,7 @@ namespace DataGEMS.Gateway.App.Model
 
 	public class LanguagePilotResponse
 	{
-		public List<Metric> Metrics { get; set; }
+		public List<Metric> Features { get; set; }
 
 		public class Metric : BaseMetric
 		{
@@ -52,7 +52,7 @@ namespace DataGEMS.Gateway.App.Model
 			public class TermFrequency
 			{
 				public string Term { get; set; }
-				public decimal Frequency { get; set; }
+				public double Frequency { get; set; }
 				public int Count { get; set; }
 			}
 
@@ -74,7 +74,7 @@ namespace DataGEMS.Gateway.App.Model
 			{
 				public List<string> Terms { get; set; }
 				public int Count { get; set; }
-				public decimal AssociationScore { get; set; }
+				public double AssociationScore { get; set; }
 			}
 		}
 

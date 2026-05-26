@@ -48,6 +48,8 @@ namespace DataGEMS.Gateway.App.Authorization
 		public const String BrowseDatasetFiles = "BrowseDatasetFiles";
 		//DatasetCollection
 		public const String BrowseDatasetCollection = "BrowseDatasetCollection";
+		//Pilot
+		public const String CanExecuteLinguisticFeatures = "CanExecuteLinguisticFeatures";
 		//User
 		public const String BrowseUser = "BrowseUser";
 		public const String BrowseUserGroup = "BrowseUserGroup";
