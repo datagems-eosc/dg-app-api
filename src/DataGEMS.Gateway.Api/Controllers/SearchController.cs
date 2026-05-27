@@ -360,7 +360,9 @@ namespace DataGEMS.Gateway.Api.Controllers
 		{
 			this._logger.Debug(new MapLogEntry("querying").And("type", nameof(App.Model.AdHocQuery)).And("lookup", lookup));
 
-			IFieldSet censoredFields = await this._censorFactory.Censor<AdHocQueryCensor>().Censor(lookup.Project, CensorContext.AsCensor());
+			Guid? userId = await this._authorizationContentResolver.CurrentUserId();
+			if (!userId.HasValue) throw new DGApplicationException(this._errors.UserSync.Code, this._errors.UserSync.Message);
+			IFieldSet censoredFields = await this._censorFactory.Censor<AdHocQueryCensor>().Censor(lookup.Project, CensorContext.AsCensor(), userId);
 			if (lookup.Project.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
 
 			AdHocQueryQuery query = lookup.Enrich(this._queryFactory).DisableTracking().Authorize(AuthorizationFlags.Any);
