@@ -203,6 +203,9 @@ namespace DataGEMS.Gateway.App.Service.DatasetFileManagement
 
 			string path = (string)node.Properties["contentUrl"];
 			string normalized = path.StartsWith("s3://") ? "/s3/" + path.Substring("s3://".Length) : path;
+
+			if (!File.Exists(normalized)) return null;
+
 			return new FileDetails
 			{
 				Contents = await this._storageService.ReadByteSafeAsync(normalized),

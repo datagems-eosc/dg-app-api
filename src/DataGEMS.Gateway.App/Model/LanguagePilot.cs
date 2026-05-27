@@ -32,10 +32,10 @@ namespace DataGEMS.Gateway.App.Model
 					this.Spec()
 						.Must(() => !this.IsEmpty(item.Query))
 						.FailOn(nameof(LanguagePilotRequest.Query)).FailWith(this._localizer["validation_required", nameof(LanguagePilotRequest.Query)]),
-					//dataset ids must not be empty
+					//dataset ids must not be empty if set
 					this.Spec()
-						.If(() => item.DatasetIds == null || !item.DatasetIds.Any())
-						.Must(() => false)
+						.If(() => item.DatasetIds != null)
+						.Must(() => item.DatasetIds.Count > 0)
 						.FailOn(nameof(LanguagePilotRequest.DatasetIds)).FailWith(this._localizer["validation_required", nameof(LanguagePilotRequest.DatasetIds)]),
 				];
 			}

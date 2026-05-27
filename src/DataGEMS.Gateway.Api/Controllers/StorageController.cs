@@ -147,6 +147,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
 		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
 		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
+		[SwaggerResponse(statusCode: 404, description: "Could not locate item with the provided id")]
 		[SwaggerResponse(statusCode: 500, description: "Internal error")]
 		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
 		public async Task<FileContentResult> DownloadDatasetFile(
@@ -172,6 +173,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
 		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
 		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
+		[SwaggerResponse(statusCode: 404, description: "Could not locate item with the provided id")]
 		[SwaggerResponse(statusCode: 500, description: "Internal error")]
 		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
 		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
@@ -199,6 +201,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
 		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
 		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
+		[SwaggerResponse(statusCode: 404, description: "Could not locate item with the provided id")]
 		[SwaggerResponse(statusCode: 500, description: "Internal error")]
 		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
 		public async Task<FileContentResult> DownloadAdHocResult(
