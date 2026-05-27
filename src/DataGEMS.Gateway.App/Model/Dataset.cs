@@ -272,4 +272,33 @@ namespace DataGEMS.Gateway.App.Model
 		}
 	}
 
+	public class DatasetCddIngest
+	{
+		public Guid? Id { get; set; }
+
+		public class CddIngestValidator : BaseValidator<DatasetCddIngest>
+		{
+			public CddIngestValidator(
+				IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> localizer,
+				ValidatorFactory validatorFactory,
+				ILogger<CddIngestValidator> logger,
+				ErrorThesaurus errors) : base(validatorFactory, logger, errors)
+			{
+				this._localizer = localizer;
+			}
+
+			private readonly IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> _localizer;
+
+			protected override IEnumerable<ISpecification> Specifications(DatasetCddIngest item)
+			{
+				return [
+					//id must be set
+					this.Spec()
+						.Must(() => this.IsValidGuid(item.Id))
+						.FailOn(nameof(DatasetCddIngest.Id)).FailWith(this._localizer["validation_required", nameof(DatasetCddIngest.Id)]),
+				];
+			}
+		}
+	}
+
 }

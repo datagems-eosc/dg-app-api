@@ -256,5 +256,36 @@ namespace DataGEMS.Gateway.Api.Controllers
 
 			return id;
 		}
+
+
+		[HttpPost("cdd-ingest")]
+		[Authorize]
+		[ModelStateValidationFilter]
+		[ValidationFilter(typeof(App.Model.DatasetCddIngest.CddIngestValidator), "model")]
+		[ServiceFilter(typeof(AppTransactionFilter))]
+		[SwaggerOperation(Summary = "CDD Ingest dataset")]
+		[SwaggerResponse(statusCode: 200, description: "The registered dataset id", type: typeof(Guid))]
+		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
+		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
+		[SwaggerResponse(statusCode: 404, description: "Could not locate item with the provided id")]
+		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
+		[SwaggerResponse(statusCode: 500, description: "Internal error")]
+		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
+		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
+		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
+		public async Task<Guid> CddIngest(
+			[FromBody]
+			[SwaggerRequestBody(description: "The dataset to ingest to CDD", Required = true)]
+			App.Model.DatasetCddIngest model)
+		{
+			this._logger.Debug(new MapLogEntry("cdd-ingest").And("model", model));
+
+			Guid id = await this._datasetService.CddIngestAsync(model);
+
+			this._accountingService.AccountFor(KnownActions.CddIngest, KnownResources.Dataset.AsAccountable());
+			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.Workflow.AsAccountable());
+
+			return id;
+		}
 	}
 }

@@ -41,6 +41,7 @@ namespace DataGEMS.Gateway.App.Authorization
 		public const String ProfileDataset = "ProfileDataset";
 		public const String PackageDataset = "PackageDataset";
 		public const String RecommendationRegisterDataset = "RecommendationRegisterDataset";
+		public const String CddIngestDataset = "CddIngestDataset";
 		public const String EditDataset = "EditDataset";
 		public const String DeleteDataset = "DeleteDataset";
 		public const String PowerSearchDataset = "PowerSearchDataset";
@@ -62,6 +63,7 @@ namespace DataGEMS.Gateway.App.Authorization
 		public const String CanExecuteDatasetProfiling = "CanExecuteDatasetProfiling";
 		public const String CanExecuteDatasetPackaging = "CanExecuteDatasetPackaging";
 		public const String CanExecuteDatasetRecommendationRegistering = "CanExecuteDatasetRecommendationRegistering";
+		public const String CanExecuteDatasetCddIngest = "CanExecuteDatasetCddIngest";
 		public const String BrowseWorkflowExecution = "BrowseWorkflowExecution";
 		public const String BrowseWorkflowTask = "BrowseWorkflowTask";
 		public const String BrowseWorkflowTaskInstance = "BrowseWorkflowTaskInstance";

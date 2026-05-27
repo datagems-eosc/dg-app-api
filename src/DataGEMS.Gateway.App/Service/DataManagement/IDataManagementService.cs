@@ -8,5 +8,6 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 		Task<Guid> ProfileAsync(App.Model.DatasetProfiling model);
 		Task<Guid> PackageAsync(App.Model.DatasetPackaging model);
 		Task<Guid> RecommendationRegisterAsync(App.Model.DatasetRecommendationRegistering model);
+		Task<Guid> CddIngestAsync(App.Model.DatasetCddIngest model);
 	}
 }

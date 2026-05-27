@@ -89,6 +89,11 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 			await this._authorizationService.AuthorizeForce(Permission.CanExecuteDatasetRecommendationRegistering);
 		}
 
+		private async Task AuthorizeExecuteCddIngestWorkflowForce()
+		{
+			await this._authorizationService.AuthorizeForce(Permission.CanExecuteDatasetCddIngest);
+		}
+
 		private async Task AuthorizeCreateForce()
 		{
 			await this._authorizationService.AuthorizeForce(Permission.OnboardDataset);
@@ -107,6 +112,11 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 		private async Task AuthorizeRecommendationRegisterForce()
 		{
 			await this._authorizationService.AuthorizeForce(Permission.RecommendationRegisterDataset);
+		}
+
+		private async Task AuthorizeCddIngestForce()
+		{
+			await this._authorizationService.AuthorizeForce(Permission.CddIngestDataset);
 		}
 
 		private async Task AutoAssignNewDatasetRoles(Guid datasetId)
@@ -363,5 +373,54 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
 			});
 		}
 
+
+
+		public async Task<Guid> CddIngestAsync(App.Model.DatasetCddIngest viewModel)
+		{
+			this._logger.Debug(new MapLogEntry("cdd-ingest").And("model", viewModel));
+
+			await this.AuthorizeCddIngestForce();
+			await this.AuthorizeExecuteCddIngestWorkflowForce();
+
+			List<Dataset> datas = (await this._queryFactory.Query<DatasetHttpQuery>()
+				.Ids(viewModel.Id.Value)
+				.CollectAsync())?.Items ?? [];
+			if (datas == null || datas.Count == 0) throw new DGNotFoundException(this._localizer["general_notFound", viewModel.Id.Value, nameof(App.Model.Dataset)]);
+			if (datas.Count > 1) throw new DGFoundManyException(this._localizer["general_nonUnique", viewModel.Id.Value, nameof(App.Model.Dataset)]);
+
+			FieldSet fields = new FieldSet(nameof(App.Model.Dataset.Id));
+			App.Model.Dataset model = await this._builderFactory.Builder<App.Model.Builder.DatasetBuilder>().Build(fields, datas.First());
+			await this.ExecuteCddIngestWorkflow(model);
+
+			return viewModel.Id.Value;
+		}
+
+		private async Task ExecuteCddIngestWorkflow(App.Model.Dataset model)
+		{
+			this._logger.Debug(new MapLogEntry("cdd-ingest").And("type", nameof(ExecuteCddIngestWorkflow)).And("model", model));
+
+			List<Airflow.Model.AirflowDag> definitions = await this._queryFactory.Query<WorkflowDefinitionHttpQuery>()
+				.Kinds(Common.WorkflowDefinitionKind.CDD_Ingest)
+				.ExcludeStaled(true)
+				.CollectAsync();
+
+			if (definitions == null || definitions.Count == 0) throw new DGNotFoundException(this._localizer["general_notFound", Common.WorkflowDefinitionKind.CDD_Ingest.ToString(), nameof(App.Model.WorkflowDefinition)]);
+			if (definitions.Count > 1) throw new DGFoundManyException(this._localizer["general_nonUnique", Common.WorkflowDefinitionKind.CDD_Ingest.ToString(), nameof(App.Model.WorkflowDefinition)]);
+			Airflow.Model.AirflowDag selectedDefinition = definitions.FirstOrDefault();
+			_ = await this._airflowService.ExecuteWorkflowAsync(new App.Model.WorkflowExecutionArgs
+			{
+				WorkflowId = selectedDefinition.Id,
+				Configurations = new
+				{
+					id = model.Id,
+				}
+			}, new FieldSet
+			{
+				Fields = [
+				nameof(App.Model.WorkflowExecution.Id),
+				nameof(App.Model.WorkflowExecution.WorkflowId),
+				]
+			});
+		}
 	}
 }
