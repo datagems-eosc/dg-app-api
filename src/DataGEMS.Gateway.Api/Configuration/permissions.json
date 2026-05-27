@@ -197,8 +197,8 @@
 			},
 			//Pilot
 			"CanExecuteLinguisticFeatures": {
-				"Roles": [ "GLOBAL_dg_admin" ],
-				"ContextRoles": [ "dg_ds-browse" ],
+				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_user" ],
+				"ContextRoles": [],
 				"Claims": [],
 				"Clients": [],
 				"AllowAnonymous": false,

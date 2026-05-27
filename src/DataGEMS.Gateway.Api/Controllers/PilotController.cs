@@ -129,8 +129,8 @@ namespace DataGEMS.Gateway.Api.Controllers
 		{
 			this._logger.Debug(new MapLogEntry("linguistic features").And("request", request));
 
-			List<Guid> datasetIds = await this._authorizationContentResolver.EffectiveContextAffiliatedDatasets(Permission.CanExecuteLinguisticFeatures);
-			if (datasetIds == null || request.DatasetIds.Any(x => !datasetIds.Contains(x))) throw new DGUnauthorizedException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+			Boolean canExecute = await this._authorizationContentResolver.HasPermission(Permission.CanExecuteLinguisticFeatures);
+			if (!canExecute) throw new DGUnauthorizedException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
 
 			CorpusAnalysisResponse crossDatasetDiscoveryResponse = await this._crossDatasetDiscoveryService.CorpusAnalysisAsync(request);
 
