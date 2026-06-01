@@ -152,7 +152,8 @@ namespace DataGEMS.Gateway.App.Query
 					.CollectionIds(this._collectionIds)
 					.AsDistinct()
 					.CollectAsync(x => x.DatasetId);
-				if (this._ids != null && this._ids.Count > 0)
+				if (this._ids == null || this._ids.Count == 0) datasetIdsToUse = collectionDatasetIds;
+				else
 				{
 					datasetIdsToUse = this._ids.Intersect(collectionDatasetIds).ToList();
 					if (datasetIdsToUse.Count > 0) return null;
