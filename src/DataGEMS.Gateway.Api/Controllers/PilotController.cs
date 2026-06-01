@@ -134,10 +134,11 @@ namespace DataGEMS.Gateway.Api.Controllers
 
 			CorpusAnalysisResponse crossDatasetDiscoveryResponse = await this._crossDatasetDiscoveryService.CorpusAnalysisAsync(request);
 
-			var inDatasetDiscoveryResponse = await this._inDatasetDiscoveryService.LinguisticFeaturesAsync(new LinguisticFeaturesRequest
+			LanguagePilotResponse inDatasetDiscoveryResponse = await this._inDatasetDiscoveryService.LinguisticFeaturesAsync(new LinguisticFeaturesRequest
 			{
 				Question = request.Query,
-				RagOutput = crossDatasetDiscoveryResponse
+				RagOutput = crossDatasetDiscoveryResponse,
+				RequestedFeatures = request.IncludedFeatures ?? []
 			});
 
 			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.CrossDatasetDiscovery.AsAccountable());

@@ -162,4 +162,7 @@
   <data name="validation_positive_integer" xml:space="preserve">
     <value>{0} must be a positive integer.</value>
   </data>
+  <data name="validation_includedFeaturesMismatch" xml:space="preserve">
+    <value>Included features must be among the allowed properties.</value>
+  </data>
 </root>

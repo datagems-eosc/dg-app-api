@@ -9,5 +9,8 @@ namespace DataGEMS.Gateway.App.Service.InDataExploration.Model
 
 		[JsonProperty("rag_output")]
 		public Discovery.Model.CorpusAnalysisResponse RagOutput { get; set; }
+
+		[JsonProperty("requested_features")]
+		public List<string> RequestedFeatures { get; set; }
 	}
 }
