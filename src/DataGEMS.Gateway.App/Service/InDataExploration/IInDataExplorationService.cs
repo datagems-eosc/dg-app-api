@@ -1,4 +1,5 @@
 ﻿using Cite.Tools.FieldSet;
+using DataGEMS.Gateway.App.Common.Enum;
 using DataGEMS.Gateway.App.Model;
 using DataGEMS.Gateway.App.Service.InDataExploration.Model;
 
@@ -8,6 +9,7 @@ namespace DataGEMS.Gateway.App.Service.InDataExploration
 	{
 		Task<App.Model.InDataExplore> ExploreAsync(Service.InDataExploration.ExploreInfo request, IFieldSet fieldSet);
 		Task<LanguagePilotResponse> LinguisticFeaturesAsync(LinguisticFeaturesRequest request);
+		List<String> MapLinguisticFeatureFlag(List<LinguisticFeature> features);
 	}
 
 	public class ExploreInfo

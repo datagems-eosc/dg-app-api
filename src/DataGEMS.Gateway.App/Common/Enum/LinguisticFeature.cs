@@ -1,9 +1,14 @@
-﻿namespace DataGEMS.Gateway.App.Common.Enum
+﻿using System.ComponentModel;
+
+namespace DataGEMS.Gateway.App.Common.Enum
 {
 	public enum LinguisticFeature: short
 	{
-		term_frequency = 0,
-		sentiment_profile = 1,
-		collocations = 2
+		[Description("Term Frequency")]
+		TermFrequency = 0,
+		[Description("Sentiment Profile")]
+		SentimentProfile = 1,
+		[Description("Collocations")]
+		Collocations = 2
 	}
 }

@@ -5,6 +5,7 @@ using Cite.Tools.Logging.Extensions;
 using DataGEMS.Gateway.App.AccessToken;
 using DataGEMS.Gateway.App.Authorization;
 using DataGEMS.Gateway.App.Common;
+using DataGEMS.Gateway.App.Common.Enum;
 using DataGEMS.Gateway.App.ErrorCode;
 using DataGEMS.Gateway.App.Exception;
 using DataGEMS.Gateway.App.LogTracking;
@@ -53,6 +54,13 @@ namespace DataGEMS.Gateway.App.Service.InDataExploration
 			this._jsonHandlingService = jsonHandlingService;
 			this._errors = errors;
 			this._builderFactory = builderFactory;
+		}
+
+		public List<String> MapLinguisticFeatureFlag(List<LinguisticFeature> features)
+		{
+			if(features == null || features.Count == 0) return null;
+			List<String> mappedFeatures = features.Where(x=> this._config.LinguisticFeatureMap.ContainsKey(x)).Select(x=> this._config.LinguisticFeatureMap[x]).ToList();
+			return mappedFeatures;
 		}
 
 		public async Task<InDataExplore> ExploreAsync(ExploreInfo request, IFieldSet fieldSet)
