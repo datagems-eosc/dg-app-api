@@ -138,7 +138,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			{
 				Question = request.Query,
 				RagOutput = crossDatasetDiscoveryResponse,
-				RequestedFeatures = request.IncludedFeatures ?? []
+				RequestedFeatures = request.IncludedFeatures?.Select(x => x.ToString()).ToList() ?? []
 			});
 
 			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.CrossDatasetDiscovery.AsAccountable());

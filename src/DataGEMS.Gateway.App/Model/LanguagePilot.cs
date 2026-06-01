@@ -1,5 +1,5 @@
 ﻿using Cite.Tools.Validation;
-using DataGEMS.Gateway.App.Common.Attributes;
+using DataGEMS.Gateway.App.Common.Enum;
 using DataGEMS.Gateway.App.Common.Validation;
 using DataGEMS.Gateway.App.ErrorCode;
 using Microsoft.Extensions.Localization;
@@ -12,7 +12,7 @@ namespace DataGEMS.Gateway.App.Model
 	{
 		public string Query { get; set; }
 		public List<Guid> DatasetIds { get; set; }
-		public List<string> IncludedFeatures { get; set; }
+		public List<LinguisticFeature> IncludedFeatures { get; set; }
 
 		public class RequestValidator : BaseValidator<LanguagePilotRequest>
 		{
@@ -39,27 +39,13 @@ namespace DataGEMS.Gateway.App.Model
 						.If(() => item.DatasetIds != null)
 						.Must(() => item.DatasetIds.Count > 0)
 						.FailOn(nameof(LanguagePilotRequest.DatasetIds)).FailWith(this._localizer["validation_required", nameof(LanguagePilotRequest.DatasetIds)]),
-					//if included features is set and is not empty, its items must match the properties of LanguagePilotResponse.Metric
+					//included features must be among the allowed set
 					this.Spec()
-						.If(() => item.IncludedFeatures != null && item.IncludedFeatures.Count > 0)
-						.Must(() => item.IncludedFeatures.All(x => AllowedIncludedFeatures.Contains(x)))
+						.If(() => item.IncludedFeatures != null)
+						.Must(() => item.IncludedFeatures.All(x => Enum.IsDefined(typeof(LinguisticFeature), x)))
 						.FailOn(nameof(LanguagePilotRequest.IncludedFeatures)).FailWith(this._localizer["validation_includedFeaturesMismatch"])
 				];
 			}
-
-			private static readonly HashSet<string> AllowedIncludedFeatures = typeof(LanguagePilotResponse.Metric)
-				.GetProperties()
-				.Where(property => property
-					.GetCustomAttributes(typeof(OptionalLanguagePilotFeatureAttribute), inherit: true)
-					.Length != 0)
-				.Select(property =>
-					property
-						.GetCustomAttributes(typeof(JsonPropertyAttribute), inherit: true)
-						.OfType<JsonPropertyAttribute>()
-						.FirstOrDefault()
-						?.PropertyName
-					?? property.Name)
-				.ToHashSet();
 		}
 	}
 
@@ -71,7 +57,6 @@ namespace DataGEMS.Gateway.App.Model
 		public class Metric : BaseMetric
 		{
 			[JsonProperty("term_frequency")]
-			[OptionalLanguagePilotFeature]
 			public List<TermFrequency> TermFrequencies { get; set; }
 
 			public class TermFrequency
@@ -85,7 +70,6 @@ namespace DataGEMS.Gateway.App.Model
 			}
 
 			[JsonProperty("sentiment_profile")]
-			[OptionalLanguagePilotFeature]
 			public MetricSentimentProfile SentimentProfile { get; set; }
 
 			public class MetricSentimentProfile
@@ -107,7 +91,6 @@ namespace DataGEMS.Gateway.App.Model
 			}
 
 			[JsonProperty("collocations")]
-			[OptionalLanguagePilotFeature]
 			public List<Collocation> Collocations { get; set; }
 			public class Collocation
 			{
