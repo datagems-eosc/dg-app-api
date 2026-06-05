@@ -53,7 +53,8 @@
 				"id": "{{op_node_id}}",
 				"labels": [
 					"Query_Operator",
-					"CDD_Operator"
+					"CDD_Operator",
+					"Operator"
 				],
 				"properties": {
 					"description": "Dataset search executed via Cross-Dataset Discovery",
