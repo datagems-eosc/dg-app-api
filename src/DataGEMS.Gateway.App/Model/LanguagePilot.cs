@@ -51,6 +51,9 @@ namespace DataGEMS.Gateway.App.Model
 
 	public class LanguagePilotResponse
 	{
+		[JsonProperty("rag_output")]
+		public Service.Discovery.Model.CorpusAnalysisResponse RagOutput { get; set; }
+
 		[JsonProperty("features")]
 		public List<Metric> Features { get; set; }
 

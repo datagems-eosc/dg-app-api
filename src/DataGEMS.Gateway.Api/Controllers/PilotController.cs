@@ -140,6 +140,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 				RagOutput = crossDatasetDiscoveryResponse,
 				RequestedFeatures = this._inDatasetDiscoveryService.MapLinguisticFeatureFlag(request.IncludedFeatures) ?? []
 			});
+			inDatasetDiscoveryResponse.RagOutput = crossDatasetDiscoveryResponse;
 
 			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.CrossDatasetDiscovery.AsAccountable());
 			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.InDataExploration.AsAccountable());
