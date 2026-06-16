@@ -122,7 +122,7 @@ namespace DataGEMS.Gateway.App.Service.Discovery
 				Content = new StringContent(this._jsonHandlingService.ToJson(new
 				{
 					query = languagePilotRequest.Query,
-					datasetIds = languagePilotRequest.DatasetIds,
+					dataset_ids = languagePilotRequest.DatasetIds,
 				}), Encoding.UTF8, "application/json")
 			};
 			httpRequest.Headers.Add(HeaderNames.Accept, "application/json");
