@@ -18,7 +18,7 @@
 			{
 				"from": "{{task_node_id}}",
 				"labels": [
-					"is_accomplished"
+					"is_accomplished_by"
 				],
 				"to": "{{ap_node_id}}"
 			},
@@ -35,7 +35,8 @@
 				"id": "{{user_node_id}}",
 				"labels": [
 					"User"
-				]
+				],
+				"properties": {}
 			},
 			{
 				"id": "{{ap_node_id}}",
@@ -68,7 +69,8 @@
 				"id": "{{file_obj_node_id}}",
 				"labels": [
 					"cr:FileObject"
-				]
+				],
+				"properties": {}
 			},
 			{
 				"id": "{{task_node_id}}",
