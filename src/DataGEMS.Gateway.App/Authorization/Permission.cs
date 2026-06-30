@@ -44,6 +44,7 @@ namespace DataGEMS.Gateway.App.Authorization
 		public const String CddIngestDataset = "CddIngestDataset";
 		public const String EditDataset = "EditDataset";
 		public const String DeleteDataset = "DeleteDataset";
+		public const String SearchDataset = "SearchDataset";
 		public const String PowerSearchDataset = "PowerSearchDataset";
 		public const String DownloadDatasetFile = "DownloadDatasetFile";
 		public const String BrowseDatasetFiles = "BrowseDatasetFiles";

@@ -213,6 +213,14 @@
 				"AllowAnonymous": false,
 				"AllowAuthenticated": false
 			},
+			"SearchDataset": {
+				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_user" ],
+				"ContextRoles": [ "dg_ds-search" ],
+				"Claims": [],
+				"Clients": [],
+				"AllowAnonymous": false,
+				"AllowAuthenticated": false
+			},
 			"OnboardDataset": {
 				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_dataset-uploader" ],
 				"ContextRoles": [],
@@ -279,7 +287,7 @@
 			},
 			"DownloadDatasetFile": {
 				"Roles": [ "GLOBAL_dg_admin" ],
-				"ContextRoles": [ "dg_download" ],
+				"ContextRoles": [ "dg_ds-download" ],
 				"Claims": [],
 				"Clients": [],
 				"AllowAnonymous": false,
@@ -287,7 +295,7 @@
 			},
 			"BrowseDatasetFiles": {
 				"Roles": [ "GLOBAL_dg_admin" ],
-				"ContextRoles": [ "dg_download" ],
+				"ContextRoles": [ "dg_ds-download" ],
 				"Claims": [],
 				"Clients": [],
 				"AllowAnonymous": false,
