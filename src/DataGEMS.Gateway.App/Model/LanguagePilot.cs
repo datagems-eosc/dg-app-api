@@ -1,9 +1,4 @@
-﻿using Cite.Tools.Validation;
-using DataGEMS.Gateway.App.Common.Enum;
-using DataGEMS.Gateway.App.Common.Validation;
-using DataGEMS.Gateway.App.ErrorCode;
-using Microsoft.Extensions.Localization;
-using Microsoft.Extensions.Logging;
+﻿using DataGEMS.Gateway.App.Common.Enum;
 using Newtonsoft.Json;
 
 namespace DataGEMS.Gateway.App.Model
@@ -14,39 +9,8 @@ namespace DataGEMS.Gateway.App.Model
 		public List<Guid> DatasetIds { get; set; }
 		public List<LinguisticFeature> IncludedFeatures { get; set; }
 
-		public class RequestValidator : BaseValidator<LanguagePilotRequest>
-		{
-			public RequestValidator(
-				IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> localizer,
-				ValidatorFactory validatorFactory,
-				ILogger<RequestValidator> logger,
-				ErrorThesaurus errors) : base(validatorFactory, logger, errors)
-			{
-				this._localizer = localizer;
-			}
-
-			private readonly IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> _localizer;
-
-			protected override IEnumerable<ISpecification> Specifications(LanguagePilotRequest item)
-			{
-				return [
-					//query must always be set
-					this.Spec()
-						.Must(() => !this.IsEmpty(item.Query))
-						.FailOn(nameof(LanguagePilotRequest.Query)).FailWith(this._localizer["validation_required", nameof(LanguagePilotRequest.Query)]),
-					//dataset ids must not be empty if set
-					this.Spec()
-						.If(() => item.DatasetIds != null)
-						.Must(() => item.DatasetIds.Count > 0)
-						.FailOn(nameof(LanguagePilotRequest.DatasetIds)).FailWith(this._localizer["validation_required", nameof(LanguagePilotRequest.DatasetIds)]),
-					//included features must be among the allowed set
-					this.Spec()
-						.If(() => item.IncludedFeatures != null)
-						.Must(() => item.IncludedFeatures.All(x => Enum.IsDefined(typeof(LinguisticFeature), x)))
-						.FailOn(nameof(LanguagePilotRequest.IncludedFeatures)).FailWith(this._localizer["validation_includedFeaturesMismatch"])
-				];
-			}
-		}
+		//GOTCHA: Any changes to this model should cause the version to change
+		public static String ModelVersion = "V1";
 	}
 
 	public class LanguagePilotResponse

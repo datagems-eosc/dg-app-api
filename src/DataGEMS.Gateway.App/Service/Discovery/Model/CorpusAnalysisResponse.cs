@@ -10,6 +10,9 @@ namespace DataGEMS.Gateway.App.Service.Discovery.Model
 		[JsonProperty("results")]
 		public List<CorpusAnalysisResponse.CorpusAnalysisResult> Results { get; set; }
 
+		//GOTCHA: Any changes to this model should cause the version to change
+		public static String ModelVersion = "V1";
+
 		public class CorpusAnalysisResult
 		{
 			[JsonProperty("content")]

@@ -10,6 +10,10 @@ namespace DataGEMS.Gateway.App.Common.Conversation
 	[SubTypeConverterMap(ConversationMessageKind.CrossDatasetResponse, typeof(CrossDatasetResponseConversationEntry))]
 	[SubTypeConverterMap(ConversationMessageKind.InDataExploreQuery, typeof(InDataExploreQueryConversationEntry))]
 	[SubTypeConverterMap(ConversationMessageKind.InDataExploreResponse, typeof(InDataSimpleExploreResponseConversationEntry))]
+	[SubTypeConverterMap(ConversationMessageKind.MatheRecommendationQuery, typeof(MatheRecommendationQueryConversationEntry))]
+	[SubTypeConverterMap(ConversationMessageKind.MatheRecommendationResponse, typeof(MatheRecommendationResponseConversationEntry))]
+	[SubTypeConverterMap(ConversationMessageKind.LinguisticFeaturesQuery, typeof(LinguisticFeaturesQueryConversationEntry))]
+	[SubTypeConverterMap(ConversationMessageKind.LinguisticFeaturesResponse, typeof(LinguisticFeaturesResponseConversationEntry))]
 	public abstract class ConversationEntry
 	{
 		public abstract ConversationMessageKind Kind { get; }

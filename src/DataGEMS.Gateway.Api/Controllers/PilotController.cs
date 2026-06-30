@@ -7,16 +7,14 @@ using Cite.Tools.Logging.Extensions;
 using Cite.WebTools.Validation;
 using DataGEMS.Gateway.Api.Model;
 using DataGEMS.Gateway.Api.Model.Lookup;
-using DataGEMS.Gateway.Api.OpenApi;
 using DataGEMS.Gateway.Api.Validation;
 using DataGEMS.Gateway.App.Accounting;
 using DataGEMS.Gateway.App.Authorization;
-using DataGEMS.Gateway.App.Censor;
+using DataGEMS.Gateway.App.Common.Conversation;
 using DataGEMS.Gateway.App.ErrorCode;
 using DataGEMS.Gateway.App.Exception;
 using DataGEMS.Gateway.App.Model;
-using DataGEMS.Gateway.App.Model.Builder;
-using DataGEMS.Gateway.App.Query;
+using DataGEMS.Gateway.App.Service.Conversation;
 using DataGEMS.Gateway.App.Service.DataManagement;
 using DataGEMS.Gateway.App.Service.DatasetRecommender;
 using DataGEMS.Gateway.App.Service.Discovery;
@@ -46,6 +44,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		private readonly ICrossDatasetDiscoveryService _crossDatasetDiscoveryService;
 		private readonly IAuthorizationContentResolver _authorizationContentResolver;
 		private readonly IInDataExplorationService _inDatasetDiscoveryService;
+		private readonly IConversationService _conversationService;
 
 		public PilotController(
 			CensorFactory censorFactory,
@@ -59,7 +58,8 @@ namespace DataGEMS.Gateway.Api.Controllers
 			IDatasetRecommenderService datasetRecommenderService,
 			ICrossDatasetDiscoveryService crossDatasetDiscoveryService,
 			IAuthorizationContentResolver authorizationContentResolver,
-			IInDataExplorationService inDatasetDiscoveryService)
+			IInDataExplorationService inDatasetDiscoveryService,
+			IConversationService conversationService)
 		{
 			this._censorFactory = censorFactory;
 			this._queryFactory = queryFactory;
@@ -73,14 +73,15 @@ namespace DataGEMS.Gateway.Api.Controllers
 			this._crossDatasetDiscoveryService = crossDatasetDiscoveryService;
 			this._authorizationContentResolver = authorizationContentResolver;
 			this._inDatasetDiscoveryService = inDatasetDiscoveryService;
+			this._conversationService = conversationService;
 		}
 
 		[HttpPost("mathe/recommend")]
 		[Authorize]
 		[ModelStateValidationFilter]
-		[ValidationFilter(typeof(MatheRecommendationRequest.RequestValidator), "request")]
+		[ValidationFilter(typeof(MatheRecommendationLookup.RequestValidator), "lookup")]
 		[SwaggerOperation(Summary = "Generate material-based recommendations")]
-		[SwaggerResponse(statusCode: 200, description: "Matching results", type: typeof(App.Service.DatasetRecommender.Model.MatheRecommendationResponse))]
+		[SwaggerResponse(statusCode: 200, description: "Matching results", type: typeof(SearchResult<App.Service.DatasetRecommender.Model.MatheRecommendationResponse>))]
 		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
 		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
 		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
@@ -88,32 +89,43 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
 		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
 		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
-		public async Task<App.Service.DatasetRecommender.Model.MatheRecommendationResponse> RecommendDatasetsAsync(
+		public async Task<SearchResult<App.Service.DatasetRecommender.Model.MatheRecommendationResponse>> RecommendDatasetsAsync(
 			[FromBody]
 			[SwaggerRequestBody(description: "The field set to apply for building the results", Required = true)]
-			MatheRecommendationRequest request
+			MatheRecommendationLookup lookup
 			)
 		{
-			this._logger.Debug(new MapLogEntry("mathE recommendation").And("type", nameof(App.Model.Dataset)).And("request", request));
-
-			App.Service.DatasetRecommender.Model.MatheRecommendationResponse response = await this._datasetRecommenderService.RecommendMatheAsync(new App.Service.DatasetRecommender.Model.MatheRecommendationRequest
+			this._logger.Debug(new MapLogEntry("mathE recommendation").And("type", nameof(App.Model.Dataset)).And("request", lookup));
+			var serviceRequest = new App.Service.DatasetRecommender.Model.MatheRecommendationRequest
 			{
-				QuestionId = request.QuestionId,
-				Question = request.Question,
-				RecommendedMaterialsCount = request.RecommendedMaterialsCount
-			});
+				QuestionId = lookup.QuestionId,
+				Question = lookup.Question,
+				RecommendedMaterialsCount = lookup.RecommendedMaterialsCount
+			};
+			App.Service.DatasetRecommender.Model.MatheRecommendationResponse response = await this._datasetRecommenderService.RecommendMatheAsync(serviceRequest);
 
 			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.DatasetRecommender.AsAccountable());
 
-			return response;
+			Guid? conversationId = await this.UpdateConversation(lookup.ConversationOptions?.ConversationId, lookup.ConversationOptions?.AutoCreateConversation, lookup.Question, null, new MatheRecommendationQueryConversationEntry
+			{
+				Version = App.Service.DatasetRecommender.Model.MatheRecommendationRequest.ModelVersion,
+				Payload = serviceRequest
+			},
+			new MatheRecommendationResponseConversationEntry()
+			{
+				Version = App.Service.DatasetRecommender.Model.MatheRecommendationResponse.ModelVersion,
+				Payload = response
+			});
+
+			return new SearchResult<App.Service.DatasetRecommender.Model.MatheRecommendationResponse>(conversationId, response);
 		}
 
 		[HttpPost("language/linguistic-features")]
 		[Authorize]
 		[ModelStateValidationFilter]
-		[ValidationFilter(typeof(LanguagePilotRequest.RequestValidator), "request")]
+		[ValidationFilter(typeof(LanguagePilotLookup.RequestValidator), "lookup")]
 		[SwaggerOperation(Summary = "Discover linguistic features")]
-		[SwaggerResponse(statusCode: 200, description: "Matching results", type: typeof(LanguagePilotResponse))]
+		[SwaggerResponse(statusCode: 200, description: "Matching results", type: typeof(SearchResult<LanguagePilotResponse>))]
 		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
 		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
 		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
@@ -121,31 +133,67 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
 		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
 		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
-		public async Task<LanguagePilotResponse> LinguisticFeaturesAsync(
+		public async Task<SearchResult<LanguagePilotResponse>> LinguisticFeaturesAsync(
 			[FromBody]
 			[SwaggerRequestBody(description: "The field set to apply for building the results", Required = true)]
-			LanguagePilotRequest request
+			LanguagePilotLookup lookup
 			)
 		{
-			this._logger.Debug(new MapLogEntry("linguistic features").And("request", request));
+			this._logger.Debug(new MapLogEntry("linguistic features").And("request", lookup));
 
 			Boolean canExecute = await this._authorizationContentResolver.HasPermission(Permission.CanExecuteLinguisticFeatures);
 			if (!canExecute) throw new DGUnauthorizedException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
-
-			CorpusAnalysisResponse crossDatasetDiscoveryResponse = await this._crossDatasetDiscoveryService.CorpusAnalysisAsync(request);
+			var corpusAnalysisRequest = new LanguagePilotRequest
+			{
+				DatasetIds = lookup.DatasetIds,
+				IncludedFeatures = lookup.IncludedFeatures,
+				Query = lookup.Query
+			};
+			CorpusAnalysisResponse crossDatasetDiscoveryResponse = await this._crossDatasetDiscoveryService.CorpusAnalysisAsync(corpusAnalysisRequest);
 
 			LanguagePilotResponse inDatasetDiscoveryResponse = await this._inDatasetDiscoveryService.LinguisticFeaturesAsync(new LinguisticFeaturesRequest
 			{
-				Question = request.Query,
+				Question = lookup.Query,
 				RagOutput = crossDatasetDiscoveryResponse,
-				RequestedFeatures = this._inDatasetDiscoveryService.MapLinguisticFeatureFlag(request.IncludedFeatures) ?? []
+				RequestedFeatures = this._inDatasetDiscoveryService.MapLinguisticFeatureFlag(lookup.IncludedFeatures) ?? []
 			});
 			inDatasetDiscoveryResponse.RagOutput = crossDatasetDiscoveryResponse;
 
 			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.CrossDatasetDiscovery.AsAccountable());
 			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.InDataExploration.AsAccountable());
 
-			return inDatasetDiscoveryResponse;
+			Guid? conversationId = await this.UpdateConversation(lookup.ConversationOptions?.ConversationId, lookup.ConversationOptions?.AutoCreateConversation, lookup.Query, null,
+			new LinguisticFeaturesQueryConversationEntry()
+			{
+				Version = LanguagePilotRequest.ModelVersion,
+				Payload = corpusAnalysisRequest
+			},
+			new LinguisticFeaturesResponseConversationEntry()
+			{
+				Version = CorpusAnalysisResponse.ModelVersion,
+				Payload = inDatasetDiscoveryResponse
+			});
+
+			return new SearchResult<LanguagePilotResponse>(
+				conversationId,
+				inDatasetDiscoveryResponse);
+		}
+
+		private async Task<Guid?> UpdateConversation(Guid? conversationId, Boolean? autoCreateConversation, String currentQuery, IEnumerable<Guid> datasetIds, params App.Common.Conversation.ConversationEntry[] entries)
+		{
+			if (!conversationId.HasValue && (!autoCreateConversation.HasValue || (autoCreateConversation.HasValue && !autoCreateConversation.Value))) return null;
+
+			if (!conversationId.HasValue)
+			{
+				String conversationName = await this._conversationService.GenerateConversationName(conversationId, currentQuery);
+				Conversation model = await this._conversationService.PersistAsync(new ConversationPersist() { Name = conversationName }, new FieldSet(nameof(Conversation.Id)));
+				if (model.Id.HasValue) conversationId = model.Id.Value;
+			}
+			if (!conversationId.HasValue) return null;
+
+			await this._conversationService.AppendToConversation(conversationId.Value, entries);
+			await this._conversationService.SetConversationDatasets(conversationId.Value, datasetIds);
+			return conversationId.Value;
 		}
 	}
 }

@@ -17,5 +17,13 @@ namespace DataGEMS.Gateway.App.Common
 		QueryRecommenderQuery = 4,
 		[Description("QueryRecommender Response")]
 		QueryRecommenderResponse = 5,
+		[Description("MathE Recommendation Query")]
+		MatheRecommendationQuery = 6,
+		[Description("MathE Recommendation Response")]
+		MatheRecommendationResponse = 7,
+		[Description("Linguistic Features Query")]
+		LinguisticFeaturesQuery = 8,
+		[Description("Linguistic Features Response")]
+		LinguisticFeaturesResponse = 9,
 	}
 }
