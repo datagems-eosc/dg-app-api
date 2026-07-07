@@ -46,6 +46,12 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 					this.Spec()
 						.Must(() => item.RecommendedMaterialsCount > 0)
 						.FailOn(nameof(MatheRecommendationLookup.RecommendedMaterialsCount)).FailWith(this._localizer["validation_required", nameof(MatheRecommendationLookup.RecommendedMaterialsCount)]),
+					//conversation options must be valid if set
+					this.RefSpec()
+						.If(() => item.ConversationOptions != null)
+						.On(nameof(MatheRecommendationLookup.ConversationOptions))
+						.Over(item.ConversationOptions)
+						.Using(()=>_validatorFactory[typeof(ConversationOptions.ConversationOptionsValidator)]),
 				];
 			}
 		}

@@ -48,7 +48,13 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 					this.Spec()
 						.If(() => item.IncludedFeatures != null)
 						.Must(() => item.IncludedFeatures.All(x => Enum.IsDefined(typeof(LinguisticFeature), x)))
-						.FailOn(nameof(LanguagePilotLookup.IncludedFeatures)).FailWith(this._localizer["validation_includedFeaturesMismatch"])
+						.FailOn(nameof(LanguagePilotLookup.IncludedFeatures)).FailWith(this._localizer["validation_includedFeaturesMismatch"]),
+					//conversation options must be valid if set
+					this.RefSpec()
+						.If(() => item.ConversationOptions != null)
+						.On(nameof(LanguagePilotLookup.ConversationOptions))
+						.Over(item.ConversationOptions)
+						.Using(()=>_validatorFactory[typeof(ConversationOptions.ConversationOptionsValidator)]),
 				];
 			}
 		}
