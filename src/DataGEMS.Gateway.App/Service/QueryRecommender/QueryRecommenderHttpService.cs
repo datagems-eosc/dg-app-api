@@ -61,17 +61,20 @@ namespace DataGEMS.Gateway.App.Service.QueryRecommender
 			string token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
 
-			HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, $"{this._config.BaseUrl}{this._config.RecommendEndpoint}")
+			string requestUrl = $"{this._config.BaseUrl}{this._config.RecommendEndpoint}";
+			string requestBody = this._jsonHandlingService.ToJson(new QueryRecommenderRequest
 			{
-				Content = new StringContent(this._jsonHandlingService.ToJson(new QueryRecommenderRequest
+				CurrentQuery = recommendInfo.Query,
+				Context = new QueryRecommenderRequest.RecommenderContext
 				{
-					CurrentQuery = recommendInfo.Query,
-					Context = new QueryRecommenderRequest.RecommenderContext
-					{
-						UserId = this._authorizationContentResolver.CurrentUser(),
-						Results = null
-					}
-				}), Encoding.UTF8, "application/json")
+					UserId = this._authorizationContentResolver.CurrentUser(),
+					Results = null
+				}
+			});
+			this._logger.Debug("Sending request to {requestUrl} with body {requestBody}", requestUrl, requestBody);
+			HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, requestUrl)
+			{
+				Content = new StringContent(requestBody, Encoding.UTF8, "application/json")
 			};
 			httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 			httpRequest.Headers.Add(this._logTrackingCorrelationConfig.HeaderName, this._logCorrelationScope.CorrelationId);
@@ -90,7 +93,10 @@ namespace DataGEMS.Gateway.App.Service.QueryRecommender
 		private async Task<string> SendRequest(HttpRequestMessage request)
 		{
 			HttpResponseMessage response = null;
-			try { response = await this._httpClientFactory.CreateClient().SendAsync(request); }
+			try {
+				response = await this._httpClientFactory.CreateClient().SendAsync(request);
+				this._logger.Debug("Received response with status code {statusCode}", response?.StatusCode);
+			}
 			catch (System.Exception ex)
 			{
 				this._logger.Error(ex, $"could not complete the request. response was {response?.StatusCode}");
@@ -107,6 +113,7 @@ namespace DataGEMS.Gateway.App.Service.QueryRecommender
 				throw new Exception.DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, (int?)response?.StatusCode, UnderpinningServiceType.QueryRecommender, this._logCorrelationScope.CorrelationId, includeErrorPayload ? errorPayload : null);
 			}
 			string content = await response.Content.ReadAsStringAsync();
+			this._logger.Debug("Response content: {content}", content);
 			return content;
 		}
 	}

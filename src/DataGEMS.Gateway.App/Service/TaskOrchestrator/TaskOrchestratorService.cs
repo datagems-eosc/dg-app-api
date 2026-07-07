@@ -99,7 +99,9 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 			{
 				NullValueHandling = NullValueHandling.Ignore,
 			});
-			HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, $"{this._config.BaseUrl}{this._config.AdHocQueryEndpoint}")
+			string requestUrl = $"{this._config.BaseUrl}{this._config.AdHocQueryEndpoint}";
+			this._logger.Debug("Sending request to {url} with body {body}", requestUrl, apRequestJson);
+			HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, requestUrl)
 			{
 				Content = new StringContent(apRequestJson, Encoding.UTF8, "application/json")
 			};
@@ -145,7 +147,9 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 
 			string token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
-			HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Get, $"{this._config.BaseUrl}{this._config.AdHocQueryPreviewEndpoint}".Replace("{id}", datasetNode.Id.ToString()).Replace("{lines}", lines.ToString()));
+			string requestUrl = $"{this._config.BaseUrl}{this._config.AdHocQueryPreviewEndpoint}".Replace("{id}", datasetNode.Id.ToString()).Replace("{lines}", lines.ToString());
+			this._logger.Debug("Sending request to {url}", requestUrl);
+			HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Get, requestUrl);
 			httpRequest.Headers.Add(HeaderNames.Accept, "application/json");
 			httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 			httpRequest.Headers.Add(this._logTrackingCorrelationConfig.HeaderName, this._logCorrelationScope.CorrelationId);
@@ -157,7 +161,7 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 		{
 			String token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
-			var apRequest = this._analyticalPatternTemplates.CrossDatasetDiscoveryLookup
+			string apRequest = this._analyticalPatternTemplates.CrossDatasetDiscoveryLookup
 				.Replace("{{ap_node_id}}", Guid.NewGuid().ToString())
 				.Replace("{{op_node_id}}", Guid.NewGuid().ToString())
 				.Replace("{{file_obj_node_id}}", Guid.NewGuid().ToString())
@@ -166,8 +170,9 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 				.Replace("{{start_time}}", DateTime.UtcNow.ToString("O"))
 				.Replace("{{query}}", request.Query)
 				.Replace("{{k}}", request.ResultCount.ToString());
-
-			HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, $"{this._config.BaseUrl}{this._config.CrossDatasetDiscoverySearchEndpoint}")
+			string requestUrl = $"{this._config.BaseUrl}{this._config.CrossDatasetDiscoverySearchEndpoint}";
+			this._logger.Debug("Sending request to {url} with body {body}", requestUrl, apRequest);
+			HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, requestUrl)
 			{
 				Content = new StringContent(apRequest, Encoding.UTF8, "application/json")
 			};
@@ -188,6 +193,7 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 				var chosenClient = this._httpClientFactory.CreateClient();
 				if (timeout.HasValue) chosenClient.Timeout = timeout.Value;
 				response = await chosenClient.SendAsync(request);
+				this._logger.Debug("Received response with status code {statusCode}", response?.StatusCode);
 			}
 			catch (System.Exception ex)
 			{
@@ -205,6 +211,7 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 				throw new Exception.DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, (int?)response?.StatusCode, UnderpinningServiceType.TaskOrchestrator, this._logCorrelationScope.CorrelationId, includeErrorPayload ? errorPayload : null);
 			}
 			String content = await response.Content.ReadAsStringAsync();
+			this._logger.Debug("Response content: {content}", content);
 			return content;
 		}
 

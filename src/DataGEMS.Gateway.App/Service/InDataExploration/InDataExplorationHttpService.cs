@@ -68,7 +68,9 @@ namespace DataGEMS.Gateway.App.Service.InDataExploration
 			String token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
 
-			HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Get, $"{this._config.BaseUrl}{this._config.ExploreEndpoint}{new QueryString().Add("question", request.Question).ToString()}");
+			string requestUrl = $"{this._config.BaseUrl}{this._config.ExploreEndpoint}{new QueryString().Add("question", request.Question).ToString()}";
+			this._logger.Debug("Sending request to {url}", requestUrl);
+			HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Get, requestUrl);
 			httpRequest.Headers.Add(HeaderNames.Accept, "application/json");
 			httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 			httpRequest.Headers.Add(this._logTrackingCorrelationConfig.HeaderName, this._logCorrelationScope.CorrelationId);
@@ -111,7 +113,10 @@ namespace DataGEMS.Gateway.App.Service.InDataExploration
 		private async Task<string> SendRequest(HttpRequestMessage request)
 		{
 			HttpResponseMessage response = null;
-			try { response = await this._httpClientFactory.CreateClient().SendAsync(request); }
+			try { 
+				response = await this._httpClientFactory.CreateClient().SendAsync(request);
+				this._logger.Debug("Received response with status code {statusCode}", response?.StatusCode);
+			}
 			catch (System.Exception ex)
 			{
 				this._logger.Error(ex, $"could not complete the request. response was {response?.StatusCode}");
@@ -128,6 +133,7 @@ namespace DataGEMS.Gateway.App.Service.InDataExploration
 				throw new Exception.DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, (int?)response?.StatusCode, UnderpinningServiceType.InDataExploration, this._logCorrelationScope.CorrelationId, includeErrorPayload ? errorPayload : null);
 			}
 			String content = await response.Content.ReadAsStringAsync();
+			this._logger.Debug("Response content: {content}", content);
 			return content;
 		}
 	}

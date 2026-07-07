@@ -113,7 +113,7 @@ namespace DataGEMS.Gateway.App.Query
 		{
 			String token = await this._accessTokenService.GetClientAccessTokenAsync(this._config.Scope);
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
-
+			this._logger.Debug("Sending request to {url}", $"{this._config.BaseUrl}{this._config.GroupsEndpoint}?search={this._config.ContextGrantGroupPrefix}");
 			HttpRequestMessage lookupRootHttpRequest = new HttpRequestMessage(HttpMethod.Get, $"{this._config.BaseUrl}{this._config.GroupsEndpoint}?search={this._config.ContextGrantGroupPrefix}");
 			lookupRootHttpRequest.Headers.Add(HeaderNames.Accept, "application/json");
 			lookupRootHttpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
@@ -135,6 +135,7 @@ namespace DataGEMS.Gateway.App.Query
 
 			while (true)
 			{
+				this._logger.Debug("Sending request to {url}", $"{this._config.BaseUrl}{this._config.GroupChildrenEndpoint.Replace("{groupId}", rootId)}?briefRepresentation=false&first={first}&max={max}");
 				HttpRequestMessage lookupChildrenHttpRequest = new HttpRequestMessage(HttpMethod.Get, $"{this._config.BaseUrl}{this._config.GroupChildrenEndpoint.Replace("{groupId}", rootId)}?briefRepresentation=false&first={first}&max={max}");
 				lookupChildrenHttpRequest.Headers.Add(HeaderNames.Accept, "application/json");
 				lookupChildrenHttpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
@@ -170,6 +171,7 @@ namespace DataGEMS.Gateway.App.Query
 
 			while (true)
 			{
+				this._logger.Debug("Sending request to {url}", $"{this._config.BaseUrl}{this._config.UserGroupsEndpoint.Replace("{userId}", subjectId.ToLowerInvariant())}?briefRepresentation=false&first={first}&max={max}");
 				HttpRequestMessage lookupSubjectGroupsHttpRequest = new HttpRequestMessage(HttpMethod.Get, $"{this._config.BaseUrl}{this._config.UserGroupsEndpoint.Replace("{userId}", subjectId.ToLowerInvariant())}?briefRepresentation=false&first={first}&max={max}");
 				lookupSubjectGroupsHttpRequest.Headers.Add(HeaderNames.Accept, "application/json");
 				lookupSubjectGroupsHttpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
@@ -199,7 +201,11 @@ namespace DataGEMS.Gateway.App.Query
 		private async Task<string> SendRequest(HttpRequestMessage request, Boolean locationHeaderReturn = false)
 		{
 			HttpResponseMessage response = null;
-			try { response = await this._httpClientFactory.CreateClient().SendAsync(request); }
+			try { 
+				response = await this._httpClientFactory.CreateClient().SendAsync(request);
+				this._logger.Debug("Received response with status code {statusCode}", response?.StatusCode);
+
+			}
 			catch (System.Exception ex)
 			{
 				this._logger.Error(ex, $"could not complete the request. response was {response?.StatusCode}");
@@ -220,6 +226,7 @@ namespace DataGEMS.Gateway.App.Query
 				throw new Exception.DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, (int?)response?.StatusCode, UnderpinningServiceType.AAI, this._logCorrelationScope.CorrelationId, includeErrorPayload ? errorPayload : null);
 			}
 			String content = await response.Content.ReadAsStringAsync();
+			this._logger.Debug("Response content: {content}", content);
 
 			if (locationHeaderReturn) content = response.Headers.Location?.ToString();
 			return content;

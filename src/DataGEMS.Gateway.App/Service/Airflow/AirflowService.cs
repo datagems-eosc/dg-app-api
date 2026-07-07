@@ -64,9 +64,12 @@ namespace DataGEMS.Gateway.App.Service.Airflow
 				DagRunId = args.WorkflowExecutionId,
 				IncludeDownstream = true,
 			};
-			HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, $"{this._airflowConfig.BaseUrl}{this._airflowConfig.ClearTaskInstancesEndpoint.Replace("{workflowId}", args.WorkflowId)}")
+			string requestUrl = $"{this._airflowConfig.BaseUrl}{this._airflowConfig.ClearTaskInstancesEndpoint.Replace("{workflowId}", args.WorkflowId)}";
+			string requestBody = this._jsonHandlingService.ToJson(httpRequestModel);
+			this._logger.Debug("Sending request to {url} with body {body}", requestUrl, requestBody);
+			HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, requestUrl)
 			{
-				Content = new StringContent(this._jsonHandlingService.ToJson(httpRequestModel), Encoding.UTF8, "application/json")
+				Content = new StringContent(requestBody, Encoding.UTF8, "application/json")
 			};
 			httpRequest.Headers.Add(HeaderNames.Accept, "application/json");
 			httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
@@ -124,7 +127,10 @@ namespace DataGEMS.Gateway.App.Service.Airflow
 		private async Task<string> SendRequest(HttpRequestMessage request)
 		{
 			HttpResponseMessage response = null;
-			try { response = await this._httpClientFactory.CreateClient().SendAsync(request); }
+			try { 
+				response = await this._httpClientFactory.CreateClient().SendAsync(request); 
+				this._logger.Debug("Received response with status code {statusCode}", response?.StatusCode);
+			}
 			catch (System.Exception ex)
 			{
 				this._logger.Error(ex, $"could not complete the request,the response was {response?.StatusCode}");
@@ -141,6 +147,7 @@ namespace DataGEMS.Gateway.App.Service.Airflow
 				throw new Exception.DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, (int?)response?.StatusCode, UnderpinningServiceType.Workflow, this._logCorrelationScope.CorrelationId, includeErrorPayload ? errorPayload : null);
 			}
 			String content = await response.Content.ReadAsStringAsync();
+			this._logger.Debug("Response content: {content}", content);
 			return content;
 		}
 

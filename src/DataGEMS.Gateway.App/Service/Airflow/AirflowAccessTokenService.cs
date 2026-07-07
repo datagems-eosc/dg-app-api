@@ -52,14 +52,20 @@ namespace DataGEMS.Gateway.App.Service.Airflow
 				password = this._config.Password,
 			};
 
-			HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, $"{this._config.BaseUrl}{this._config.TokenEndpoint}")
+			string requestContent = this._jsonHandlingService.ToJson(tokenRequest);
+			string requestUrl = $"{this._config.BaseUrl}{this._config.TokenEndpoint}";
+			this._logger.Debug("Sending request to {url}", requestUrl);
+			HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, requestUrl)
 			{
-				Content = new StringContent(this._jsonHandlingService.ToJson(tokenRequest), Encoding.UTF8, "application/json")
+				Content = new StringContent(requestContent, Encoding.UTF8, "application/json")
 			};
 			httpRequest.Headers.Add(HeaderNames.Accept, "application/json");
 
 			HttpResponseMessage httpResponse = null;
-			try { httpResponse = await this._httpClientFactory.CreateClient().SendAsync(httpRequest); }
+			try { 
+				httpResponse = await this._httpClientFactory.CreateClient().SendAsync(httpRequest);
+				this._logger.Debug("Received response with status code {statusCode}", httpResponse?.StatusCode);
+			}
 			catch (System.Exception ex)
 			{
 				this._logger.Error(ex, $"could not complete the request. response was {httpResponse?.StatusCode}");

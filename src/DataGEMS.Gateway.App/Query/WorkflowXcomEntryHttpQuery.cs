@@ -65,11 +65,13 @@ namespace DataGEMS.Gateway.App.Query
 			String token = await this._airflowAccessTokenService.GetAirflowAccessTokenAsync();
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
 
-			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"{this._config.BaseUrl}{this._config.XComByIdEndpoint
-				.Replace("{workflowId}", this._workflowId )
+			string requestUrl = $"{this._config.BaseUrl}{this._config.XComByIdEndpoint
+				.Replace("{workflowId}", this._workflowId)
 				.Replace("{executionId}", this._workflowExecutionId)
 				.Replace("{taskId}", this._taskId)
-				.Replace("{xcomKey}", this._xComKey)}");
+				.Replace("{xcomKey}", this._xComKey)}";
+			this._logger.Debug("Sending request to {url}", requestUrl);
+			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
 			request.Headers.Add(HeaderNames.Accept, "application/json");
 			request.Headers.Add(HeaderNames.Authorization, $"Bearer {token}");
 
@@ -117,10 +119,12 @@ namespace DataGEMS.Gateway.App.Query
 				if (this.Page.Size >= 0) qs = qs.Add("limit", this.Page.Size.ToString());
 			}
 
-			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"{this._config.BaseUrl}{this._config.XComListEndpoint
+			string requestUrl = $"{this._config.BaseUrl}{this._config.XComListEndpoint
 				.Replace("{workflowId}", this._workflowId)
 				.Replace("{executionId}", this._workflowExecutionId)
-				.Replace("{taskId}", this._taskId)}");
+				.Replace("{taskId}", this._taskId)}";
+			this._logger.Debug("Sending request to {url}", requestUrl);
+			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
 
 			request.Headers.Add(HeaderNames.Accept, "application/json");
 			request.Headers.Add(HeaderNames.Authorization, $"Bearer {token}");
@@ -141,7 +145,10 @@ namespace DataGEMS.Gateway.App.Query
 		private async Task<String> SendRequest(HttpRequestMessage request)
 		{
 			HttpResponseMessage response = null;
-			try { response = await this._httpClientFactory.CreateClient().SendAsync(request); }
+			try { 
+				response = await this._httpClientFactory.CreateClient().SendAsync(request);
+				this._logger.Debug("Response received with status code {statusCode}", response?.StatusCode);
+			}
 			catch (System.Exception ex)
 			{
 				this._logger.Error(ex, $"could not complete the request. response was {response?.StatusCode}");
@@ -158,6 +165,7 @@ namespace DataGEMS.Gateway.App.Query
 				throw new Exception.DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, (int?)response?.StatusCode, UnderpinningServiceType.Workflow, this._logCorrelationScope.CorrelationId, includeErrorPayload ? errorPayload : null);
 			}
 			String content = await response.Content.ReadAsStringAsync();
+			this._logger.Debug("Response content: {content}", content);
 			return content;
 		}
 

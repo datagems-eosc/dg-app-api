@@ -563,8 +563,12 @@ namespace DataGEMS.Gateway.App.Service.AAI
 
 		private async Task<string> SendRequest(HttpRequestMessage request, Boolean locationHeaderReturn = false)
 		{
+			this._logger.Debug("Sending request to {url}", request.RequestUri);
 			HttpResponseMessage response = null;
-			try { response = await this._httpClientFactory.CreateClient().SendAsync(request); }
+			try { 
+				response = await this._httpClientFactory.CreateClient().SendAsync(request);
+				this._logger.Debug("Received response with status code {statusCode}", response?.StatusCode);
+			}
 			catch (System.Exception ex)
 			{
 				this._logger.Error(ex, $"could not complete the request. response was {response?.StatusCode}");
@@ -585,6 +589,7 @@ namespace DataGEMS.Gateway.App.Service.AAI
 				throw new Exception.DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, (int?)response?.StatusCode, UnderpinningServiceType.AAI, this._logCorrelationScope.CorrelationId, includeErrorPayload ? errorPayload : null);
 			}
 			String content = await response.Content.ReadAsStringAsync();
+			this._logger.Debug("Response content: {content}", content);
 
 			if (locationHeaderReturn) content = response.Headers.Location?.ToString();
 			return content;
