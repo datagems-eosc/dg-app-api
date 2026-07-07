@@ -1,9 +1,17 @@
 ﻿using Cite.Tools.Common.Extensions;
 using Cite.Tools.FieldSet;
+using Cite.Tools.Json;
+using Cite.Tools.Logging.Extensions;
 using Cite.Tools.Time;
+using DataGEMS.Gateway.App.ErrorCode;
 using DataGEMS.Gateway.App.Exception;
+using DataGEMS.Gateway.App.LogTracking;
+using Microsoft.Extensions.Logging;
+using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json.Linq;
 using System.Globalization;
+using System.Net.Http.Headers;
+using System.Net.Mime;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -13,7 +21,7 @@ namespace DataGEMS.Gateway.App.Common
 	{
 		public static List<String> ParseCsv(this String value)
 		{
-			if(String.IsNullOrEmpty(value)) return null;
+			if (String.IsNullOrEmpty(value)) return null;
 			String[] values = value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 			return values.ToList();
 		}
@@ -37,7 +45,7 @@ namespace DataGEMS.Gateway.App.Common
 
 		public static Boolean IsNotNullButEmpty<T>(this IEnumerable<T> enumerable)
 		{
-			if(enumerable == null) return false;
+			if (enumerable == null) return false;
 			return !enumerable.Any();
 		}
 
@@ -170,5 +178,191 @@ namespace DataGEMS.Gateway.App.Common
 			}
 		}
 
+		public static async Task<string> SendGetRequest<TLogger>(
+			this IHttpClientFactory clientFactory,
+			ILogger<TLogger> logger,
+			ErrorThesaurus errors,
+			LogCorrelationScope logCorrelationScope,
+			string url,
+			Dictionary<string, string> headers = null,
+			bool locationHeaderReturn = false)
+		{
+			logger.Debug("Sending GET request to {url}", url);
+			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, url);
+			if (headers != null)
+			{
+				foreach (var header in headers)
+				{
+					request.Headers.TryAddWithoutValidation(header.Key, header.Value);
+				}
+			}
+			HttpResponseMessage response = null;
+			try { 
+				response = await clientFactory.CreateClient().SendAsync(request);
+				logger.Debug("Received response with status code {statusCode}", response?.StatusCode);
+			}
+			catch (System.Exception ex)
+			{
+				logger.Error(ex, $"could not complete the request. response was {response?.StatusCode}");
+				throw new DGUnderpinningException(errors.UnderpinningService.Code, errors.UnderpinningService.Message, (int?)response?.StatusCode, UnderpinningServiceType.AAI, logCorrelationScope.CorrelationId);
+			}
+
+			try
+			{
+				if (response.StatusCode == System.Net.HttpStatusCode.NotFound) return null;
+				else response.EnsureSuccessStatusCode();
+			}
+			catch (System.Exception ex)
+			{
+				string errorPayload = null;
+				try { errorPayload = await response.Content.ReadAsStringAsync(); } catch (System.Exception) { }
+				logger.Error(ex, "non successful response. StatusCode was {statusCode} and Payload {errorPayload}", response?.StatusCode, errorPayload);
+				bool includeErrorPayload = response != null && response.StatusCode == System.Net.HttpStatusCode.BadRequest;
+				throw new Exception.DGUnderpinningException(errors.UnderpinningService.Code, errors.UnderpinningService.Message, (int?)response?.StatusCode, UnderpinningServiceType.AAI, logCorrelationScope.CorrelationId, includeErrorPayload ? errorPayload : null);
+			}
+			string content = await response.Content.ReadAsStringAsync();
+			logger.Debug("Response content: {content}", content);
+			if (locationHeaderReturn) content = response.Headers.Location?.ToString();
+			return content;
+		}
+
+		public static async Task<string> SendPostRequestWithRawBody<TLogger, TBody>(
+			this IHttpClientFactory clientFactory,
+			ILogger<TLogger> logger,
+			ErrorThesaurus errors,
+			LogCorrelationScope logCorrelationScope,
+			JsonHandlingService jsonHandlingService,
+			string url,
+			TBody body,
+			Dictionary<string, string> headers = null,
+			bool locationHeaderReturn = false)
+		{
+			logger.Debug("Sending POST request to {url}", url);
+			string requestContent = body != null ? jsonHandlingService.ToJson(body) : null;
+			logger.Debug("Request content: {content}", requestContent);
+			HttpRequestMessage request = body != null ? new HttpRequestMessage(HttpMethod.Post, url)
+			{
+				Content = new StringContent(requestContent, Encoding.UTF8, MediaTypeNames.Application.Json)
+			} : new HttpRequestMessage(HttpMethod.Post, url);
+			if (headers != null)
+			{
+				foreach (var header in headers)
+				{
+					request.Headers.TryAddWithoutValidation(header.Key, header.Value);
+				}
+			}
+			HttpResponseMessage response = null;
+			try { 
+				response = await clientFactory.CreateClient().SendAsync(request);
+				logger.Debug("Received response with status code {statusCode}", response?.StatusCode);
+			}
+			catch (System.Exception ex)
+			{
+				logger.Error(ex, $"could not complete the request. response was {response?.StatusCode}");
+				throw new DGUnderpinningException(errors.UnderpinningService.Code, errors.UnderpinningService.Message, (int?)response?.StatusCode, UnderpinningServiceType.AAI, logCorrelationScope.CorrelationId);
+			}
+
+			try
+			{
+				if (response.StatusCode == System.Net.HttpStatusCode.NotFound) return null;
+				else response.EnsureSuccessStatusCode();
+			}
+			catch (System.Exception ex)
+			{
+				string errorPayload = null;
+				try { errorPayload = await response.Content.ReadAsStringAsync(); } catch (System.Exception) { }
+				logger.Error(ex, "non successful response. StatusCode was {statusCode} and Payload {errorPayload}", response?.StatusCode, errorPayload);
+				bool includeErrorPayload = response != null && response.StatusCode == System.Net.HttpStatusCode.BadRequest;
+				throw new Exception.DGUnderpinningException(errors.UnderpinningService.Code, errors.UnderpinningService.Message, (int?)response?.StatusCode, UnderpinningServiceType.AAI, logCorrelationScope.CorrelationId, includeErrorPayload ? errorPayload : null);
+			}
+			string content = await response.Content.ReadAsStringAsync();
+			logger.Debug("Response content: {content}", content);
+			if (locationHeaderReturn) content = response.Headers.Location?.ToString();
+			return content;
+		}
+
+		public static async Task<string> SendPostRequestFormUrlEncoded<TLogger>(
+			this IHttpClientFactory clientFactory,
+			ILogger<TLogger> logger,
+			ErrorThesaurus errors,
+			LogCorrelationScope logCorrelationScope,
+			string url,
+			Dictionary<string, string> formBody,
+			Dictionary<string, string> headers = null,
+			bool locationHeaderReturn = false)
+		{
+			logger.Debug("Sending POST form-urlencoded request to {url}", url);
+
+			FormUrlEncodedContent formContent = new FormUrlEncodedContent(
+				formBody ?? new Dictionary<string, string>()
+			);
+
+			string requestContent = await formContent.ReadAsStringAsync();
+			logger.Debug("Request content: {content}", requestContent);
+
+			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, url)
+			{
+				Content = formContent
+			};
+
+			if (headers != null)
+			{
+				foreach (var header in headers)
+				{
+					request.Headers.TryAddWithoutValidation(header.Key, header.Value);
+				}
+			}
+
+			HttpResponseMessage response = null;
+
+			try
+			{
+				response = await clientFactory.CreateClient().SendAsync(request);
+				logger.Debug("Received response with status code {statusCode}", response?.StatusCode);
+			}
+			catch (System.Exception ex)
+			{
+				logger.Error(ex, $"could not complete the request. response was {response?.StatusCode}");
+
+				throw new DGUnderpinningException(
+					errors.UnderpinningService.Code,
+					errors.UnderpinningService.Message,
+					(int?)response?.StatusCode,
+					UnderpinningServiceType.AAI,
+					logCorrelationScope.CorrelationId
+				);
+			}
+
+			try
+			{
+				if (response.StatusCode == System.Net.HttpStatusCode.NotFound) return null;
+				response.EnsureSuccessStatusCode();
+			}
+			catch (System.Exception ex)
+			{
+				string errorPayload = null;
+
+				try { errorPayload = await response.Content.ReadAsStringAsync(); }
+				catch (System.Exception) { }
+
+				logger.Error(ex, "non successful response. StatusCode was {statusCode} and Payload {errorPayload}", response?.StatusCode, errorPayload);
+
+				bool includeErrorPayload = response != null && response.StatusCode == System.Net.HttpStatusCode.BadRequest;
+
+				throw new Exception.DGUnderpinningException(
+					errors.UnderpinningService.Code,
+					errors.UnderpinningService.Message,
+					(int?)response?.StatusCode,
+					UnderpinningServiceType.AAI,
+					logCorrelationScope.CorrelationId,
+					includeErrorPayload ? errorPayload : null
+				);
+			}
+			string content = await response.Content.ReadAsStringAsync();
+			logger.Debug("Response content: {content}", content);
+			if (locationHeaderReturn) content = response.Headers.Location?.ToString();
+
+			return content;
+		}
 	}
 }
