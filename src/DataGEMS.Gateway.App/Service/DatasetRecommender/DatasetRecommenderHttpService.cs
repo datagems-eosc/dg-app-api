@@ -83,28 +83,6 @@ namespace DataGEMS.Gateway.App.Service.DatasetRecommender
 			return inRecommender;
 		}
 
-		public async Task<List<Guid>> RecommendAsync(Guid datasetId, uint? recommendationsCount)
-		{
-			List<Guid> datasetIds = await this._authorizationContentResolver.EffectiveContextAffiliatedDatasets(Permission.CanRecommend);
-			if (datasetIds == null || !datasetIds.Contains(datasetId)) throw new DGUnauthorizedException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
-
-			string token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
-			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
-
-			HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, $"{this._config.BaseUrl}{this._config.RecommendEndpoint}".Replace("{entityId}", datasetId.ToString()).Replace("{recommendationsCount}", recommendationsCount?.ToString() ?? this._config.DefaultRecommendationDatasets.ToString()));
-			httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-			httpRequest.Headers.Add(this._logTrackingCorrelationConfig.HeaderName, this._logCorrelationScope.CorrelationId);
-			string content = await this.SendRequest(httpRequest);
-			DatasetRecommendationResponse rawResponse = null;
-			try { rawResponse = this._jsonHandlingService.FromJson<DatasetRecommendationResponse>(content); }
-			catch (System.Exception ex)
-			{
-				this._logger.LogError(ex, "Failed to parse response: {content}", content);
-				throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.DatasetRecommender, this._logCorrelationScope.CorrelationId);
-			}
-			return rawResponse?.Recommendations?.Select(x => x.DatasetId)?.ToList() ?? [];
-		}
-
 		public async Task<MatheRecommendationResponse> RecommendMatheAsync(MatheRecommendationRequest request)
 		{
 			await this._authorizationService.AuthorizeForce(Permission.CanRecommendMathE);
