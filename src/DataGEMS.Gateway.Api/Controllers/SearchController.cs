@@ -280,7 +280,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 
 			[FromQuery]
 			[SwaggerRequestBody(description: "The number of recommendations to return", Required = false)]
-			uint? n,
+			int? n,
 			
 			[ModelBinder(Name = "f")]
 			[SwaggerParameter(description: "The fields to include in the response model", Required = true)]
@@ -292,7 +292,8 @@ namespace DataGEMS.Gateway.Api.Controllers
 			IFieldSet censoredFields = await this._censorFactory.Censor<DatasetCensor>().Censor(fieldSet, CensorContext.AsCensor());
 			if (fieldSet.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
 
-			int finalN = n.HasValue ? (int)n.Value : 2;
+			int finalN = n.HasValue ? n.Value : 2;
+			if (n <= 0) throw new DGValidationException(this._errors.InvalidValue.Code, string.Format(this._errors.InvalidValue.Message, nameof(n)));
 			List<Guid> response = await this._taskOrchestratorService.DatasetRecommendationAsync(datasetId, finalN);
 
 			DatasetHttpQuery query = this._queryFactory.Query<DatasetHttpQuery>().Ids(response);

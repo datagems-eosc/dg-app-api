@@ -14,5 +14,6 @@ namespace DataGEMS.Gateway.App.ErrorCode
 		public ErrorDescription ImmutableItem { get; set; }
 		public ErrorDescription UploadRestricted { get; set; }
 		public ErrorDescription UnauthorizedToken { get; set; }
+		public ErrorDescription InvalidValue { get; set; }
 	}
 }

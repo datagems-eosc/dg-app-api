@@ -43,6 +43,10 @@
     "UnauthorizedToken": {
       "Code": 110,
       "Message": "authorization token not exchangeable"
+    },
+    "InvalidValue": {
+      "Code": 111,
+      "Message": "invalid value for parameter {0}"
     }
   }
 }
