@@ -185,6 +185,32 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 			return json["content"]?["metadata"]?["results"]?.ToObject<IEnumerable<CrossDatasetDiscoveryResult>>();
 		}
 
+		public async Task<string> DatasetRecommendationAsync(Guid seedDatasetId, int n = 2)
+		{
+			Guid? userId = await this._authorizationContentResolver.CurrentUserId();
+			if (!userId.HasValue) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+			List<Guid> datasetIds = await this._authorizationContentResolver.EffectiveContextAffiliatedDatasets(Permission.PowerSearchDataset);
+			if (datasetIds == null || !datasetIds.Contains(seedDatasetId)) throw new DGUnauthorizedException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+
+			string token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
+			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
+			string requestUrl = $"{this._config.BaseUrl}{this._config.DatasetRecommendationEndpoint}";
+			string requestBody = this._jsonHandlingService.ToJsonSafe(new
+			{
+				ap = BuildDatasetRecommendationAnalyticalPattern(seedDatasetId, n)
+			});
+			this._logger.Debug("Sending request to {url} with request body {body}", requestUrl, requestBody);
+			HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, requestUrl)
+			{
+				Content = new StringContent(requestBody, Encoding.UTF8, "application/json")
+			};
+			httpRequest.Headers.Add(HeaderNames.Accept, "application/json");
+			httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+			httpRequest.Headers.Add(this._logTrackingCorrelationConfig.HeaderName, this._logCorrelationScope.CorrelationId);
+			string content = await this.SendRequest(httpRequest);
+			return content;
+		}
+
 		private async Task<string> SendRequest(HttpRequestMessage request, TimeSpan? timeout = null)
 		{
 			HttpResponseMessage response = null;
@@ -213,6 +239,107 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 			String content = await response.Content.ReadAsStringAsync();
 			this._logger.Debug("Response content: {content}", content);
 			return content;
+		}
+
+		private static AnalyticalPattern BuildDatasetRecommendationAnalyticalPattern(Guid seedDatasetId, int n)
+		{
+			DateTime now = DateTime.UtcNow;
+			AnalyticalPatternNode userNode = new AnalyticalPatternNode
+			{
+				Id = Guid.NewGuid(),
+				Labels = ["User"],
+				Properties = []
+			};
+			AnalyticalPatternNode taskNode = new AnalyticalPatternNode
+			{
+				Id = Guid.NewGuid(),
+				Labels = ["Task"],
+				Properties = new Dictionary<string, object>
+				{
+					{ "description", "Retrieve the top-N recommendations for a given dataset." },
+					{ "name", "Get recommendations" },
+				}
+			};
+			AnalyticalPatternNode apNode = new AnalyticalPatternNode
+			{
+				Id = Guid.NewGuid(),
+				Labels = ["Analytical_Pattern"],
+				Properties = new Dictionary<string, object>
+				{
+					{ "description", $"Retrieve top-N recommendations for a given dataset." },
+					{ "name", "Dataset-to-Dataset Recommendations AP" },
+					{ "process", "recommend" },
+					{ "publishedDate", "publishedDate" },
+					{ "startTime", now.ToString("O") }
+				}
+			};
+			AnalyticalPatternNode opNode = new AnalyticalPatternNode
+			{
+				Id = Guid.NewGuid(),
+				Labels = ["DatasetRecommender_Operator", "Operator"],
+				Properties = new Dictionary<string, object>
+				{
+					{ "description", "Dataset-to-Dataset recommender operator." },
+					{ "name", "GetRecommendations Operator" },
+					{"command", "get_recommendations" },
+					{ "n", n },
+					{ "startTime", now.ToString("O") }
+				}
+			};
+			AnalyticalPatternNode seedNode = new AnalyticalPatternNode
+			{
+				Id = seedDatasetId,
+				Labels = ["sc:Dataset"],
+				Properties = new Dictionary<string, object>
+				{
+					{ "description", "The seed dataset used as the basis for recommendations." }
+				}
+			};
+			IEnumerable<AnalyticalPatternNode> outputNodes = Enumerable.Range(0, n).Select(_ => new AnalyticalPatternNode
+			{
+				Id = Guid.NewGuid(),
+				Labels = ["sc:Dataset"],
+				Properties = [],
+			});
+
+			AnalyticalPattern analyticalPattern = new AnalyticalPattern
+			{
+				Nodes = new List<AnalyticalPatternNode> { userNode, taskNode, apNode, opNode, seedNode }.Concat(outputNodes).ToList(),
+				Edges =
+				[
+					new AnalyticalPatternEdge
+					{
+						From = userNode.Id,
+						To = taskNode.Id,
+						Labels = ["request"]
+					},
+					new AnalyticalPatternEdge
+					{
+						From = taskNode.Id,
+						To = apNode.Id,
+						Labels = ["is_accomplished_by"]
+					},
+					new AnalyticalPatternEdge
+					{
+						From = apNode.Id,
+						To = opNode.Id,
+						Labels = ["consist_of"]
+					},
+					new AnalyticalPatternEdge
+					{
+						From = seedNode.Id,
+						To = opNode.Id,
+						Labels = ["input"]
+					}
+				]
+			};
+			analyticalPattern.Edges.AddRange(outputNodes.Select(outputNode => new AnalyticalPatternEdge
+			{
+				From = opNode.Id,
+				To = outputNode.Id,
+				Labels = ["output"]
+			}));
+			return analyticalPattern;
 		}
 
 		/// <summary>

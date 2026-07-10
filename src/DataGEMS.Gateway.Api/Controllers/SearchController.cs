@@ -266,14 +266,14 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[Authorize]
 		[ModelStateValidationFilter]
 		[SwaggerOperation(Summary = "Recommend possible datasets")]
-		[SwaggerResponse(statusCode: 200, description: "Matching results", type: typeof(List<App.Model.Dataset>))]
+		[SwaggerResponse(statusCode: 200, description: "Matching results", type: typeof(string))]
 		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
 		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
 		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
 		[SwaggerResponse(statusCode: 500, description: "Internal error")]
 		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
 		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
-		public async Task<List<App.Model.Dataset>> RecommendDatasetsAsync(
+		public async Task<string> RecommendDatasetsAsync(
 			[FromRoute]
 			[SwaggerRequestBody(description: "The dataset id", Required = true)]
 			Guid datasetId,
@@ -292,15 +292,12 @@ namespace DataGEMS.Gateway.Api.Controllers
 			IFieldSet censoredFields = await this._censorFactory.Censor<DatasetCensor>().Censor(fieldSet, CensorContext.AsCensor());
 			if (fieldSet.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
 
-			List<Guid> datasetIds = await this._datasetRecommenderService.RecommendAsync(datasetId, n);
-
-			DatasetHttpQuery query = this._queryFactory.Query<DatasetHttpQuery>().Ids(datasetIds);
-			DatasetHttpQuery.QueryResult results = await query.CollectAsync();
-			List<Dataset> models = await this._builderFactory.Builder<DatasetBuilder>().Authorize(AuthorizationFlags.Any).Build(censoredFields, results.Items);
+			int finalN = n.HasValue ? (int)n.Value : 2;
+			string response = await this._taskOrchestratorService.DatasetRecommendationAsync(datasetId, finalN);
 
 			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.DatasetRecommender.AsAccountable());
 
-			return models;
+			return response;
 		}
 
 		[HttpPost("ad-hoc/evaluate")]
