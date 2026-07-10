@@ -85,7 +85,7 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 		public async Task<AdHocQuery> AdHocQueryAsync(AdHocQueryEvaluate evaluate, IFieldSet fields = null)
 		{
 			List<Guid> datasetIds = await this._authorizationContentResolver.EffectiveContextAffiliatedDatasets(Permission.PowerSearchDataset);
-			if (evaluate.Arguments!= null && evaluate.Arguments.Select(x => x.DatasetId).Any(x => !datasetIds.Contains(x.Value))) throw new DGUnauthorizedException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+			if (evaluate.Arguments != null && evaluate.Arguments.Select(x => x.DatasetId).Any(x => !datasetIds.Contains(x.Value))) throw new DGUnauthorizedException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
 
 			string token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
@@ -273,7 +273,100 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 
 		private static AnalyticalPattern BuildDatasetDisambiguationAnalyticalPattern(List<Guid> datasetIds, string query)
 		{
-			throw new NotImplementedException();
+			DateTime now = DateTime.UtcNow;
+			AnalyticalPatternNode userNode = new AnalyticalPatternNode
+			{
+				Id = Guid.NewGuid(),
+				Labels = ["User"],
+				Properties = []
+			};
+			AnalyticalPatternNode taskNode = new AnalyticalPatternNode
+			{
+				Id = Guid.NewGuid(),
+				Labels = ["Task"],
+				Properties = new Dictionary<string, object>
+				{
+					{ "description", "Disambiguate the provided natural-language query." },
+					{ "name", "Query Disambiguation Task" }
+				}
+			};
+			AnalyticalPatternNode apNode = new AnalyticalPatternNode
+			{
+				Id = Guid.NewGuid(),
+				Labels = ["Analytical_Pattern"],
+				Properties = new Dictionary<string, object>
+				{
+					{ "description", "Analytical Pattern for natural-language query disambiguation." },
+					{ "name", "Query Disambiguation AP" },
+					{ "startTime", now.ToString("O") }
+				}
+			};
+			AnalyticalPatternNode opNode = new AnalyticalPatternNode
+			{
+				Id = Guid.NewGuid(),
+				Labels = ["Query_Operator",
+					"NLQ_Operator",
+					"Operator"],
+				Properties = new Dictionary<string, object>
+				{
+					{ "description", "Disambiguation of the natural-language query." },
+					{ "name", "Query-Disambiguation" },
+					{ "process", "In-Dataset Discovery" },
+                    {"query", query },
+					{ "startTime", now.ToString("O") }
+				}
+			};
+			List<AnalyticalPatternNode> seedNodes = datasetIds.Select(x => new AnalyticalPatternNode
+			{
+				Id = x,
+				Labels = ["sc:Dataset"],
+				Properties = []
+			}).ToList();
+			AnalyticalPatternNode outputNode = new AnalyticalPatternNode
+			{
+				Id = Guid.NewGuid(),
+				Labels = ["cr:FileObject", "Data"],
+				Properties = [],
+			};
+
+			AnalyticalPattern analyticalPattern = new AnalyticalPattern
+			{
+				Nodes = new List<AnalyticalPatternNode> { userNode, taskNode, apNode, opNode, outputNode }.Concat(seedNodes).ToList(),
+				Edges =
+				[
+					new AnalyticalPatternEdge
+					{
+						From = userNode.Id,
+						To = taskNode.Id,
+						Labels = ["request"]
+					},
+					new AnalyticalPatternEdge
+					{
+						From = taskNode.Id,
+						To = apNode.Id,
+						Labels = ["is_accomplished_by"]
+					},
+					new AnalyticalPatternEdge
+					{
+						From = apNode.Id,
+						To = opNode.Id,
+						Labels = ["consist_of"]
+					},
+					new AnalyticalPatternEdge
+					{
+						From = opNode.Id,
+						To = outputNode.Id,
+						Labels = ["output"]
+					}
+				]
+			};
+			analyticalPattern.Edges.AddRange(seedNodes.Select(seedNode => new AnalyticalPatternEdge
+			{
+				From = seedNode.Id,
+				To = opNode.Id,
+				Labels = ["input"]
+			}));
+			return analyticalPattern;
 		}
 
 		private static AnalyticalPattern BuildDatasetRecommendationAnalyticalPattern(Guid seedDatasetId, int n)
@@ -428,12 +521,12 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 					{ "queryType", "SELECT" },
 					{ "startTime", now.ToString("O") }
 				}
-			};			
+			};
 			AnalyticalPatternNode outputNode = new AnalyticalPatternNode
 			{
 				Id = Guid.NewGuid(),
 				Labels = ["cr:FileObject", "Data"]
-			};			
+			};
 			AnalyticalPatternNode userNode = new AnalyticalPatternNode
 			{
 				Id = Guid.NewGuid(),
@@ -454,7 +547,7 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 				From = analyticalPatternNode.Id,
 				To = sqlOperatorNode.Id,
 				Labels = ["consist_of"]
-			};			
+			};
 			AnalyticalPatternEdge outputEdge = new AnalyticalPatternEdge
 			{
 				From = sqlOperatorNode.Id,
