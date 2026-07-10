@@ -266,14 +266,14 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[Authorize]
 		[ModelStateValidationFilter]
 		[SwaggerOperation(Summary = "Recommend possible datasets")]
-		[SwaggerResponse(statusCode: 200, description: "Matching results", type: typeof(string))]
+		[SwaggerResponse(statusCode: 200, description: "Matching results", type: typeof(List<App.Model.Dataset>))]
 		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
 		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
 		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
 		[SwaggerResponse(statusCode: 500, description: "Internal error")]
 		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
 		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
-		public async Task<string> RecommendDatasetsAsync(
+		public async Task<List<App.Model.Dataset>> RecommendDatasetsAsync(
 			[FromRoute]
 			[SwaggerRequestBody(description: "The dataset id", Required = true)]
 			Guid datasetId,
@@ -293,11 +293,15 @@ namespace DataGEMS.Gateway.Api.Controllers
 			if (fieldSet.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
 
 			int finalN = n.HasValue ? (int)n.Value : 2;
-			string response = await this._taskOrchestratorService.DatasetRecommendationAsync(datasetId, finalN);
+			List<Guid> response = await this._taskOrchestratorService.DatasetRecommendationAsync(datasetId, finalN);
+
+			DatasetHttpQuery query = this._queryFactory.Query<DatasetHttpQuery>().Ids(response);
+			DatasetHttpQuery.QueryResult results = await query.CollectAsync();
+			List<Dataset> models = await this._builderFactory.Builder<DatasetBuilder>().Authorize(AuthorizationFlags.Any).Build(censoredFields, results.Items);
 
 			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.DatasetRecommender.AsAccountable());
 
-			return response;
+			return models;
 		}
 
 		[HttpPost("ad-hoc/evaluate")]

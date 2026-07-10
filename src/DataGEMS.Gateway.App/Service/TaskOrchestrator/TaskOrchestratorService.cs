@@ -185,11 +185,11 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 			return json["content"]?["metadata"]?["results"]?.ToObject<IEnumerable<CrossDatasetDiscoveryResult>>();
 		}
 
-		public async Task<string> DatasetRecommendationAsync(Guid seedDatasetId, int n = 2)
+		public async Task<List<Guid>> DatasetRecommendationAsync(Guid seedDatasetId, int n = 2)
 		{
 			Guid? userId = await this._authorizationContentResolver.CurrentUserId();
 			if (!userId.HasValue) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
-			List<Guid> datasetIds = await this._authorizationContentResolver.EffectiveContextAffiliatedDatasets(Permission.PowerSearchDataset);
+			List<Guid> datasetIds = await this._authorizationContentResolver.EffectiveContextAffiliatedDatasets(Permission.CanRecommend);
 			if (datasetIds == null || !datasetIds.Contains(seedDatasetId)) throw new DGUnauthorizedException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
 
 			string token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
@@ -208,7 +208,8 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 			httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 			httpRequest.Headers.Add(this._logTrackingCorrelationConfig.HeaderName, this._logCorrelationScope.CorrelationId);
 			string content = await this.SendRequest(httpRequest);
-			return content;
+			DatasetRecommendationResponse datasetRecommendationResponse = this._jsonHandlingService.FromJsonSafe<DatasetRecommendationResponse>(content);
+			return datasetRecommendationResponse.Content?.AnalyticalPattern?.Nodes?.Where(x => x.Labels.Contains("sc:Dataset") && x.Id != seedDatasetId).Select(x => x.Id).ToList();
 		}
 
 		private async Task<string> SendRequest(HttpRequestMessage request, TimeSpan? timeout = null)
