@@ -312,7 +312,7 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 					{ "description", "Disambiguation of the natural-language query." },
 					{ "name", "Query-Disambiguation" },
 					{ "process", "In-Dataset Discovery" },
-                    {"query", query },
+					{"query", query },
 					{ "startTime", now.ToString("O") }
 				}
 			};
