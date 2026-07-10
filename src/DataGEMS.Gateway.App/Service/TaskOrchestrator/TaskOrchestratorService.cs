@@ -1,5 +1,4 @@
-﻿using Cite.Tools.Common.Extensions;
-using Cite.Tools.Data.Builder;
+﻿using Cite.Tools.Data.Builder;
 using Cite.Tools.Data.Query;
 using Cite.Tools.FieldSet;
 using Cite.Tools.Json;
@@ -13,7 +12,6 @@ using DataGEMS.Gateway.App.Event;
 using DataGEMS.Gateway.App.Exception;
 using DataGEMS.Gateway.App.LogTracking;
 using DataGEMS.Gateway.App.Model;
-using DataGEMS.Gateway.App.Query;
 using DataGEMS.Gateway.App.Service.Discovery.Model;
 using DataGEMS.Gateway.App.Service.TaskOrchestrator.Model;
 using Microsoft.EntityFrameworkCore;
@@ -212,6 +210,37 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 			return datasetRecommendationResponse.Content?.AnalyticalPattern?.Nodes?.Where(x => x.Labels.Contains("sc:Dataset") && x.Id != seedDatasetId).Select(x => x.Id).ToList();
 		}
 
+		public async Task<QueryDisambiguation> QueryDisambiguationAsync(DisambiguationInfo info)
+		{
+			Guid? userId = await this._authorizationContentResolver.CurrentUserId();
+			if (!userId.HasValue) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+			List<Guid> datasetIds = await this._authorizationContentResolver.EffectiveContextAffiliatedDatasets(Permission.CanDisambiguate);
+			if (datasetIds == null || info.DatasetIds.Any(x => !datasetIds.Contains(x))) throw new DGUnauthorizedException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+
+			string token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
+			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
+			string requestUrl = $"{this._config.BaseUrl}{this._config.DatasetDisambiguationEndpoint}";
+			string requestBody = this._jsonHandlingService.ToJsonSafe(new
+			{
+				ap = BuildDatasetDisambiguationAnalyticalPattern(info.DatasetIds, info.Query)
+			});
+			this._logger.Debug("Sending request to {url} with request body {body}", requestUrl, requestBody);
+			HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, requestUrl)
+			{
+				Content = new StringContent(requestBody, Encoding.UTF8, "application/json")
+			};
+			httpRequest.Headers.Add(HeaderNames.Accept, "application/json");
+			httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+			httpRequest.Headers.Add(this._logTrackingCorrelationConfig.HeaderName, this._logCorrelationScope.CorrelationId);
+			string content = await this.SendRequest(httpRequest);
+			QueryDisambiguationResponse response = this._jsonHandlingService.FromJsonSafe<QueryDisambiguationResponse>(content);
+			return new QueryDisambiguation
+			{
+				Results = response.AnalyticalPattern.Nodes?.Where(x => x.Labels.Contains("ResultType")).Select(x => x.Properties?["suggested_query"]?.ToString()).Where(x => !string.IsNullOrEmpty(x)).ToList(),
+				Metadata = response.Metadata,
+			};
+		}
+
 		private async Task<string> SendRequest(HttpRequestMessage request, TimeSpan? timeout = null)
 		{
 			HttpResponseMessage response = null;
@@ -240,6 +269,11 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 			String content = await response.Content.ReadAsStringAsync();
 			this._logger.Debug("Response content: {content}", content);
 			return content;
+		}
+
+		private static AnalyticalPattern BuildDatasetDisambiguationAnalyticalPattern(List<Guid> datasetIds, string query)
+		{
+			throw new NotImplementedException();
 		}
 
 		private static AnalyticalPattern BuildDatasetRecommendationAnalyticalPattern(Guid seedDatasetId, int n)

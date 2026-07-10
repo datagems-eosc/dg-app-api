@@ -1,0 +1,10 @@
+﻿using DataGEMS.Gateway.App.Model;
+
+namespace DataGEMS.Gateway.App.Common.Conversation
+{
+	public class QueryDisambiguationResponseConversationEntry : ConversationEntry
+	{
+		public override ConversationMessageKind Kind { get { return ConversationMessageKind.QueryDisambiguationResponse; } }
+		public QueryDisambiguation Payload { get; set; }
+	}
+}

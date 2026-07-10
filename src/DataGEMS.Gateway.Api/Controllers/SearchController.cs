@@ -193,6 +193,56 @@ namespace DataGEMS.Gateway.Api.Controllers
 			return new SearchResult<App.Model.InDataExplore>(conversationId, results);
 		}
 
+		[HttpPost("disambiguate-query")]
+		[Authorize]
+		[ModelStateValidationFilter]
+		[ValidationFilter(typeof(QueryDisambiguationLookup.QueryDisambiguationLookupValidator), "lookup")]
+		[SwaggerOperation(Summary = "Disambiguates the provided query by resolving ambiguous terms or intent and returns clearer, more specific versions")]
+		[SwaggerResponse(statusCode: 200, description: "Matching results", type: typeof(SearchResult<App.Model.QueryDisambiguation>))]
+		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
+		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
+		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
+		[SwaggerResponse(statusCode: 500, description: "Internal error")]
+		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
+		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
+		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
+		public async Task<SearchResult<App.Model.QueryDisambiguation>> DisambiguateQueryAsync(
+			[FromBody]
+			[SwaggerRequestBody(description: "The query disambiguation options", Required = true)]
+			QueryDisambiguationLookup lookup
+		)
+		{
+			this._logger.Debug(new MapLogEntry("query disambiguation").And("lookup", lookup));
+
+			DisambiguationInfo info = new DisambiguationInfo
+			{
+				DatasetIds = lookup.DatasetIds,
+				Query = lookup.Query,
+			};
+
+			App.Model.QueryDisambiguation results = await this._taskOrchestratorService.QueryDisambiguationAsync(info);
+
+			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.QueryDisambiguation.AsAccountable());
+
+			Guid? conversationId = await this.UpdateConversation(
+				lookup.ConversationOptions?.ConversationId,
+				lookup.ConversationOptions?.AutoCreateConversation,
+				lookup.Query,
+				null,
+				new App.Common.Conversation.QueryDisambiguationQueryConversationEntry()
+				{
+					Version = ExploreInfo.ModelVersion,
+					Payload = info
+				},
+				new App.Common.Conversation.QueryDisambiguationResponseConversationEntry()
+				{
+					Version = App.Model.QueryDisambiguation.ModelVersion,
+					Payload = results
+				});
+
+			return new SearchResult<App.Model.QueryDisambiguation>(conversationId, results);
+		}
+
 
 		[HttpPost("recommend")]
 		[Authorize]

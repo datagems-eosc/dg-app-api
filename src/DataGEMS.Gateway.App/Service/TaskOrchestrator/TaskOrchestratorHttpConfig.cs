@@ -8,6 +8,7 @@
 		public string AdHocQueryEndpoint { get; set; }
 		public string AdHocQueryPreviewEndpoint { get; set; }
 		public string DatasetRecommendationEndpoint { get; set; }
+		public string DatasetDisambiguationEndpoint { get; set; }
 
 		public String CrossDatasetDiscoveryTemplatePath { get; set; }
 	}

@@ -29,6 +29,7 @@ namespace DataGEMS.Gateway.App.Authorization
 		public const String CanExecuteCrossDatasetDiscovery = "CanExecuteCrossDatasetDiscovery";
 		//InDataExploration
 		public const String CanExecuteInDataExploration = "CanExecuteInDataExploration";
+		public const String CanDisambiguate = "CanDisambiguate";
 		//QueryRecommendation
 		public const String CanExecuteQueryRecommendation = "CanExecuteQueryRecommendation";
 		//DatasetRecommendation

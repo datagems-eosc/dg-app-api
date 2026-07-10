@@ -25,5 +25,9 @@ namespace DataGEMS.Gateway.App.Common
 		LinguisticFeaturesQuery = 8,
 		[Description("Linguistic Features Response")]
 		LinguisticFeaturesResponse = 9,
+		[Description("Query Disambiguation Query")]
+		QueryDisambiguationQuery = 10,
+		[Description("Query Disambiguation Response")]
+		QueryDisambiguationResponse = 11,
 	}
 }
