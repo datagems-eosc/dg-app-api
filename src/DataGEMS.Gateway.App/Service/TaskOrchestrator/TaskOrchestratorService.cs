@@ -210,7 +210,7 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 			return datasetRecommendationResponse.Content?.AnalyticalPattern?.Nodes?.Where(x => x.Labels.Contains("sc:Dataset") && x.Id != seedDatasetId).Select(x => x.Id).ToList();
 		}
 
-		public async Task<QueryDisambiguation> QueryDisambiguationAsync(DisambiguationInfo info)
+		public async Task<QueryDisambiguationViewModel> QueryDisambiguationAsync(DisambiguationInfo info, IFieldSet fields = null)
 		{
 			Guid? userId = await this._authorizationContentResolver.CurrentUserId();
 			if (!userId.HasValue) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
@@ -234,11 +234,14 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 			httpRequest.Headers.Add(this._logTrackingCorrelationConfig.HeaderName, this._logCorrelationScope.CorrelationId);
 			string content = await this.SendRequest(httpRequest);
 			QueryDisambiguationResponse response = this._jsonHandlingService.FromJsonSafe<QueryDisambiguationResponse>(content);
-			return new QueryDisambiguation
+			QueryDisambiguation queryDisambiguation = new QueryDisambiguation
 			{
 				Results = response.AnalyticalPattern.Nodes?.Where(x => x.Labels.Contains("ResultType")).Select(x => x.Properties?["suggested_query"]?.ToString()).Where(x => !string.IsNullOrEmpty(x)).ToList(),
 				Metadata = response.Metadata,
 			};
+			App.Model.QueryDisambiguationViewModel model = await _builderFactory.Builder<App.Model.Builder.QueryDisambiguationBuilder>()
+				.Build(FieldSet.Build(fields, nameof(App.Model.QueryDisambiguation.Results)).Ensure(nameof(App.Model.QueryDisambiguation.Results)), queryDisambiguation);
+			return model;
 		}
 
 		private async Task<string> SendRequest(HttpRequestMessage request, TimeSpan? timeout = null)

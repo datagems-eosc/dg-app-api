@@ -9,6 +9,12 @@ namespace DataGEMS.Gateway.App.Model
 		public QueryDisambiguationMetadata Metadata { get; set; }
 	}
 
+	public class QueryDisambiguationViewModel
+	{
+		public List<string> Results { get; set; }
+		public QueryDisambiguationMetadata Metadata { get; set; }
+	}
+
 	public class QueryDisambiguationMetadata
 	{
 		[JsonProperty("provider")]

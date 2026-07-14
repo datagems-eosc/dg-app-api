@@ -198,7 +198,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[ModelStateValidationFilter]
 		[ValidationFilter(typeof(QueryDisambiguationLookup.QueryDisambiguationLookupValidator), "lookup")]
 		[SwaggerOperation(Summary = "Disambiguates the provided query by resolving ambiguous terms or intent and returns clearer, more specific versions")]
-		[SwaggerResponse(statusCode: 200, description: "Matching results", type: typeof(SearchResult<App.Model.QueryDisambiguation>))]
+		[SwaggerResponse(statusCode: 200, description: "Matching results", type: typeof(SearchResult<App.Model.QueryDisambiguationViewModel>))]
 		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
 		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
 		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
@@ -206,7 +206,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
 		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
 		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
-		public async Task<SearchResult<App.Model.QueryDisambiguation>> DisambiguateQueryAsync(
+		public async Task<SearchResult<App.Model.QueryDisambiguationViewModel>> DisambiguateQueryAsync(
 			[FromBody]
 			[SwaggerRequestBody(description: "The query disambiguation options", Required = true)]
 			QueryDisambiguationLookup lookup
@@ -214,13 +214,16 @@ namespace DataGEMS.Gateway.Api.Controllers
 		{
 			this._logger.Debug(new MapLogEntry("query disambiguation").And("lookup", lookup));
 
+			IFieldSet censoredFields = await this._censorFactory.Censor<QueryDisambiguationCensor>().Censor(lookup.Project, CensorContext.AsCensor());
+			if (lookup.Project.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+
 			DisambiguationInfo info = new DisambiguationInfo
 			{
 				DatasetIds = lookup.DatasetIds,
 				Query = lookup.Query,
 			};
 
-			App.Model.QueryDisambiguation results = await this._taskOrchestratorService.QueryDisambiguationAsync(info);
+			App.Model.QueryDisambiguationViewModel results = await this._taskOrchestratorService.QueryDisambiguationAsync(info, censoredFields);
 
 			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.QueryDisambiguation.AsAccountable());
 
@@ -240,7 +243,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 					Payload = results
 				});
 
-			return new SearchResult<App.Model.QueryDisambiguation>(conversationId, results);
+			return new SearchResult<App.Model.QueryDisambiguationViewModel>(conversationId, results);
 		}
 
 

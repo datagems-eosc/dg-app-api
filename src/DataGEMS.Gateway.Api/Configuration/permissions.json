@@ -195,6 +195,14 @@
 				"AllowAnonymous": false,
 				"AllowAuthenticated": false
 			},
+			"CanPowerDisambiguate": {
+				"Roles": [ "GLOBAL_dg_admin" ],
+				"ContextRoles": [ "dg_ds-power-search" ],
+				"Claims": [],
+				"Clients": [],
+				"AllowAnonymous": false,
+				"AllowAuthenticated": false
+			},
 			"CanRecommendMathE": {
 				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_user" ],
 				"ContextRoles": [],

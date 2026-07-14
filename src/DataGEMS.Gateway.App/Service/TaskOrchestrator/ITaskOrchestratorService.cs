@@ -10,7 +10,7 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 		Task<AdHocQuery> AdHocQueryAsync(AdHocQueryEvaluate evaluate, IFieldSet fields = null);
 		Task<string> AdHocQueryPreviewAsync(Guid adHocId, int lines);
 		Task<List<Guid>> DatasetRecommendationAsync(Guid seedDatasetId, int n);
-		Task<QueryDisambiguation> QueryDisambiguationAsync(DisambiguationInfo info);
+		Task<QueryDisambiguationViewModel> QueryDisambiguationAsync(DisambiguationInfo info, IFieldSet fields = null);
 	}
 
 	public class DisambiguationInfo
