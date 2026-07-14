@@ -130,7 +130,12 @@ namespace DataGEMS.Gateway.Api
 							//vocabulary
 							.AddJsonFileInPaths("vocabulary.json", sharedConfigPath, "Configuration")
 							.AddJsonFileInPaths("vocabulary.override.json", sharedConfigPath, "Configuration")
-							.AddJsonFileInPaths($"vocabulary.{env.EnvironmentName}.json", sharedConfigPath, "Configuration");
+							.AddJsonFileInPaths($"vocabulary.{env.EnvironmentName}.json", sharedConfigPath, "Configuration")
+							//workflow process
+							.AddJsonFileInPaths("workflow-process.json", sharedConfigPath, "Configuration")
+							.AddJsonFileInPaths("workflow-process.override.json", sharedConfigPath, "Configuration")
+							.AddJsonFileInPaths($"workflow-process.{env.EnvironmentName}.json", sharedConfigPath, "Configuration")
+							;
 						config.AddEnvironmentVariables("DG_GW_");
 						config.EnableSubstitutions("%{", "}%");
 					})

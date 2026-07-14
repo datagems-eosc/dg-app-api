@@ -16,6 +16,8 @@ namespace DataGEMS.Gateway.App.Data
 		public DbSet<UserFavorite> UserFavorites { get; set; }
 		public DbSet<UserSettings> UserSettings { get; set; }
 		public DbSet<VersionInfo> VersionInfos { get; set; }
+		public DbSet<WorkflowProcess> WorkflowProcesses { get; set; }
+		public DbSet<WorkflowProcessStep> WorkflowProcessSteps { get; set; }
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
@@ -29,6 +31,8 @@ namespace DataGEMS.Gateway.App.Data
 			new UserFavoriteEntityConfiguration().Configure(modelBuilder.Entity<UserFavorite>());
 			new UserSettingsEntityConfiguration().Configure(modelBuilder.Entity<UserSettings>());
 			new VersionInfoEntityConfiguration().Configure(modelBuilder.Entity<VersionInfo>());
+			new WorkflowProcessEntityConfiguration().Configure(modelBuilder.Entity<WorkflowProcess>());
+			new WorkflowProcessStepEntityConfiguration().Configure(modelBuilder.Entity<WorkflowProcessStep>());
 		}
 	}
 }
