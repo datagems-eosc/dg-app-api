@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace DataGEMS.Gateway.App.Model
 {
-    public class Collection
+	public class Collection
 	{
 		public Guid? Id { get; set; }
 		public String Code { get; set; }
