@@ -38,24 +38,27 @@ namespace DataGEMS.Gateway.App.Censor
 		public async Task<IFieldSet> Censor(IFieldSet fields, CensorContext context, IEnumerable<Guid> datasetIds)
 		{
 			this._logger.Debug(new MapLogEntry("censoring").And("type", nameof(App.Model.QueryDisambiguation)).And("fields", fields).And("context", context));
-			if (fields == null || fields.IsEmpty()) return null;
+			if (fields == null || fields.IsEmpty() || datasetIds == null || !datasetIds.Any()) return null;
+
+			List<string> contextRoles = await _authorizationContentResolver.ContextRolesOf();
 
 			IFieldSet censored = new FieldSet();
 			bool authZPass = false;
 			switch (context?.Behavior)
 			{
-				case CensorBehavior.Censor: { authZPass = await this._authService.Authorize(Permission.CanDisambiguate); break; }
+				case CensorBehavior.Censor: { authZPass = await this._authService.AuthorizeOrAffiliatedContext(new AffiliatedContextResource(contextRoles), Permission.CanDisambiguate); break; }
 				case CensorBehavior.Throw:
-				default: { authZPass = await this._authService.AuthorizeForce(Permission.CanDisambiguate); break; }
+				default: { authZPass = await this._authService.AuthorizeOrAffiliatedContextForce(new AffiliatedContextResource(contextRoles), Permission.CanDisambiguate); break; }
 			}
+
+			List<Guid> allowMetadataProjectionDatasetIds = await this._authorizationContentResolver.EffectiveContextAffiliatedDatasets(Permission.CanPowerDisambiguate);
+			Boolean blockMetadata = datasetIds.Any(x=> !allowMetadataProjectionDatasetIds.Contains(x));
 			if (authZPass)
 			{
 				censored = censored.Merge(fields.ExtractNonPrefixed());
-			}
-            List<Guid> powerAuthzPassIds = await this._authorizationContentResolver.EffectiveContextAffiliatedDatasets(Permission.CanPowerDisambiguate);
-			if (datasetIds.Any(x => !powerAuthzPassIds.Contains(x)))
-			{
-				censored.Fields = censored.Fields.Where(x => !x.Equals(nameof(App.Model.QueryDisambiguationViewModel.Metadata), StringComparison.CurrentCultureIgnoreCase)).ToHashSet();
+				if(blockMetadata && 
+					censored.HasField(nameof(App.Model.QueryDisambiguationViewModel.Metadata))) 
+					censored.Fields = censored.Fields.Where(x => !x.Equals(nameof(App.Model.QueryDisambiguationViewModel.Metadata), StringComparison.CurrentCultureIgnoreCase)).ToHashSet();
 			}
 
 			return censored;
