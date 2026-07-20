@@ -35,7 +35,7 @@ namespace DataGEMS.Gateway.App.Censor
 			this._claimExtractor = claimExtractor;
 		}
 
-		public async Task<IFieldSet> Censor(IFieldSet fields, CensorContext context)
+		public async Task<IFieldSet> Censor(IFieldSet fields, CensorContext context, IEnumerable<Guid> datasetIds)
 		{
 			this._logger.Debug(new MapLogEntry("censoring").And("type", nameof(App.Model.QueryDisambiguation)).And("fields", fields).And("context", context));
 			if (fields == null || fields.IsEmpty()) return null;
@@ -52,10 +52,10 @@ namespace DataGEMS.Gateway.App.Censor
 			{
 				censored = censored.Merge(fields.ExtractNonPrefixed());
 			}
-			bool powerAuthzPass = await this._authService.Authorize(Permission.CanPowerDisambiguate);
-			if (!powerAuthzPass)
+            List<Guid> powerAuthzPassIds = await this._authorizationContentResolver.EffectiveContextAffiliatedDatasets(Permission.CanPowerDisambiguate);
+			if (datasetIds.Any(x => !powerAuthzPassIds.Contains(x)))
 			{
-				censored.Fields = censored.Fields.Where(x => x.ToLower() != (nameof(App.Model.QueryDisambiguationViewModel.Metadata)).ToLower()).ToHashSet();
+				censored.Fields = censored.Fields.Where(x => !x.Equals(nameof(App.Model.QueryDisambiguationViewModel.Metadata), StringComparison.CurrentCultureIgnoreCase)).ToHashSet();
 			}
 
 			return censored;
