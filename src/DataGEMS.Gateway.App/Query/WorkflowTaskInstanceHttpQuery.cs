@@ -84,7 +84,7 @@ namespace DataGEMS.Gateway.App.Query
 
 		public async Task<Service.Airflow.Model.AirflowTaskInstance> ByIdAsync()
 		{
-			if (this._workflowIds == null || this._workflowIds.Count != 1 || this._workflowExecutionIds == null || this._workflowExecutionIds.Count != 1 || this._taskIds == null || this._taskIds.Count != 1) return null;
+			if (this._workflowIds == null || this._workflowIds.Count != 1 || this._workflowExecutionIds == null || this._workflowExecutionIds.Count != 1 || this._taskIds == null || this._taskIds.Count != 1 || this.IsFalseQuery()) return null;
 
 			String token = await this._airflowAccessTokenService.GetAirflowAccessTokenAsync();
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
@@ -122,7 +122,8 @@ namespace DataGEMS.Gateway.App.Query
 
 		private async Task<Service.Airflow.Model.AirflowTaskInstanceList> CollectBaseAsync(Boolean useInCount)
 		{
-			String token = await this._airflowAccessTokenService.GetAirflowAccessTokenAsync();
+			if (this.IsFalseQuery()) return null;
+            String token = await this._airflowAccessTokenService.GetAirflowAccessTokenAsync();
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
 
 			Service.Airflow.Model.AirflowTaskInstanceListRequest requestModel = new Service.Airflow.Model.AirflowTaskInstanceListRequest();

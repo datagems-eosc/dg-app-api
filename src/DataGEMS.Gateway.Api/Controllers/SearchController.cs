@@ -348,8 +348,8 @@ namespace DataGEMS.Gateway.Api.Controllers
 			int finalN = n.HasValue ? n.Value : 2;
 			if (n <= 0) throw new DGValidationException(this._errors.InvalidValue.Code, string.Format(this._errors.InvalidValue.Message, nameof(n)));
 			List<Guid> response = await this._taskOrchestratorService.DatasetRecommendationAsync(datasetId, finalN);
-
-			DatasetHttpQuery query = this._queryFactory.Query<DatasetHttpQuery>().Ids(response);
+			
+			DatasetHttpQuery query = this._queryFactory.Query<DatasetHttpQuery>().Ids(response ?? []);
 			DatasetHttpQuery.QueryResult results = await query.CollectAsync();
 			List<Dataset> models = await this._builderFactory.Builder<DatasetBuilder>().Authorize(AuthorizationFlags.Any).Build(censoredFields, results.Items);
 
