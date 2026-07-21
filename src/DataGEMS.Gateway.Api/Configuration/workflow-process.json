@@ -96,7 +96,7 @@
       {
         "Id": "caddac49-0db9-48ad-be52-d3a68031263b",
         "Kind": 4,
-        "Name": "Croiss Dataset Discovery Ingestion",
+        "Name": "Cross Dataset Discovery Ingestion",
         "Description": "Ingests dataset information into the Cross Dataset Discovery service so that datasets can be indexed, analyzed, and discovered.",
         "Steps": [
           {
