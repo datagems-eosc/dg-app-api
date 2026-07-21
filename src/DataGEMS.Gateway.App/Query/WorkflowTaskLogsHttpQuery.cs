@@ -57,10 +57,7 @@ namespace DataGEMS.Gateway.App.Query
 
 		public async Task<List<Service.Airflow.Model.AirflowTaskLog>> ByIdAsync()
 		{
-			if (!this._tryNumber.HasValue || 
-				String.IsNullOrEmpty(this._workflowTaskId) || 
-				this._workflowId == null || 
-				String.IsNullOrEmpty(this._workflowExecutionId)) return null;
+			if (this.IsFalseQuery()) return null;
 
 			String token = await this._airflowAccessTokenService.GetAirflowAccessTokenAsync();
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);

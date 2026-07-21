@@ -73,7 +73,7 @@ namespace DataGEMS.Gateway.App.Query
 
 		public async Task<Service.Airflow.Model.AirflowDag> ByIdAsync()
 		{
-			if (String.IsNullOrEmpty(this._id)) return null;
+			if (String.IsNullOrEmpty(this._id) || this.IsFalseQuery()) return null;
 
 			String token = await this._airflowAccessTokenService.GetAirflowAccessTokenAsync();
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
@@ -109,6 +109,7 @@ namespace DataGEMS.Gateway.App.Query
 
 		private async Task<Service.Airflow.Model.AirflowDagList> CollectBaseAsync(Boolean useInCount)
 		{
+			if (this.IsFalseQuery()) return null;
 			String token = await this._airflowAccessTokenService.GetAirflowAccessTokenAsync();
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
 

@@ -111,6 +111,8 @@ namespace DataGEMS.Gateway.App.Query
 
 		public async Task<DatasetQueryList> CollectBaseAsync(bool useInCount, IFieldSet projection)
 		{
+			if (this.IsFalseQuery()) return null;
+
 			string token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
 

@@ -589,6 +589,7 @@ namespace DataGEMS.Gateway.App.Service.AAI
 				throw new Exception.DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, (int?)response?.StatusCode, UnderpinningServiceType.AAI, this._logCorrelationScope.CorrelationId, includeErrorPayload ? errorPayload : null);
 			}
 			String content = await response.Content.ReadAsStringAsync();
+			this._logger.Debug("Response content: {content}", content);
 
 			if (locationHeaderReturn) content = response.Headers.Location?.ToString();
 			return content;

@@ -214,7 +214,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		{
 			this._logger.Debug(new MapLogEntry("query disambiguation").And("lookup", lookup));
 
-			IFieldSet censoredFields = await this._censorFactory.Censor<QueryDisambiguationCensor>().Censor(lookup.Project, CensorContext.AsCensor());
+			IFieldSet censoredFields = await this._censorFactory.Censor<QueryDisambiguationCensor>().Censor(lookup.Project, CensorContext.AsCensor(), lookup.DatasetIds);
 			if (lookup.Project.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
 
 			DisambiguationInfo info = new DisambiguationInfo
@@ -348,8 +348,8 @@ namespace DataGEMS.Gateway.Api.Controllers
 			int finalN = n.HasValue ? n.Value : 2;
 			if (n <= 0) throw new DGValidationException(this._errors.InvalidValue.Code, string.Format(this._errors.InvalidValue.Message, nameof(n)));
 			List<Guid> response = await this._taskOrchestratorService.DatasetRecommendationAsync(datasetId, finalN);
-
-			DatasetHttpQuery query = this._queryFactory.Query<DatasetHttpQuery>().Ids(response);
+			
+			DatasetHttpQuery query = this._queryFactory.Query<DatasetHttpQuery>().Ids(response ?? []);
 			DatasetHttpQuery.QueryResult results = await query.CollectAsync();
 			List<Dataset> models = await this._builderFactory.Builder<DatasetBuilder>().Authorize(AuthorizationFlags.Any).Build(censoredFields, results.Items);
 
