@@ -13,7 +13,6 @@ namespace DataGEMS.Gateway.App.Data
 		public Guid Id { get; set; }
 		[Required]
 		public Guid ProcessId { get; set; }
-		public string WorkflowRunDetails { get; set; }
 		public Guid? UserId { get; set; }
 		[Required]
 		public WorkflowProcessStatus Status { get; set; }
@@ -32,7 +31,6 @@ namespace DataGEMS.Gateway.App.Data
 			builder.ToTable("workflow_process");
 			builder.Property(x => x.Id).HasColumnName("id");
 			builder.Property(x => x.ProcessId).HasColumnName("process_id");
-			builder.Property(x => x.WorkflowRunDetails).HasColumnName("workflow_run_details");
 			builder.Property(x => x.UserId).HasColumnName("user_id");
 			builder.Property(x => x.Status).HasColumnName("status");
 			builder.Property(x => x.CreatedAt).HasColumnName("created_at");

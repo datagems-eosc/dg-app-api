@@ -6,7 +6,6 @@ namespace DataGEMS.Gateway.App.Model
 	{
 		public Guid? Id { get; set; }
 		public Guid? ProcessId { get; set; }
-		public string WorkflowRunDetails { get; set; }
 		public User User { get; set; }
 		public List<WorkflowProcessStep> Steps { get; set; }
 		public WorkflowProcessStatus? Status { get; set; }

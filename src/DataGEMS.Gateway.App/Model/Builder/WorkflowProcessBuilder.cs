@@ -48,7 +48,6 @@ namespace DataGEMS.Gateway.App.Model.Builder
 				if (fields.HasField(nameof(WorkflowProcess.Id))) m.Id = d.Id;
 				if (fields.HasField(nameof(WorkflowProcess.ProcessId))) m.ProcessId = d.ProcessId;
 				if (fields.HasField(nameof(WorkflowProcess.Status))) m.Status = d.Status;
-				if (fields.HasField(nameof(WorkflowProcess.WorkflowRunDetails))) m.WorkflowRunDetails = d.WorkflowRunDetails;
 				if (fields.HasField(nameof(WorkflowProcess.CreatedAt))) m.CreatedAt = d.CreatedAt;
 				if (fields.HasField(nameof(WorkflowProcess.UpdatedAt))) m.UpdatedAt = d.UpdatedAt;
 				if (!processStepFields.IsEmpty() && workflowProcessStepMap != null && workflowProcessStepMap.ContainsKey(d.Id)) m.Steps = workflowProcessStepMap[d.Id];

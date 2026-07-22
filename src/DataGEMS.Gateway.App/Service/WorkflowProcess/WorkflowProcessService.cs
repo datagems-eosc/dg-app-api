@@ -72,12 +72,74 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 			this._dbContext = dbContext;
 		}
 
+		public async Task<App.Model.WorkflowProcess> ExecuteOnboardingFlow(DatasetPersist model, IFieldSet fields = null)
+		{
+			this._logger.Debug(new MapLogEntry("execute-onboarding-flow").And("profilingModel", model).And("fields", fields));
+
+			await this._authorizationService.AuthorizeForce(Permission.CanExecuteDatasetOnboarding);
+
+			WorkflowProcessConfig.WorkflowProcessConfigItem configuration = this._config.Items.FirstOrDefault(x => x.Kind == Common.WorkflowProcessKind.DatasetOnboarding);
+			DateTime now = DateTime.UtcNow;
+
+			Data.WorkflowProcess data = new Data.WorkflowProcess
+			{
+				Id = Guid.NewGuid(),
+				ProcessId = configuration.Id,
+				Status = Common.Enum.WorkflowProcessStatus.InProgress,
+				UserId = await this._authorizationContentResolver.CurrentUserId(),
+				CreatedAt = now,
+				UpdatedAt = now,
+			};
+			this._dbContext.Add(data);
+			await this._dbContext.SaveChangesAsync();
+			this._eventBroker.EmitWorkflowProcessTouched(data.Id);
+
+			IEnumerable<Data.WorkflowProcessStep> stepData = configuration.Steps.OrderBy(x => x.Order).Select(x => new Data.WorkflowProcessStep
+			{
+				Id = Guid.NewGuid(),
+				StepId = x.Id,
+				ProcessId = data.Id,
+				Status = Common.Enum.WorkflowProcessStatus.InProgress,
+				WorkflowTaskInstanceDetails = "",
+				CreatedAt = now,
+				UpdatedAt = now,
+			});
+			this._dbContext.AddRange(stepData);
+			await this._dbContext.SaveChangesAsync();
+			this._eventBroker.EmitWorkflowProcessStepTouched(stepData.Select(x => x.Id));
+
+			try
+			{
+				await this.ExecuteOnboarding(model, data.Id, stepData.First().Id);
+			} 
+			catch {
+				now = DateTime.UtcNow;
+				foreach (var item in stepData)
+				{
+					item.Status = Common.Enum.WorkflowProcessStatus.Failed;
+					item.UpdatedAt = now;
+				}
+				this._dbContext.UpdateRange(stepData);
+				await this._dbContext.SaveChangesAsync();
+				this._eventBroker.EmitWorkflowProcessStepTouched(stepData.Select(x => x.Id));
+
+				data.Status = Common.Enum.WorkflowProcessStatus.Failed;
+				data.UpdatedAt = now;
+				this._dbContext.Update(data);
+				await this._dbContext.SaveChangesAsync();
+				this._eventBroker.EmitWorkflowProcessTouched(data.Id);
+
+				throw;
+			}
+
+			App.Model.WorkflowProcess persisted = await this._builderFactory.Builder<App.Model.Builder.WorkflowProcessBuilder>().Build(FieldSet.Build(fields, nameof(App.Model.WorkflowProcess.Id)), data);
+			return persisted;
+		}
 
 		private async Task ExecuteOnboarding(DatasetPersist model, Guid processId, Guid stepId)
 		{
-			this._logger.Debug(new MapLogEntry("execute-onboarding").And("profilingModel", model).And("processId", processId).And("stepId", stepId));
+			this._logger.Debug(new MapLogEntry("execute-onboarding").And("model", model).And("processId", processId).And("stepId", stepId));
 			await this._authorizationService.AuthorizeForce(Permission.OnboardDataset);
-			await this._authorizationService.AuthorizeForce(Permission.CanExecuteDatasetOnboarding);
 			List<Airflow.Model.AirflowDag> definitions = await this._queryFactory.Query<WorkflowDefinitionHttpQuery>().Kinds(Common.WorkflowDefinitionKind.DatasetOnboarding) .ExcludeStaled(true) .CollectAsync();
 			if (definitions == null || definitions.Count == 0) throw new DGNotFoundException(this._localizer["general_notFound", Common.WorkflowDefinitionKind.DatasetOnboarding.ToString(), nameof(App.Model.WorkflowDefinition)]);
 			if (definitions.Count > 1) throw new DGFoundManyException(this._localizer["general_nonUnique", Common.WorkflowDefinitionKind.DatasetOnboarding.ToString(), nameof(App.Model.WorkflowDefinition)]);

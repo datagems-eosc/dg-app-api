@@ -91,7 +91,6 @@ namespace DataGEMS.Gateway.App.Query
 			{
 				if (item.Match(nameof(Model.WorkflowProcess.Id))) projectionFields.Add(nameof(WorkflowProcess.Id));
 				else if (item.Match(nameof(Model.WorkflowProcess.ProcessId))) projectionFields.Add(nameof(WorkflowProcess.ProcessId));
-				else if (item.Match(nameof(Model.WorkflowProcess.WorkflowRunDetails))) projectionFields.Add(nameof(WorkflowProcess.WorkflowRunDetails));
 				else if (item.Match(nameof(Model.WorkflowProcess.User))) projectionFields.Add(nameof(WorkflowProcess.UserId));
 				else if (item.Match(nameof(Model.WorkflowProcess.CreatedAt))) projectionFields.Add(nameof(WorkflowProcess.CreatedAt));
 				else if (item.Match(nameof(Model.WorkflowProcess.UpdatedAt))) projectionFields.Add(nameof(WorkflowProcess.UpdatedAt));
