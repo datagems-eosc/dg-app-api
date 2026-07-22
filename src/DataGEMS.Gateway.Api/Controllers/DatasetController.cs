@@ -19,6 +19,7 @@ using DataGEMS.Gateway.App.Exception;
 using DataGEMS.Gateway.App.Model.Builder;
 using DataGEMS.Gateway.App.Query;
 using DataGEMS.Gateway.App.Service.DataManagement;
+using DataGEMS.Gateway.App.Service.WorkflowProcess;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
@@ -37,6 +38,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		private readonly IDataManagementService _datasetService;
 		private readonly ErrorThesaurus _errors;
 		private readonly IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> _localizer;
+		private readonly IWorkflowProcessService _workflowProcessService;
 
 		public DatasetController(
 			CensorFactory censorFactory,
@@ -46,7 +48,8 @@ namespace DataGEMS.Gateway.Api.Controllers
 			IAccountingService accountingService,
 			IDataManagementService datasetService,
 			IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> localizer,
-			ErrorThesaurus errors)
+			ErrorThesaurus errors,
+			IWorkflowProcessService workflowProcessService)
 		{
 			this._censorFactory = censorFactory;
 			this._queryFactory = queryFactory;
@@ -56,6 +59,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			this._datasetService = datasetService;
 			this._localizer = localizer;
 			this._errors = errors;
+			this._workflowProcessService = workflowProcessService;
 		}
 
 		[HttpPost("query")]
@@ -286,6 +290,31 @@ namespace DataGEMS.Gateway.Api.Controllers
 			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.Workflow.AsAccountable());
 
 			return id;
+		}
+
+		[HttpPost("process-step/update")]
+		[Authorize]
+		[ModelStateValidationFilter]
+		[ValidationFilter(typeof(App.Model.WorkflowProcessStepPersist.PersistValidator), "model")]
+		[ServiceFilter(typeof(AppTransactionFilter))]
+		[SwaggerOperation(Summary = "Update process step")]
+		[SwaggerResponse(statusCode: 200, description: "The process step updated successfully")]
+		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
+		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
+		[SwaggerResponse(statusCode: 404, description: "Could not locate item with the provided id")]
+		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
+		[SwaggerResponse(statusCode: 500, description: "Internal error")]
+		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
+		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
+		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
+		public async Task ProcessStepUpdate(
+			[FromBody]
+			[SwaggerRequestBody(description: "The process step to update", Required = true)]
+			App.Model.WorkflowProcessStepPersist model)
+		{
+			this._logger.Debug(new MapLogEntry("process-step-update").And("model", model));
+
+			await this._workflowProcessService.UpdateProcessStep(model);
 		}
 	}
 }

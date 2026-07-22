@@ -1,50 +1,51 @@
-﻿using Cite.Tools.Json;
-using DataGEMS.Gateway.App.ErrorCode;
-using Cite.WebTools.CurrentPrincipal.Extensions;
-using DataGEMS.Gateway.App.Event;
-using DataGEMS.Gateway.App.Formatting;
+﻿using Cite.Tools.Data.Builder.Extensions;
+using Cite.Tools.Data.Censor.Extensions;
+using Cite.Tools.Data.Deleter.Extensions;
+using Cite.Tools.Data.Query.Extensions;
+using Cite.Tools.Json;
+using Cite.Tools.Logging.Extensions;
+using Cite.Tools.Validation.Extensions;
 using Cite.WebTools.Cors.Extensions;
+using Cite.WebTools.CurrentPrincipal.Extensions;
+using Cite.WebTools.FieldSet;
+using Cite.WebTools.HostingEnvironment.Extensions;
 using Cite.WebTools.Localization.Extensions;
+using DataGEMS.Gateway.Api.AccessToken;
 using DataGEMS.Gateway.Api.Authorization;
 using DataGEMS.Gateway.Api.Cache;
-using DataGEMS.Gateway.Api.ForwardedHeaders;
-using Cite.WebTools.HostingEnvironment.Extensions;
-using Cite.Tools.Logging.Extensions;
 using DataGEMS.Gateway.Api.Exception;
-using DataGEMS.Gateway.App.LogTracking;
-using DataGEMS.Gateway.Api.LogTracking;
-using Cite.WebTools.FieldSet;
+using DataGEMS.Gateway.Api.ForwardedHeaders;
 using DataGEMS.Gateway.Api.HealthCheck;
+using DataGEMS.Gateway.Api.LogTracking;
 using DataGEMS.Gateway.Api.Model;
-using DataGEMS.Gateway.App.Accounting;
-using Serilog;
-using Cite.Tools.Data.Censor.Extensions;
-using DataGEMS.Gateway.App.AccessToken;
-using DataGEMS.Gateway.Api.AccessToken;
-using Cite.Tools.Data.Query.Extensions;
-using Cite.Tools.Data.Builder.Extensions;
-using Cite.Tools.Validation.Extensions;
 using DataGEMS.Gateway.Api.OpenApi;
-using Microsoft.EntityFrameworkCore;
 using DataGEMS.Gateway.Api.Transaction;
-using Cite.Tools.Data.Deleter.Extensions;
-using DataGEMS.Gateway.App.Service.Version;
+using DataGEMS.Gateway.App.AccessToken;
+using DataGEMS.Gateway.App.Accounting;
+using DataGEMS.Gateway.App.ErrorCode;
+using DataGEMS.Gateway.App.Event;
+using DataGEMS.Gateway.App.Formatting;
+using DataGEMS.Gateway.App.LogTracking;
+using DataGEMS.Gateway.App.Service.AAI;
+using DataGEMS.Gateway.App.Service.Airflow;
+using DataGEMS.Gateway.App.Service.Collection;
 using DataGEMS.Gateway.App.Service.Conversation;
+using DataGEMS.Gateway.App.Service.DataManagement;
+using DataGEMS.Gateway.App.Service.DatasetFileManagement;
+using DataGEMS.Gateway.App.Service.DatasetPackaging;
+using DataGEMS.Gateway.App.Service.DatasetRecommender;
 using DataGEMS.Gateway.App.Service.Discovery;
 using DataGEMS.Gateway.App.Service.InDataExploration;
-using DataGEMS.Gateway.App.Service.Vocabulary;
-using DataGEMS.Gateway.App.Service.Airflow;
-using DataGEMS.Gateway.App.Service.UserSettings;
-using DataGEMS.Gateway.App.Service.DataManagement;
-using DataGEMS.Gateway.App.Service.AAI;
-using DataGEMS.Gateway.App.Service.Storage;
 using DataGEMS.Gateway.App.Service.QueryRecommender;
-using DataGEMS.Gateway.App.Service.Collection;
+using DataGEMS.Gateway.App.Service.Storage;
 using DataGEMS.Gateway.App.Service.TaskOrchestrator;
-using DataGEMS.Gateway.App.Service.DatasetFileManagement;
-using DataGEMS.Gateway.App.Service.DatasetRecommender;
 using DataGEMS.Gateway.App.Service.UserFavorite;
-using DataGEMS.Gateway.App.Service.DatasetPackaging;
+using DataGEMS.Gateway.App.Service.UserSettings;
+using DataGEMS.Gateway.App.Service.Version;
+using DataGEMS.Gateway.App.Service.Vocabulary;
+using DataGEMS.Gateway.App.Service.WorkflowProcess;
+using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 namespace DataGEMS.Gateway.Api
 {
@@ -103,6 +104,7 @@ namespace DataGEMS.Gateway.Api
 				.AddDatasetFileManagementServices() //Dataset File Management API
 				.AddDatasetRecommenderServices(this._config.GetSection("DatasetRecommenderService")) //Dataset Recommender API
 				.AddDatasetPackagingServices(this._config.GetSection("DatasetPackagingService")) //Dataset Packaging API
+				.AddWorkflowProcessServices(this._config.GetSection("WorkflowProcess")) //Add Workflow Process Services
 			;
 
 			services

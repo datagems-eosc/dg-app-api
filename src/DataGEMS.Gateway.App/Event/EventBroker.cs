@@ -745,6 +745,82 @@ namespace DataGEMS.Gateway.App.Event
 		#endregion
 
 
+		#region WorkflowProcess Touched
+
+		private EventHandler<OnWorkflowProcessEventArgs> _workflowProcessTouched;
+		public event EventHandler<OnWorkflowProcessEventArgs> WorkflowProcessTouched
+		{
+			add { this._workflowProcessTouched += value; }
+			remove { this._workflowProcessTouched -= value; }
+		}
+
+		public void EmitWorkflowProcessTouched(Guid id)
+		{
+			this.EmitWorkflowProcessTouched(this, new List<Guid>() { id });
+		}
+
+		public void EmitWorkflowProcessTouched(IEnumerable<Guid> ids)
+		{
+			this.EmitWorkflowProcessTouched(this, ids);
+		}
+
+		public void EmitWorkflowProcessTouched(IEnumerable<OnWorkflowProcessEventArgs> events)
+		{
+			this.EmitWorkflowProcessTouched(this, events);
+		}
+
+		public void EmitWorkflowProcessTouched(Object sender, IEnumerable<Guid> ids)
+		{
+			this._workflowProcessTouched?.Invoke(sender, new OnWorkflowProcessEventArgs(ids));
+		}
+
+		public void EmitWorkflowProcessTouched(Object sender, IEnumerable<OnWorkflowProcessEventArgs> events)
+		{
+			if (events == null) return;
+			foreach (OnWorkflowProcessEventArgs ev in events) this._workflowProcessTouched?.Invoke(sender, ev);
+		}
+
+		#endregion
+
+		#region WorkflowProcessStep Touched
+
+		private EventHandler<OnWorkflowProcessStepEventArgs> _workflowProcessStepTouched;
+		public event EventHandler<OnWorkflowProcessStepEventArgs> WorkflowProcessStepTouched
+		{
+			add { this._workflowProcessStepTouched += value; }
+			remove { this._workflowProcessStepTouched -= value; }
+		}
+
+		public void EmitWorkflowProcessStepTouched(Guid id)
+		{
+			this.EmitWorkflowProcessStepTouched(this, new List<Guid>() { id });
+		}
+
+		public void EmitWorkflowProcessStepTouched(IEnumerable<Guid> ids)
+		{
+			this.EmitWorkflowProcessStepTouched(this, ids);
+		}
+
+		public void EmitWorkflowProcessStepTouched(IEnumerable<OnWorkflowProcessStepEventArgs> events)
+		{
+			this.EmitWorkflowProcessStepTouched(this, events);
+		}
+
+		public void EmitWorkflowProcessStepTouched(Object sender, IEnumerable<Guid> ids)
+		{
+			this._workflowProcessStepTouched?.Invoke(sender, new OnWorkflowProcessStepEventArgs(ids));
+		}
+
+		public void EmitWorkflowProcessStepTouched(Object sender, IEnumerable<OnWorkflowProcessStepEventArgs> events)
+		{
+			if (events == null) return;
+			foreach (OnWorkflowProcessStepEventArgs ev in events) this._workflowProcessStepTouched?.Invoke(sender, ev);
+		}
+
+		#endregion
+
+
+
 		#region Dataset Deleted
 
 		private EventHandler<OnEventArgs<Guid>> _datasetDeleted;
