@@ -291,30 +291,5 @@ namespace DataGEMS.Gateway.Api.Controllers
 
 			return id;
 		}
-
-		[HttpPost("process-step/update")]
-		[Authorize]
-		[ModelStateValidationFilter]
-		[ValidationFilter(typeof(App.Model.WorkflowProcessStepPersist.PersistValidator), "model")]
-		[ServiceFilter(typeof(AppTransactionFilter))]
-		[SwaggerOperation(Summary = "Update process step")]
-		[SwaggerResponse(statusCode: 200, description: "The process step updated successfully")]
-		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
-		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
-		[SwaggerResponse(statusCode: 404, description: "Could not locate item with the provided id")]
-		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
-		[SwaggerResponse(statusCode: 500, description: "Internal error")]
-		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
-		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
-		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
-		public async Task ProcessStepUpdate(
-			[FromBody]
-			[SwaggerRequestBody(description: "The process step to update", Required = true)]
-			App.Model.WorkflowProcessStepPersist model)
-		{
-			this._logger.Debug(new MapLogEntry("process-step-update").And("model", model));
-
-			await this._workflowProcessService.UpdateProcessStep(model);
-		}
 	}
 }
