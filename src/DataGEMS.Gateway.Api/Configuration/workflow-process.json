@@ -1,98 +1,68 @@
 {
   "WorkflowProcess": {
     "Items": [
-      //{
-      //  "Id": "25593b3b-f2b8-4304-bba2-e6eb6e3f4872",
-      //  "Kind": 0,
-      //  "Name": "Dataset Onboarding",
-      //  "Description": "Onboards a new dataset by collecting and registering its metadata and data location within the platform.",
-      //  "Steps": [
-      //    {
-      //      "Id": "8352e21f-a84f-4d41-92c8-30dc05577235",
-      //      "Order": 0,
-      //      "TaskId": "stage_dataset_files"
-      //    },
-      //    {
-      //      "Id": "7d115bb4-21f2-4c70-af08-1cc066aeb033",
-      //      "Order": 1,
-      //      "TaskId": "register_dataset"
-      //    },
-      //    {
-      //      "Id": "f53720cc-9449-4a0d-a528-5b91b9ea09d2",
-      //      "Order": 2,
-      //      "TaskId": "load_dataset"
-      //    }
-      //  ]
-      //},
-      //{
-      //  "Id": "97852575-fa6e-4475-9725-7f8f8ff34e03",
-      //  "Kind": 1,
-      //  "Name": "Dataset Profiling",
-      //  "Description": "Analyzes a dataset to generate structural, statistical, and quality-related information that helps users understand its contents.",
-      //  "Steps": [
-      //    {
-      //      "Id": "62a67d16-e9fd-405c-98e8-7fda4cf42bec",
-      //      "Order": 0,
-      //      "TaskId": "trigger_profile"
-      //    },
-      //    {
-      //      "Id": "9419e572-f885-4cd2-83a3-97400022d86e",
-      //      "Order": 1,
-      //      "TaskId": "wait_to_complete_profiling"
-      //    },
-      //    {
-      //      "Id": "15b9dfa1-39db-430a-b7a3-35bd98fd6e58",
-      //      "Order": 2,
-      //      "TaskId": "fetch_ready_profile"
-      //    },
-      //    {
-      //      "Id": "8026cca8-9b8e-46cc-bb84-26a7d7cd23d8",
-      //      "Order": 3,
-      //      "TaskId": "convert_Croissant_to_PG_JSON"
-      //    },
-      //    {
-      //      "Id": "a751c69f-9c16-42a5-b1e2-dee9bdff830f",
-      //      "Order": 4,
-      //      "TaskId": "update_data_management_with_fetched_profile"
-      //    },
-      //    {
-      //      "Id": "e0267c05-57fb-40e7-b864-0368ea754796",
-      //      "Order": 5,
-      //      "TaskId": "pass_index_files"
-      //    },
-      //    {
-      //      "Id": "026620b1-e0db-424e-862b-db5e210955cd",
-      //      "Order": 6,
-      //      "TaskId": "profile_cleanup"
-      //    }
-      //  ]
-      //},
-      //{
-      //  "Id": "c6a8da71-0d78-458b-afed-f06b6ffe092e",
-      //  "Kind": 2,
-      //  "Name": "Dataset Packaging",
-      //  "Description": "Prepares a dataset and its associated metadata for distribution, storage, or use by downstream services and workflows.",
-      //  "Steps": [
-      //    {
-      //      "Id": "97b486d4-fd09-4815-8d6a-17a8bf4c07d8",
-      //      "Order": 0,
-      //      "TaskId": "import_dataset"
-      //    }
-      //  ]
-      //},
-      //{
-      //  "Id": "2b13dc1e-0a10-4c73-b3ec-15e760745c37",
-      //  "Kind": 3,
-      //  "Name": "Dataset Recomnmendation Registering",
-      //  "Description": "Generates and registers dataset-to-dataset recommendations to support the discovery of related or relevant datasets.",
-      //  "Steps": [
-      //    {
-      //      "Id": "d51f0120-0070-4e9e-8e2f-a2eb7bfc7620",
-      //      "Order": 0,
-      //      "TaskId": "import_dataset"
-      //    }
-      //  ]
-      //},
+      {
+        "Id": "25593b3b-f2b8-4304-bba2-e6eb6e3f4872",
+        "Kind": 0,
+        "Name": "Dataset Onboarding",
+        "Description": "Onboards a new dataset by collecting and registering its metadata and data location within the platform.",
+        "Steps": [
+          {
+            "Id": "8352e21f-a84f-4d41-92c8-30dc05577235",
+            "Order": 0,
+            "Kind": 0,
+            "TaskId": "stage_dataset_files"
+          },
+          {
+            "Id": "7d115bb4-21f2-4c70-af08-1cc066aeb033",
+            "Order": 1,
+            "Kind": 1,
+            "TaskId": "Dataset Profiling"
+          }
+        ]
+      },
+      {
+        "Id": "97852575-fa6e-4475-9725-7f8f8ff34e03",
+        "Kind": 1,
+        "Name": "Dataset Profiling",
+        "Description": "Analyzes a dataset to generate structural, statistical, and quality-related information that helps users understand its contents.",
+        "Steps": [
+          {
+            "Id": "62a67d16-e9fd-405c-98e8-7fda4cf42bec",
+            "Kind": 1,
+            "Order": 0,
+            "TaskId": "Dataset Profiling"
+          }
+        ]
+      },
+      {
+        "Id": "c6a8da71-0d78-458b-afed-f06b6ffe092e",
+        "Kind": 2,
+        "Name": "Dataset Packaging",
+        "Description": "Prepares a dataset and its associated metadata for distribution, storage, or use by downstream services and workflows.",
+        "Steps": [
+          {
+            "Id": "97b486d4-fd09-4815-8d6a-17a8bf4c07d8",
+            "Kind": 2,
+            "Order": 0,
+            "TaskId": "Dataset Packaging"
+          }
+        ]
+      },
+      {
+        "Id": "2b13dc1e-0a10-4c73-b3ec-15e760745c37",
+        "Kind": 3,
+        "Name": "Dataset Recomnmendation Registering",
+        "Description": "Generates and registers dataset-to-dataset recommendations to support the discovery of related or relevant datasets.",
+        "Steps": [
+          {
+            "Id": "d51f0120-0070-4e9e-8e2f-a2eb7bfc7620",
+            "Kind": 3,
+            "Order": 0,
+            "TaskId": "Dataset Recomnmendation Registering"
+          }
+        ]
+      },
       {
         "Id": "caddac49-0db9-48ad-be52-d3a68031263b",
         "Kind": 4,
@@ -103,17 +73,7 @@
             "Id": "805aea17-7f23-40dd-8430-f653621caaf6",
             "Kind": 4,
             "Order": 0,
-            "TaskId": "fetch_ingestion_file"
-          },
-          {
-            "Id": "5f13a682-9dd3-4f32-8da0-828a6ba9b61a",
-            "Order": 1,
-            "TaskId": "begin_ingestion"
-          },
-          {
-            "Id": "1c7fae79-1371-490c-815f-063086e14792",
-            "Order": 2,
-            "TaskId": "wait_for_completion"
+            "TaskId": "Cross Dataset Discovery Ingestion"
           }
         ]
       }
