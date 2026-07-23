@@ -72,6 +72,67 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 			this._dbContext = dbContext;
 		}
 
+		public async Task UpdateWorkflowProcessStep(WorkflowProcessStepPersist model)
+		{
+			this._logger.Debug(new MapLogEntry("update-workflow-process-step").And("model", model));
+			await this._authorizationService.AuthorizeForce(Permission.EditWorkflowProcessStep);
+
+			Data.WorkflowProcessStep data = await this._queryFactory.Query<WorkflowProcessStepQuery>().Ids(model.Id.Value).FirstAsync();
+			if (data == null) throw new DGNotFoundException(this._localizer["general_notFound", model.Id.Value, nameof(App.Model.WorkflowProcessStep)]);
+			
+			data.UpdatedAt = DateTime.UtcNow;
+			data.Status = model.Status.Value;
+			data.WorkflowTaskInstanceDetails += model.WorkflowTaskInstanceDetails;
+			this._dbContext.Update(data);
+			await this._dbContext.SaveChangesAsync();
+			this._eventBroker.EmitWorkflowProcessStepTouched(data.Id);
+
+			if (model.Status.Value == Common.Enum.WorkflowProcessStatus.Failed)
+			{
+				Data.WorkflowProcess workflowProcess = await this._queryFactory.Query<WorkflowProcessQuery>().Ids(data.ProcessId).FirstAsync();
+				workflowProcess.Status = Common.Enum.WorkflowProcessStatus.Failed;
+				workflowProcess.UpdatedAt = DateTime.UtcNow;
+				this._dbContext.Update(workflowProcess);
+				await this._dbContext.SaveChangesAsync();
+				this._eventBroker.EmitWorkflowProcessTouched(workflowProcess.Id);
+			}
+		}
+
+		public async Task FinilizeOnboardingStep(WorkflowProcessStepPersist model, DatasetProfiling profiling)
+		{
+			await this.UpdateWorkflowProcessStep(model);
+
+			WorkflowProcessConfig.WorkflowProcessConfigItem configuration = this._config.Items.FirstOrDefault(x => x.Kind == Common.WorkflowProcessKind.DatasetOnboarding);
+			List<WorkflowProcessConfig.WorkflowProcessConfigItem.WorkflowProcessConfigItemStep> steps = configuration.Steps.OrderBy(x => x.Order).ToList();
+			if (steps.Count == 1)
+			{
+				Data.WorkflowProcess process = await this._queryFactory.Query<WorkflowProcessQuery>().Ids(model.ProcessId.Value).FirstAsync();
+				if (process == null) throw new DGNotFoundException(this._localizer["general_notFound", model.ProcessId.Value, nameof(App.Model.WorkflowProcess)]);
+				process.Status = Common.Enum.WorkflowProcessStatus.Succeeded;
+				process.UpdatedAt = DateTime.UtcNow;
+				this._dbContext.Update(process);
+				await this._dbContext.SaveChangesAsync();
+				this._eventBroker.EmitWorkflowProcessTouched(process.Id);
+				return;
+			}
+			
+			Data.WorkflowProcessStep data = await this._queryFactory.Query<WorkflowProcessStepQuery>().ProcessIds(model.ProcessId.Value).StepIds(steps[1].Id).FirstAsync();
+			if (data == null) throw new DGNotFoundException(this._localizer["general_notFound", model.Id.Value, nameof(App.Model.WorkflowProcessStep)]);
+
+			await this.ExecuteProfiling(new ProfilingModel
+			{
+				DatabaseName = profiling.DatabaseName,
+				DatasetId = profiling.Id.Value,
+				Kind = profiling.DataStoreKind.Value
+			}, data.ProcessId, data.Id);
+		}
+
+		public async Task FinilizeProfilingStep(WorkflowProcessStepPersist model, Guid datasetId)
+		{
+			//also calls next steps
+			throw new NotImplementedException();
+		}
+
 		public async Task<App.Model.WorkflowProcess> ExecuteOnboardingFlow(DatasetPersist model, IFieldSet fields = null)
 		{
 			this._logger.Debug(new MapLogEntry("execute-onboarding-flow").And("profilingModel", model).And("fields", fields));

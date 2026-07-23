@@ -10,6 +10,7 @@ namespace DataGEMS.Gateway.App.Query
 		private List<Guid> _ids { get; set; }
 		private List<Guid> _excludedIds { get; set; }
 		private List<Guid> _processIds { get; set; }
+		private List<Guid> _stepIds { get; set; }
 		private AuthorizationFlags _authorize { get; set; } = AuthorizationFlags.None;
 
 		public WorkflowProcessStepQuery(AppDbContext dbContext, IAuthorizationContentResolver authorizationContentResolver)
@@ -27,6 +28,8 @@ namespace DataGEMS.Gateway.App.Query
 		public WorkflowProcessStepQuery ExcludedIds(Guid excludedId) { this._excludedIds = this.ToList(excludedId.AsArray()); return this; }
 		public WorkflowProcessStepQuery ProcessIds(IEnumerable<Guid> processIds) { this._processIds = this.ToList(processIds); return this; }
 		public WorkflowProcessStepQuery ProcessIds(Guid processId) { this._processIds = this.ToList(processId.AsArray()); return this; }
+		public WorkflowProcessStepQuery StepIds(IEnumerable<Guid> stepIds) { this._stepIds = this.ToList(stepIds); return this; }
+		public WorkflowProcessStepQuery StepIds(Guid stepId) { this._stepIds = this.ToList(stepId.AsArray()); return this; }
 		public WorkflowProcessStepQuery EnableTracking() { base.NoTracking = false; return this; }
 		public WorkflowProcessStepQuery DisableTracking() { base.NoTracking = true; return this; }
 		public WorkflowProcessStepQuery AsDistinct() { base.Distinct = true; return this; }
@@ -35,7 +38,7 @@ namespace DataGEMS.Gateway.App.Query
 
 		protected override bool IsFalseQuery()
 		{
-			return this.IsEmpty(this._ids) || this.IsEmpty(this._processIds) || this.IsEmpty(this._excludedIds);
+			return this.IsEmpty(this._ids) || this.IsEmpty(this._processIds) || this.IsEmpty(this._excludedIds) || this.IsEmpty(this._stepIds);
 		}
 
 		protected override IQueryable<WorkflowProcessStep> Queryable()
@@ -64,6 +67,7 @@ namespace DataGEMS.Gateway.App.Query
 		{
 			if (this._ids != null) query = query.Where(x => this._ids.Contains(x.Id));
 			if (this._processIds != null) query = query.Where(x => this._processIds.Contains(x.ProcessId));
+			if (this._stepIds != null) query = query.Where(x => this._stepIds.Contains(x.StepId));
 			if (this._excludedIds != null) query = query.Where(x => !this._excludedIds.Contains(x.Id));
 			return Task.FromResult(query);
 		}
