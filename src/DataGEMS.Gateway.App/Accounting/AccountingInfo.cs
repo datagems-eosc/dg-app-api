@@ -57,6 +57,8 @@ namespace DataGEMS.Gateway.App.Accounting
 		DatasetPackaging = 16,
 		DatasetRecommender = 17,
 		QueryDisambiguation = 18,
+		WorkflowProcess = 19,
+		WorkflowProcessStep = 20,
 	}
 
 	public class AccountingInfo

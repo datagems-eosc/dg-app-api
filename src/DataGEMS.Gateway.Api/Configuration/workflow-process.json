@@ -18,6 +18,24 @@
             "Order": 1,
             "Kind": 1,
             "TaskId": "Dataset Profiling"
+          },
+          {
+            "Id": "bc5ed9e1-ac8c-47b4-b986-7b28165bdc82",
+            "Order": 2,
+            "Kind": 2,
+            "TaskId": "Dataset Packaging"
+          },
+          {
+            "Id": "ebb8dffb-8f5f-447b-9986-8753ae8db398",
+            "Order": 3,
+            "Kind": 3,
+            "TaskId": "Dataset Recommendation Registering"
+          },
+          {
+            "Id": "ed906ed4-5445-4df6-af9f-ffc4dde5300f",
+            "Order": 4,
+            "Kind": 4,
+            "TaskId": "Dataset CDD Ingest"
           }
         ]
       },
