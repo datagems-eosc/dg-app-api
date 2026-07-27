@@ -60,4 +60,200 @@ namespace DataGEMS.Gateway.App.Model
 			}
 		}
 	}
+
+	public class WorkflowOnboardingStepFinalize
+	{
+		public WorkflowProcessStepPersist WorkflowProcessStep { get; set; }
+		public DatasetProfiling Profiling { get; set; }
+
+		public class Validator: BaseValidator<WorkflowOnboardingStepFinalize>
+		{
+			public Validator(
+				IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> localizer,
+				ValidatorFactory validatorFactory,
+				ILogger<Validator> logger,
+				ErrorThesaurus errors) : base(validatorFactory, logger, errors)
+			{
+				this._localizer = localizer;
+			}
+			private readonly IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> _localizer;
+			protected override IEnumerable<ISpecification> Specifications(WorkflowOnboardingStepFinalize item)
+			{
+				return [
+					//WorkflowProcessStepPersist must not be null
+					this.Spec()
+						.Must(() => item.WorkflowProcessStep != null)
+						.FailOn(nameof(WorkflowOnboardingStepFinalize.WorkflowProcessStep)).FailWith(this._localizer["validation_required", nameof(WorkflowOnboardingStepFinalize.WorkflowProcessStep)]),
+					//WorkflowProcessStepPersist must be valid
+					this.RefSpec()
+						.If(() => item.WorkflowProcessStep != null)
+						.On(nameof(WorkflowOnboardingStepFinalize.WorkflowProcessStep))
+						.Over(item.WorkflowProcessStep)
+						.Using(() => _validatorFactory[typeof(WorkflowProcessStepPersist.PersistValidator)]),
+					//Profiling must not be null
+					this.Spec()
+						.Must(() => item.Profiling != null)
+						.FailOn(nameof(WorkflowOnboardingStepFinalize.Profiling)).FailWith(this._localizer["validation_required", nameof(WorkflowOnboardingStepFinalize.Profiling)]),
+					//DatasetProfiling must be valid
+					this.RefSpec()
+						.If(() => item.Profiling != null)
+						.On(nameof(WorkflowOnboardingStepFinalize.Profiling))
+						.Over(item.Profiling)
+						.Using(() => _validatorFactory[typeof(DatasetProfiling.ProfilingValidator)]),
+				];
+			}
+		}
+	}
+
+	public class WorkflowProfilingStepFinalize
+	{
+		public WorkflowProcessStepPersist WorkflowProcessStep { get; set; }
+		public Guid? DatasetId { get; set; }
+
+		public class Validator : BaseValidator<WorkflowProfilingStepFinalize>
+		{
+			public Validator(
+				IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> localizer,
+				ValidatorFactory validatorFactory,
+				ILogger<Validator> logger,
+				ErrorThesaurus errors) : base(validatorFactory, logger, errors)
+			{
+				this._localizer = localizer;
+			}
+			private readonly IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> _localizer;
+			protected override IEnumerable<ISpecification> Specifications(WorkflowProfilingStepFinalize item)
+			{
+				return [
+					//WorkflowProcessStepPersist must not be null
+					this.Spec()
+						.Must(() => item.WorkflowProcessStep != null)
+						.FailOn(nameof(WorkflowProfilingStepFinalize.WorkflowProcessStep)).FailWith(this._localizer["validation_required", nameof(WorkflowProfilingStepFinalize.WorkflowProcessStep)]),
+					//WorkflowProcessStepPersist must be valid
+					this.RefSpec()
+						.If(() => item.WorkflowProcessStep != null)
+						.On(nameof(WorkflowProfilingStepFinalize.WorkflowProcessStep))
+						.Over(item.WorkflowProcessStep)
+						.Using(() => _validatorFactory[typeof(WorkflowProcessStepPersist.PersistValidator)]),
+					//DatasetId must be valid
+					this.Spec()
+						.Must(() => this.IsValidGuid(item.DatasetId))
+						.FailOn(nameof(WorkflowProfilingStepFinalize.DatasetId)).FailWith(this._localizer["validation_required", nameof(WorkflowProfilingStepFinalize.DatasetId)]),
+				];
+			}
+		}
+	}
+
+	public class WorkflowPackagingStepFinalize
+	{
+		public WorkflowProcessStepPersist WorkflowProcessStep { get; set; }
+		public Guid? DatasetId { get; set; }
+
+		public class Validator : BaseValidator<WorkflowPackagingStepFinalize>
+		{
+			public Validator(
+				IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> localizer,
+				ValidatorFactory validatorFactory,
+				ILogger<Validator> logger,
+				ErrorThesaurus errors) : base(validatorFactory, logger, errors)
+			{
+				this._localizer = localizer;
+			}
+			private readonly IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> _localizer;
+			protected override IEnumerable<ISpecification> Specifications(WorkflowPackagingStepFinalize item)
+			{
+				return [
+					//WorkflowProcessStepPersist must not be null
+					this.Spec()
+						.Must(() => item.WorkflowProcessStep != null)
+						.FailOn(nameof(WorkflowPackagingStepFinalize.WorkflowProcessStep)).FailWith(this._localizer["validation_required", nameof(WorkflowPackagingStepFinalize.WorkflowProcessStep)]),
+					//WorkflowProcessStepPersist must be valid
+					this.RefSpec()
+						.If(() => item.WorkflowProcessStep != null)
+						.On(nameof(WorkflowPackagingStepFinalize.WorkflowProcessStep))
+						.Over(item.WorkflowProcessStep)
+						.Using(() => _validatorFactory[typeof(WorkflowProcessStepPersist.PersistValidator)]),
+					//DatasetId must be valid
+					this.Spec()
+						.Must(() => this.IsValidGuid(item.DatasetId))
+						.FailOn(nameof(WorkflowPackagingStepFinalize.DatasetId)).FailWith(this._localizer["validation_required", nameof(WorkflowPackagingStepFinalize.DatasetId)]),
+				];
+			}
+		}
+	}
+
+	public class WorkflowRecommendationStepFinalize
+	{
+		public WorkflowProcessStepPersist WorkflowProcessStep { get; set; }
+		public Guid? DatasetId { get; set; }
+
+		public class Validator : BaseValidator<WorkflowRecommendationStepFinalize>
+		{
+			public Validator(
+				IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> localizer,
+				ValidatorFactory validatorFactory,
+				ILogger<Validator> logger,
+				ErrorThesaurus errors) : base(validatorFactory, logger, errors)
+			{
+				this._localizer = localizer;
+			}
+			private readonly IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> _localizer;
+			protected override IEnumerable<ISpecification> Specifications(WorkflowRecommendationStepFinalize item)
+			{
+				return [
+					//WorkflowProcessStepPersist must not be null
+					this.Spec()
+						.Must(() => item.WorkflowProcessStep != null)
+						.FailOn(nameof(WorkflowRecommendationStepFinalize.WorkflowProcessStep)).FailWith(this._localizer["validation_required", nameof(WorkflowRecommendationStepFinalize.WorkflowProcessStep)]),
+					//WorkflowProcessStepPersist must be valid
+					this.RefSpec()
+						.If(() => item.WorkflowProcessStep != null)
+						.On(nameof(WorkflowRecommendationStepFinalize.WorkflowProcessStep))
+						.Over(item.WorkflowProcessStep)
+						.Using(() => _validatorFactory[typeof(WorkflowProcessStepPersist.PersistValidator)]),
+					//DatasetId must be valid
+					this.Spec()
+						.Must(() => this.IsValidGuid(item.DatasetId))
+						.FailOn(nameof(WorkflowRecommendationStepFinalize.DatasetId)).FailWith(this._localizer["validation_required", nameof(WorkflowRecommendationStepFinalize.DatasetId)]),
+				];
+			}
+		}
+	}
+
+	public class WorkflowCddIngestionStepFinalize
+	{
+		public WorkflowProcessStepPersist WorkflowProcessStep { get; set; }
+		public Guid? DatasetId { get; set; }
+
+		public class Validator : BaseValidator<WorkflowCddIngestionStepFinalize>
+		{
+			public Validator(
+				IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> localizer,
+				ValidatorFactory validatorFactory,
+				ILogger<Validator> logger,
+				ErrorThesaurus errors) : base(validatorFactory, logger, errors)
+			{
+				this._localizer = localizer;
+			}
+			private readonly IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> _localizer;
+			protected override IEnumerable<ISpecification> Specifications(WorkflowCddIngestionStepFinalize item)
+			{
+				return [
+					//WorkflowProcessStepPersist must not be null
+					this.Spec()
+						.Must(() => item.WorkflowProcessStep != null)
+						.FailOn(nameof(WorkflowCddIngestionStepFinalize.WorkflowProcessStep)).FailWith(this._localizer["validation_required", nameof(WorkflowCddIngestionStepFinalize.WorkflowProcessStep)]),
+					//WorkflowProcessStepPersist must be valid
+					this.RefSpec()
+						.If(() => item.WorkflowProcessStep != null)
+						.On(nameof(WorkflowCddIngestionStepFinalize.WorkflowProcessStep))
+						.Over(item.WorkflowProcessStep)
+						.Using(() => _validatorFactory[typeof(WorkflowProcessStepPersist.PersistValidator)]),
+					//DatasetId must be valid
+					this.Spec()
+						.Must(() => this.IsValidGuid(item.DatasetId))
+						.FailOn(nameof(WorkflowCddIngestionStepFinalize.DatasetId)).FailWith(this._localizer["validation_required", nameof(WorkflowCddIngestionStepFinalize.DatasetId)]),
+				];
+			}
+		}
+	}
 }

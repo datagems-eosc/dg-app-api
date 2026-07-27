@@ -133,5 +133,137 @@ namespace DataGEMS.Gateway.Api.Controllers
 			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.Workflow.AsAccountable());
 		}
 
+
+		[HttpPost("workflow-process/step/finalize-onboarding")]
+		[Authorize]
+		[ModelStateValidationFilter]
+		[ValidationFilter(typeof(App.Model.WorkflowOnboardingStepFinalize.Validator), "model")]
+		[ServiceFilter(typeof(AppTransactionFilter))]
+		[SwaggerOperation(Summary = "Update a workflow process step")]
+		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
+		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
+		[SwaggerResponse(statusCode: 404, description: "Could not locate item with the provided id")]
+		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
+		[SwaggerResponse(statusCode: 500, description: "Internal error")]
+		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
+		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
+		public async Task WorkflowOnboardingStepFinalize(
+			[FromBody]
+			[SwaggerRequestBody(description: "The model to persist", Required = true)]
+			App.Model.WorkflowOnboardingStepFinalize model)
+		{
+			this._logger.Debug(new MapLogEntry("persisting").And("type", nameof(App.Model.WorkflowOnboardingStepFinalize)));
+
+			await this._workflowProcessService.FinilizeOnboardingStep(model.WorkflowProcessStep, model.Profiling);
+
+			this._accountingService.AccountFor(KnownActions.Persist, KnownResources.WorkflowProcessStep.AsAccountable());
+			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.Workflow.AsAccountable());
+		}
+
+
+		[HttpPost("workflow-process/step/finalize-profiling")]
+		[Authorize]
+		[ModelStateValidationFilter]
+		[ValidationFilter(typeof(App.Model.WorkflowProfilingStepFinalize.Validator), "model")]
+		[ServiceFilter(typeof(AppTransactionFilter))]
+		[SwaggerOperation(Summary = "Update a workflow process step")]
+		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
+		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
+		[SwaggerResponse(statusCode: 404, description: "Could not locate item with the provided id")]
+		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
+		[SwaggerResponse(statusCode: 500, description: "Internal error")]
+		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
+		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
+		public async Task WorkflowProfilingStepFinalize(
+			[FromBody]
+			[SwaggerRequestBody(description: "The model to persist", Required = true)]
+			App.Model.WorkflowProfilingStepFinalize model)
+		{
+			this._logger.Debug(new MapLogEntry("persisting").And("type", nameof(App.Model.WorkflowProfilingStepFinalize)));
+
+			await this._workflowProcessService.FinilizeProfilingStep(model.WorkflowProcessStep, model.DatasetId.Value);
+
+			this._accountingService.AccountFor(KnownActions.Persist, KnownResources.WorkflowProcessStep.AsAccountable());
+			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.Workflow.AsAccountable());
+		}
+
+		[HttpPost("workflow-process/step/finalize-packaging")]
+		[Authorize]
+		[ModelStateValidationFilter]
+		[ValidationFilter(typeof(App.Model.WorkflowPackagingStepFinalize.Validator), "model")]
+		[ServiceFilter(typeof(AppTransactionFilter))]
+		[SwaggerOperation(Summary = "Update a workflow process step")]
+		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
+		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
+		[SwaggerResponse(statusCode: 404, description: "Could not locate item with the provided id")]
+		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
+		[SwaggerResponse(statusCode: 500, description: "Internal error")]
+		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
+		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
+		public async Task WorkflowPackagingStepFinalize(
+			[FromBody]
+			[SwaggerRequestBody(description: "The model to persist", Required = true)]
+			App.Model.WorkflowPackagingStepFinalize model)
+		{
+			this._logger.Debug(new MapLogEntry("persisting").And("type", nameof(App.Model.WorkflowPackagingStepFinalize)));
+
+			await this._workflowProcessService.FinilizePackagingStep(model.WorkflowProcessStep, model.DatasetId.Value);
+
+			this._accountingService.AccountFor(KnownActions.Persist, KnownResources.WorkflowProcessStep.AsAccountable());
+			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.Workflow.AsAccountable());
+		}
+
+
+		[HttpPost("workflow-process/step/finalize-recommendation")]
+		[Authorize]
+		[ModelStateValidationFilter]
+		[ValidationFilter(typeof(App.Model.WorkflowRecommendationStepFinalize.Validator), "model")]
+		[ServiceFilter(typeof(AppTransactionFilter))]
+		[SwaggerOperation(Summary = "Update a workflow process step")]
+		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
+		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
+		[SwaggerResponse(statusCode: 404, description: "Could not locate item with the provided id")]
+		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
+		[SwaggerResponse(statusCode: 500, description: "Internal error")]
+		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
+		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
+		public async Task WorkflowRecommendationStepFinalize(
+			[FromBody]
+			[SwaggerRequestBody(description: "The model to persist", Required = true)]
+			App.Model.WorkflowRecommendationStepFinalize model)
+		{
+			this._logger.Debug(new MapLogEntry("persisting").And("type", nameof(App.Model.WorkflowRecommendationStepFinalize)));
+
+			await this._workflowProcessService.FinilizeRecommendationStep(model.WorkflowProcessStep, model.DatasetId.Value);
+
+			this._accountingService.AccountFor(KnownActions.Persist, KnownResources.WorkflowProcessStep.AsAccountable());
+			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.Workflow.AsAccountable());
+		}
+
+		[HttpPost("workflow-process/step/finalize-cdd-ingestion")]
+		[Authorize]
+		[ModelStateValidationFilter]
+		[ValidationFilter(typeof(App.Model.WorkflowCddIngestionStepFinalize.Validator), "model")]
+		[ServiceFilter(typeof(AppTransactionFilter))]
+		[SwaggerOperation(Summary = "Update a workflow process step")]
+		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
+		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
+		[SwaggerResponse(statusCode: 404, description: "Could not locate item with the provided id")]
+		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
+		[SwaggerResponse(statusCode: 500, description: "Internal error")]
+		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
+		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
+		public async Task WorkflowCddIngestionStepFinalize(
+			[FromBody]
+			[SwaggerRequestBody(description: "The model to persist", Required = true)]
+			App.Model.WorkflowCddIngestionStepFinalize model)
+		{
+			this._logger.Debug(new MapLogEntry("persisting").And("type", nameof(App.Model.WorkflowCddIngestionStepFinalize)));
+
+			await this._workflowProcessService.FinilizeCddIngestionStep(model.WorkflowProcessStep, model.DatasetId.Value);
+
+			this._accountingService.AccountFor(KnownActions.Persist, KnownResources.WorkflowProcessStep.AsAccountable());
+			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.Workflow.AsAccountable());
+		}
 	}
 }
