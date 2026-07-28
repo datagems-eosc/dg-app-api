@@ -456,6 +456,39 @@
 				"Clients": [],
 				"AllowAnonymous": false,
 				"AllowAuthenticated": false
+			},
+			//WorkflowProcess
+			"BrowseWorkflowProcess": {
+				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_dataset-curator" ],
+				"ContextRoles": [],
+				"Claims": [],
+				"Clients": [],
+				"AllowAnonymous": false,
+				"AllowAuthenticated": false
+			},
+			"EditWorkflowProcess": {
+				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_dataset-curator" ],
+				"ContextRoles": [],
+				"Claims": [],
+				"Clients": [],
+				"AllowAnonymous": false,
+				"AllowAuthenticated": false
+			},
+			"BrowseWorkflowProcessStep": {
+				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_dataset-curator" ],
+				"ContextRoles": [],
+				"Claims": [],
+				"Clients": [],
+				"AllowAnonymous": false,
+				"AllowAuthenticated": false
+			},
+			"EditWorkflowProcessStep": {
+				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_dataset-curator" ],
+				"ContextRoles": [],
+				"Claims": [],
+				"Clients": [],
+				"AllowAnonymous": false,
+				"AllowAuthenticated": false
 			}
 		}
 	}

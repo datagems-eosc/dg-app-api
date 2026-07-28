@@ -252,7 +252,7 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 
 			try
 			{
-				await this.ExecuteOnboarding(model, data.Id, stepData.First().Id);
+				await this.ExecuteOnboarding(model, stepData.First().Id,data.Id, stepData.First().StepId);
 			} 
 			catch {
 				now = DateTime.UtcNow;
@@ -278,7 +278,7 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 			return persisted;
 		}
 
-		private async Task ExecuteOnboarding(DatasetPersist model, Guid processId, Guid stepId)
+		private async Task ExecuteOnboarding(DatasetPersist model, Guid id, Guid processId, Guid stepId)
 		{
 			this._logger.Debug(new MapLogEntry("execute-onboarding").And("model", model).And("processId", processId).And("stepId", stepId));
 			await this._authorizationService.AuthorizeForce(Permission.OnboardDataset);
@@ -291,9 +291,7 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 				WorkflowId = selectedDefinition.Id,
 				Configurations = new
 				{
-					id = model.Id,
-					workflow_process_id = processId,
-					workflow_process_step_id = stepId,
+					id = Guid.NewGuid(),
 					name = model.Name,
 					description = model.Description,
 					headline = model.Headline,
@@ -312,6 +310,11 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 					date_published = model.DatePublished,
 					userId = await this._authorizationContentResolver.CurrentUserId(),
 					doi = model.Doi,
+					workflow_process_step_information = new {
+						id = id,
+						process_id = processId,
+						step_id = stepId
+					}
 				}
 			}, new FieldSet(nameof(App.Model.WorkflowExecution.Id), nameof(App.Model.WorkflowExecution.WorkflowId)));
 		}
