@@ -82,7 +82,7 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 			
 			data.UpdatedAt = DateTime.UtcNow;
 			data.Status = model.Status.Value;
-			data.WorkflowTaskInstanceDetails += model.WorkflowTaskInstanceDetails;
+			data.WorkflowTaskInstanceDetails += model.WorkflowTaskInstanceDetails + "\n";
 			this._dbContext.Update(data);
 			await this._dbContext.SaveChangesAsync();
 			this._eventBroker.EmitWorkflowProcessStepTouched(data.Id);
@@ -236,7 +236,7 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 			await this._dbContext.SaveChangesAsync();
 			this._eventBroker.EmitWorkflowProcessTouched(data.Id);
 
-			IEnumerable<Data.WorkflowProcessStep> stepData = configuration.Steps.OrderBy(x => x.Order).Select(x => new Data.WorkflowProcessStep
+			List<Data.WorkflowProcessStep> stepData = configuration.Steps.OrderBy(x => x.Order).Select(x => new Data.WorkflowProcessStep
 			{
 				Id = Guid.NewGuid(),
 				StepId = x.Id,
@@ -245,14 +245,14 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 				WorkflowTaskInstanceDetails = "",
 				CreatedAt = now,
 				UpdatedAt = now,
-			});
+			}).ToList();
 			this._dbContext.AddRange(stepData);
 			await this._dbContext.SaveChangesAsync();
 			this._eventBroker.EmitWorkflowProcessStepTouched(stepData.Select(x => x.Id));
 
 			try
 			{
-				await this.ExecuteOnboarding(model, stepData.First().Id,data.Id, stepData.First().StepId);
+				await this.ExecuteOnboarding(model, stepData.First().Id, data.Id, stepData.First().StepId);
 			} 
 			catch {
 				now = DateTime.UtcNow;
@@ -282,9 +282,9 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 		{
 			this._logger.Debug(new MapLogEntry("execute-onboarding").And("model", model).And("processId", processId).And("stepId", stepId));
 			await this._authorizationService.AuthorizeForce(Permission.OnboardDataset);
-			List<Airflow.Model.AirflowDag> definitions = await this._queryFactory.Query<WorkflowDefinitionHttpQuery>().Kinds(Common.WorkflowDefinitionKind.DatasetOnboarding) .ExcludeStaled(true) .CollectAsync();
-			if (definitions == null || definitions.Count == 0) throw new DGNotFoundException(this._localizer["general_notFound", Common.WorkflowDefinitionKind.DatasetOnboarding.ToString(), nameof(App.Model.WorkflowDefinition)]);
-			if (definitions.Count > 1) throw new DGFoundManyException(this._localizer["general_nonUnique", Common.WorkflowDefinitionKind.DatasetOnboarding.ToString(), nameof(App.Model.WorkflowDefinition)]);
+			List<Airflow.Model.AirflowDag> definitions = await this._queryFactory.Query<WorkflowDefinitionHttpQuery>().Kinds(Common.WorkflowDefinitionKind.DatasetOnboarding_test) .ExcludeStaled(true) .CollectAsync();
+			if (definitions == null || definitions.Count == 0) throw new DGNotFoundException(this._localizer["general_notFound", Common.WorkflowDefinitionKind.DatasetOnboarding_test.ToString(), nameof(App.Model.WorkflowDefinition)]);
+			if (definitions.Count > 1) throw new DGFoundManyException(this._localizer["general_nonUnique", Common.WorkflowDefinitionKind.DatasetOnboarding_test.ToString(), nameof(App.Model.WorkflowDefinition)]);
 			Airflow.Model.AirflowDag selectedDefinition = definitions.FirstOrDefault();
 			App.Model.WorkflowExecution execution = await this._airflowService.ExecuteWorkflowAsync(new App.Model.WorkflowExecutionArgs
 			{

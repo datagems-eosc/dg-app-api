@@ -14,6 +14,8 @@ namespace DataGEMS.Gateway.App.Common
 		[Description("Dataset Recommendation Registering")]
 		DatasetRecommendationRegistering = 3,
 		[Description("Dataset CDD Ingest")]
-		CDD_Ingest = 4
+		CDD_Ingest = 4,
+		[Description("Dataset Onboarding test")]
+		DatasetOnboarding_test = 5
 	}
 }

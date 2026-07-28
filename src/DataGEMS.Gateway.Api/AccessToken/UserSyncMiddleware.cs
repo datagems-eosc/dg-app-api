@@ -39,6 +39,7 @@ namespace DataGEMS.Gateway.Api.AccessToken
 
 			String name = extractor.Name(currentPrincipalResolverService.CurrentPrincipal());
 			String email = extractor.Email(currentPrincipalResolverService.CurrentPrincipal());
+			if(String.IsNullOrEmpty(name)) name = extractor.Client(currentPrincipalResolverService.CurrentPrincipal());
 
 			Boolean hasUpdate = false;
 			if (!String.Equals(user.Name, name)) { user.Name = name;hasUpdate = true; }
