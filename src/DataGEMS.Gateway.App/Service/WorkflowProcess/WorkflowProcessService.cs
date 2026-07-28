@@ -124,7 +124,7 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 				DatabaseName = profiling.DatabaseName,
 				DatasetId = profiling.Id.Value,
 				Kind = profiling.DataStoreKind.Value
-			}, data.ProcessId, data.Id);
+			}, data.ProcessId, data.Id, data.StepId);
 		}
 
 		public async Task FinilizeProfilingStep(WorkflowProcessStepPersist model, Guid datasetId)
@@ -253,7 +253,7 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 			try
 			{
 				await this.ExecuteOnboarding(model, stepData.First().Id, data.Id, stepData.First().StepId);
-			} 
+			}
 			catch {
 				now = DateTime.UtcNow;
 				foreach (var item in stepData)
@@ -346,7 +346,7 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 			});
 		}
 
-		private async Task ExecuteProfiling(ProfilingModel profilingModel, Guid processId, Guid stepId)
+		private async Task ExecuteProfiling(ProfilingModel profilingModel, Guid processId, Guid stepId, Guid stepIdentifier)
 		{
 			this._logger.Debug(new MapLogEntry("execute-profiling").And("profilingModel", profilingModel).And("processId", processId).And("stepId", stepId));
 			await this._authorizationService.AuthorizeForce(Permission.ProfileDataset);
@@ -373,12 +373,12 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 				nameof(App.Model.Dataset.Status)), datas.First());
 
 			List<Airflow.Model.AirflowDag> definitions = await this._queryFactory.Query<WorkflowDefinitionHttpQuery>()
-				.Kinds(Common.WorkflowDefinitionKind.DatasetProfiling)
+				.Kinds(Common.WorkflowDefinitionKind.DatasetProfiling_test)
 				.ExcludeStaled(true)
 				.CollectAsync();
 
-			if (definitions == null || definitions.Count == 0) throw new DGNotFoundException(this._localizer["general_notFound", Common.WorkflowDefinitionKind.DatasetProfiling.ToString(), nameof(App.Model.WorkflowDefinition)]);
-			if (definitions.Count > 1) throw new DGFoundManyException(this._localizer["general_nonUnique", Common.WorkflowDefinitionKind.DatasetProfiling.ToString(), nameof(App.Model.WorkflowDefinition)]);
+			if (definitions == null || definitions.Count == 0) throw new DGNotFoundException(this._localizer["general_notFound", Common.WorkflowDefinitionKind.DatasetProfiling_test.ToString(), nameof(App.Model.WorkflowDefinition)]);
+			if (definitions.Count > 1) throw new DGFoundManyException(this._localizer["general_nonUnique", Common.WorkflowDefinitionKind.DatasetProfiling_test.ToString(), nameof(App.Model.WorkflowDefinition)]);
 			Airflow.Model.AirflowDag selectedDefinition = definitions.FirstOrDefault();
 			_ = await this._airflowService.ExecuteWorkflowAsync(new App.Model.WorkflowExecutionArgs
 			{
@@ -403,6 +403,12 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 					data_store_kind = profilingModel.Kind,
 					archivedAt = model.ArchivedAt,
 					database_name = profilingModel.DatabaseName,
+					workflow_process_step_information = new
+					{
+						id = stepId,
+						step_id = stepIdentifier,
+						process_id = processId,
+					},
 				}
 			}, new FieldSet
 			{

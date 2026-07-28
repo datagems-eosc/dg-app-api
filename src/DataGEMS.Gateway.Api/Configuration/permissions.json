@@ -145,7 +145,7 @@
 			},
 			//CrossDatasetDiscovery
 			"CanExecuteCrossDatasetDiscovery": {
-				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_user" ],
+				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_user", "GLOBAL_dg_system" ],
 				"ContextRoles": [],
 				"Claims": [],
 				"Clients": [],
@@ -154,7 +154,7 @@
 			},
 			//InDataExploration
 			"CanExecuteInDataExploration": {
-				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_user" ],
+				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_user", "GLOBAL_dg_system" ],
 				"ContextRoles": [],
 				"Claims": [],
 				"Clients": [],
@@ -163,7 +163,7 @@
 			},
 			//Query Recommender
 			"CanExecuteQueryRecommendation": {
-				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_user" ],
+				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_user", "GLOBAL_dg_system" ],
 				"ContextRoles": [],
 				"Claims": [],
 				"Clients": [],
@@ -238,7 +238,7 @@
 				"AllowAuthenticated": false
 			},
 			"OnboardDataset": {
-				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_dataset-uploader" ],
+				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_dataset-uploader", "GLOBAL_dg_system" ],
 				"ContextRoles": [],
 				"Claims": [],
 				"Clients": [ "airflow" ],
@@ -246,7 +246,7 @@
 				"AllowAuthenticated": false
 			},
 			"ProfileDataset": {
-				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_dataset-curator" ],
+				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_dataset-curator", "GLOBAL_dg_system" ],
 				"ContextRoles": [],
 				"Claims": [],
 				"Clients": [],
@@ -254,7 +254,7 @@
 				"AllowAuthenticated": false
 			},
 			"PackageDataset": {
-				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_dataset-curator" ],
+				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_dataset-curator", "GLOBAL_dg_system" ],
 				"ContextRoles": [],
 				"Claims": [],
 				"Clients": [],
@@ -262,7 +262,7 @@
 				"AllowAuthenticated": false
 			},
 			"RecommendationRegisterDataset": {
-				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_dataset-curator" ],
+				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_dataset-curator", "GLOBAL_dg_system" ],
 				"ContextRoles": [],
 				"Claims": [],
 				"Clients": [],
@@ -270,7 +270,7 @@
 				"AllowAuthenticated": false
 			},
 			"CddIngestDataset": {
-				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_dataset-curator" ],
+				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_dataset-curator", "GLOBAL_dg_system" ],
 				"ContextRoles": [],
 				"Claims": [],
 				"Clients": [],
@@ -378,7 +378,7 @@
 				"AllowAuthenticated": false
 			},
 			"CanExecuteDatasetProfiling": {
-				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_dataset-curator" ],
+				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_dataset-curator", "GLOBAL_dg_system" ],
 				"ContextRoles": [],
 				"Claims": [],
 				"Clients": [],
@@ -386,7 +386,7 @@
 				"AllowAuthenticated": false
 			},
 			"CanExecuteDatasetPackaging": {
-				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_dataset-curator" ],
+				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_dataset-curator", "GLOBAL_dg_system" ],
 				"ContextRoles": [],
 				"Claims": [],
 				"Clients": [],
@@ -394,7 +394,7 @@
 				"AllowAuthenticated": false
 			},
 			"CanExecuteDatasetRecommendationRegistering": {
-				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_dataset-curator" ],
+				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_dataset-curator", "GLOBAL_dg_system" ],
 				"ContextRoles": [],
 				"Claims": [],
 				"Clients": [],
@@ -402,7 +402,7 @@
 				"AllowAuthenticated": false
 			},
 			"CanExecuteDatasetCddIngest": {
-				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_dataset-curator" ],
+				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_dataset-curator", "GLOBAL_dg_system" ],
 				"ContextRoles": [],
 				"Claims": [],
 				"Clients": [],
