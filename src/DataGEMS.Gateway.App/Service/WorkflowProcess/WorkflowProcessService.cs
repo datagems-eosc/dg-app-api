@@ -79,7 +79,7 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 
 			Data.WorkflowProcessStep data = await this._queryFactory.Query<WorkflowProcessStepQuery>().Ids(model.Id.Value).FirstAsync();
 			if (data == null) throw new DGNotFoundException(this._localizer["general_notFound", model.Id.Value, nameof(App.Model.WorkflowProcessStep)]);
-			
+
 			data.UpdatedAt = DateTime.UtcNow;
 			data.Status = model.Status.Value;
 			data.WorkflowTaskInstanceDetails += model.WorkflowTaskInstanceDetails + "\n";
@@ -115,7 +115,7 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 				this._eventBroker.EmitWorkflowProcessTouched(process.Id);
 				return;
 			}
-			
+
 			Data.WorkflowProcessStep data = await this._queryFactory.Query<WorkflowProcessStepQuery>().ProcessIds(model.ProcessId.Value).StepIds(steps[1].Id).FirstAsync();
 			if (data == null) throw new DGNotFoundException(this._localizer["general_notFound", model.Id.Value, nameof(App.Model.WorkflowProcessStep)]);
 
@@ -148,7 +148,7 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 			Data.WorkflowProcessStep data = await this._queryFactory.Query<WorkflowProcessStepQuery>().ProcessIds(model.ProcessId.Value).StepIds(steps[2].Id).FirstAsync();
 			if (data == null) throw new DGNotFoundException(this._localizer["general_notFound", model.Id.Value, nameof(App.Model.WorkflowProcessStep)]);
 
-			await this.ExecutePackaging(datasetId, data.ProcessId, data.Id);
+			await this.ExecutePackaging(datasetId, data.ProcessId, data.Id, data.StepId);
 		}
 
 		public async Task FinilizePackagingStep(WorkflowProcessStepPersist model, Guid datasetId)
@@ -172,7 +172,7 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 			Data.WorkflowProcessStep data = await this._queryFactory.Query<WorkflowProcessStepQuery>().ProcessIds(model.ProcessId.Value).StepIds(steps[3].Id).FirstAsync();
 			if (data == null) throw new DGNotFoundException(this._localizer["general_notFound", model.Id.Value, nameof(App.Model.WorkflowProcessStep)]);
 
-			await this.ExecuteRecommendationRegistering(datasetId, data.ProcessId, data.Id);
+			await this.ExecuteRecommendationRegistering(datasetId, data.ProcessId, data.Id, data.StepId);
 		}
 
 		public async Task FinilizeRecommendationStep(WorkflowProcessStepPersist model, Guid datasetId)
@@ -196,7 +196,7 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 			Data.WorkflowProcessStep data = await this._queryFactory.Query<WorkflowProcessStepQuery>().ProcessIds(model.ProcessId.Value).StepIds(steps[4].Id).FirstAsync();
 			if (data == null) throw new DGNotFoundException(this._localizer["general_notFound", model.Id.Value, nameof(App.Model.WorkflowProcessStep)]);
 
-			await this.ExecuteCddIngestion(datasetId, data.ProcessId, data.Id);
+			await this.ExecuteCddIngestion(datasetId, data.ProcessId, data.Id, data.StepId);
 		}
 
 		public async Task FinilizeCddIngestionStep(WorkflowProcessStepPersist model, Guid datasetId)
@@ -254,7 +254,8 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 			{
 				await this.ExecuteOnboarding(model, stepData.First().Id, data.Id, stepData.First().StepId);
 			}
-			catch {
+			catch
+			{
 				now = DateTime.UtcNow;
 				foreach (var item in stepData)
 				{
@@ -282,7 +283,7 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 		{
 			this._logger.Debug(new MapLogEntry("execute-onboarding").And("model", model).And("processId", processId).And("stepId", stepId));
 			await this._authorizationService.AuthorizeForce(Permission.OnboardDataset);
-			List<Airflow.Model.AirflowDag> definitions = await this._queryFactory.Query<WorkflowDefinitionHttpQuery>().Kinds(Common.WorkflowDefinitionKind.DatasetOnboarding_test) .ExcludeStaled(true) .CollectAsync();
+			List<Airflow.Model.AirflowDag> definitions = await this._queryFactory.Query<WorkflowDefinitionHttpQuery>().Kinds(Common.WorkflowDefinitionKind.DatasetOnboarding_test).ExcludeStaled(true).CollectAsync();
 			if (definitions == null || definitions.Count == 0) throw new DGNotFoundException(this._localizer["general_notFound", Common.WorkflowDefinitionKind.DatasetOnboarding_test.ToString(), nameof(App.Model.WorkflowDefinition)]);
 			if (definitions.Count > 1) throw new DGFoundManyException(this._localizer["general_nonUnique", Common.WorkflowDefinitionKind.DatasetOnboarding_test.ToString(), nameof(App.Model.WorkflowDefinition)]);
 			Airflow.Model.AirflowDag selectedDefinition = definitions.FirstOrDefault();
@@ -310,7 +311,8 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 					date_published = model.DatePublished,
 					userId = await this._authorizationContentResolver.CurrentUserId(),
 					doi = model.Doi,
-					workflow_process_step_information = new {
+					workflow_process_step_information = new
+					{
 						id = id,
 						process_id = processId,
 						step_id = stepId
@@ -319,7 +321,7 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 			}, new FieldSet(nameof(App.Model.WorkflowExecution.Id), nameof(App.Model.WorkflowExecution.WorkflowId)));
 		}
 
-		private async Task ExecuteCddIngestion(Guid datasetId, Guid processId, Guid stepId)
+		private async Task ExecuteCddIngestion(Guid datasetId, Guid processId, Guid stepId, Guid stepIdentifier)
 		{
 			this._logger.Debug(new MapLogEntry("execute-cdd-ingestion").And("datasetId", datasetId).And("processId", processId).And("stepId", stepId));
 
@@ -337,8 +339,12 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 				Configurations = new
 				{
 					id = datasetId,
-					workflow_process_id = processId,
-					workflow_process_step_id = stepId,
+					workflow_process_step_information = new
+					{
+						id = stepId,
+						step_id = stepIdentifier,
+						process_id = processId
+					},
 				}
 			}, new FieldSet
 			{
@@ -419,7 +425,7 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 			});
 		}
 
-		private async Task ExecutePackaging(Guid datasetId, Guid processId, Guid stepId)
+		private async Task ExecutePackaging(Guid datasetId, Guid processId, Guid stepId, Guid stepIdentifier)
 		{
 			this._logger.Debug(new MapLogEntry("execute-packaging").And("datasetId", datasetId).And("processId", processId).And("stepId", stepId));
 
@@ -437,16 +443,20 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 				Configurations = new
 				{
 					id = datasetId,
-					workflow_process_id = processId,
-					workflow_process_step_id = stepId,
-				}
+					workflow_process_step_information = new
+					{
+						id = stepId,
+						step_id = stepIdentifier,
+						process_id = processId,
+					},
+				},
 			}, new FieldSet
 			{
 				Fields = [nameof(App.Model.WorkflowExecution.Id), nameof(App.Model.WorkflowExecution.WorkflowId),]
 			});
 		}
 
-		private async Task ExecuteRecommendationRegistering(Guid datasetId, Guid processId, Guid stepId)
+		private async Task ExecuteRecommendationRegistering(Guid datasetId, Guid processId, Guid stepId, Guid stepIdentifier)
 		{
 			await this._authorizationService.AuthorizeForce(Permission.RecommendationRegisterDataset);
 			await this._authorizationService.AuthorizeForce(Permission.CanExecuteDatasetRecommendationRegistering);
@@ -461,8 +471,12 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 				Configurations = new
 				{
 					id = datasetId,
-					workflow_process_id = processId,
-					workflow_process_step_id = stepId,
+					workflow_process_step_information = new
+					{
+						id = stepId,
+						step_id = stepIdentifier,
+						process_id = processId,
+					},
 				}
 			}, new FieldSet
 			{
