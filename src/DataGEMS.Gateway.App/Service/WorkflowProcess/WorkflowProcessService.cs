@@ -221,6 +221,141 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 			await this._authorizationService.AuthorizeForce(Permission.CanExecuteDatasetOnboarding);
 
 			WorkflowProcessConfig.WorkflowProcessConfigItem configuration = this._config.Items.FirstOrDefault(x => x.Kind == Common.WorkflowProcessKind.DatasetOnboarding);
+			(Data.WorkflowProcess data, IOrderedEnumerable<WorkflowProcessConfig.WorkflowProcessConfigItem.WorkflowProcessConfigItemStep> steps, List<Data.WorkflowProcessStep> stepData) = await this.PersistFlow(configuration);
+
+			try
+			{
+				await this.ExecuteOnboarding(model, stepData.First().Id, data.Id, stepData.First().StepId, steps.First().TaskId);
+			}
+			catch
+			{
+				await PersistFailedFlow(data, stepData);
+				throw;
+			}
+
+			App.Model.WorkflowProcess persisted = await this._builderFactory.Builder<App.Model.Builder.WorkflowProcessBuilder>().Build(FieldSet.Build(fields, nameof(App.Model.WorkflowProcess.Id)), data);
+			return persisted;
+		}
+
+		public async Task<App.Model.WorkflowProcess> ExecuteProfilingFlow(DatasetProfiling model, IFieldSet fields = null)
+		{
+			this._logger.Debug(new MapLogEntry("execute-profiling-flow").And("profilingModel", model).And("fields", fields));
+
+			await this._authorizationService.AuthorizeForce(Permission.CanExecuteDatasetProfiling);
+
+			WorkflowProcessConfig.WorkflowProcessConfigItem configuration = this._config.Items.FirstOrDefault(x => x.Kind == Common.WorkflowProcessKind.DatasetProfiling);
+			(Data.WorkflowProcess data, IOrderedEnumerable<WorkflowProcessConfig.WorkflowProcessConfigItem.WorkflowProcessConfigItemStep> steps, List<Data.WorkflowProcessStep> stepData) = await this.PersistFlow(configuration);
+
+			try
+			{
+				await this.ExecuteProfiling(new ProfilingModel
+				{
+					DatabaseName = model.DatabaseName,
+					DatasetId = model.Id.Value,
+					Kind = model.DataStoreKind.Value,
+				}, stepData.First().Id, data.Id, stepData.First().StepId, steps.First().TaskId);
+			}
+			catch
+			{
+				await PersistFailedFlow(data, stepData);
+				throw;
+			}
+
+			App.Model.WorkflowProcess persisted = await this._builderFactory.Builder<App.Model.Builder.WorkflowProcessBuilder>().Build(FieldSet.Build(fields, nameof(App.Model.WorkflowProcess.Id)), data);
+			return persisted;
+		}
+
+
+		public async Task<App.Model.WorkflowProcess> ExecutePackagingFlow(App.Model.DatasetPackaging model, IFieldSet fields = null)
+		{
+			this._logger.Debug(new MapLogEntry("execute-packaging-flow").And("DatasetPackaging", model).And("fields", fields));
+
+			await this._authorizationService.AuthorizeForce(Permission.CanExecuteDatasetPackaging);
+
+			WorkflowProcessConfig.WorkflowProcessConfigItem configuration = this._config.Items.FirstOrDefault(x => x.Kind == Common.WorkflowProcessKind.DatasetPackaging);
+			(Data.WorkflowProcess data, IOrderedEnumerable<WorkflowProcessConfig.WorkflowProcessConfigItem.WorkflowProcessConfigItemStep> steps, List<Data.WorkflowProcessStep> stepData) = await this.PersistFlow(configuration);
+
+			try
+			{
+				await this.ExecutePackaging(model.Id.Value, stepData.First().Id, data.Id, stepData.First().StepId, steps.First().TaskId);
+			}
+			catch
+			{
+				await PersistFailedFlow(data, stepData);
+				throw;
+			}
+
+			App.Model.WorkflowProcess persisted = await this._builderFactory.Builder<App.Model.Builder.WorkflowProcessBuilder>().Build(FieldSet.Build(fields, nameof(App.Model.WorkflowProcess.Id)), data);
+			return persisted;
+		}
+
+		public async Task<App.Model.WorkflowProcess> ExecuteRecommendationFlow(App.Model.DatasetRecommendationRegistering model, IFieldSet fields = null)
+		{
+			this._logger.Debug(new MapLogEntry("execute-recommendation-registering-flow").And("DatasetRecommendationRegistering", model).And("fields", fields));
+
+			await this._authorizationService.AuthorizeForce(Permission.CanExecuteDatasetRecommendationRegistering);
+
+			WorkflowProcessConfig.WorkflowProcessConfigItem configuration = this._config.Items.FirstOrDefault(x => x.Kind == Common.WorkflowProcessKind.DatasetRecommendationRegistering);
+			(Data.WorkflowProcess data, IOrderedEnumerable<WorkflowProcessConfig.WorkflowProcessConfigItem.WorkflowProcessConfigItemStep> steps, List<Data.WorkflowProcessStep> stepData) = await this.PersistFlow(configuration);
+
+			try
+			{
+				await this.ExecutePackaging(model.Id.Value, stepData.First().Id, data.Id, stepData.First().StepId, steps.First().TaskId);
+			}
+			catch
+			{
+				await PersistFailedFlow(data, stepData);
+				throw;
+			}
+
+			App.Model.WorkflowProcess persisted = await this._builderFactory.Builder<App.Model.Builder.WorkflowProcessBuilder>().Build(FieldSet.Build(fields, nameof(App.Model.WorkflowProcess.Id)), data);
+			return persisted;
+		}
+
+		public async Task<App.Model.WorkflowProcess> ExecuteCddIngestionFlow(App.Model.DatasetCddIngest model, IFieldSet fields = null)
+		{
+			this._logger.Debug(new MapLogEntry("execute-cdd-ingestion-flow").And("DatasetCddIngest", model).And("fields", fields));
+
+			await this._authorizationService.AuthorizeForce(Permission.CanExecuteDatasetCddIngest);
+
+			WorkflowProcessConfig.WorkflowProcessConfigItem configuration = this._config.Items.FirstOrDefault(x => x.Kind == Common.WorkflowProcessKind.CDD_Ingest);
+			(Data.WorkflowProcess data, IOrderedEnumerable<WorkflowProcessConfig.WorkflowProcessConfigItem.WorkflowProcessConfigItemStep> steps, List<Data.WorkflowProcessStep> stepData) = await this.PersistFlow(configuration);
+
+			try
+			{
+				await this.ExecutePackaging(model.Id.Value, stepData.First().Id, data.Id, stepData.First().StepId, steps.First().TaskId);
+			}
+			catch
+			{
+				await PersistFailedFlow(data, stepData);
+				throw;
+			}
+
+			App.Model.WorkflowProcess persisted = await this._builderFactory.Builder<App.Model.Builder.WorkflowProcessBuilder>().Build(FieldSet.Build(fields, nameof(App.Model.WorkflowProcess.Id)), data);
+			return persisted;
+		}
+
+		private async Task PersistFailedFlow(Data.WorkflowProcess data, List<Data.WorkflowProcessStep> stepData)
+		{
+			DateTime now = DateTime.UtcNow;
+			foreach (var item in stepData)
+			{
+				item.Status = Common.Enum.WorkflowProcessStatus.Failed;
+				item.UpdatedAt = now;
+			}
+			this._dbContext.UpdateRange(stepData);
+			await this._dbContext.SaveChangesAsync();
+			this._eventBroker.EmitWorkflowProcessStepTouched(stepData.Select(x => x.Id));
+
+			data.Status = Common.Enum.WorkflowProcessStatus.Failed;
+			data.UpdatedAt = now;
+			this._dbContext.Update(data);
+			await this._dbContext.SaveChangesAsync();
+			this._eventBroker.EmitWorkflowProcessTouched(data.Id);
+		}
+
+		private async Task<(Data.WorkflowProcess data, IOrderedEnumerable<WorkflowProcessConfig.WorkflowProcessConfigItem.WorkflowProcessConfigItemStep> steps, List<Data.WorkflowProcessStep> stepData)> PersistFlow(WorkflowProcessConfig.WorkflowProcessConfigItem configuration)
+		{
 			DateTime now = DateTime.UtcNow;
 
 			Data.WorkflowProcess data = new Data.WorkflowProcess
@@ -250,34 +385,7 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 			this._dbContext.AddRange(stepData);
 			await this._dbContext.SaveChangesAsync();
 			this._eventBroker.EmitWorkflowProcessStepTouched(stepData.Select(x => x.Id));
-
-			try
-			{
-				await this.ExecuteOnboarding(model, stepData.First().Id, data.Id, stepData.First().StepId, steps.First().TaskId);
-			}
-			catch
-			{
-				now = DateTime.UtcNow;
-				foreach (var item in stepData)
-				{
-					item.Status = Common.Enum.WorkflowProcessStatus.Failed;
-					item.UpdatedAt = now;
-				}
-				this._dbContext.UpdateRange(stepData);
-				await this._dbContext.SaveChangesAsync();
-				this._eventBroker.EmitWorkflowProcessStepTouched(stepData.Select(x => x.Id));
-
-				data.Status = Common.Enum.WorkflowProcessStatus.Failed;
-				data.UpdatedAt = now;
-				this._dbContext.Update(data);
-				await this._dbContext.SaveChangesAsync();
-				this._eventBroker.EmitWorkflowProcessTouched(data.Id);
-
-				throw;
-			}
-
-			App.Model.WorkflowProcess persisted = await this._builderFactory.Builder<App.Model.Builder.WorkflowProcessBuilder>().Build(FieldSet.Build(fields, nameof(App.Model.WorkflowProcess.Id)), data);
-			return persisted;
+			return (data, steps, stepData);
 		}
 
 		private async Task ExecuteOnboarding(DatasetPersist model, Guid id, Guid processId, Guid stepId, string identifyingTag)
