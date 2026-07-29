@@ -124,7 +124,7 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 				DatabaseName = profiling.DatabaseName,
 				DatasetId = profiling.Id.Value,
 				Kind = profiling.DataStoreKind.Value
-			}, data.ProcessId, data.Id, data.StepId);
+			}, data.ProcessId, data.Id, data.StepId, steps[1].TaskId);
 		}
 
 		public async Task FinilizeProfilingStep(WorkflowProcessStepPersist model, Guid datasetId)
@@ -148,7 +148,7 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 			Data.WorkflowProcessStep data = await this._queryFactory.Query<WorkflowProcessStepQuery>().ProcessIds(model.ProcessId.Value).StepIds(steps[2].Id).FirstAsync();
 			if (data == null) throw new DGNotFoundException(this._localizer["general_notFound", model.Id.Value, nameof(App.Model.WorkflowProcessStep)]);
 
-			await this.ExecutePackaging(datasetId, data.ProcessId, data.Id, data.StepId);
+			await this.ExecutePackaging(datasetId, data.ProcessId, data.Id, data.StepId, steps[2].TaskId);
 		}
 
 		public async Task FinilizePackagingStep(WorkflowProcessStepPersist model, Guid datasetId)
@@ -172,7 +172,7 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 			Data.WorkflowProcessStep data = await this._queryFactory.Query<WorkflowProcessStepQuery>().ProcessIds(model.ProcessId.Value).StepIds(steps[3].Id).FirstAsync();
 			if (data == null) throw new DGNotFoundException(this._localizer["general_notFound", model.Id.Value, nameof(App.Model.WorkflowProcessStep)]);
 
-			await this.ExecuteRecommendationRegistering(datasetId, data.ProcessId, data.Id, data.StepId);
+			await this.ExecuteRecommendationRegistering(datasetId, data.ProcessId, data.Id, data.StepId, steps[3].TaskId);
 		}
 
 		public async Task FinilizeRecommendationStep(WorkflowProcessStepPersist model, Guid datasetId)
@@ -196,7 +196,7 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 			Data.WorkflowProcessStep data = await this._queryFactory.Query<WorkflowProcessStepQuery>().ProcessIds(model.ProcessId.Value).StepIds(steps[4].Id).FirstAsync();
 			if (data == null) throw new DGNotFoundException(this._localizer["general_notFound", model.Id.Value, nameof(App.Model.WorkflowProcessStep)]);
 
-			await this.ExecuteCddIngestion(datasetId, data.ProcessId, data.Id, data.StepId);
+			await this.ExecuteCddIngestion(datasetId, data.ProcessId, data.Id, data.StepId, steps[4].TaskId);
 		}
 
 		public async Task FinilizeCddIngestionStep(WorkflowProcessStepPersist model, Guid datasetId)
@@ -236,7 +236,8 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 			await this._dbContext.SaveChangesAsync();
 			this._eventBroker.EmitWorkflowProcessTouched(data.Id);
 
-			List<Data.WorkflowProcessStep> stepData = configuration.Steps.OrderBy(x => x.Order).Select(x => new Data.WorkflowProcessStep
+			IOrderedEnumerable<WorkflowProcessConfig.WorkflowProcessConfigItem.WorkflowProcessConfigItemStep> steps = configuration.Steps.OrderBy(x => x.Order);
+			List<Data.WorkflowProcessStep> stepData = steps.Select(x => new Data.WorkflowProcessStep
 			{
 				Id = Guid.NewGuid(),
 				StepId = x.Id,
@@ -252,7 +253,7 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 
 			try
 			{
-				await this.ExecuteOnboarding(model, stepData.First().Id, data.Id, stepData.First().StepId);
+				await this.ExecuteOnboarding(model, stepData.First().Id, data.Id, stepData.First().StepId, steps.First().TaskId);
 			}
 			catch
 			{
@@ -279,13 +280,13 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 			return persisted;
 		}
 
-		private async Task ExecuteOnboarding(DatasetPersist model, Guid id, Guid processId, Guid stepId)
+		private async Task ExecuteOnboarding(DatasetPersist model, Guid id, Guid processId, Guid stepId, string identifyingTag)
 		{
 			this._logger.Debug(new MapLogEntry("execute-onboarding").And("model", model).And("processId", processId).And("stepId", stepId));
 			await this._authorizationService.AuthorizeForce(Permission.OnboardDataset);
-			List<Airflow.Model.AirflowDag> definitions = await this._queryFactory.Query<WorkflowDefinitionHttpQuery>().Kinds(Common.WorkflowDefinitionKind.DatasetOnboarding_test).ExcludeStaled(true).CollectAsync();
-			if (definitions == null || definitions.Count == 0) throw new DGNotFoundException(this._localizer["general_notFound", Common.WorkflowDefinitionKind.DatasetOnboarding_test.ToString(), nameof(App.Model.WorkflowDefinition)]);
-			if (definitions.Count > 1) throw new DGFoundManyException(this._localizer["general_nonUnique", Common.WorkflowDefinitionKind.DatasetOnboarding_test.ToString(), nameof(App.Model.WorkflowDefinition)]);
+			List<Airflow.Model.AirflowDag> definitions = await this._queryFactory.Query<WorkflowDefinitionHttpQuery>().Kinds(Enum.Parse<Common.WorkflowDefinitionKind>(identifyingTag)).ExcludeStaled(true).CollectAsync();
+			if (definitions == null || definitions.Count == 0) throw new DGNotFoundException(this._localizer["general_notFound", identifyingTag, nameof(App.Model.WorkflowDefinition)]);
+			if (definitions.Count > 1) throw new DGFoundManyException(this._localizer["general_nonUnique", identifyingTag, nameof(App.Model.WorkflowDefinition)]);
 			Airflow.Model.AirflowDag selectedDefinition = definitions.FirstOrDefault();
 			App.Model.WorkflowExecution execution = await this._airflowService.ExecuteWorkflowAsync(new App.Model.WorkflowExecutionArgs
 			{
@@ -321,16 +322,16 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 			}, new FieldSet(nameof(App.Model.WorkflowExecution.Id), nameof(App.Model.WorkflowExecution.WorkflowId)));
 		}
 
-		private async Task ExecuteCddIngestion(Guid datasetId, Guid processId, Guid stepId, Guid stepIdentifier)
+		private async Task ExecuteCddIngestion(Guid datasetId, Guid processId, Guid stepId, Guid stepIdentifier, string identifyingTag)
 		{
 			this._logger.Debug(new MapLogEntry("execute-cdd-ingestion").And("datasetId", datasetId).And("processId", processId).And("stepId", stepId));
 
 			await this._authorizationService.AuthorizeForce(Permission.CddIngestDataset);
 			await this._authorizationService.AuthorizeForce(Permission.CanExecuteDatasetCddIngest);
 
-			List<Airflow.Model.AirflowDag> definitions = await this._queryFactory.Query<WorkflowDefinitionHttpQuery>().Kinds(Common.WorkflowDefinitionKind.CDD_Ingest).ExcludeStaled(true).CollectAsync();
-			if (definitions == null || definitions.Count == 0) throw new DGNotFoundException(this._localizer["general_notFound", Common.WorkflowDefinitionKind.CDD_Ingest.ToString(), nameof(App.Model.WorkflowDefinition)]);
-			if (definitions.Count > 1) throw new DGFoundManyException(this._localizer["general_nonUnique", Common.WorkflowDefinitionKind.CDD_Ingest.ToString(), nameof(App.Model.WorkflowDefinition)]);
+			List<Airflow.Model.AirflowDag> definitions = await this._queryFactory.Query<WorkflowDefinitionHttpQuery>().Kinds(Enum.Parse<Common.WorkflowDefinitionKind>(identifyingTag)).ExcludeStaled(true).CollectAsync();
+			if (definitions == null || definitions.Count == 0) throw new DGNotFoundException(this._localizer["general_notFound", identifyingTag, nameof(App.Model.WorkflowDefinition)]);
+			if (definitions.Count > 1) throw new DGFoundManyException(this._localizer["general_nonUnique", identifyingTag, nameof(App.Model.WorkflowDefinition)]);
 			Airflow.Model.AirflowDag selectedDefinition = definitions.FirstOrDefault();
 
 			_ = await this._airflowService.ExecuteWorkflowAsync(new App.Model.WorkflowExecutionArgs
@@ -352,7 +353,7 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 			});
 		}
 
-		private async Task ExecuteProfiling(ProfilingModel profilingModel, Guid processId, Guid stepId, Guid stepIdentifier)
+		private async Task ExecuteProfiling(ProfilingModel profilingModel, Guid processId, Guid stepId, Guid stepIdentifier, string identifyingTag)
 		{
 			this._logger.Debug(new MapLogEntry("execute-profiling").And("profilingModel", profilingModel).And("processId", processId).And("stepId", stepId));
 			await this._authorizationService.AuthorizeForce(Permission.ProfileDataset);
@@ -383,8 +384,8 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 				.ExcludeStaled(true)
 				.CollectAsync();
 
-			if (definitions == null || definitions.Count == 0) throw new DGNotFoundException(this._localizer["general_notFound", Common.WorkflowDefinitionKind.DatasetProfiling_test.ToString(), nameof(App.Model.WorkflowDefinition)]);
-			if (definitions.Count > 1) throw new DGFoundManyException(this._localizer["general_nonUnique", Common.WorkflowDefinitionKind.DatasetProfiling_test.ToString(), nameof(App.Model.WorkflowDefinition)]);
+			if (definitions == null || definitions.Count == 0) throw new DGNotFoundException(this._localizer["general_notFound", identifyingTag, nameof(App.Model.WorkflowDefinition)]);
+			if (definitions.Count > 1) throw new DGFoundManyException(this._localizer["general_nonUnique", identifyingTag, nameof(App.Model.WorkflowDefinition)]);
 			Airflow.Model.AirflowDag selectedDefinition = definitions.FirstOrDefault();
 			_ = await this._airflowService.ExecuteWorkflowAsync(new App.Model.WorkflowExecutionArgs
 			{
@@ -425,16 +426,16 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 			});
 		}
 
-		private async Task ExecutePackaging(Guid datasetId, Guid processId, Guid stepId, Guid stepIdentifier)
+		private async Task ExecutePackaging(Guid datasetId, Guid processId, Guid stepId, Guid stepIdentifier, string identifyingTag)
 		{
 			this._logger.Debug(new MapLogEntry("execute-packaging").And("datasetId", datasetId).And("processId", processId).And("stepId", stepId));
 
 			await this._authorizationService.AuthorizeForce(Permission.CanExecuteDatasetPackaging);
 			await this._authorizationService.AuthorizeForce(Permission.PackageDataset);
 
-			List<Airflow.Model.AirflowDag> definitions = await this._queryFactory.Query<WorkflowDefinitionHttpQuery>().Kinds(Common.WorkflowDefinitionKind.DatasetPackaging).ExcludeStaled(true).CollectAsync();
-			if (definitions == null || definitions.Count == 0) throw new DGNotFoundException(this._localizer["general_notFound", Common.WorkflowDefinitionKind.DatasetPackaging.ToString(), nameof(App.Model.WorkflowDefinition)]);
-			if (definitions.Count > 1) throw new DGFoundManyException(this._localizer["general_nonUnique", Common.WorkflowDefinitionKind.DatasetPackaging.ToString(), nameof(App.Model.WorkflowDefinition)]);
+			List<Airflow.Model.AirflowDag> definitions = await this._queryFactory.Query<WorkflowDefinitionHttpQuery>().Kinds(Enum.Parse<Common.WorkflowDefinitionKind>(identifyingTag)).ExcludeStaled(true).CollectAsync();
+			if (definitions == null || definitions.Count == 0) throw new DGNotFoundException(this._localizer["general_notFound", identifyingTag, nameof(App.Model.WorkflowDefinition)]);
+			if (definitions.Count > 1) throw new DGFoundManyException(this._localizer["general_nonUnique", identifyingTag, nameof(App.Model.WorkflowDefinition)]);
 			Airflow.Model.AirflowDag selectedDefinition = definitions.FirstOrDefault();
 
 			_ = await this._airflowService.ExecuteWorkflowAsync(new App.Model.WorkflowExecutionArgs
@@ -456,14 +457,14 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 			});
 		}
 
-		private async Task ExecuteRecommendationRegistering(Guid datasetId, Guid processId, Guid stepId, Guid stepIdentifier)
+		private async Task ExecuteRecommendationRegistering(Guid datasetId, Guid processId, Guid stepId, Guid stepIdentifier, string identifyingTag)
 		{
 			await this._authorizationService.AuthorizeForce(Permission.RecommendationRegisterDataset);
 			await this._authorizationService.AuthorizeForce(Permission.CanExecuteDatasetRecommendationRegistering);
 
-			List<Airflow.Model.AirflowDag> definitions = await this._queryFactory.Query<WorkflowDefinitionHttpQuery>().Kinds(Common.WorkflowDefinitionKind.DatasetRecommendationRegistering).ExcludeStaled(true).CollectAsync();
-			if (definitions == null || definitions.Count == 0) throw new DGNotFoundException(this._localizer["general_notFound", Common.WorkflowDefinitionKind.DatasetRecommendationRegistering.ToString(), nameof(App.Model.WorkflowDefinition)]);
-			if (definitions.Count > 1) throw new DGFoundManyException(this._localizer["general_nonUnique", Common.WorkflowDefinitionKind.DatasetRecommendationRegistering.ToString(), nameof(App.Model.WorkflowDefinition)]);
+			List<Airflow.Model.AirflowDag> definitions = await this._queryFactory.Query<WorkflowDefinitionHttpQuery>().Kinds(Enum.Parse<Common.WorkflowDefinitionKind>(identifyingTag)).ExcludeStaled(true).CollectAsync();
+			if (definitions == null || definitions.Count == 0) throw new DGNotFoundException(this._localizer["general_notFound", identifyingTag, nameof(App.Model.WorkflowDefinition)]);
+			if (definitions.Count > 1) throw new DGFoundManyException(this._localizer["general_nonUnique", identifyingTag, nameof(App.Model.WorkflowDefinition)]);
 			Airflow.Model.AirflowDag selectedDefinition = definitions.FirstOrDefault();
 			_ = await this._airflowService.ExecuteWorkflowAsync(new App.Model.WorkflowExecutionArgs
 			{

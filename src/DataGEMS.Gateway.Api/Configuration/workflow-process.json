@@ -11,31 +11,31 @@
             "Id": "8352e21f-a84f-4d41-92c8-30dc05577235",
             "Order": 0,
             "Kind": 0,
-            "TaskId": "stage_dataset_files"
+            "TaskId": "DatasetOnboarding_test"
           },
           {
             "Id": "7d115bb4-21f2-4c70-af08-1cc066aeb033",
             "Order": 1,
             "Kind": 1,
-            "TaskId": "Dataset Profiling"
+            "TaskId": "DatasetProfiling_test"
           },
           {
             "Id": "bc5ed9e1-ac8c-47b4-b986-7b28165bdc82",
             "Order": 2,
             "Kind": 2,
-            "TaskId": "Dataset Packaging"
+            "TaskId": "DatasetPackaging_test"
           },
           {
             "Id": "ebb8dffb-8f5f-447b-9986-8753ae8db398",
             "Order": 3,
             "Kind": 3,
-            "TaskId": "Dataset Recommendation Registering"
+            "TaskId": "DatasetRecommendationRegistering_test"
           },
           {
             "Id": "ed906ed4-5445-4df6-af9f-ffc4dde5300f",
             "Order": 4,
             "Kind": 4,
-            "TaskId": "Dataset CDD Ingest"
+            "TaskId": "CDD_Ingest_test"
           }
         ]
       },
@@ -49,7 +49,7 @@
             "Id": "62a67d16-e9fd-405c-98e8-7fda4cf42bec",
             "Kind": 1,
             "Order": 0,
-            "TaskId": "Dataset Profiling"
+            "TaskId": "DatasetProfiling_test"
           }
         ]
       },
@@ -63,7 +63,7 @@
             "Id": "97b486d4-fd09-4815-8d6a-17a8bf4c07d8",
             "Kind": 2,
             "Order": 0,
-            "TaskId": "Dataset Packaging"
+            "TaskId": "DatasetPackaging_test"
           }
         ]
       },
@@ -77,7 +77,7 @@
             "Id": "d51f0120-0070-4e9e-8e2f-a2eb7bfc7620",
             "Kind": 3,
             "Order": 0,
-            "TaskId": "Dataset Recomnmendation Registering"
+            "TaskId": "DatasetRecommendationRegistering_test"
           }
         ]
       },
@@ -91,7 +91,7 @@
             "Id": "805aea17-7f23-40dd-8430-f653621caaf6",
             "Kind": 4,
             "Order": 0,
-            "TaskId": "Cross Dataset Discovery Ingestion"
+            "TaskId": "CDD_Ingest_test"
           }
         ]
       }
