@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 
 namespace DataGEMS.Gateway.App.Censor
 {
-	internal class WorkflowProcessStepCensor : ICensor
+	public class WorkflowProcessStepCensor : ICensor
 	{
 		private readonly CensorFactory _censorFactory;
 		private readonly IAuthorizationService _authService;
