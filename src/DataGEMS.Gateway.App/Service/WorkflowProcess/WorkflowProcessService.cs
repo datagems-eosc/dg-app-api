@@ -120,7 +120,7 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 		{
 			await this.UpdateWorkflowProcessStep(model);
 
-			WorkflowProcessConfig.WorkflowProcessConfigItem configuration = this._config.Items.FirstOrDefault(x => x.Kind == Common.WorkflowProcessKind.DatasetProfiling);
+			WorkflowProcessConfig.WorkflowProcessConfigItem configuration = this._config.Items.FirstOrDefault(x => x.Kind == Common.WorkflowProcessKind.DatasetOnboarding);
 			List<WorkflowProcessConfig.WorkflowProcessConfigItem.WorkflowProcessConfigItemStep> steps = configuration.Steps.OrderBy(x => x.Order).ToList();
 			
 			Data.WorkflowProcessStep data = await this._queryFactory.Query<WorkflowProcessStepQuery>().ProcessIds(model.ProcessId.Value).StepIds(steps[2].Id).FirstAsync();
@@ -133,7 +133,7 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 		{
 			await this.UpdateWorkflowProcessStep(model);
 
-			WorkflowProcessConfig.WorkflowProcessConfigItem configuration = this._config.Items.FirstOrDefault(x => x.Kind == Common.WorkflowProcessKind.DatasetPackaging);
+			WorkflowProcessConfig.WorkflowProcessConfigItem configuration = this._config.Items.FirstOrDefault(x => x.Kind == Common.WorkflowProcessKind.DatasetOnboarding);
 			List<WorkflowProcessConfig.WorkflowProcessConfigItem.WorkflowProcessConfigItemStep> steps = configuration.Steps.OrderBy(x => x.Order).ToList();
 
 			Data.WorkflowProcessStep data = await this._queryFactory.Query<WorkflowProcessStepQuery>().ProcessIds(model.ProcessId.Value).StepIds(steps[3].Id).FirstAsync();
@@ -146,7 +146,7 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 		{
 			await this.UpdateWorkflowProcessStep(model);
 
-			WorkflowProcessConfig.WorkflowProcessConfigItem configuration = this._config.Items.FirstOrDefault(x => x.Kind == Common.WorkflowProcessKind.DatasetRecommendationRegistering);
+			WorkflowProcessConfig.WorkflowProcessConfigItem configuration = this._config.Items.FirstOrDefault(x => x.Kind == Common.WorkflowProcessKind.DatasetOnboarding);
 			List<WorkflowProcessConfig.WorkflowProcessConfigItem.WorkflowProcessConfigItemStep> steps = configuration.Steps.OrderBy(x => x.Order).ToList();
 
 			Data.WorkflowProcessStep data = await this._queryFactory.Query<WorkflowProcessStepQuery>().ProcessIds(model.ProcessId.Value).StepIds(steps[4].Id).FirstAsync();
@@ -159,8 +159,7 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 		{
 			await this.UpdateWorkflowProcessStep(model);
 
-			WorkflowProcessConfig.WorkflowProcessConfigItem configuration = this._config.Items.FirstOrDefault(x => x.Kind == Common.WorkflowProcessKind.CDD_Ingest);
-			List<WorkflowProcessConfig.WorkflowProcessConfigItem.WorkflowProcessConfigItemStep> steps = configuration.Steps.OrderBy(x => x.Order).ToList();
+			WorkflowProcessConfig.WorkflowProcessConfigItem configuration = this._config.Items.FirstOrDefault(x => x.Kind == Common.WorkflowProcessKind.DatasetOnboarding);
 			Data.WorkflowProcess process = await this._queryFactory.Query<WorkflowProcessQuery>().Ids(model.ProcessId.Value).FirstAsync();
 			if (process == null) throw new DGNotFoundException(this._localizer["general_notFound", model.ProcessId.Value, nameof(App.Model.WorkflowProcess)]);
 			process.Status = Common.Enum.WorkflowProcessStatus.Succeeded;
