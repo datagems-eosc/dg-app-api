@@ -156,7 +156,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		{
 			this._logger.Debug(new MapLogEntry("querying").And("type", nameof(App.Model.WorkflowProcessStep)).And("lookup", lookup));
 
-			IFieldSet censoredFields = await this._censorFactory.Censor<WorkflowProcessCensor>().Censor(lookup.Project, CensorContext.AsCensor());
+			IFieldSet censoredFields = await this._censorFactory.Censor<WorkflowProcessStepCensor>().Censor(lookup.Project, CensorContext.AsCensor());
 			if (lookup.Project.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
 
 			WorkflowProcessStepQuery query = lookup.Enrich(this._queryFactory);
