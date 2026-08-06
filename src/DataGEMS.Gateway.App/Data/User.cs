@@ -16,7 +16,6 @@ namespace DataGEMS.Gateway.App.Data
 		[MaxLength(250)]
 		public String IdpSubjectId { get; set; }
 
-		[Required]
 		[MaxLength(250)]
 		public String Name { get; set; }
 
