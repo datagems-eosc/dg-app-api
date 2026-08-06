@@ -19,5 +19,11 @@ namespace DataGEMS.Gateway.App.Common
 		DatasetOnboarding_test = 5,
 		[Description("Dataset Profiling test")]
 		DatasetProfiling_test = 6,
+		[Description("Dataset Packaging test")]
+		DatasetPackaging_test = 7,
+		[Description("Dataset Recommendation Registering test")]
+		DatasetRecommendationRegistering_test = 8,
+		[Description("Dataset CDD Ingest test")]
+		CDD_Ingest_test = 9,
 	}
 }
