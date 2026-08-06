@@ -5,15 +5,20 @@ using Cite.Tools.FieldSet;
 using Cite.Tools.Logging;
 using Cite.Tools.Logging.Extensions;
 using Cite.WebTools.Validation;
+using DataGEMS.Gateway.Api.Model;
+using DataGEMS.Gateway.Api.Model.Lookup;
 using DataGEMS.Gateway.Api.OpenApi;
 using DataGEMS.Gateway.Api.Transaction;
 using DataGEMS.Gateway.Api.Validation;
 using DataGEMS.Gateway.App.Accounting;
+using DataGEMS.Gateway.App.Authorization;
 using DataGEMS.Gateway.App.Censor;
 using DataGEMS.Gateway.App.Common;
 using DataGEMS.Gateway.App.ErrorCode;
 using DataGEMS.Gateway.App.Exception;
 using DataGEMS.Gateway.App.Model;
+using DataGEMS.Gateway.App.Model.Builder;
+using DataGEMS.Gateway.App.Query;
 using DataGEMS.Gateway.App.Service.DataManagement;
 using DataGEMS.Gateway.App.Service.WorkflowProcess;
 using Microsoft.AspNetCore.Authorization;
@@ -60,6 +65,146 @@ namespace DataGEMS.Gateway.Api.Controllers
 			this._workflowProcessService = workflowProcessService;
 		}
 
+		[HttpPost("query")]
+		[Authorize]
+		[ModelStateValidationFilter]
+		[ValidationFilter(typeof(WorkflowProcessLookup.QueryValidator), "lookup")]
+		[SwaggerOperation(Summary = "Query workflow processes")]
+		[SwaggerResponse(statusCode: 200, description: "The list of matching workflow processes along with the count", type: typeof(QueryResult<App.Model.WorkflowProcess>))]
+		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
+		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
+		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
+		[SwaggerResponse(statusCode: 500, description: "Internal error")]
+		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
+		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
+		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
+		public async Task<QueryResult<App.Model.WorkflowProcess>> Query(
+			[FromBody]
+			[SwaggerRequestBody(description: "The query predicates", Required = true)]
+			WorkflowProcessLookup lookup)
+		{
+			this._logger.Debug(new MapLogEntry("querying").And("type", nameof(App.Model.WorkflowProcess)).And("lookup", lookup));
+
+			IFieldSet censoredFields = await this._censorFactory.Censor<WorkflowProcessCensor>().Censor(lookup.Project, CensorContext.AsCensor());
+			if (lookup.Project.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+
+			WorkflowProcessQuery query = lookup.Enrich(this._queryFactory);
+			List<App.Data.WorkflowProcess> queryResult = await query.CollectAsync();
+			int count = queryResult.Count;
+			List<App.Model.WorkflowProcess> models = await this._builderFactory.Builder<WorkflowProcessBuilder>().Authorize(AuthorizationFlags.Any).Build(censoredFields, queryResult);
+
+			this._accountingService.AccountFor(KnownActions.Query, KnownResources.WorkflowProcess.AsAccountable());
+
+			return new QueryResult<App.Model.WorkflowProcess>(models, count);
+		}
+
+		[HttpGet("{id}")]
+		[Authorize]
+		[ModelStateValidationFilter]
+		[SwaggerOperation(Summary = "Lookup workflow process by id")]
+		[SwaggerResponse(statusCode: 200, description: "The matching workflow process", type: typeof(QueryResult<App.Model.WorkflowProcess>))]
+		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
+		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
+		[SwaggerResponse(statusCode: 404, description: "Could not locate item with the provided id")]
+		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
+		[SwaggerResponse(statusCode: 500, description: "Internal error")]
+		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
+		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
+		public async Task<App.Model.WorkflowProcess> Get(
+			[FromRoute]
+			[SwaggerParameter(description: "The id of the item to lookup", Required = true)]
+			Guid id,
+			[ModelBinder(Name = "f")]
+			[SwaggerParameter(description: "The fields to include in the response model", Required = true)]
+			[LookupFieldSetQueryStringOpenApi]
+			IFieldSet fieldSet)
+		{
+			this._logger.Debug(new MapLogEntry("get").And("type", nameof(App.Model.WorkflowProcess)).And("id", id).And("fields", fieldSet));
+
+			IFieldSet censoredFields = await this._censorFactory.Censor<WorkflowProcessCensor>().Censor(fieldSet, CensorContext.AsCensor());
+			if (fieldSet.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+
+			WorkflowProcessQuery query = this._queryFactory.Query<WorkflowProcessQuery>().Ids(id);
+			App.Data.WorkflowProcess data = await query.FirstAsync();
+			if (data == null) throw new DGNotFoundException(this._localizer["general_notFound", id, nameof(App.Data.WorkflowProcess)]);
+			App.Model.WorkflowProcess model = await this._builderFactory.Builder<WorkflowProcessBuilder>().Authorize(AuthorizationFlags.Any).Build(censoredFields, data);
+			if (model == null) throw new DGNotFoundException(this._localizer["general_notFound", id, nameof(App.Model.WorkflowProcess)]);
+
+			this._accountingService.AccountFor(KnownActions.Query, KnownResources.WorkflowProcess.AsAccountable());
+
+			return model;
+		}
+
+
+		[HttpPost("step/query")]
+		[Authorize]
+		[ModelStateValidationFilter]
+		[ValidationFilter(typeof(WorkflowProcessStepLookup.QueryValidator), "lookup")]
+		[SwaggerOperation(Summary = "Query workflow process steps")]
+		[SwaggerResponse(statusCode: 200, description: "The list of matching workflow processes along with the count", type: typeof(QueryResult<App.Model.WorkflowProcessStep>))]
+		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
+		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
+		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
+		[SwaggerResponse(statusCode: 500, description: "Internal error")]
+		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
+		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
+		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
+		public async Task<QueryResult<App.Model.WorkflowProcessStep>> StepQuery(
+			[FromBody]
+			[SwaggerRequestBody(description: "The query predicates", Required = true)]
+			WorkflowProcessStepLookup lookup)
+		{
+			this._logger.Debug(new MapLogEntry("querying").And("type", nameof(App.Model.WorkflowProcessStep)).And("lookup", lookup));
+
+			IFieldSet censoredFields = await this._censorFactory.Censor<WorkflowProcessCensor>().Censor(lookup.Project, CensorContext.AsCensor());
+			if (lookup.Project.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+
+			WorkflowProcessStepQuery query = lookup.Enrich(this._queryFactory);
+			List<App.Data.WorkflowProcessStep> queryResult = await query.CollectAsync();
+			int count = queryResult.Count;
+			List<App.Model.WorkflowProcessStep> models = await this._builderFactory.Builder<WorkflowProcessStepBuilder>().Authorize(AuthorizationFlags.Any).Build(censoredFields, queryResult);
+
+			this._accountingService.AccountFor(KnownActions.Query, KnownResources.WorkflowProcessStep.AsAccountable());
+
+			return new QueryResult<App.Model.WorkflowProcessStep>(models, count);
+		}
+
+		[HttpGet("step/{id}")]
+		[Authorize]
+		[ModelStateValidationFilter]
+		[SwaggerOperation(Summary = "Lookup workflow process step by id")]
+		[SwaggerResponse(statusCode: 200, description: "The matching workflow process step", type: typeof(QueryResult<App.Model.WorkflowProcessStep>))]
+		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
+		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
+		[SwaggerResponse(statusCode: 404, description: "Could not locate item with the provided id")]
+		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
+		[SwaggerResponse(statusCode: 500, description: "Internal error")]
+		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
+		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
+		public async Task<App.Model.WorkflowProcessStep> StepGet(
+			[FromRoute]
+			[SwaggerParameter(description: "The id of the item to lookup", Required = true)]
+			Guid id,
+			[ModelBinder(Name = "f")]
+			[SwaggerParameter(description: "The fields to include in the response model", Required = true)]
+			[LookupFieldSetQueryStringOpenApi]
+			IFieldSet fieldSet)
+		{
+			this._logger.Debug(new MapLogEntry("get").And("type", nameof(App.Model.WorkflowProcessStep)).And("id", id).And("fields", fieldSet));
+
+			IFieldSet censoredFields = await this._censorFactory.Censor<WorkflowProcessStepCensor>().Censor(fieldSet, CensorContext.AsCensor());
+			if (fieldSet.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+
+			WorkflowProcessStepQuery query = this._queryFactory.Query<WorkflowProcessStepQuery>().Ids(id);
+			App.Data.WorkflowProcessStep data = await query.FirstAsync();
+			if (data == null) throw new DGNotFoundException(this._localizer["general_notFound", id, nameof(App.Data.WorkflowProcessStep)]);
+			App.Model.WorkflowProcessStep model = await this._builderFactory.Builder<WorkflowProcessStepBuilder>().Authorize(AuthorizationFlags.Any).Build(censoredFields, data);
+			if (model == null) throw new DGNotFoundException(this._localizer["general_notFound", id, nameof(App.Model.WorkflowProcessStep)]);
+
+			this._accountingService.AccountFor(KnownActions.Query, KnownResources.WorkflowProcessStep.AsAccountable());
+
+			return model;
+		}
 
 		[HttpPost("onboard")]
 		[Authorize]
@@ -292,6 +437,8 @@ namespace DataGEMS.Gateway.Api.Controllers
 			this._accountingService.AccountFor(KnownActions.Persist, KnownResources.WorkflowProcessStep.AsAccountable());
 			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.Workflow.AsAccountable());
 		}
+
+
 
 
 		[HttpPost("workflow-process/step/finalize-onboarding")]
