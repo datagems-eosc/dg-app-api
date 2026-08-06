@@ -104,18 +104,7 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 
 			WorkflowProcessConfig.WorkflowProcessConfigItem configuration = this._config.Items.FirstOrDefault(x => x.Kind == Common.WorkflowProcessKind.DatasetOnboarding);
 			List<WorkflowProcessConfig.WorkflowProcessConfigItem.WorkflowProcessConfigItemStep> steps = configuration.Steps.OrderBy(x => x.Order).ToList();
-			if (steps.Count == 1)
-			{
-				Data.WorkflowProcess process = await this._queryFactory.Query<WorkflowProcessQuery>().Ids(model.ProcessId.Value).FirstAsync();
-				if (process == null) throw new DGNotFoundException(this._localizer["general_notFound", model.ProcessId.Value, nameof(App.Model.WorkflowProcess)]);
-				process.Status = Common.Enum.WorkflowProcessStatus.Succeeded;
-				process.UpdatedAt = DateTime.UtcNow;
-				this._dbContext.Update(process);
-				await this._dbContext.SaveChangesAsync();
-				this._eventBroker.EmitWorkflowProcessTouched(process.Id);
-				return;
-			}
-
+			
 			Data.WorkflowProcessStep data = await this._queryFactory.Query<WorkflowProcessStepQuery>().ProcessIds(model.ProcessId.Value).StepIds(steps[1].Id).FirstAsync();
 			if (data == null) throw new DGNotFoundException(this._localizer["general_notFound", model.Id.Value, nameof(App.Model.WorkflowProcessStep)]);
 
@@ -133,18 +122,7 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 
 			WorkflowProcessConfig.WorkflowProcessConfigItem configuration = this._config.Items.FirstOrDefault(x => x.Kind == Common.WorkflowProcessKind.DatasetProfiling);
 			List<WorkflowProcessConfig.WorkflowProcessConfigItem.WorkflowProcessConfigItemStep> steps = configuration.Steps.OrderBy(x => x.Order).ToList();
-			if (steps.Count == 1)
-			{
-				Data.WorkflowProcess process = await this._queryFactory.Query<WorkflowProcessQuery>().Ids(model.ProcessId.Value).FirstAsync();
-				if (process == null) throw new DGNotFoundException(this._localizer["general_notFound", model.ProcessId.Value, nameof(App.Model.WorkflowProcess)]);
-				process.Status = Common.Enum.WorkflowProcessStatus.Succeeded;
-				process.UpdatedAt = DateTime.UtcNow;
-				this._dbContext.Update(process);
-				await this._dbContext.SaveChangesAsync();
-				this._eventBroker.EmitWorkflowProcessTouched(process.Id);
-				return;
-			}
-
+			
 			Data.WorkflowProcessStep data = await this._queryFactory.Query<WorkflowProcessStepQuery>().ProcessIds(model.ProcessId.Value).StepIds(steps[2].Id).FirstAsync();
 			if (data == null) throw new DGNotFoundException(this._localizer["general_notFound", model.Id.Value, nameof(App.Model.WorkflowProcessStep)]);
 
@@ -157,17 +135,6 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 
 			WorkflowProcessConfig.WorkflowProcessConfigItem configuration = this._config.Items.FirstOrDefault(x => x.Kind == Common.WorkflowProcessKind.DatasetPackaging);
 			List<WorkflowProcessConfig.WorkflowProcessConfigItem.WorkflowProcessConfigItemStep> steps = configuration.Steps.OrderBy(x => x.Order).ToList();
-			if (steps.Count == 1)
-			{
-				Data.WorkflowProcess process = await this._queryFactory.Query<WorkflowProcessQuery>().Ids(model.ProcessId.Value).FirstAsync();
-				if (process == null) throw new DGNotFoundException(this._localizer["general_notFound", model.ProcessId.Value, nameof(App.Model.WorkflowProcess)]);
-				process.Status = Common.Enum.WorkflowProcessStatus.Succeeded;
-				process.UpdatedAt = DateTime.UtcNow;
-				this._dbContext.Update(process);
-				await this._dbContext.SaveChangesAsync();
-				this._eventBroker.EmitWorkflowProcessTouched(process.Id);
-				return;
-			}
 
 			Data.WorkflowProcessStep data = await this._queryFactory.Query<WorkflowProcessStepQuery>().ProcessIds(model.ProcessId.Value).StepIds(steps[3].Id).FirstAsync();
 			if (data == null) throw new DGNotFoundException(this._localizer["general_notFound", model.Id.Value, nameof(App.Model.WorkflowProcessStep)]);
@@ -181,17 +148,6 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 
 			WorkflowProcessConfig.WorkflowProcessConfigItem configuration = this._config.Items.FirstOrDefault(x => x.Kind == Common.WorkflowProcessKind.DatasetRecommendationRegistering);
 			List<WorkflowProcessConfig.WorkflowProcessConfigItem.WorkflowProcessConfigItemStep> steps = configuration.Steps.OrderBy(x => x.Order).ToList();
-			if (steps.Count == 1)
-			{
-				Data.WorkflowProcess process = await this._queryFactory.Query<WorkflowProcessQuery>().Ids(model.ProcessId.Value).FirstAsync();
-				if (process == null) throw new DGNotFoundException(this._localizer["general_notFound", model.ProcessId.Value, nameof(App.Model.WorkflowProcess)]);
-				process.Status = Common.Enum.WorkflowProcessStatus.Succeeded;
-				process.UpdatedAt = DateTime.UtcNow;
-				this._dbContext.Update(process);
-				await this._dbContext.SaveChangesAsync();
-				this._eventBroker.EmitWorkflowProcessTouched(process.Id);
-				return;
-			}
 
 			Data.WorkflowProcessStep data = await this._queryFactory.Query<WorkflowProcessStepQuery>().ProcessIds(model.ProcessId.Value).StepIds(steps[4].Id).FirstAsync();
 			if (data == null) throw new DGNotFoundException(this._localizer["general_notFound", model.Id.Value, nameof(App.Model.WorkflowProcessStep)]);
