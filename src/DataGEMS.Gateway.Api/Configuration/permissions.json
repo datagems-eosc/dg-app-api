@@ -370,7 +370,7 @@
 				"AllowAuthenticated": false
 			},
 			"CanExecuteDatasetOnboarding": {
-				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_dataset-uploader" ],
+				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_dataset-uploader", "GLOBAL_dg_dataset-curator", "GLOBAL_dg_system" ],
 				"ContextRoles": [],
 				"Claims": [],
 				"Clients": [],

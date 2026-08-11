@@ -70,7 +70,6 @@ namespace DataGEMS.Gateway.App.Model.Builder
 			Dictionary<Guid, List<WorkflowProcessStep>> itemMap = null;
 			IFieldSet clone = new FieldSet(fields.Fields).Ensure(this.AsIndexer(nameof(WorkflowProcessStep.Process), nameof(WorkflowProcessStep.Id)));
 			WorkflowProcessStepQuery query = this._queryFactory.Query<WorkflowProcessStepQuery>().DisableTracking().ProcessIds(datas.Select(x => x.Id).Distinct()).Authorize(this._authorize);
-			var foo = await query.CollectAsync();
 			itemMap = await this._builderFactory.Builder<WorkflowProcessStepBuilder>().Authorize(this._authorize).AsMasterKey(query, clone, x => x.Process.Id.Value);
 
 			if (!fields.HasField(this.AsIndexer(nameof(WorkflowProcessStep.Process), nameof(WorkflowProcessStep.Id)))) itemMap.SelectMany(x => x.Value).Where(x => x != null && x.Process != null).ToList().ForEach(x => x.Process.Id = null);
