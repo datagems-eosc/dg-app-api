@@ -94,7 +94,7 @@ namespace DataGEMS.Gateway.App.Query
 			foreach (FieldResolver item in items)
 			{
 				if (item.Match(nameof(Model.WorkflowProcessStep.Id))) projectionFields.Add(nameof(WorkflowProcessStep.Id));
-				else if (item.Match(nameof(Model.WorkflowProcessStep.Process))) projectionFields.Add(nameof(WorkflowProcessStep.ProcessId));
+				else if (item.Prefix(nameof(Model.WorkflowProcessStep.Process))) projectionFields.Add(nameof(WorkflowProcessStep.ProcessId));
 				else if (item.Match(nameof(Model.WorkflowProcessStep.WorkflowTaskInstanceDetails))) projectionFields.Add(nameof(WorkflowProcessStep.WorkflowTaskInstanceDetails));
 				else if (item.Match(nameof(Model.WorkflowProcessStep.StepId))) projectionFields.Add(nameof(WorkflowProcessStep.StepId));
 				else if (item.Match(nameof(Model.WorkflowProcessStep.CreatedAt))) projectionFields.Add(nameof(WorkflowProcessStep.CreatedAt));

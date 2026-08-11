@@ -10,6 +10,7 @@ namespace DataGEMS.Gateway.App.Query
 		private List<Guid> _ids { get; set; }
 		private List<Guid> _excludedIds { get; set; }
 		private List<Guid?> _userIds { get; set; }
+		private List<Guid?> _datasetIds { get; set; }
 		private AuthorizationFlags _authorize { get; set; } = AuthorizationFlags.None;
 
 		public WorkflowProcessQuery(AppDbContext dbContext, IAuthorizationContentResolver authorizationContentResolver)
@@ -25,6 +26,8 @@ namespace DataGEMS.Gateway.App.Query
 		public WorkflowProcessQuery Ids(Guid id) { this._ids = this.ToList(id.AsArray()); return this; }
 		public WorkflowProcessQuery UserIds(IEnumerable<Guid?> userIds) { this._userIds = this.ToList(userIds); return this; }
 		public WorkflowProcessQuery UserIds(Guid? userId) { this._userIds = this.ToList(userId.AsArray()); return this; }
+		public WorkflowProcessQuery DatasetIds(IEnumerable<Guid?> datasetIds) { this._datasetIds = this.ToList(datasetIds); return this; }
+		public WorkflowProcessQuery DatasetIds(Guid? datasetId) { this._datasetIds = this.ToList(datasetId.AsArray()); return this; }
 		public WorkflowProcessQuery ExcludedIds(IEnumerable<Guid> excludedIds) { this._excludedIds = this.ToList(excludedIds); return this; }
 		public WorkflowProcessQuery ExcludedIds(Guid excludedId) { this._excludedIds = this.ToList(excludedId.AsArray()); return this; }
 		public WorkflowProcessQuery EnableTracking() { base.NoTracking = false; return this; }
@@ -35,7 +38,7 @@ namespace DataGEMS.Gateway.App.Query
 
 		protected override bool IsFalseQuery()
 		{
-			return this.IsEmpty(this._ids) || this.IsEmpty(this._userIds) || this.IsEmpty(this._excludedIds);
+			return this.IsEmpty(this._ids) || this.IsEmpty(this._userIds) || this.IsEmpty(this._excludedIds) || this.IsEmpty(this._datasetIds);
 		}
 
 		protected override IQueryable<WorkflowProcess> Queryable()
@@ -56,7 +59,14 @@ namespace DataGEMS.Gateway.App.Query
 				Guid? currentUser = await this._authorizationContentResolver.CurrentUserId();
 				if (currentUser != null) return query.Where(x => x.UserId == currentUser);
 			}
-			//AuthorizationFlags.Context not applicable
+			if (this._authorize.HasFlag(AuthorizationFlags.Context))
+			{
+				List<Guid> permittedDatasetIds = await this._authorizationContentResolver.EffectiveContextAffiliatedDatasets(Permission.BrowseDataset);
+				if (permittedDatasetIds != null && permittedDatasetIds.Count > 0)
+				{
+					query = query.Where(x => x.DatasetId != null && permittedDatasetIds.Contains(x.DatasetId.Value));
+				}
+			}
 			return query.Where(x => false);
 		}
 
@@ -65,6 +75,7 @@ namespace DataGEMS.Gateway.App.Query
 			if (this._ids != null) query = query.Where(x => this._ids.Contains(x.Id));
 			if (this._userIds != null) query = query.Where(x => this._userIds.Contains(x.UserId));
 			if (this._excludedIds != null) query = query.Where(x => !this._excludedIds.Contains(x.Id));
+			if (this._datasetIds != null) query = query.Where(x => this._datasetIds.Contains(x.DatasetId));
 			return Task.FromResult(query);
 		}
 
@@ -76,6 +87,7 @@ namespace DataGEMS.Gateway.App.Query
 			if (item.Match(nameof(Model.WorkflowProcess.Id))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.Id);
 			else if (item.Match(nameof(Model.WorkflowProcess.ProcessId))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.ProcessId);
 			else if (item.Match(nameof(Model.WorkflowProcess.User))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.UserId);
+			else if (item.Match(nameof(Model.WorkflowProcess.Dataset))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.DatasetId);
 			else if (item.Match(nameof(Model.WorkflowProcess.Status))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.Status);
 			else if (item.Match(nameof(Model.WorkflowProcess.CreatedAt))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.CreatedAt);
 			else if (item.Match(nameof(Model.WorkflowProcess.UpdatedAt))) orderedQuery = this.OrderOn(query, orderedQuery, item, x => x.UpdatedAt);
@@ -91,7 +103,9 @@ namespace DataGEMS.Gateway.App.Query
 			{
 				if (item.Match(nameof(Model.WorkflowProcess.Id))) projectionFields.Add(nameof(WorkflowProcess.Id));
 				else if (item.Match(nameof(Model.WorkflowProcess.ProcessId))) projectionFields.Add(nameof(WorkflowProcess.ProcessId));
+				else if (item.Prefix(nameof(Model.WorkflowProcess.Steps))) projectionFields.Add(nameof(WorkflowProcess.Id));
 				else if (item.Match(nameof(Model.WorkflowProcess.User))) projectionFields.Add(nameof(WorkflowProcess.UserId));
+				else if (item.Match(nameof(Model.WorkflowProcess.Dataset))) projectionFields.Add(nameof(WorkflowProcess.DatasetId));
 				else if (item.Match(nameof(Model.WorkflowProcess.CreatedAt))) projectionFields.Add(nameof(WorkflowProcess.CreatedAt));
 				else if (item.Match(nameof(Model.WorkflowProcess.UpdatedAt))) projectionFields.Add(nameof(WorkflowProcess.UpdatedAt));
 				else if (item.Match(nameof(Model.WorkflowProcess.Status))) projectionFields.Add(nameof(WorkflowProcess.Status));

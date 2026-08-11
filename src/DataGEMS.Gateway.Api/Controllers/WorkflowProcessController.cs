@@ -28,7 +28,7 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace DataGEMS.Gateway.Api.Controllers
 {
-	[Route("api/temp")]
+	[Route("api/workflow-process")]
 	[ApiController]
 	public class WorkflowProcessController : ControllerBase
 	{
@@ -406,7 +406,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			return process;
 		}
 
-		[HttpPost("workflow-process/step/persist")]
+		[HttpPost("step/persist")]
 		[Authorize]
 		[ModelStateValidationFilter]
 		[ValidationFilter(typeof(App.Model.WorkflowProcessStepPersist.PersistValidator), "model")]
@@ -439,9 +439,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		}
 
 
-
-
-		[HttpPost("workflow-process/step/finalize-onboarding")]
+		[HttpPost("step/finalize-onboarding")]
 		[Authorize]
 		[ModelStateValidationFilter]
 		[ValidationFilter(typeof(App.Model.WorkflowOnboardingStepFinalize.Validator), "model")]
@@ -468,7 +466,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		}
 
 
-		[HttpPost("workflow-process/step/finalize-profiling")]
+		[HttpPost("step/finalize-profiling")]
 		[Authorize]
 		[ModelStateValidationFilter]
 		[ValidationFilter(typeof(App.Model.WorkflowProfilingStepFinalize.Validator), "model")]
@@ -494,7 +492,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.Workflow.AsAccountable());
 		}
 
-		[HttpPost("workflow-process/step/finalize-packaging")]
+		[HttpPost("step/finalize-packaging")]
 		[Authorize]
 		[ModelStateValidationFilter]
 		[ValidationFilter(typeof(App.Model.WorkflowPackagingStepFinalize.Validator), "model")]
@@ -521,7 +519,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		}
 
 
-		[HttpPost("workflow-process/step/finalize-recommendation")]
+		[HttpPost("step/finalize-recommendation")]
 		[Authorize]
 		[ModelStateValidationFilter]
 		[ValidationFilter(typeof(App.Model.WorkflowRecommendationStepFinalize.Validator), "model")]
@@ -547,7 +545,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.Workflow.AsAccountable());
 		}
 
-		[HttpPost("workflow-process/step/finalize-cdd-ingestion")]
+		[HttpPost("step/finalize-cdd-ingestion")]
 		[Authorize]
 		[ModelStateValidationFilter]
 		[ValidationFilter(typeof(App.Model.WorkflowCddIngestionStepFinalize.Validator), "model")]

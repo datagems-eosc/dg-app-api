@@ -104,7 +104,7 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 
 			WorkflowProcessConfig.WorkflowProcessConfigItem configuration = this._config.Items.FirstOrDefault(x => x.Kind == Common.WorkflowProcessKind.DatasetOnboarding);
 			List<WorkflowProcessConfig.WorkflowProcessConfigItem.WorkflowProcessConfigItemStep> steps = configuration.Steps.OrderBy(x => x.Order).ToList();
-			
+
 			Data.WorkflowProcessStep data = await this._queryFactory.Query<WorkflowProcessStepQuery>().ProcessIds(model.ProcessId.Value).StepIds(steps[1].Id).FirstAsync();
 			if (data == null) throw new DGNotFoundException(this._localizer["general_notFound", model.Id.Value, nameof(App.Model.WorkflowProcessStep)]);
 
@@ -122,7 +122,7 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 
 			WorkflowProcessConfig.WorkflowProcessConfigItem configuration = this._config.Items.FirstOrDefault(x => x.Kind == Common.WorkflowProcessKind.DatasetOnboarding);
 			List<WorkflowProcessConfig.WorkflowProcessConfigItem.WorkflowProcessConfigItemStep> steps = configuration.Steps.OrderBy(x => x.Order).ToList();
-			
+
 			Data.WorkflowProcessStep data = await this._queryFactory.Query<WorkflowProcessStepQuery>().ProcessIds(model.ProcessId.Value).StepIds(steps[2].Id).FirstAsync();
 			if (data == null) throw new DGNotFoundException(this._localizer["general_notFound", model.Id.Value, nameof(App.Model.WorkflowProcessStep)]);
 
@@ -176,11 +176,18 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 			await this._authorizationService.AuthorizeForce(Permission.CanExecuteDatasetOnboarding);
 
 			WorkflowProcessConfig.WorkflowProcessConfigItem configuration = this._config.Items.FirstOrDefault(x => x.Kind == Common.WorkflowProcessKind.DatasetOnboarding);
-			(Data.WorkflowProcess data, IOrderedEnumerable<WorkflowProcessConfig.WorkflowProcessConfigItem.WorkflowProcessConfigItemStep> steps, List<Data.WorkflowProcessStep> stepData) = await this.PersistFlow(configuration);
+			Guid datasetId = Guid.NewGuid();
+			(Data.WorkflowProcess data, IOrderedEnumerable<WorkflowProcessConfig.WorkflowProcessConfigItem.WorkflowProcessConfigItemStep> steps, List<Data.WorkflowProcessStep> stepData) = await this.PersistFlow(configuration, datasetId);
 
 			try
 			{
-				await this.ExecuteOnboarding(model, stepData.First().Id, data.Id, stepData.First().StepId, steps.First().TaskId);
+				await this.ExecuteOnboarding(
+					model: model, 
+					id: stepData.First().Id, 
+					processId: data.Id, 
+					stepId: stepData.First().StepId, 
+					identifyingTag: steps.First().TaskId, 
+					datasetId: datasetId);
 			}
 			catch
 			{
@@ -199,7 +206,7 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 			await this._authorizationService.AuthorizeForce(Permission.CanExecuteDatasetProfiling);
 
 			WorkflowProcessConfig.WorkflowProcessConfigItem configuration = this._config.Items.FirstOrDefault(x => x.Kind == Common.WorkflowProcessKind.DatasetProfiling);
-			(Data.WorkflowProcess data, IOrderedEnumerable<WorkflowProcessConfig.WorkflowProcessConfigItem.WorkflowProcessConfigItemStep> steps, List<Data.WorkflowProcessStep> stepData) = await this.PersistFlow(configuration);
+			(Data.WorkflowProcess data, IOrderedEnumerable<WorkflowProcessConfig.WorkflowProcessConfigItem.WorkflowProcessConfigItemStep> steps, List<Data.WorkflowProcessStep> stepData) = await this.PersistFlow(configuration, model.Id.Value);
 
 			try
 			{
@@ -228,7 +235,7 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 			await this._authorizationService.AuthorizeForce(Permission.CanExecuteDatasetPackaging);
 
 			WorkflowProcessConfig.WorkflowProcessConfigItem configuration = this._config.Items.FirstOrDefault(x => x.Kind == Common.WorkflowProcessKind.DatasetPackaging);
-			(Data.WorkflowProcess data, IOrderedEnumerable<WorkflowProcessConfig.WorkflowProcessConfigItem.WorkflowProcessConfigItemStep> steps, List<Data.WorkflowProcessStep> stepData) = await this.PersistFlow(configuration);
+			(Data.WorkflowProcess data, IOrderedEnumerable<WorkflowProcessConfig.WorkflowProcessConfigItem.WorkflowProcessConfigItemStep> steps, List<Data.WorkflowProcessStep> stepData) = await this.PersistFlow(configuration, model.Id.Value);
 
 			try
 			{
@@ -251,7 +258,7 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 			await this._authorizationService.AuthorizeForce(Permission.CanExecuteDatasetRecommendationRegistering);
 
 			WorkflowProcessConfig.WorkflowProcessConfigItem configuration = this._config.Items.FirstOrDefault(x => x.Kind == Common.WorkflowProcessKind.DatasetRecommendationRegistering);
-			(Data.WorkflowProcess data, IOrderedEnumerable<WorkflowProcessConfig.WorkflowProcessConfigItem.WorkflowProcessConfigItemStep> steps, List<Data.WorkflowProcessStep> stepData) = await this.PersistFlow(configuration);
+			(Data.WorkflowProcess data, IOrderedEnumerable<WorkflowProcessConfig.WorkflowProcessConfigItem.WorkflowProcessConfigItemStep> steps, List<Data.WorkflowProcessStep> stepData) = await this.PersistFlow(configuration, model.Id.Value);
 
 			try
 			{
@@ -274,7 +281,7 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 			await this._authorizationService.AuthorizeForce(Permission.CanExecuteDatasetCddIngest);
 
 			WorkflowProcessConfig.WorkflowProcessConfigItem configuration = this._config.Items.FirstOrDefault(x => x.Kind == Common.WorkflowProcessKind.CDD_Ingest);
-			(Data.WorkflowProcess data, IOrderedEnumerable<WorkflowProcessConfig.WorkflowProcessConfigItem.WorkflowProcessConfigItemStep> steps, List<Data.WorkflowProcessStep> stepData) = await this.PersistFlow(configuration);
+			(Data.WorkflowProcess data, IOrderedEnumerable<WorkflowProcessConfig.WorkflowProcessConfigItem.WorkflowProcessConfigItemStep> steps, List<Data.WorkflowProcessStep> stepData) = await this.PersistFlow(configuration, model.Id.Value);
 
 			try
 			{
@@ -309,7 +316,7 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 			this._eventBroker.EmitWorkflowProcessTouched(data.Id);
 		}
 
-		private async Task<(Data.WorkflowProcess data, IOrderedEnumerable<WorkflowProcessConfig.WorkflowProcessConfigItem.WorkflowProcessConfigItemStep> steps, List<Data.WorkflowProcessStep> stepData)> PersistFlow(WorkflowProcessConfig.WorkflowProcessConfigItem configuration)
+		private async Task<(Data.WorkflowProcess data, IOrderedEnumerable<WorkflowProcessConfig.WorkflowProcessConfigItem.WorkflowProcessConfigItemStep> steps, List<Data.WorkflowProcessStep> stepData)> PersistFlow(WorkflowProcessConfig.WorkflowProcessConfigItem configuration, Guid? datasetId = null)
 		{
 			DateTime now = DateTime.UtcNow;
 
@@ -319,6 +326,7 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 				ProcessId = configuration.Id,
 				Status = Common.Enum.WorkflowProcessStatus.InProgress,
 				UserId = await this._authorizationContentResolver.CurrentUserId(),
+				DatasetId = datasetId,
 				CreatedAt = now,
 				UpdatedAt = now,
 			};
@@ -343,7 +351,7 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 			return (data, steps, stepData);
 		}
 
-		private async Task ExecuteOnboarding(DatasetPersist model, Guid id, Guid processId, Guid stepId, string identifyingTag)
+		private async Task ExecuteOnboarding(DatasetPersist model, Guid id, Guid processId, Guid stepId, string identifyingTag, Guid? datasetId = null)
 		{
 			this._logger.Debug(new MapLogEntry("execute-onboarding").And("model", model).And("processId", processId).And("stepId", stepId));
 			await this._authorizationService.AuthorizeForce(Permission.OnboardDataset);
@@ -356,7 +364,7 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 				WorkflowId = selectedDefinition.Id,
 				Configurations = new
 				{
-					id = Guid.NewGuid(),
+					id = datasetId ?? Guid.NewGuid(),
 					name = model.Name,
 					description = model.Description,
 					headline = model.Headline,

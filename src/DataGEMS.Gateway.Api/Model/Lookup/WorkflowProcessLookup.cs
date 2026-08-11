@@ -17,6 +17,8 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 		public List<Guid> ExcludedIds { get; set; }
 		[SwaggerSchema(description: "Limit lookup to items belonging to specific user ids. If set, the list of ids must not be empty")]
 		public List<Guid?> UserIds { get; set; }
+		[SwaggerSchema(description: "Limit lookup to items belonging to specific dataset ids. If set, the list of ids must not be empty")]
+		public List<Guid?> DatasetIds { get; set; }
 
 		public WorkflowProcessQuery Enrich(QueryFactory factory)
 		{
@@ -24,6 +26,7 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 
 			if (this.Ids != null) query.Ids(this.Ids);
 			if (this.UserIds != null) query.UserIds(this.UserIds);
+			if (this.DatasetIds != null) query.DatasetIds(this.DatasetIds);
 			if (this.ExcludedIds != null) query.ExcludedIds(this.ExcludedIds);
 
 			this.EnrichCommon(query);
@@ -54,6 +57,10 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 					this.Spec()
 						.Must(() => !item.UserIds.IsNotNullButEmpty())
 						.FailOn(nameof(WorkflowProcessLookup.UserIds)).FailWith(this._localizer["validation_setButEmpty", nameof(WorkflowProcessLookup.UserIds)]),
+					//dataset ids must be null or not empty
+					this.Spec()
+						.Must(() => !item.DatasetIds.IsNotNullButEmpty())
+						.FailOn(nameof(WorkflowProcessLookup.DatasetIds)).FailWith(this._localizer["validation_setButEmpty", nameof(WorkflowProcessLookup.DatasetIds)]),
 					//excludedIds must be null or not empty
 					this.Spec()
 						.Must(() => !item.ExcludedIds.IsNotNullButEmpty())

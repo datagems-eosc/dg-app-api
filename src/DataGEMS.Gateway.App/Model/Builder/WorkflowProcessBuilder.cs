@@ -41,6 +41,9 @@ namespace DataGEMS.Gateway.App.Model.Builder
 			IFieldSet userFields = fields.ExtractPrefixed(this.AsPrefix(nameof(WorkflowProcess.User)));
 			Dictionary<Guid, User> userMap = await this.CollectUsers(userFields, datas);
 
+			IFieldSet datasetFields = fields.ExtractPrefixed(this.AsPrefix(nameof(WorkflowProcess.Dataset)));
+			Dictionary<Guid, Dataset> datasetMap = await this.CollectDatasets(datasetFields, datas);
+
 			List<WorkflowProcess> models = [];
 			foreach (Data.WorkflowProcess d in datas ?? [])
 			{
@@ -52,6 +55,7 @@ namespace DataGEMS.Gateway.App.Model.Builder
 				if (fields.HasField(nameof(WorkflowProcess.UpdatedAt))) m.UpdatedAt = d.UpdatedAt;
 				if (!processStepFields.IsEmpty() && workflowProcessStepMap != null && workflowProcessStepMap.ContainsKey(d.Id)) m.Steps = workflowProcessStepMap[d.Id];
 				if (!userFields.IsEmpty() && userMap != null && d.UserId.HasValue && userMap.ContainsKey(d.UserId.Value)) m.User = userMap[d.UserId.Value];
+				if (!datasetFields.IsEmpty() && datasetMap != null && d.DatasetId.HasValue && datasetMap.ContainsKey(d.DatasetId.Value)) m.Dataset = datasetMap[d.DatasetId.Value];
 
 				models.Add(m);
 			}
@@ -66,6 +70,7 @@ namespace DataGEMS.Gateway.App.Model.Builder
 			Dictionary<Guid, List<WorkflowProcessStep>> itemMap = null;
 			IFieldSet clone = new FieldSet(fields.Fields).Ensure(this.AsIndexer(nameof(WorkflowProcessStep.Process), nameof(WorkflowProcessStep.Id)));
 			WorkflowProcessStepQuery query = this._queryFactory.Query<WorkflowProcessStepQuery>().DisableTracking().ProcessIds(datas.Select(x => x.Id).Distinct()).Authorize(this._authorize);
+			var foo = await query.CollectAsync();
 			itemMap = await this._builderFactory.Builder<WorkflowProcessStepBuilder>().Authorize(this._authorize).AsMasterKey(query, clone, x => x.Process.Id.Value);
 
 			if (!fields.HasField(this.AsIndexer(nameof(WorkflowProcessStep.Process), nameof(WorkflowProcessStep.Id)))) itemMap.SelectMany(x => x.Value).Where(x => x != null && x.Process != null).ToList().ForEach(x => x.Process.Id = null);
@@ -88,6 +93,22 @@ namespace DataGEMS.Gateway.App.Model.Builder
 			}
 			if (!fields.HasField(nameof(User.Id))) itemMap.Values.Where(x => x != null).ToList().ForEach(x => x.Id = null);
 
+			return itemMap;
+		}
+
+		private async Task<Dictionary<Guid, Dataset>> CollectDatasets(IFieldSet fields, IEnumerable<Data.WorkflowProcess> datas)
+		{
+			if (fields.IsEmpty() || !datas.Any()) return null;
+			this._logger.Debug(new MapLogEntry("building related").And("type", nameof(App.Model.Dataset)).And("fields", fields).And("dataCount", datas?.Count()));
+			Dictionary<Guid, Dataset> itemMap = null;
+			if (!fields.HasOtherField(this.AsIndexer(nameof(Dataset.Id)))) itemMap = this.AsEmpty(datas.Where(x => x.DatasetId.HasValue).Select(x => x.DatasetId.Value).Distinct(), x => new Dataset() { Id = x }, x => x.Id.Value);
+			else
+			{
+				IFieldSet clone = new FieldSet(fields.Fields).Ensure(nameof(Dataset.Id));
+				List<Service.DataManagement.Model.Dataset> datasets = (await this._queryFactory.Query<DatasetHttpQuery>().Ids(datas.Where(x => x.DatasetId.HasValue).Select(x => x.DatasetId.Value).Distinct()).CollectAsync()).Items;
+				itemMap = await this._builderFactory.Builder<DatasetBuilder>().Authorize(this._authorize).AsForeignKey(datasets, clone, x => x.Id.Value);
+			}
+			if (!fields.HasField(nameof(Dataset.Id))) itemMap.Values.Where(x => x != null).ToList().ForEach(x => x.Id = null);
 			return itemMap;
 		}
 	}
