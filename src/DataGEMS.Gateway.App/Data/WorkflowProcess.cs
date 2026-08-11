@@ -14,6 +14,7 @@ namespace DataGEMS.Gateway.App.Data
 		[Required]
 		public Guid ProcessId { get; set; }
 		public Guid? UserId { get; set; }
+		public Guid? DatasetId { get; set; }
 		[Required]
 		public WorkflowProcessStatus Status { get; set; }
 		[Required]
@@ -32,6 +33,7 @@ namespace DataGEMS.Gateway.App.Data
 			builder.Property(x => x.Id).HasColumnName("id");
 			builder.Property(x => x.ProcessId).HasColumnName("process_id");
 			builder.Property(x => x.UserId).HasColumnName("user_id");
+			builder.Property(x => x.DatasetId).HasColumnName("dataset_id");
 			builder.Property(x => x.Status).HasColumnName("status");
 			builder.Property(x => x.CreatedAt).HasColumnName("created_at");
 			builder.Property(x => x.UpdatedAt).HasColumnName("updated_at");
