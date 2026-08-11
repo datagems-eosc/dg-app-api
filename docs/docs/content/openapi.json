@@ -1717,6 +1717,61 @@
         ]
       }
     },
+    "/api/dataset/cdd-ingest": {
+      "post": {
+        "tags": [
+          "Dataset"
+        ],
+        "summary": "CDD Ingest dataset",
+        "requestBody": {
+          "description": "The dataset to ingest to CDD",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DatasetCddIngest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The registered dataset id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "404": {
+            "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
     "/api/pilot/mathe/recommend": {
       "post": {
         "tags": [
@@ -1728,7 +1783,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/MatheRecommendationRequest"
+                "$ref": "#/components/schemas/MatheRecommendationLookup"
               }
             }
           },
@@ -1740,7 +1795,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MatheRecommendationResponse"
+                  "$ref": "#/components/schemas/MatheRecommendationResponseSearchResult"
                 }
               }
             }
@@ -1779,7 +1834,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/LanguagePilotRequest"
+                "$ref": "#/components/schemas/LanguagePilotLookup"
               }
             }
           },
@@ -1791,7 +1846,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/LanguagePilotResponse"
+                  "$ref": "#/components/schemas/LanguagePilotResponseSearchResult"
                 }
               }
             }
@@ -3016,6 +3071,57 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/InDataExploreListSearchResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/search/disambiguate-query": {
+      "post": {
+        "tags": [
+          "Search"
+        ],
+        "summary": "Disambiguates the provided query by resolving ambiguous terms or intent and returns clearer, more specific versions",
+        "requestBody": {
+          "description": "The query disambiguation options",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QueryDisambiguationLookup"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Matching results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryDisambiguationViewModelSearchResult"
                 }
               }
             }
@@ -5025,6 +5131,884 @@
           }
         ]
       }
+    },
+    "/api/workflow-process/query": {
+      "post": {
+        "tags": [
+          "WorkflowProcess"
+        ],
+        "summary": "Query workflow processes",
+        "requestBody": {
+          "description": "The query predicates",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkflowProcessLookup"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The list of matching workflow processes along with the count",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkflowProcessQueryResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/workflow-process/{id}": {
+      "get": {
+        "tags": [
+          "WorkflowProcess"
+        ],
+        "summary": "Lookup workflow process by id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the item to lookup",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json-patch+json": {
+              "schema": {
+                "$ref": "#/components/schemas/IFieldSet"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IFieldSet"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IFieldSet"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/IFieldSet"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The matching workflow process",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkflowProcessQueryResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "404": {
+            "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/workflow-process/step/query": {
+      "post": {
+        "tags": [
+          "WorkflowProcess"
+        ],
+        "summary": "Query workflow process steps",
+        "requestBody": {
+          "description": "The query predicates",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkflowProcessStepLookup"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The list of matching workflow processes along with the count",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkflowProcessStepQueryResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/workflow-process/step/{id}": {
+      "get": {
+        "tags": [
+          "WorkflowProcess"
+        ],
+        "summary": "Lookup workflow process step by id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the item to lookup",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json-patch+json": {
+              "schema": {
+                "$ref": "#/components/schemas/IFieldSet"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IFieldSet"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IFieldSet"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/IFieldSet"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The matching workflow process step",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkflowProcessStepQueryResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "404": {
+            "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/workflow-process/onboard": {
+      "post": {
+        "tags": [
+          "WorkflowProcess"
+        ],
+        "summary": "Onboard dataset",
+        "parameters": [
+          {
+            "name": "f",
+            "in": "query",
+            "schema": {
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "example": "f=id&f=name&f=foo.id&f=foo.br.id"
+          }
+        ],
+        "requestBody": {
+          "description": "The model to onboard",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DatasetPersist"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The onboard dataset process",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkflowProcess"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "404": {
+            "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/workflow-process/profile": {
+      "post": {
+        "tags": [
+          "WorkflowProcess"
+        ],
+        "summary": "Profile dataset",
+        "parameters": [
+          {
+            "name": "f",
+            "in": "query",
+            "schema": {
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "example": "f=id&f=name&f=foo.id&f=foo.br.id"
+          }
+        ],
+        "requestBody": {
+          "description": "The profile to apply",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DatasetProfiling"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The profile dataset process",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkflowProcess"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "404": {
+            "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/workflow-process/package": {
+      "post": {
+        "tags": [
+          "WorkflowProcess"
+        ],
+        "summary": "Package dataset",
+        "parameters": [
+          {
+            "name": "f",
+            "in": "query",
+            "schema": {
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "example": "f=id&f=name&f=foo.id&f=foo.br.id"
+          }
+        ],
+        "requestBody": {
+          "description": "The package to apply",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DatasetPackaging"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The package process",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkflowProcess"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "404": {
+            "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/workflow-process/recommendation-register": {
+      "post": {
+        "tags": [
+          "WorkflowProcess"
+        ],
+        "summary": "Register dataset to recommendation",
+        "parameters": [
+          {
+            "name": "f",
+            "in": "query",
+            "schema": {
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "example": "f=id&f=name&f=foo.id&f=foo.br.id"
+          }
+        ],
+        "requestBody": {
+          "description": "The dataset to register to recommendation",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DatasetRecommendationRegistering"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The registered dataset id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkflowProcess"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "404": {
+            "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/workflow-process/cdd-ingest": {
+      "post": {
+        "tags": [
+          "WorkflowProcess"
+        ],
+        "summary": "CDD Ingest dataset",
+        "parameters": [
+          {
+            "name": "f",
+            "in": "query",
+            "schema": {
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "example": "f=id&f=name&f=foo.id&f=foo.br.id"
+          }
+        ],
+        "requestBody": {
+          "description": "The dataset to ingest to CDD",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DatasetCddIngest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The registered dataset id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkflowProcess"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "404": {
+            "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/workflow-process/step/persist": {
+      "post": {
+        "tags": [
+          "WorkflowProcess"
+        ],
+        "summary": "Update a workflow process step",
+        "parameters": [
+          {
+            "name": "f",
+            "in": "query",
+            "schema": {
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "example": "f=id&f=name&f=foo.id&f=foo.br.id"
+          }
+        ],
+        "requestBody": {
+          "description": "The model to persist",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkflowProcessStepPersist"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "404": {
+            "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/workflow-process/step/finalize-onboarding": {
+      "post": {
+        "tags": [
+          "WorkflowProcess"
+        ],
+        "summary": "Update a workflow process step",
+        "requestBody": {
+          "description": "The model to persist",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkflowOnboardingStepFinalize"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "404": {
+            "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/workflow-process/step/finalize-profiling": {
+      "post": {
+        "tags": [
+          "WorkflowProcess"
+        ],
+        "summary": "Update a workflow process step",
+        "requestBody": {
+          "description": "The model to persist",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkflowProfilingStepFinalize"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "404": {
+            "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/workflow-process/step/finalize-packaging": {
+      "post": {
+        "tags": [
+          "WorkflowProcess"
+        ],
+        "summary": "Update a workflow process step",
+        "requestBody": {
+          "description": "The model to persist",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkflowPackagingStepFinalize"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "404": {
+            "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/workflow-process/step/finalize-recommendation": {
+      "post": {
+        "tags": [
+          "WorkflowProcess"
+        ],
+        "summary": "Update a workflow process step",
+        "requestBody": {
+          "description": "The model to persist",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkflowRecommendationStepFinalize"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "404": {
+            "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/workflow-process/step/finalize-cdd-ingestion": {
+      "post": {
+        "tags": [
+          "WorkflowProcess"
+        ],
+        "summary": "Update a workflow process step",
+        "requestBody": {
+          "description": "The model to persist",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkflowCddIngestionStepFinalize"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "404": {
+            "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -5248,6 +6232,31 @@
           "count": {
             "type": "integer",
             "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "AmbiguousPart": {
+        "type": "object",
+        "properties": {
+          "original_text": {
+            "type": "string",
+            "nullable": true
+          },
+          "ambiguity_type": {
+            "type": "string",
+            "nullable": true
+          },
+          "reason": {
+            "type": "string",
+            "nullable": true
+          },
+          "rephrased_options": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -5867,10 +6876,16 @@
           2,
           3,
           4,
-          5
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11
         ],
         "type": "integer",
-        "description": "  (0 - CrossDatasetQuery = 0 - CrossDataset Query, 1 - CrossDatasetResponse = 1 - CrossDataset Response, 2 - InDataExploreQuery = 2 - InDataExplore Query, 3 - InDataExploreResponse = 3 - InDataExplore Response, 4 - QueryRecommenderQuery = 4 - QueryRecommender Query, 5 - QueryRecommenderResponse = 5 - QueryRecommender Response)",
+        "description": "  (0 - CrossDatasetQuery = 0 - CrossDataset Query, 1 - CrossDatasetResponse = 1 - CrossDataset Response, 2 - InDataExploreQuery = 2 - InDataExplore Query, 3 - InDataExploreResponse = 3 - InDataExplore Response, 4 - QueryRecommenderQuery = 4 - QueryRecommender Query, 5 - QueryRecommenderResponse = 5 - QueryRecommender Response, 6 - MatheRecommendationQuery = 6 - MathE Recommendation Query, 7 - MatheRecommendationResponse = 7 - MathE Recommendation Response, 8 - LinguisticFeaturesQuery = 8 - Linguistic Features Query, 9 - LinguisticFeaturesResponse = 9 - Linguistic Features Response, 10 - QueryDisambiguationQuery = 10 - Query Disambiguation Query, 11 - QueryDisambiguationResponse = 11 - Query Disambiguation Response)",
         "format": "int32",
         "x-enum-varnames": [
           "0 - CrossDatasetQuery",
@@ -5878,7 +6893,13 @@
           "2 - InDataExploreQuery",
           "3 - InDataExploreResponse",
           "4 - QueryRecommenderQuery",
-          "5 - QueryRecommenderResponse"
+          "5 - QueryRecommenderResponse",
+          "6 - MatheRecommendationQuery",
+          "7 - MatheRecommendationResponse",
+          "8 - LinguisticFeaturesQuery",
+          "9 - LinguisticFeaturesResponse",
+          "10 - QueryDisambiguationQuery",
+          "11 - QueryDisambiguationResponse"
         ],
         "x-enum-descriptions": [
           "0 - CrossDataset Query",
@@ -5886,7 +6907,13 @@
           "2 - InDataExplore Query",
           "3 - InDataExplore Response",
           "4 - QueryRecommender Query",
-          "5 - QueryRecommender Response"
+          "5 - QueryRecommender Response",
+          "6 - MathE Recommendation Query",
+          "7 - MathE Recommendation Response",
+          "8 - Linguistic Features Query",
+          "9 - Linguistic Features Response",
+          "10 - Query Disambiguation Query",
+          "11 - Query Disambiguation Response"
         ]
       },
       "ConversationMessageLookup": {
@@ -6039,6 +7066,52 @@
           "count": {
             "type": "integer",
             "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CorpusAnalysisResponse": {
+        "type": "object",
+        "properties": {
+          "query_time": {
+            "type": "number",
+            "format": "double"
+          },
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CorpusAnalysisResult"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CorpusAnalysisResult": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string",
+            "nullable": true
+          },
+          "dataset_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "object_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "similarity": {
+            "type": "number",
+            "format": "double"
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": {
+              "nullable": true
+            },
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -6278,6 +7351,17 @@
           },
           "features": {
             "$ref": "#/components/schemas/FeatureStatus"
+          }
+        },
+        "additionalProperties": false
+      },
+      "DatasetCddIngest": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -6619,6 +7703,24 @@
         },
         "additionalProperties": false
       },
+      "GeneralNote": {
+        "type": "object",
+        "properties": {
+          "aspect": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "severity": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "Header": {
         "title": "Additional directives",
         "type": "object",
@@ -6809,11 +7911,12 @@
           "1 - Active entry"
         ]
       },
-      "LanguagePilotRequest": {
+      "LanguagePilotLookup": {
         "type": "object",
         "properties": {
           "query": {
             "type": "string",
+            "description": "The query string to be used for the lookup",
             "nullable": true
           },
           "datasetIds": {
@@ -6822,7 +7925,22 @@
               "type": "string",
               "format": "uuid"
             },
+            "description": "The list of dataset IDs to be used for the lookup",
             "nullable": true
+          },
+          "includedFeatures": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LinguisticFeature"
+            },
+            "description": "The list of linguistic features to be included in the lookup",
+            "nullable": true
+          },
+          "conversationOptions": {
+            "$ref": "#/components/schemas/ConversationOptions"
+          },
+          "project": {
+            "$ref": "#/components/schemas/FieldSet"
           }
         },
         "additionalProperties": false
@@ -6830,6 +7948,9 @@
       "LanguagePilotResponse": {
         "type": "object",
         "properties": {
+          "rag_output": {
+            "$ref": "#/components/schemas/CorpusAnalysisResponse"
+          },
           "features": {
             "type": "array",
             "items": {
@@ -6842,6 +7963,20 @@
             "items": {
               "$ref": "#/components/schemas/BaseMetric"
             },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "LanguagePilotResponseSearchResult": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "$ref": "#/components/schemas/LanguagePilotResponse"
+          },
+          "conversationId": {
+            "type": "string",
+            "format": "uuid",
             "nullable": true
           }
         },
@@ -6881,20 +8016,49 @@
         },
         "additionalProperties": false
       },
-      "MatheRecommendationRequest": {
+      "LinguisticFeature": {
+        "enum": [
+          0,
+          1,
+          2
+        ],
+        "type": "integer",
+        "description": "  (0 - TermFrequency = 0 - Term Frequency, 1 - SentimentProfile = 1 - Sentiment Profile, 2 - Collocations = 2 - Collocations)",
+        "format": "int32",
+        "x-enum-varnames": [
+          "0 - TermFrequency",
+          "1 - SentimentProfile",
+          "2 - Collocations"
+        ],
+        "x-enum-descriptions": [
+          "0 - Term Frequency",
+          "1 - Sentiment Profile",
+          "2 - Collocations"
+        ]
+      },
+      "MatheRecommendationLookup": {
         "type": "object",
         "properties": {
           "questionId": {
             "type": "string",
+            "description": "The question ID to be used for the lookup",
             "nullable": true
           },
           "question": {
             "type": "string",
+            "description": "The question to be used for the lookup",
             "nullable": true
           },
           "recommendedMaterialsCount": {
             "type": "integer",
+            "description": "The number of recommended materials to be returned",
             "format": "int32"
+          },
+          "conversationOptions": {
+            "$ref": "#/components/schemas/ConversationOptions"
+          },
+          "project": {
+            "$ref": "#/components/schemas/FieldSet"
           }
         },
         "additionalProperties": false
@@ -6911,6 +8075,44 @@
             "items": {
               "$ref": "#/components/schemas/Recommendation"
             },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "MatheRecommendationResponseSearchResult": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "$ref": "#/components/schemas/MatheRecommendationResponse"
+          },
+          "conversationId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "MetadataResult": {
+        "type": "object",
+        "properties": {
+          "general_notes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GeneralNote"
+            },
+            "nullable": true
+          },
+          "ambiguous_parts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AmbiguousPart"
+            },
+            "nullable": true
+          },
+          "overall_clarity": {
+            "type": "string",
             "nullable": true
           }
         },
@@ -7160,6 +8362,83 @@
           "0 - Grant assigned at the user level",
           "1 - Grant assigned at the user group level"
         ]
+      },
+      "QueryDisambiguationLookup": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "The query the disambiguation will be based on",
+            "nullable": true
+          },
+          "datasetIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "The datasets the disambiguation will be based on",
+            "nullable": true
+          },
+          "conversationOptions": {
+            "$ref": "#/components/schemas/ConversationOptions"
+          },
+          "project": {
+            "$ref": "#/components/schemas/FieldSet"
+          }
+        },
+        "additionalProperties": false
+      },
+      "QueryDisambiguationMetadata": {
+        "type": "object",
+        "properties": {
+          "provider": {
+            "type": "string",
+            "nullable": true
+          },
+          "reference_datetime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "query": {
+            "type": "string",
+            "nullable": true
+          },
+          "result": {
+            "$ref": "#/components/schemas/MetadataResult"
+          }
+        },
+        "additionalProperties": false
+      },
+      "QueryDisambiguationViewModel": {
+        "type": "object",
+        "properties": {
+          "results": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/QueryDisambiguationMetadata"
+          }
+        },
+        "additionalProperties": false
+      },
+      "QueryDisambiguationViewModelSearchResult": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "$ref": "#/components/schemas/QueryDisambiguationViewModel"
+          },
+          "conversationId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
       },
       "QueryRecommendation": {
         "type": "object",
@@ -7693,6 +8972,20 @@
         },
         "additionalProperties": false
       },
+      "WorkflowCddIngestionStepFinalize": {
+        "type": "object",
+        "properties": {
+          "workflowProcessStep": {
+            "$ref": "#/components/schemas/WorkflowProcessStepPersist"
+          },
+          "datasetId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "WorkflowDefinition": {
         "type": "object",
         "properties": {
@@ -7826,22 +9119,40 @@
           0,
           1,
           2,
-          3
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
         ],
         "type": "integer",
-        "description": "  (0 - DatasetOnboarding = 0 - Dataset Onboarding, 1 - DatasetProfiling = 1 - Dataset Profiling, 2 - DatasetPackaging = 2 - Dataset Packaging, 3 - DatasetRecommendationRegistering = 3 - Dataset Recommendation Registering)",
+        "description": "  (0 - DatasetOnboarding = 0 - Dataset Onboarding, 1 - DatasetProfiling = 1 - Dataset Profiling, 2 - DatasetPackaging = 2 - Dataset Packaging, 3 - DatasetRecommendationRegistering = 3 - Dataset Recommendation Registering, 4 - CDD_Ingest = 4 - Dataset CDD Ingest, 5 - DatasetOnboarding_test = 5 - Dataset Onboarding test, 6 - DatasetProfiling_test = 6 - Dataset Profiling test, 7 - DatasetPackaging_test = 7 - Dataset Packaging test, 8 - DatasetRecommendationRegistering_test = 8 - Dataset Recommendation Registering test, 9 - CDD_Ingest_test = 9 - Dataset CDD Ingest test)",
         "format": "int32",
         "x-enum-varnames": [
           "0 - DatasetOnboarding",
           "1 - DatasetProfiling",
           "2 - DatasetPackaging",
-          "3 - DatasetRecommendationRegistering"
+          "3 - DatasetRecommendationRegistering",
+          "4 - CDD_Ingest",
+          "5 - DatasetOnboarding_test",
+          "6 - DatasetProfiling_test",
+          "7 - DatasetPackaging_test",
+          "8 - DatasetRecommendationRegistering_test",
+          "9 - CDD_Ingest_test"
         ],
         "x-enum-descriptions": [
           "0 - Dataset Onboarding",
           "1 - Dataset Profiling",
           "2 - Dataset Packaging",
-          "3 - Dataset Recommendation Registering"
+          "3 - Dataset Recommendation Registering",
+          "4 - Dataset CDD Ingest",
+          "5 - Dataset Onboarding test",
+          "6 - Dataset Profiling test",
+          "7 - Dataset Packaging test",
+          "8 - Dataset Recommendation Registering test",
+          "9 - Dataset CDD Ingest test"
         ]
       },
       "WorkflowDefinitionLookup": {
@@ -8068,6 +9379,321 @@
           "count": {
             "type": "integer",
             "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "WorkflowOnboardingStepFinalize": {
+        "type": "object",
+        "properties": {
+          "workflowProcessStep": {
+            "$ref": "#/components/schemas/WorkflowProcessStepPersist"
+          },
+          "profiling": {
+            "$ref": "#/components/schemas/DatasetProfiling"
+          }
+        },
+        "additionalProperties": false
+      },
+      "WorkflowPackagingStepFinalize": {
+        "type": "object",
+        "properties": {
+          "workflowProcessStep": {
+            "$ref": "#/components/schemas/WorkflowProcessStepPersist"
+          },
+          "datasetId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "WorkflowProcess": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "processId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
+          },
+          "dataset": {
+            "$ref": "#/components/schemas/Dataset"
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkflowProcessStep"
+            },
+            "nullable": true
+          },
+          "status": {
+            "$ref": "#/components/schemas/WorkflowProcessStatus"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "WorkflowProcessLookup": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Limit lookup to items with specific ids. If set, the list of ids must not be empty",
+            "nullable": true
+          },
+          "excludedIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Exclude from the lookup items with specific ids. If set, the list of ids must not be empty",
+            "nullable": true
+          },
+          "userIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid",
+              "nullable": true
+            },
+            "description": "Limit lookup to items belonging to specific user ids. If set, the list of ids must not be empty",
+            "nullable": true
+          },
+          "datasetIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid",
+              "nullable": true
+            },
+            "description": "Limit lookup to items belonging to specific dataset ids. If set, the list of ids must not be empty",
+            "nullable": true
+          },
+          "page": {
+            "$ref": "#/components/schemas/Paging"
+          },
+          "order": {
+            "$ref": "#/components/schemas/Ordering"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/Header"
+          },
+          "project": {
+            "$ref": "#/components/schemas/FieldSet"
+          }
+        },
+        "additionalProperties": false
+      },
+      "WorkflowProcessQueryResult": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkflowProcess"
+            },
+            "nullable": true
+          },
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "WorkflowProcessStatus": {
+        "enum": [
+          0,
+          1,
+          2
+        ],
+        "type": "integer",
+        "description": "  (0 - InProgress = 0 - InProgress, 1 - Failed = 1 - Failed, 2 - Succeeded = 2 - Succeeded)",
+        "format": "int32",
+        "x-enum-varnames": [
+          "0 - InProgress",
+          "1 - Failed",
+          "2 - Succeeded"
+        ],
+        "x-enum-descriptions": [
+          "0 - InProgress",
+          "1 - Failed",
+          "2 - Succeeded"
+        ]
+      },
+      "WorkflowProcessStep": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "process": {
+            "$ref": "#/components/schemas/WorkflowProcess"
+          },
+          "stepId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "workflowTaskInstanceDetails": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "$ref": "#/components/schemas/WorkflowProcessStatus"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "WorkflowProcessStepLookup": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Limit lookup to items with specific ids. If set, the list of ids must not be empty",
+            "nullable": true
+          },
+          "excludedIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Exclude from the lookup items with specific ids. If set, the list of ids must not be empty",
+            "nullable": true
+          },
+          "processIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Limit lookup to items belonging to specific process ids. If set, the list of ids must not be empty",
+            "nullable": true
+          },
+          "page": {
+            "$ref": "#/components/schemas/Paging"
+          },
+          "order": {
+            "$ref": "#/components/schemas/Ordering"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/Header"
+          },
+          "project": {
+            "$ref": "#/components/schemas/FieldSet"
+          }
+        },
+        "additionalProperties": false
+      },
+      "WorkflowProcessStepPersist": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "processId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "stepId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "workflowTaskInstanceDetails": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "$ref": "#/components/schemas/WorkflowProcessStatus"
+          }
+        },
+        "additionalProperties": false
+      },
+      "WorkflowProcessStepQueryResult": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkflowProcessStep"
+            },
+            "nullable": true
+          },
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "WorkflowProfilingStepFinalize": {
+        "type": "object",
+        "properties": {
+          "workflowProcessStep": {
+            "$ref": "#/components/schemas/WorkflowProcessStepPersist"
+          },
+          "datasetId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "WorkflowRecommendationStepFinalize": {
+        "type": "object",
+        "properties": {
+          "workflowProcessStep": {
+            "$ref": "#/components/schemas/WorkflowProcessStepPersist"
+          },
+          "datasetId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
           }
         },
         "additionalProperties": false
