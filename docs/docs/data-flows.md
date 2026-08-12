@@ -96,8 +96,6 @@ Dataset onboarding is started through:
 POST /api/workflow-process/onboard
 ```
 
-This endpoint replaces the old pattern where onboarding was performed through `/api/dataset/onboard` and the caller subsequently had to invoke each processing stage separately.
-
 The request contains the dataset metadata and its data locations.
 
 The endpoint also accepts the `f` query parameter used by the Gateway field-set mechanism to select the fields returned in the `WorkflowProcess` response.
@@ -130,7 +128,7 @@ curl --location '<base url>/api/workflow-process/onboard?f=<workflow-process-fie
 }'
 ```
 
-Unlike the previous endpoint, the response is a `WorkflowProcess`, not a dataset UUID. The exact response fields depend on the requested field set.
+The response is a `WorkflowProcess`, not a dataset UUID. The exact response fields depend on the requested field set.
 
 The returned workflow process can be used to monitor the execution through the workflow-process query and lookup endpoints described below.
 
@@ -208,7 +206,12 @@ curl --location '<base url>/api/workflow-process/query' \
 --header 'Authorization: Bearer ey...aQ' \
 --header 'Content-Type: application/json' \
 --data '{
-    "...": "WorkflowProcessLookup predicates and projection"
+    {
+        "Ids": [<ids>],
+        "UserIds": [<userIds>],
+        "DatasetIds": [<datasetIds>],
+        "Project": {"Fields": ["Id", "Status", "Steps.WorkflowTaskInstanceDetails", "Steps.Id", "Steps.Status"]}
+    }
 }'
 ```
 
@@ -380,119 +383,120 @@ curl --location '<base url>/api/workflow-process/cdd-ingest?f=<workflow-process-
 
 The exact payload is defined in the [OpenAPI Reference](openapi.md).
 
-## Workflow callback endpoints
+## Example Onboarding Usage
 
-The following endpoints support communication between workflow task callbacks and the Gateway.
-
-They are part of the orchestration lifecycle and are not normally called by an end-user UI to advance the workflow manually.
-
-All endpoints require authentication and apply the same validation and transaction handling configured by the Gateway API.
-
-### Persist workflow-step progress
+The onboarding workflow is started by calling the following endpoint:
 
 ```text
-POST /api/workflow-process/step/persist
+POST /api/workflow-process/onboard?f=Id
 ```
 
-This endpoint updates the state/details of a workflow process step. It is used by workflow callbacks to persist task-instance progress while the DAG is executing.
+For example:
 
-Typical callback events include task execution, retry, success, failure, and skipped-state handling, depending on the workflow callback configuration.
-
-Updating a step does not by itself imply that the overall workflow stage has been finalized.
-
-### Finalize onboarding
-
-```text
-POST /api/workflow-process/step/finalize-onboarding
+```bash
+curl --location '<base url>/api/workflow-process/onboard?f=Id' 
+\ --header 'Authorization: Bearer ey...aQ' 
+\ --header 'Content-Type: application/json' 
+\ --data '{
+    "CiteAs": "ca",
+    "ConformsTo": "ct",
+    "doi": "10.1000/1234567890",
+    "Country": ["GR"],
+    "license": "https://cds.climate.copernicus.eu/datasets/reanalysis-era5-land?tab=download",
+    "name": "Era5land",
+    "description": "A global atmospheric reanalysis dataset produced by the European Centre for Medium\u2010Range Weather Forecast\u2019s (ECMWF) and has data available from 1950, providing a consistent view of the evolution of land variables. It has an enhanced resolution of 0.1\u00b0 x 0.1\u00b0, while the temporal frequency of the model output is hourly.",
+    "mimeType": "application/db",
+    "url": "https://cds.climate.copernicus.eu/datasets/reanalysis-era5-land?tab=download",
+    "headline": "Meteorological data time series by ECWMF",
+    "keywords": [
+     "weather", "weather prediction"
+    ],
+    "fieldOfScience": [
+        "EARTH AND RELATED ENVIRONMENTAL SCIENCES"
+    ],
+    "language": [
+        "en"
+    ],
+    "datePublished": "2025-05-24",
+    "DataLocations": [
+       {
+               "KIND": 5,
+               "LOCATION": "ds_era5_land"
+        }
+    ]
+}'
 ```
 
-The Gateway finalizes the onboarding step and receives the information required to continue with profiling.
+Because only Id is requested through the f field selector, the response contains the identifier of the newly created workflow process.
 
-### Finalize profiling
+For example:
 
-```text
-POST /api/workflow-process/step/finalize-profiling
+```json
+{
+    "id": "7c380cfa-c509-469c-a181-67064089ff2b"
+}
 ```
 
-The request contains the workflow-process step information and the related dataset ID.
+The workflow process ID can then be used to monitor both the overall process and the individual processing steps. To do this, call:
 
-The Gateway finalizes the profiling stage and can continue with the next configured stage.
-
----
-
-### Finalize packaging
-
-```text
-POST /api/workflow-process/step/finalize-packaging
+```bash
+curl --location '<base url>/api/workflow-process/7c380cfa-c509-469c-a181-67064089ff2b?f=Id&f=Status&f=Steps.Status&f=Steps.Id&f=Steps.WorkflowTaskInstanceDetails' 
+\ --header 'Authorization: Bearer ey...aQ'
 ```
 
-The request contains the workflow-process step information and the related dataset ID.
+The requested fields provide:
 
-The Gateway finalizes the packaging stage and can continue with the next configured stage.
+ - Id — The workflow process identifier.
+ - Status — The current status of the overall workflow process.
+ - Steps.Id — The identifier of each workflow process step.
+ - Steps.Status — The current status of each step.
+ - Steps.WorkflowTaskInstanceDetails — Details and logs about the workflow task instances associated with the step in a free text format.
 
+This endpoint can be called repeatedly by a client to monitor the workflow while processing continues automatically in the background.
 
-### Finalize recommendation registration
+Both WorkflowProcess and WorkflowProcessStep use the following status values:
 
-```text
-POST /api/workflow-process/step/finalize-recommendation
-```
+- `In Progress = 0` — The process or step is currently being executed.
+- `Failed = 1` — The process or step failed. If a step fails, the overall workflow process also transitions to Failed.
+- `Succeeded = 2` — The process or step completed successfully. When a step succeeds, the next configured step can begin automatically.
+- `Pending = 3` — The step has not started yet and is waiting for the preceding steps to complete.
 
-The request contains the workflow-process step information and the related dataset ID.
-
-The Gateway finalizes recommendation registration and can continue with the next configured stage.
-
----
-
-### Finalize CDD ingestion
-
-```text
-POST /api/workflow-process/step/finalize-cdd-ingestion
-```
-
-The request contains the workflow-process step information and the related dataset ID.
-
-This finalizes the CDD ingestion stage and therefore completes the configured processing chain when CDD ingestion is the last stage.
-
-## Migration from the previous API flow
-
-Previously, a caller typically performed the following sequence:
+A typical workflow therefore progresses as follows:
 
 ```text
-POST /api/dataset/onboard
+Step 1: InProgress
+Step 2: Pending
+Step 3: Pending
+Step 4: Pending
         |
         v
-wait for onboarding
+Step 1: Succeeded
+Step 2: InProgress
+Step 3: Pending
+Step 4: Pending
         |
         v
-POST /api/dataset/profile
-        |
-        v
-wait for profiling
-        |
-        v
-manually trigger the next processing operation
-        |
        ...
+        |
+        v
+Step 1: Succeeded
+Step 2: Succeeded
+Step 3: Succeeded
+Step 4: Succeeded
+
+WorkflowProcess: Succeeded
+
 ```
 
-The updated flow is workflow-oriented:
+If any step fails, the workflow stops progressing and the overall process is marked as failed:
 
 ```text
-POST /api/workflow-process/onboard
-        |
-        v
-WorkflowProcess returned
-        |
-        v
-callbacks update WorkflowProcessStep state
-        |
-        v
-successful stage completion
-        |
-        v
-Gateway automatically starts the next configured DAG
-        |
-        v
-client monitors process/step state through
-/api/workflow-process/... endpoints
+Step 1: Succeeded
+Step 2: Failed
+Step 3: Pending
+Step 4: Pending
+
+WorkflowProcess: Failed
 ```
+
+The caller therefore only needs to start the onboarding workflow once and monitor its state. Progression between the configured processing stages is handled automatically by the workflow callbacks and the Gateway.
