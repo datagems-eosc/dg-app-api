@@ -5,5 +5,6 @@
 		InProgress = 0,
 		Failed = 1,
 		Succeeded = 2,
+		Pending = 3,
 	}
 }

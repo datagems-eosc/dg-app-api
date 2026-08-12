@@ -340,7 +340,7 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 				Id = Guid.NewGuid(),
 				StepId = x.Id,
 				ProcessId = data.Id,
-				Status = Common.Enum.WorkflowProcessStatus.InProgress,
+				Status = Common.Enum.WorkflowProcessStatus.Pending,
 				WorkflowTaskInstanceDetails = "",
 				CreatedAt = now,
 				UpdatedAt = now,
