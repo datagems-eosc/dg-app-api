@@ -1,16 +1,28 @@
-# Data Onboarding & Processing flow Endpoints
+# Data Onboarding & Processing Flow Endpoints
 
-The data onboarding and processing flows are primarily managed through respective DataGEMS conmponents such as the [DataGEMS Data Model Management](https://datagems-eosc.github.io/data-model-management), the [DataGEMS Data Workflow Orchestrator](https://datagems-eosc.github.io/dg-data-workflow), the [Dataset Profiler](https://datagems-eosc.github.io/dg-dataset-profiler), and others that can be found in the [DataGEMS documentation](https://datagems-eosc.github.io/).
+The data onboarding and processing flows are implemented across DataGEMS components such as the [DataGEMS Data Model Management](https://datagems-eosc.github.io/data-model-management), the [DataGEMS Data Workflow Orchestrator](https://datagems-eosc.github.io/dg-data-workflow), the [Dataset Profiler](https://datagems-eosc.github.io/dg-dataset-profiler), and other components documented in the [DataGEMS documentation](https://datagems-eosc.github.io/).
 
-The Gateway API provides entry points for some facets of the onboarding and processing phases as required and propagates processing requests to the underpinning components.
+The Gateway API provides the user-facing entry points for starting and monitoring these flows and coordinates their execution with the underpinning components.
 
-## Workflow model
+The main workflow endpoint group is:
+
+```text
+/api/workflow-process
+```
+
+More information about request models, field projections, validation rules, and response schemas can be found in the [OpenAPI Reference](openapi.md).
+
+---
+
+## 1. Workflow Model
 
 A workflow execution is represented by a `WorkflowProcess`.
 
-Each process contains one or more `WorkflowProcessStep` entries representing the configured processing steps. While the underlying workflow is running, task-instance callbacks update the corresponding workflow step so that the Gateway can expose the current processing state.
+A `WorkflowProcess` contains one or more `WorkflowProcessStep` entries. Each step represents one configured processing stage. While the underlying Airflow DAG is running, task-instance callbacks update the corresponding workflow step so that the Gateway can expose the current state and collected execution details.
 
-The normal processing chain is:
+### 1.1 Dataset onboarding workflow
+
+A normal dataset onboarding request creates **one workflow process** containing the complete processing chain:
 
 ```text
 Dataset Onboarding
@@ -22,136 +34,15 @@ Dataset Profiling
 Dataset Packaging
         |
         v
-Recommendation Registration
+Dataset Recommendation Registering
         |
         v
-Cross-Dataset-Discovery Ingestion
+Cross Dataset Discovery Ingestion
 ```
 
-The transition from one stage to the next is handled by the Gateway after the current stage has completed successfully. The client does not need to wait for a DAG to finish and manually invoke the next stage.
+When a step succeeds, the Gateway automatically starts the next configured step. The client does not need to wait for each DAG to finish and manually invoke the next stage.
 
-Individual stage endpoints still exist and may be used when a specific workflow stage needs to be started directly.
-
-## Making data available to the platform
-
-When it comes to making data available to the platform so that they can be ingested as datasets, there are various methods supported:
-
-- Upload data files directly through the Gateway API
-- Reference data that are publicly available through http / ftp
-- Reference data previously staged to the platform as raw files
-- Reference data previously staged to the platform as relations database
-
-The first two methods are made available to users that have proper authorization to be used when registering a new dataset. The later cases are restricted to administrator users.
-
-## Uploading data
-
-A user with the approriate authorization can upload data that can then be used to register a dataset.
-
-### Allowed file extensions
-
-The `/api/storage/upload/allowed-extension` endpoint provides the file extensions that are allowed to be apploaded
-
-More information can be found in the [OpenAPI Reference](openapi.md).
-
-```bash
-curl --location '<base url>/api/storage/upload/allowed-extension' \
---header 'Authorization: Bearer ey...Bg'
-```
-
-This will provide an answer like the following:
-
-```json
-[".csv", ".xlsx", ".txt", ".pdf", ".png", ".jpeg", ".jpg", ".md"]
-```
-
-### Uploading files
-
-The `/api/storage/upload/dataset` endpoint provides a way to stage data files in a controlled storage location so that they can then be used for dataset ingestion.
-
-More information can be found in the [OpenAPI Reference](openapi.md).
-
-```bash
-curl --location '<base url>/api/storage/upload/dataset' \
---header 'Authorization: Bearer eyJ...zg' \
---form 'file1=@"/path/to/file/test1.csv"' \
---form 'file2=@"/path/to/file/test2.csv"'
-```
-
-This will provide an answer like the following:
-
-```json
-[
-  "/path/to/staged/test1.8fd16d58ce0c45c99532060bf61ecbd4.csv",
-  "/path/to/staged/test2.d7ccbfdd929f4158ab7e446a65ebc726.csv"
-]
-```
-
-The paths of the staged datasets need to be preserved by the caller in order to use them in the next steps that will register the dataset pointing to the staged files.
-
-## Starting the onboarding workflow
-
-Dataset onboarding is started through:
-
-```text
-POST /api/workflow-process/onboard
-```
-
-The request contains the dataset metadata and its data locations.
-
-The endpoint also accepts the `f` query parameter used by the Gateway field-set mechanism to select the fields returned in the `WorkflowProcess` response.
-
-More information can be found in the [OpenAPI Reference](openapi.md).
-
-```bash
-curl --location '<base url>/api/workflow-process/onboard?f=<workflow-process-fields>' \
---header 'Authorization: Bearer ey...aQ' \
---header 'Content-Type: application/json' \
---data '{
-    "Name": "dataset-test-A",
-    "Description": "dataset-test-A",
-    "License": "dataset-test-A",
-    "Url": "https://dataset-test-A.gr",
-    "Headline": "dataset-test-A",
-    "Keywords": ["dataset-test-A"],
-    "FieldOfScience": ["dataset-test-A"],
-    "Language": ["dataset-test-A"],
-    "Country": ["dataset-test-A"],
-    "DatePublished": "2025-10-22",
-    "CiteAs": "dataset-test-A",
-    "Doi": "dataset-test-A",
-    "DataLocations": [
-        {
-            "Kind": 0,
-            "Location": "/path/to/staged/test1.8fd16d58ce0c45c99532060bf61ecbd4.csv"
-        },
-    ]
-}'
-```
-
-The response is a `WorkflowProcess`, not a dataset UUID. The exact response fields depend on the requested field set.
-
-The returned workflow process can be used to monitor the execution through the workflow-process query and lookup endpoints described below.
-
-## Data locations
-
-For the `DataLocations` property, the supported values include the following. Refer to the OpenAPI reference for the current list.
-
-- `File = 0` — Data is stored in a local or network file-system path.
-- `Http = 1` — Data is accessible through an HTTP or HTTPS endpoint.
-- `Ftp = 2` — Data is accessible through an FTP or FTPS server.
-- `Remote = 3` — Reserved but currently not used.
-- `Staged = 4` — The dataset is already staged.
-- `Database = 5` — The dataset is stored in a database.
-
-For uploaded, downloaded, or otherwise staged raw files, the file-system-based processing path is used. Relational database processing is intended for datasets that have already been staged in a relational database through an administrative/offline action.
-
-## Automatic workflow progression
-
-Once a workflow has been started, the caller does not need to manually trigger every subsequent DAG.
-
-Task callbacks running as part of the workflow execution report task-instance state to the Gateway. The Gateway persists the state of the corresponding `WorkflowProcessStep`. When the relevant step or stage completes successfully, the corresponding finalize callback is used to finalize the stage and continue the configured processing chain.
-
-Conceptually, the execution is:
+Conceptually:
 
 ```text
 Client
@@ -164,54 +55,386 @@ Gateway
   v
 Workflow Orchestrator
   |
-  | task callbacks
-  |----> POST /api/workflow-process/step/persist
-  |
-  | onboarding completed successfully
-  |----> POST /api/workflow-process/step/finalize-onboarding
+  | task callbacks update the current WorkflowProcessStep
   v
 Gateway
   |
-  | starts profiling DAG
+  | successful step finalization
   v
-Workflow Orchestrator
+starts next configured DAG
   |
-  | task callbacks / finalization
   v
-Gateway
-  |
-  | starts next configured stage
-  v
-Packaging -> Recommendation Registration -> CDD Ingestion
+Profiling -> Packaging -> Recommendation Registration -> CDD Ingestion
 ```
 
-If a task does not complete successfully, the successful-completion transition is not performed and the next workflow stage is not automatically started.
+If a step fails terminally, the chain stops and later steps remain pending.
 
-The process and step lookup endpoints can be used by clients to observe the resulting state.
+### 1.2 Workflow and step statuses
 
-## Monitoring workflow processes
+Both `WorkflowProcess` and `WorkflowProcessStep` use the same status values:
 
-### Query workflow processes
+| Value | Status | Meaning |
+|---:|---|---|
+| `0` | `InProgress` | The process or step is currently executing. Airflow tasks that are waiting to be retried also leave the step in this state. |
+| `1` | `Failed` | The process or step failed terminally. If a step fails, the parent workflow process also becomes `Failed`. |
+| `2` | `Succeeded` | The process or step completed successfully. In the onboarding workflow, the next configured step can then start automatically. |
+| `3` | `Pending` | The step has not started yet and is waiting for preceding steps to complete. |
+
+A typical in-progress workflow may look like:
+
+```text
+Dataset Onboarding                  Succeeded
+Dataset Profiling                   Succeeded
+Dataset Packaging                   InProgress
+Dataset Recommendation Registering  Pending
+CDD Ingestion                       Pending
+
+WorkflowProcess                     InProgress
+```
+
+A failed workflow may look like:
+
+```text
+Dataset Onboarding                  Succeeded
+Dataset Profiling                   Succeeded
+Dataset Packaging                   Failed
+Dataset Recommendation Registering  Pending
+CDD Ingestion                       Pending
+
+WorkflowProcess                     Failed
+```
+
+A failed workflow process is terminal. Its status is not changed later, even if another workflow is subsequently executed successfully for the same dataset.
+
+---
+
+## 2. Preparing Data for Onboarding
+
+Before a dataset can be onboarded, its data must be accessible to the platform.
+
+Supported approaches include:
+
+- Upload data files directly through the Gateway API.
+- Reference data available through HTTP/HTTPS or FTP/FTPS.
+- Reference data already staged on the platform as raw files.
+- Reference data already staged on the platform in a relational database.
+
+Uploading files and referencing publicly accessible data are available to appropriately authorized users. Referencing already staged files or relational databases is intended for administrative scenarios.
+
+### 2.1 Data location kinds
+
+The `DataLocations` property indicates where the source data is located.
+
+| Value | Kind | Meaning |
+|---:|---|---|
+| `0` | `File` | Data is stored in a local or network filesystem path. |
+| `1` | `Http` | Data is accessible through HTTP or HTTPS. |
+| `2` | `Ftp` | Data is accessible through FTP or FTPS. |
+| `3` | `Remote` | Reserved but currently not used. |
+| `4` | `Staged` | The dataset is already staged. |
+| `5` | `Database` | The dataset is stored in a database. |
+
+Refer to the OpenAPI reference for the current list.
+
+### 2.2 Check allowed upload extensions
+
+```text
+GET /api/storage/upload/allowed-extension
+```
+
+Example:
+
+```bash
+curl --location '<base url>/api/storage/upload/allowed-extension' \
+--header 'Authorization: Bearer ey...Bg'
+```
+
+Example response:
+
+```json
+[
+  ".csv",
+  ".xlsx",
+  ".txt",
+  ".pdf",
+  ".png",
+  ".jpeg",
+  ".jpg",
+  ".md"
+]
+```
+
+### 2.3 Upload dataset files
+
+```text
+POST /api/storage/upload/dataset
+```
+
+The endpoint stages uploaded files in a controlled storage location so that they can later be referenced during onboarding.
+
+Example:
+
+```bash
+curl --location '<base url>/api/storage/upload/dataset' \
+--header 'Authorization: Bearer eyJ...zg' \
+--form 'file1=@"/path/to/file/test1.csv"' \
+--form 'file2=@"/path/to/file/test2.csv"'
+```
+
+Example response:
+
+```json
+[
+  "/path/to/staged/test1.8fd16d58ce0c45c99532060bf61ecbd4.csv",
+  "/path/to/staged/test2.d7ccbfdd929f4158ab7e446a65ebc726.csv"
+]
+```
+
+The returned paths must be preserved by the caller and supplied as data locations in the onboarding request.
+
+---
+
+## 3. Starting Dataset Onboarding
+
+Dataset onboarding is started through:
+
+```text
+POST /api/workflow-process/onboard
+```
+
+The request contains the dataset metadata and its data locations.
+
+The endpoint also accepts the `f` query parameter used by the Gateway field-set mechanism. Each `f` value selects a field to include in the returned `WorkflowProcess`.
+
+### 3.1 Basic onboarding example
+
+```bash
+curl --location '<base url>/api/workflow-process/onboard?f=Id' \
+--header 'Authorization: Bearer ey...aQ' \
+--header 'Content-Type: application/json' \
+--data '{
+  "CiteAs": "ca",
+  "ConformsTo": "ct",
+  "doi": "10.1000/1234567890",
+  "Country": ["GR"],
+  "license": "https://cds.climate.copernicus.eu/datasets/reanalysis-era5-land?tab=download",
+  "name": "Era5land",
+  "description": "A global atmospheric reanalysis dataset produced by the European Centre for Medium-Range Weather Forecasts (ECMWF) and has data available from 1950, providing a consistent view of the evolution of land variables. It has an enhanced resolution of 0.1° x 0.1°, while the temporal frequency of the model output is hourly.",
+  "mimeType": "application/db",
+  "url": "https://cds.climate.copernicus.eu/datasets/reanalysis-era5-land?tab=download",
+  "headline": "Meteorological data time series by ECMWF",
+  "keywords": [
+    "weather",
+    "weather prediction"
+  ],
+  "fieldOfScience": [
+    "EARTH AND RELATED ENVIRONMENTAL SCIENCES"
+  ],
+  "language": [
+    "en"
+  ],
+  "datePublished": "2025-05-24",
+  "DataLocations": [
+    {
+      "Kind": 5,
+      "Location": "ds_era5_land"
+    }
+  ]
+}'
+```
+
+Because only `Id` was requested, the response contains only the newly created workflow process identifier:
+
+```json
+{
+  "id": "7c380cfa-c509-469c-a181-67064089ff2b"
+}
+```
+
+The returned ID should be used to monitor this specific workflow execution.
+
+### 3.2 File-based onboarding example
+
+For a previously uploaded file, a data location can reference the staged path:
+
+```json
+{
+  "Name": "dataset-test-A",
+  "Description": "dataset-test-A",
+  "License": "dataset-test-A",
+  "Url": "https://dataset-test-A.gr",
+  "Headline": "dataset-test-A",
+  "Keywords": ["dataset-test-A"],
+  "FieldOfScience": ["dataset-test-A"],
+  "Language": ["en"],
+  "Country": ["GR"],
+  "DatePublished": "2025-10-22",
+  "CiteAs": "dataset-test-A",
+  "Doi": "dataset-test-A",
+  "DataLocations": [
+    {
+      "Kind": 0,
+      "Location": "/path/to/staged/test1.8fd16d58ce0c45c99532060bf61ecbd4.csv"
+    }
+  ]
+}
+```
+
+---
+
+## 4. Monitoring a Workflow
+
+The recommended monitoring path is to keep the `WorkflowProcess.Id` returned by the start request and retrieve that process directly.
+
+### 4.1 Get a workflow process by ID
+
+```text
+GET /api/workflow-process/{id}
+```
+
+Example:
+
+```bash
+curl --location '<base url>/api/workflow-process/7c380cfa-c509-469c-a181-67064089ff2b?f=Id&f=ProcessId&f=Dataset.Id&f=Status&f=CreatedAt&f=UpdatedAt&f=Steps.Id&f=Steps.StepId&f=Steps.Status&f=Steps.WorkflowTaskInstanceDetails' \
+--header 'Authorization: Bearer ey...aQ'
+```
+
+A useful monitoring response should provide enough information to answer:
+
+1. Is the overall workflow still running, completed, or failed?
+2. Which processing step is currently active, or which step failed?
+3. What happened inside the underlying Airflow tasks?
+
+The main fields are:
+
+| Field | Purpose |
+|---|---|
+| `Id` | Identifies this workflow execution. |
+| `ProcessId` | Identifies the configured workflow definition. |
+| `Dataset.Id` | Identifies the dataset associated with the workflow. |
+| `Status` | Gives the overall workflow state. |
+| `Steps.Id` | Identifies each workflow process step instance. |
+| `Steps.StepId` | Identifies the configured step definition. |
+| `Steps.Status` | Gives the state of each processing stage. |
+| `Steps.WorkflowTaskInstanceDetails` | Contains task-level callback events and diagnostic logs. |
+| `CreatedAt` / `UpdatedAt` | Help identify when the workflow execution was created and last updated. |
+
+If the workflow process cannot be found, the endpoint returns `404`.
+
+### 4.2 Interpreting the current state
+
+While the workflow is `InProgress`, the client does not need to invoke another processing endpoint. The Gateway and workflow callbacks continue the configured onboarding chain automatically.
+
+When the workflow becomes `Succeeded`, all configured onboarding stages have completed successfully.
+
+When the workflow becomes `Failed`, locate the step with `Status = Failed` and inspect its `WorkflowTaskInstanceDetails` before deciding on a recovery action.
+
+---
+
+## 5. Task-Level Diagnostics
+
+`WorkflowTaskInstanceDetails` contains the task-instance events and logs collected from the underlying Airflow DAG.
+
+The value is stored as text containing newline-separated JSON event objects. Each event represents a callback from an Airflow task instance.
+
+A simplified profiling example is:
+
+```text
+{"event":"execute","dag_id":"DATASET_PROFILING_test","task_id":"trigger_profile","run_id":"...","try_number":1,"map_index":-1,"exception":null,"logs":[]}
+{"event":"success","dag_id":"DATASET_PROFILING_test","task_id":"trigger_profile","run_id":"...","try_number":1,"map_index":-1,"exception":null,"logs":[...]}
+{"event":"execute","dag_id":"DATASET_PROFILING_test","task_id":"wait_to_complete_profiling","run_id":"...","try_number":1,"map_index":-1,"exception":null,"logs":[]}
+{"event":"success","dag_id":"DATASET_PROFILING_test","task_id":"wait_to_complete_profiling","run_id":"...","try_number":1,"map_index":-1,"exception":null,"logs":[...]}
+```
+
+Useful fields include:
+
+| Field | Meaning |
+|---|---|
+| `event` | Callback event such as execute, retry, success, failure, or skipped. |
+| `dag_id` | The Airflow DAG that produced the event. |
+| `task_id` | The Airflow task that produced the event. |
+| `run_id` | Identifies the Airflow DAG run. |
+| `try_number` | The task attempt number. |
+| `exception` | Exception information when available. |
+| `logs` | Application-specific diagnostic log entries collected during the task. |
+
+Entries in `logs` may include:
+
+- log level,
+- message,
+- payload,
+- response from an underpinning service,
+- timestamp,
+- task ID,
+- sequence number,
+- retry or reschedule information.
+
+For example, profiling logs may contain the payload sent to the Dataset Profiler, the returned profiling job ID, later profiling status checks, and the response returned when the completed profile is fetched.
+
+### 5.1 Airflow retries
+
+An Airflow retry does **not** immediately change the step to `Failed`.
+
+While retries remain available:
+
+```text
+WorkflowProcessStep.Status = InProgress
+```
+
+The retry callback appends additional events and logs to `WorkflowTaskInstanceDetails`.
+
+A step remaining `InProgress` for some time therefore does not necessarily mean that it is stuck. Inspect `event`, `try_number`, `exception`, and the related logs when more detail is required.
+
+Only a terminal failure causes the workflow step and its parent workflow process to become `Failed`.
+
+---
+
+## 6. Finding Workflow Executions
+
+The direct `GET /api/workflow-process/{id}` endpoint is the simplest way to monitor a workflow when its ID is already known.
+
+The query endpoints are useful when the caller needs to discover workflow executions, for example all workflows associated with a dataset or user.
+
+### 6.1 Query workflow processes
 
 ```text
 POST /api/workflow-process/query
 ```
 
-Queries workflow processes visible to the authenticated caller.
+The request body is a `WorkflowProcessLookup`.
 
-The request body is a `WorkflowProcessLookup`, allowing predicates, projection, and other supported lookup options.
+Supported process-specific filters include:
+
+- `Ids`
+- `ExcludedIds`
+- `UserIds`
+- `DatasetIds`
+
+The common lookup model also supports paging, ordering, metadata, and field projection as explained in [api overview](api-overview.md).
+
+Example: find workflows for a dataset.
 
 ```bash
 curl --location '<base url>/api/workflow-process/query' \
 --header 'Authorization: Bearer ey...aQ' \
 --header 'Content-Type: application/json' \
 --data '{
-    {
-        "Ids": [<ids>],
-        "UserIds": [<userIds>],
-        "DatasetIds": [<datasetIds>],
-        "Project": {"Fields": ["Id", "Status", "Steps.WorkflowTaskInstanceDetails", "Steps.Id", "Steps.Status"]}
-    }
+  "DatasetIds": [
+    "a72ee943-7a56-46e8-88b6-2cf382b2859b"
+  ],
+  "Project": {
+    "Fields": [
+      "Id",
+      "ProcessId",
+      "Dataset.Id",
+      "Status",
+      "CreatedAt",
+      "UpdatedAt",
+      "Steps.Id",
+      "Steps.StepId",
+      "Steps.Status"
+    ]
+  }
 }'
 ```
 
@@ -223,45 +446,53 @@ QueryResult<WorkflowProcess>
 
 and contains the matching workflow processes together with the result count.
 
-Refer to the [OpenAPI Reference](openapi.md) for the exact `WorkflowProcessLookup` schema and supported projection syntax.
+When multiple results exist for the same dataset:
 
-## Get a workflow process by ID
+- `Id` distinguishes individual workflow executions.
+- `ProcessId` identifies which workflow definition was run.
+- `Status` shows the current or terminal state of each execution.
+- `CreatedAt` and `UpdatedAt` help distinguish older and newer executions.
+- `Steps.StepId` identifies the configured processing stage.
+- `Steps.Status` shows where each execution is or where it stopped.
 
-```text
-GET /api/workflow-process/{id}
-```
+Previous workflow executions remain available as historical records.
 
-Returns a specific workflow process.
+> When paging is used, ordering must also be supplied.
 
-The `f` query parameter selects the fields included in the returned model.
-
-```bash
-curl --location '<base url>/api/workflow-process/<workflow-process-id>?f=<workflow-process-field>' \
---header 'Authorization: Bearer ey...aQ'
-```
-
-If the workflow process cannot be found, the endpoint returns `404`.
-
----
-
-## Monitoring workflow process steps
-
-### Query workflow process steps
+### 6.2 Query workflow process steps
 
 ```text
 POST /api/workflow-process/step/query
 ```
 
-Queries workflow process steps visible to the authenticated caller.
-
 The request body is a `WorkflowProcessStepLookup`.
+
+Supported step-specific filters include:
+
+- `Ids`
+- `ExcludedIds`
+- `ProcessIds`
+
+Example: retrieve the steps belonging to a workflow process.
 
 ```bash
 curl --location '<base url>/api/workflow-process/step/query' \
 --header 'Authorization: Bearer ey...aQ' \
 --header 'Content-Type: application/json' \
 --data '{
-    "...": "WorkflowProcessStepLookup predicates and projection"
+  "ProcessIds": [
+    "<workflow-process-id>"
+  ],
+  "Project": {
+    "Fields": [
+      "Id",
+      "StepId",
+      "Status",
+      "CreatedAt",
+      "UpdatedAt",
+      "WorkflowTaskInstanceDetails"
+    ]
+  }
 }'
 ```
 
@@ -271,232 +502,327 @@ The response is:
 QueryResult<WorkflowProcessStep>
 ```
 
-Use this endpoint when a client needs more detailed visibility into the individual steps of a workflow process.
-
-### Get a workflow process step by ID
+### 6.3 Get a workflow process step by ID
 
 ```text
 GET /api/workflow-process/step/{id}
 ```
 
-Returns a specific workflow process step.
-
-The `f` query parameter selects the fields included in the returned model.
+Example:
 
 ```bash
-curl --location '<base url>/api/workflow-process/step/<workflow-process-step-id>?f=<workflow-process-step-field>' \
+curl --location '<base url>/api/workflow-process/step/<workflow-process-step-id>?f=Id&f=StepId&f=Status&f=CreatedAt&f=UpdatedAt&f=WorkflowTaskInstanceDetails' \
 --header 'Authorization: Bearer ey...aQ'
 ```
 
 If the workflow process step cannot be found, the endpoint returns `404`.
 
-## Starting individual processing stages
+---
 
-The Gateway still exposes explicit entry points for the individual stages of dataset processing.
+## 7. Failure Diagnosis and Recovery
 
-These endpoints are useful when a caller intentionally needs to start a specific workflow stage rather than relying on the normal automatic end-to-end progression.
+A failed step should **not** automatically be interpreted as an instruction to call the standalone endpoint for that processing stage.
 
-All of these endpoints return a `WorkflowProcess` and accept an `f` query parameter controlling the returned fields.
+A failure may be caused by:
 
-### Profiling
+- an unavailable underpinning service,
+- an HTTP or network communication failure,
+- invalid or unavailable input data,
+- an infrastructure issue that exhausted its retries,
+- an unexpected response from another DataGEMS component,
+- a configuration problem,
+- an application bug,
+- or another blocking condition.
+
+Recovery should therefore begin with the collected task logs.
+
+### 7.1 Recommended diagnostic flow
 
 ```text
-POST /api/workflow-process/profile
+WorkflowProcess = Failed
+        |
+        v
+Identify the WorkflowProcessStep with Status = Failed
+        |
+        v
+Inspect WorkflowTaskInstanceDetails
+        |
+        v
+Identify the failed Airflow task and its last attempt
+        |
+        v
+Inspect exception, messages, payloads and service responses
+        |
+        v
+Resolve the underlying problem
+        |
+        v
+Decide what workflow action, if any, is appropriate
 ```
 
-Starts a dataset profiling workflow.
-
-Profiling may be executed independently of the original onboarding operation.
-
-```bash
-curl --location '<base url>/api/workflow-process/profile?f=<workflow-process-fields>' \
---header 'Authorization: Bearer ey...aQ' \
---header 'Content-Type: application/json' \
---data '{
-    "id": "<dataset uuid>",
-    "dataStoreKind": 0,
-	"DatabaseName": null
-}'
-```
-
-For `DataStoreKind`, supported values include:
-
-- `FileSystem = 0` — The dataset is stored in a filesystem.
-- `RelationalDatabase = 1` — The dataset is stored in a relational database.
-
-For uploaded, downloaded, or staged raw files, use the filesystem option. `RelationalDatabase` is intended only for datasets already staged in a relational database, in which case DatabaseName is also used.
-
-### Packaging
+For example, if the packaging step failed because the Airflow task could not communicate with an underpinning service, immediately calling:
 
 ```text
 POST /api/workflow-process/package
 ```
 
-Starts a dataset packaging workflow.
+may simply reproduce the failure. It also does not repair or resume the failed onboarding workflow.
+
+### 7.2 Restarting onboarding
+
+Once a Dataset Onboarding `WorkflowProcess` becomes `Failed`, it remains failed permanently.
+
+If the diagnosed problem requires the full onboarding flow to be executed again, submit a new request:
+
+```text
+POST /api/workflow-process/onboard
+```
+
+This creates a **new** `WorkflowProcess` with a new ID.
+
+Conceptually:
+
+```text
+Workflow A
+Onboarding -> Profiling -> Packaging (Failed)
+Status: Failed
+        |
+        | diagnose and resolve the blocking issue
+        v
+Workflow B
+Onboarding -> Profiling -> Packaging -> Recommendation -> CDD
+Status: InProgress / Succeeded
+```
+
+Workflow B does not modify Workflow A. The earlier failed execution remains available for diagnostics and historical reference.
+
+---
+
+## 8. Standalone Processing Workflows
+
+The Gateway also exposes individual processing stages as standalone workflows.
+
+These endpoints create new, independent `WorkflowProcess` instances. They do **not** resume an existing onboarding workflow and should not be treated as generic "retry the failed step" endpoints.
+
+### 8.1 Dataset profiling
+
+```text
+POST /api/workflow-process/profile
+```
+
+Example:
 
 ```bash
-curl --location '<base url>/api/workflow-process/package?f=<workflow-process-fields>' \
+curl --location '<base url>/api/workflow-process/profile?f=Id&f=Status' \
 --header 'Authorization: Bearer ey...aQ' \
 --header 'Content-Type: application/json' \
 --data '{
-    "id": "<dataset uuid>"
+  "id": "<dataset uuid>",
+  "dataStoreKind": 0,
+  "DatabaseName": null
 }'
 ```
 
-The exact payload is defined in the [OpenAPI Reference](openapi.md).
+Supported `DataStoreKind` values include:
 
-### Recommendation registration
+- `FileSystem = 0` — the dataset is stored in a filesystem.
+- `RelationalDatabase = 1` — the dataset is stored in a relational database.
+
+For uploaded, downloaded, or staged raw files, use `FileSystem`. `RelationalDatabase` is intended for datasets already staged in a relational database, in which case `DatabaseName` is also used.
+
+### 8.2 Dataset packaging
+
+```text
+POST /api/workflow-process/package
+```
+
+Example:
+
+```bash
+curl --location '<base url>/api/workflow-process/package?f=Id&f=Status' \
+--header 'Authorization: Bearer ey...aQ' \
+--header 'Content-Type: application/json' \
+--data '{
+  "id": "<dataset uuid>"
+}'
+```
+
+### 8.3 Dataset recommendation registration
 
 ```text
 POST /api/workflow-process/recommendation-register
 ```
 
-Starts the workflow that registers a dataset with the recommendation subsystem.
+Example:
 
 ```bash
-curl --location '<base url>/api/workflow-process/recommendation-register?f=<workflow-process-fields>' \
+curl --location '<base url>/api/workflow-process/recommendation-register?f=Id&f=Status' \
 --header 'Authorization: Bearer ey...aQ' \
 --header 'Content-Type: application/json' \
 --data '{
-    "id": "<dataset uuid>"
+  "id": "<dataset uuid>"
 }'
 ```
 
-The exact payload is defined in the [OpenAPI Reference](openapi.md).
-
-### Cross-Dataset-Discovery ingestion
+### 8.4 Cross Dataset Discovery ingestion
 
 ```text
 POST /api/workflow-process/cdd-ingest
 ```
 
-Starts the workflow that ingests a dataset into Cross Dataset Discovery.
+Example:
 
 ```bash
-curl --location '<base url>/api/workflow-process/cdd-ingest?f=<workflow-process-fields>' \
+curl --location '<base url>/api/workflow-process/cdd-ingest?f=Id&f=Status' \
 --header 'Authorization: Bearer ey...aQ' \
 --header 'Content-Type: application/json' \
 --data '{
-    "id": "<dataset uuid>"
+  "id": "<dataset uuid>"
 }'
 ```
 
-The exact payload is defined in the [OpenAPI Reference](openapi.md).
+### 8.5 Important standalone-workflow behavior
 
-## Example Onboarding Usage
+Each standalone endpoint creates a new process containing only the requested stage.
 
-The onboarding workflow is started by calling the following endpoint:
+For example:
+
+```text
+POST /api/workflow-process/package
+```
+
+creates a Dataset Packaging workflow containing only a packaging step.
+
+If it succeeds, it does **not** automatically continue with:
+
+```text
+Recommendation Registration
+        |
+        v
+CDD Ingestion
+```
+
+Likewise, a successful standalone workflow does not modify the state of an earlier failed Dataset Onboarding process.
+
+Whether a standalone workflow is appropriate after a failure depends on the actual failure cause and the intended recovery procedure.
+
+---
+
+## 9. Recommended Client Flow
+
+For a normal dataset onboarding integration:
+
+### Step 1 — Prepare the data
+
+Upload files when necessary or provide another supported `DataLocation`.
+
+### Step 2 — Start onboarding
 
 ```text
 POST /api/workflow-process/onboard?f=Id
 ```
 
-For example:
+Store the returned `WorkflowProcess.Id`.
 
-```bash
-curl --location '<base url>/api/workflow-process/onboard?f=Id' 
-\ --header 'Authorization: Bearer ey...aQ' 
-\ --header 'Content-Type: application/json' 
-\ --data '{
-    "CiteAs": "ca",
-    "ConformsTo": "ct",
-    "doi": "10.1000/1234567890",
-    "Country": ["GR"],
-    "license": "https://cds.climate.copernicus.eu/datasets/reanalysis-era5-land?tab=download",
-    "name": "Era5land",
-    "description": "A global atmospheric reanalysis dataset produced by the European Centre for Medium\u2010Range Weather Forecast\u2019s (ECMWF) and has data available from 1950, providing a consistent view of the evolution of land variables. It has an enhanced resolution of 0.1\u00b0 x 0.1\u00b0, while the temporal frequency of the model output is hourly.",
-    "mimeType": "application/db",
-    "url": "https://cds.climate.copernicus.eu/datasets/reanalysis-era5-land?tab=download",
-    "headline": "Meteorological data time series by ECWMF",
-    "keywords": [
-     "weather", "weather prediction"
-    ],
-    "fieldOfScience": [
-        "EARTH AND RELATED ENVIRONMENTAL SCIENCES"
-    ],
-    "language": [
-        "en"
-    ],
-    "datePublished": "2025-05-24",
-    "DataLocations": [
-       {
-               "KIND": 5,
-               "LOCATION": "ds_era5_land"
-        }
-    ]
-}'
-```
+### Step 3 — Monitor the workflow
 
-Because only Id is requested through the f field selector, the response contains the identifier of the newly created workflow process.
-
-For example:
-
-```json
-{
-    "id": "7c380cfa-c509-469c-a181-67064089ff2b"
-}
-```
-
-The workflow process ID can then be used to monitor both the overall process and the individual processing steps. To do this, call:
-
-```bash
-curl --location '<base url>/api/workflow-process/7c380cfa-c509-469c-a181-67064089ff2b?f=Id&f=Status&f=Steps.Status&f=Steps.Id&f=Steps.WorkflowTaskInstanceDetails' 
-\ --header 'Authorization: Bearer ey...aQ'
-```
-
-The requested fields provide:
-
- - Id — The workflow process identifier.
- - Status — The current status of the overall workflow process.
- - Steps.Id — The identifier of each workflow process step.
- - Steps.Status — The current status of each step.
- - Steps.WorkflowTaskInstanceDetails — Details and logs about the workflow task instances associated with the step in a free text format.
-
-This endpoint can be called repeatedly by a client to monitor the workflow while processing continues automatically in the background.
-
-Both WorkflowProcess and WorkflowProcessStep use the following status values:
-
-- `In Progress = 0` — The process or step is currently being executed.
-- `Failed = 1` — The process or step failed. If a step fails, the overall workflow process also transitions to Failed.
-- `Succeeded = 2` — The process or step completed successfully. When a step succeeds, the next configured step can begin automatically.
-- `Pending = 3` — The step has not started yet and is waiting for the preceding steps to complete.
-
-A typical workflow therefore progresses as follows:
+Periodically request:
 
 ```text
-Step 1: InProgress
-Step 2: Pending
-Step 3: Pending
-Step 4: Pending
-        |
-        v
-Step 1: Succeeded
-Step 2: InProgress
-Step 3: Pending
-Step 4: Pending
-        |
-        v
-       ...
-        |
-        v
-Step 1: Succeeded
-Step 2: Succeeded
-Step 3: Succeeded
-Step 4: Succeeded
-
-WorkflowProcess: Succeeded
-
+GET /api/workflow-process/{id}
 ```
 
-If any step fails, the workflow stops progressing and the overall process is marked as failed:
+At minimum, request:
 
 ```text
-Step 1: Succeeded
-Step 2: Failed
-Step 3: Pending
-Step 4: Pending
-
-WorkflowProcess: Failed
+Id
+Status
+Steps.Id
+Steps.StepId
+Steps.Status
 ```
 
-The caller therefore only needs to start the onboarding workflow once and monitor its state. Progression between the configured processing stages is handled automatically by the workflow callbacks and the Gateway.
+Request `Steps.WorkflowTaskInstanceDetails` when task-level diagnostics are required.
+
+### Step 4 — Interpret the terminal state
+
+If the process is `Succeeded`, all configured onboarding stages completed successfully.
+
+If the process is `Failed`, identify the failed step, inspect its `WorkflowTaskInstanceDetails`, resolve the underlying problem, and only then decide whether a new onboarding process or another explicit workflow execution is appropriate.
+
+### Step 5 — Discover historical executions when needed
+
+If the process ID is no longer known, or multiple executions need to be reviewed, query by dataset:
+
+```text
+POST /api/workflow-process/query
+```
+
+using `DatasetIds`.
+
+---
+
+## 10. Workflow Definition Reference
+
+The IDs below reflect the currently configured workflow definitions and are primarily useful for interpreting `ProcessId` and `StepId` values returned by the API.
+
+### 10.1 Dataset Onboarding
+
+| Property | Value |
+|---|---|
+| Process ID | `25593b3b-f2b8-4304-bba2-e6eb6e3f4872` |
+| Name | Dataset Onboarding |
+
+Configured steps:
+
+| Order | Step | Step ID | Airflow DAG |
+|---:|---|---|---|
+| 0 | Dataset Onboarding | `8352e21f-a84f-4d41-92c8-30dc05577235` | `DatasetOnboarding_test` |
+| 1 | Dataset Profiling | `7d115bb4-21f2-4c70-af08-1cc066aeb033` | `DatasetProfiling_test` |
+| 2 | Dataset Packaging | `bc5ed9e1-ac8c-47b4-b986-7b28165bdc82` | `DatasetPackaging_test` |
+| 3 | Dataset Recommendation Registering | `ebb8dffb-8f5f-447b-9986-8753ae8db398` | `DatasetRecommendationRegistering_test` |
+| 4 | Cross Dataset Discovery Ingestion | `ed906ed4-5445-4df6-af9f-ffc4dde5300f` | `CDD_Ingest_test` |
+
+### 10.2 Standalone workflow definitions
+
+| Workflow | Process ID | Step ID | Airflow DAG |
+|---|---|---|---|
+| Dataset Profiling | `97852575-fa6e-4475-9725-7f8f8ff34e03` | `62a67d16-e9fd-405c-98e8-7fda4cf42bec` | `DatasetProfiling_test` |
+| Dataset Packaging | `c6a8da71-0d78-458b-afed-f06b6ffe092e` | `97b486d4-fd09-4815-8d6a-17a8bf4c07d8` | `DatasetPackaging_test` |
+| Dataset Recommendation Registering | `2b13dc1e-0a10-4c73-b3ec-15e760745c37` | `d51f0120-0070-4e9e-8e2f-a2eb7bfc7620` | `DatasetRecommendationRegistering_test` |
+| Cross Dataset Discovery Ingestion | `caddac49-0db9-48ad-be52-d3a68031263b` | `805aea17-7f23-40dd-8430-f653621caaf6` | `CDD_Ingest_test` |
+
+---
+
+## 11. Endpoint Summary
+
+| Method | Endpoint | Purpose |
+|---|---|---|
+| `GET` | `/api/storage/upload/allowed-extension` | Get allowed file extensions for dataset uploads. |
+| `POST` | `/api/storage/upload/dataset` | Stage dataset files before onboarding. |
+| `POST` | `/api/workflow-process/onboard` | Start the complete dataset onboarding workflow. |
+| `GET` | `/api/workflow-process/{id}` | Retrieve one workflow process and selected fields. |
+| `POST` | `/api/workflow-process/query` | Search workflow processes, including by dataset or user. |
+| `GET` | `/api/workflow-process/step/{id}` | Retrieve one workflow process step. |
+| `POST` | `/api/workflow-process/step/query` | Search workflow process steps. |
+| `POST` | `/api/workflow-process/profile` | Start a standalone profiling workflow. |
+| `POST` | `/api/workflow-process/package` | Start a standalone packaging workflow. |
+| `POST` | `/api/workflow-process/recommendation-register` | Start a standalone recommendation-registration workflow. |
+| `POST` | `/api/workflow-process/cdd-ingest` | Start a standalone Cross Dataset Discovery ingestion workflow. |
+
+---
+
+## 12. Operational Rules at a Glance
+
+1. A Dataset Onboarding request creates one workflow process containing all five configured stages.
+2. Successful onboarding steps automatically trigger the next configured step.
+3. Airflow retries leave the corresponding workflow step in `InProgress`.
+4. Task execution, retry, success, failure, and diagnostic information is accumulated in `WorkflowTaskInstanceDetails`.
+5. A terminal step failure immediately marks the whole onboarding workflow as `Failed`.
+6. A failed workflow process cannot be resumed or changed back to `InProgress`.
+7. Recovery decisions should be based on the collected task logs, not only on the name of the failed step.
+8. Re-running onboarding creates a new workflow process and preserves the earlier failed execution.
+9. Standalone processing endpoints create separate one-step workflows.
+10. Standalone workflows do not resume an onboarding chain or automatically continue to later stages.
+11. Workflow executions for a dataset can be found through `/api/workflow-process/query` using `DatasetIds`.
+12. Historical workflow executions remain available for diagnostics and comparison.
