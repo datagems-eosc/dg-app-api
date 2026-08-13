@@ -65,6 +65,26 @@ namespace DataGEMS.Gateway.Api.Controllers
 			this._workflowProcessService = workflowProcessService;
 		}
 
+
+		[HttpGet("config")]
+		[Authorize]
+		[ModelStateValidationFilter]
+		[SwaggerOperation(Summary = "Get workflow process config")]
+		[SwaggerResponse(statusCode: 200, description: "The workflow process config", type: typeof(WorkflowProcessConfig))]
+		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
+		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
+		[SwaggerResponse(statusCode: 404, description: "Could not locate item with the provided id")]
+		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
+		[SwaggerResponse(statusCode: 500, description: "Internal error")]
+		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
+		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
+		public async Task<WorkflowProcessConfig> GetConfig()
+		{
+			this._logger.Debug(new MapLogEntry("get").And("type", nameof(WorkflowProcessConfig)));
+			WorkflowProcessConfig config = await this._workflowProcessService.BrowseWorkflowProcessConfig();
+			return config;
+		}
+
 		[HttpPost("query")]
 		[Authorize]
 		[ModelStateValidationFilter]

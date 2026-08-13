@@ -73,12 +73,12 @@ If a step fails terminally, the chain stops and later steps remain pending.
 
 Both `WorkflowProcess` and `WorkflowProcessStep` use the same status values:
 
-| Value | Status | Meaning |
-|---:|---|---|
-| `0` | `InProgress` | The process or step is currently executing. Airflow tasks that are waiting to be retried also leave the step in this state. |
-| `1` | `Failed` | The process or step failed terminally. If a step fails, the parent workflow process also becomes `Failed`. |
-| `2` | `Succeeded` | The process or step completed successfully. In the onboarding workflow, the next configured step can then start automatically. |
-| `3` | `Pending` | The step has not started yet and is waiting for preceding steps to complete. |
+| Value | Status       | Meaning                                                                                                                        |
+| ----: | ------------ | ------------------------------------------------------------------------------------------------------------------------------ |
+|   `0` | `InProgress` | The process or step is currently executing. Airflow tasks that are waiting to be retried also leave the step in this state.    |
+|   `1` | `Failed`     | The process or step failed terminally. If a step fails, the parent workflow process also becomes `Failed`.                     |
+|   `2` | `Succeeded`  | The process or step completed successfully. In the onboarding workflow, the next configured step can then start automatically. |
+|   `3` | `Pending`    | The step has not started yet and is waiting for preceding steps to complete.                                                   |
 
 A typical in-progress workflow may look like:
 
@@ -125,14 +125,14 @@ Uploading files and referencing publicly accessible data are available to approp
 
 The `DataLocations` property indicates where the source data is located.
 
-| Value | Kind | Meaning |
-|---:|---|---|
-| `0` | `File` | Data is stored in a local or network filesystem path. |
-| `1` | `Http` | Data is accessible through HTTP or HTTPS. |
-| `2` | `Ftp` | Data is accessible through FTP or FTPS. |
-| `3` | `Remote` | Reserved but currently not used. |
-| `4` | `Staged` | The dataset is already staged. |
-| `5` | `Database` | The dataset is stored in a database. |
+| Value | Kind       | Meaning                                               |
+| ----: | ---------- | ----------------------------------------------------- |
+|   `0` | `File`     | Data is stored in a local or network filesystem path. |
+|   `1` | `Http`     | Data is accessible through HTTP or HTTPS.             |
+|   `2` | `Ftp`      | Data is accessible through FTP or FTPS.               |
+|   `3` | `Remote`   | Reserved but currently not used.                      |
+|   `4` | `Staged`   | The dataset is already staged.                        |
+|   `5` | `Database` | The dataset is stored in a database.                  |
 
 Refer to the OpenAPI reference for the current list.
 
@@ -152,16 +152,7 @@ curl --location '<base url>/api/storage/upload/allowed-extension' \
 Example response:
 
 ```json
-[
-  ".csv",
-  ".xlsx",
-  ".txt",
-  ".pdf",
-  ".png",
-  ".jpeg",
-  ".jpg",
-  ".md"
-]
+[".csv", ".xlsx", ".txt", ".pdf", ".png", ".jpeg", ".jpg", ".md"]
 ```
 
 ### 2.3 Upload dataset files
@@ -284,9 +275,101 @@ For a previously uploaded file, a data location can reference the staged path:
 
 ## 4. Monitoring a Workflow
 
-The recommended monitoring path is to keep the `WorkflowProcess.Id` returned by the start request and retrieve that process directly.
+The recommended monitoring flow consists of two pieces of information:
 
-### 4.1 Get a workflow process by ID
+1. the **workflow configuration**, which describes what a workflow and its steps represent and in which order they execute;
+2. the **workflow process**, which describes the current execution state of those steps.
+
+The configuration can be retrieved through `/api/workflow-process/config` and does not need to be inferred from hardcoded workflow or step IDs.
+
+The `WorkflowProcess.Id` returned when onboarding is started should then be retained and used to retrieve the current execution state.
+
+### 4.1 Get the workflow configuration
+
+```text
+GET /api/workflow-process/config
+```
+
+Returns the currently configured workflow process definitions.
+
+Example:
+
+```bash
+curl --location '<base url>/api/workflow-process/config' \
+--header 'Authorization: Bearer ey...aQ'
+```
+
+The response is a `WorkflowProcessConfig` containing the available workflow definitions and their configured steps.
+
+For example, the Dataset Onboarding workflow is represented as:
+
+```json
+{
+  "items": [
+    {
+      "id": "25593b3b-f2b8-4304-bba2-e6eb6e3f4872",
+      "kind": 0,
+      "name": "Dataset Onboarding",
+      "description": "Onboards a new dataset by collecting and registering its metadata and data location within the platform.",
+      "steps": [
+        {
+          "id": "8352e21f-a84f-4d41-92c8-30dc05577235",
+          "order": 0,
+          "kind": 0,
+          "taskId": "DatasetOnboarding_test"
+        },
+        {
+          "id": "7d115bb4-21f2-4c70-af08-1cc066aeb033",
+          "order": 1,
+          "kind": 1,
+          "taskId": "DatasetProfiling_test"
+        },
+        {
+          "id": "bc5ed9e1-ac8c-47b4-b986-7b28165bdc82",
+          "order": 2,
+          "kind": 2,
+          "taskId": "DatasetPackaging_test"
+        },
+        {
+          "id": "ebb8dffb-8f5f-447b-9986-8753ae8db398",
+          "order": 3,
+          "kind": 3,
+          "taskId": "DatasetRecommendationRegistering_test"
+        },
+        {
+          "id": "ed906ed4-5445-4df6-af9f-ffc4dde5300f",
+          "order": 4,
+          "kind": 4,
+          "taskId": "CDD_Ingest_test"
+        }
+      ]
+    }
+  ]
+}
+```
+
+The example above shows only the Dataset Onboarding item for brevity. The actual response also contains the configured standalone workflow definitions.
+
+The relevant configuration fields are:
+
+| Field                    | Purpose                                                                                |
+| ------------------------ | -------------------------------------------------------------------------------------- |
+| `items[].id`             | Identifies a workflow definition. It corresponds to `WorkflowProcess.ProcessId`.       |
+| `items[].kind`           | Identifies the type of workflow.                                                       |
+| `items[].name`           | Human-readable workflow name.                                                          |
+| `items[].description`    | Description of the workflow's purpose.                                                 |
+| `items[].steps[].id`     | Identifies a configured workflow step. It corresponds to `WorkflowProcessStep.StepId`. |
+| `items[].steps[].kind`   | Identifies the type of processing stage represented by the step.                       |
+| `items[].steps[].order`  | Defines the position of the step inside the workflow.                                  |
+| `items[].steps[].taskId` | Identifies the underlying workflow-orchestrator task/DAG associated with the step.     |
+
+The configuration is particularly important when interpreting a workflow process response because the `steps` array returned by the process endpoint should **not be assumed to be ordered by execution order**.
+
+The frontend should use the configuration's `Order` value to order the returned process steps.
+
+---
+
+### 4.2 Get a workflow process by ID
 
 ```text
 GET /api/workflow-process/{id}
@@ -307,27 +390,377 @@ A useful monitoring response should provide enough information to answer:
 
 The main fields are:
 
-| Field | Purpose |
-|---|---|
-| `Id` | Identifies this workflow execution. |
-| `ProcessId` | Identifies the configured workflow definition. |
-| `Dataset.Id` | Identifies the dataset associated with the workflow. |
-| `Status` | Gives the overall workflow state. |
-| `Steps.Id` | Identifies each workflow process step instance. |
-| `Steps.StepId` | Identifies the configured step definition. |
-| `Steps.Status` | Gives the state of each processing stage. |
-| `Steps.WorkflowTaskInstanceDetails` | Contains task-level callback events and diagnostic logs. |
-| `CreatedAt` / `UpdatedAt` | Help identify when the workflow execution was created and last updated. |
+| Field                               | Purpose                                                                                    |
+| ----------------------------------- | ------------------------------------------------------------------------------------------ |
+| `Id`                                | Identifies this workflow execution.                                                        |
+| `ProcessId`                         | Identifies the configured workflow definition. Match this against `config.items[].id`.     |
+| `Dataset.Id`                        | Identifies the dataset associated with the workflow.                                       |
+| `Status`                            | Gives the overall workflow state.                                                          |
+| `Steps.Id`                          | Identifies each workflow process step instance.                                            |
+| `Steps.StepId`                      | Identifies the configured step definition. Match this against `config.items[].steps[].id`. |
+| `Steps.Status`                      | Gives the execution state of each processing stage.                                        |
+| `Steps.WorkflowTaskInstanceDetails` | Contains task-level callback events and diagnostic logs.                                   |
+| `CreatedAt` / `UpdatedAt`           | Indicate when this execution was created and last updated.                                 |
 
 If the workflow process cannot be found, the endpoint returns `404`.
 
-### 4.2 Interpreting the current state
+An example response is:
 
-While the workflow is `InProgress`, the client does not need to invoke another processing endpoint. The Gateway and workflow callbacks continue the configured onboarding chain automatically.
+```json
+{
+  "id": "222eec2d-0c65-4242-86bf-15acb1ad1e48",
+  "processId": "25593b3b-f2b8-4304-bba2-e6eb6e3f4872",
+  "dataset": {
+    "id": "a72ee943-7a56-46e8-88b6-2cf382b2859b"
+  },
+  "steps": [
+    {
+      "id": "96f240c6-d3b9-4690-8a98-7d98cafbde31",
+      "stepId": "7d115bb4-21f2-4c70-af08-1cc066aeb033",
+      "status": 2
+    },
+    {
+      "id": "7d18f642-a2d2-412f-9398-aba5aaf1ac68",
+      "stepId": "8352e21f-a84f-4d41-92c8-30dc05577235",
+      "status": 2
+    },
+    {
+      "id": "25f0f6af-d55f-4178-92c8-ad612e1c0667",
+      "stepId": "bc5ed9e1-ac8c-47b4-b986-7b28165bdc82",
+      "status": 2
+    },
+    {
+      "id": "1a2bc96e-5cfd-4ec6-bcca-0aca41e1983c",
+      "stepId": "ebb8dffb-8f5f-447b-9986-8753ae8db398",
+      "status": 2
+    },
+    {
+      "id": "e45d197f-63eb-479f-8fc8-768a21597a02",
+      "stepId": "ed906ed4-5445-4df6-af9f-ffc4dde5300f",
+      "status": 1
+    }
+  ],
+  "status": 1,
+  "createdAt": "2026-08-12T12:43:14.94128Z",
+  "updatedAt": "2026-08-12T12:49:14.596913Z"
+}
+```
 
-When the workflow becomes `Succeeded`, all configured onboarding stages have completed successfully.
+---
 
-When the workflow becomes `Failed`, locate the step with `Status = Failed` and inspect its `WorkflowTaskInstanceDetails` before deciding on a recovery action.
+### 4.3 Interpreting the current state
+
+The `WorkflowProcess.Status` represents the overall state of the workflow, while each `WorkflowProcessStep.Status` represents the state of an individual processing stage.
+
+To understand the workflow's current progress, the client should combine:
+
+```text
+Workflow configuration
+        +
+WorkflowProcess response
+```
+
+The configuration answers:
+
+```text
+What does this process/step represent?
+In which order should the steps be displayed?
+```
+
+while the process response answers:
+
+```text
+What is happening to this particular execution?
+```
+
+The step statuses are:
+
+| Status       | Value | Interpretation                                                                                                                                    |
+| ------------ | ----: | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `InProgress` |   `0` | The step is currently being processed. This is normally the current active stage. An Airflow retry also leaves the step in this state.            |
+| `Failed`     |   `1` | The step failed terminally. The parent `WorkflowProcess` also becomes `Failed` and no later pending steps are started.                            |
+| `Succeeded`  |   `2` | The step completed successfully. If the workflow is still `InProgress`, execution has moved to, or is about to move to, the next configured step. |
+| `Pending`    |   `3` | The step has not started yet and is waiting for preceding steps to complete successfully.                                                         |
+
+For an `InProgress` workflow, the typical ordered pattern is:
+
+```text
+Succeeded
+Succeeded
+InProgress
+Pending
+Pending
+```
+
+For example:
+
+```text
+Dataset Onboarding                  Succeeded
+Dataset Profiling                   Succeeded
+Dataset Packaging                   InProgress
+Dataset Recommendation Registering  Pending
+Cross Dataset Discovery Ingestion   Pending
+
+WorkflowProcess                     InProgress
+```
+
+This means:
+
+- Dataset Onboarding has completed successfully.
+- Dataset Profiling has completed successfully.
+- Dataset Packaging is the current active stage.
+- Dataset Recommendation Registering and Cross Dataset Discovery Ingestion have not started.
+- No additional processing endpoint needs to be invoked by the client.
+
+A step may remain `InProgress` while an underlying Airflow task is being retried. An `InProgress` status therefore does not by itself mean that processing is stuck.
+
+When all configured steps succeed:
+
+```text
+Dataset Onboarding                  Succeeded
+Dataset Profiling                   Succeeded
+Dataset Packaging                   Succeeded
+Dataset Recommendation Registering  Succeeded
+Cross Dataset Discovery Ingestion   Succeeded
+
+WorkflowProcess                     Succeeded
+```
+
+the complete workflow has finished successfully.
+
+If a step fails:
+
+```text
+Dataset Onboarding                  Succeeded
+Dataset Profiling                   Succeeded
+Dataset Packaging                   Failed
+Dataset Recommendation Registering  Pending
+Cross Dataset Discovery Ingestion   Pending
+
+WorkflowProcess                     Failed
+```
+
+then:
+
+- the failed step identifies where processing stopped;
+- earlier `Succeeded` steps completed normally;
+- later `Pending` steps were never executed and should not be interpreted as failures;
+- the failed step's `WorkflowTaskInstanceDetails` should be inspected before deciding on a recovery action.
+
+Once a `WorkflowProcess` becomes `Failed`, it remains failed.
+
+---
+
+### 4.4 Reading the workflow process response using the configuration
+
+The workflow process response contains runtime identifiers and statuses. The configuration endpoint supplies the metadata required to interpret those identifiers.
+
+The relationship is:
+
+```text
+WorkflowProcess.ProcessId
+        |
+        v
+WorkflowProcessConfig.Items[].Id
+```
+
+and, for each step:
+
+```text
+WorkflowProcess.Steps[].StepId
+        |
+        v
+WorkflowProcessConfig.Items[].Steps[].Id
+```
+
+#### Resolve the workflow definition
+
+Given:
+
+```json
+{
+  "processId": "25593b3b-f2b8-4304-bba2-e6eb6e3f4872"
+}
+```
+
+find the configuration item where:
+
+```text
+configItem.Id == WorkflowProcess.ProcessId
+```
+
+For the example, this resolves to:
+
+```text
+Dataset Onboarding
+```
+
+The selected configuration item also provides the complete set of configured steps and their execution order.
+
+#### Resolve each process step
+
+A workflow process step contains:
+
+```json
+{
+  "id": "e45d197f-63eb-479f-8fc8-768a21597a02",
+  "stepId": "ed906ed4-5445-4df6-af9f-ffc4dde5300f",
+  "status": 1
+}
+```
+
+`id` and `stepId` represent different things:
+
+| Field            | Meaning                                                                                                           |
+| ---------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `steps[].id`     | ID of this particular `WorkflowProcessStep` execution. It can be used with `GET /api/workflow-process/step/{id}`. |
+| `steps[].stepId` | ID of the configured step definition. Match this against the selected workflow configuration item's `Steps[].Id`. |
+
+For each process step:
+
+```text
+processStep.StepId
+        |
+        v
+find matching configStep.Id
+        |
+        +--> configStep.Order
+        +--> configStep.Kind
+        +--> configStep.TaskId
+```
+
+The `Order` determines where the step belongs in the workflow.
+
+> **Important:** do not use the position of an entry in the `WorkflowProcess.steps` response array to determine execution order.
+
+In the example response, Dataset Profiling appears in the array before Dataset Onboarding even though onboarding executes first.
+
+The frontend should therefore join the process steps with the workflow configuration and sort them by the configuration's `Order`.
+
+Conceptually:
+
+```text
+WorkflowProcess
+    |
+    | processId
+    v
+WorkflowProcessConfigItem
+    |
+    | steps[].stepId -> config Steps[].Id
+    v
+Configured step
+    |
+    +--> Order
+    +--> Kind
+    +--> TaskId
+    |
+    + process step Status
+    v
+Displayable workflow stage
+```
+
+#### Suggested client-side resolution
+
+Conceptually, a client can resolve the response as follows:
+
+```text
+processConfig =
+    config.Items
+        .find(item => item.Id == process.ProcessId)
+
+resolvedSteps =
+    process.Steps
+        .map(processStep => {
+            configStep =
+                processConfig.Steps
+                    .find(step => step.Id == processStep.StepId)
+
+            stageConfig =
+                config.Items
+                    .find(item => item.Kind == configStep.Kind)
+
+            return {
+                id: processStep.Id,
+                stepId: processStep.StepId,
+                name: stageConfig.Name,
+                description: stageConfig.Description,
+                order: configStep.Order,
+                taskId: configStep.TaskId,
+                status: processStep.Status
+            }
+        })
+        .orderBy(step => step.order)
+```
+
+The exact client implementation may differ, but the important relationships are:
+
+```text
+ProcessId -> workflow configuration item
+
+StepId -> configured workflow step
+
+configured step Kind -> human-readable workflow/stage definition
+
+configured step Order -> display/execution order
+
+process step Status -> runtime state
+```
+
+#### `WorkflowTaskInstanceDetails`
+
+For normal progress monitoring, the client generally only needs:
+
+```text
+Id
+Status
+Steps.Id
+Steps.StepId
+Steps.Status
+```
+
+A smaller request can therefore be used:
+
+```bash
+curl --location '<base url>/api/workflow-process/<workflow-process-id>?f=Id&f=Status&f=Steps.Id&f=Steps.StepId&f=Steps.Status' \
+--header 'Authorization: Bearer ey...aQ'
+```
+
+`WorkflowTaskInstanceDetails` should be requested when detailed execution information is required, particularly for a failed or long-running step:
+
+```bash
+curl --location '<base url>/api/workflow-process/<workflow-process-id>?f=Id&f=Status&f=Steps.Id&f=Steps.StepId&f=Steps.Status&f=Steps.WorkflowTaskInstanceDetails' \
+--header 'Authorization: Bearer ey...aQ'
+```
+
+In summary:
+
+```text
+GET /api/workflow-process/config
+        |
+        v
+Understand workflow definitions and step order
+        |
+        v
+GET /api/workflow-process/{id}
+        |
+        v
+Read WorkflowProcess.Status
+        |
+        v
+Join Steps.StepId with configuration Steps.Id
+        |
+        v
+Sort steps by configuration Order
+        |
+        v
+Read each Steps.Status
+        |
+        v
+Determine completed / active / pending / failed stages
+        |
+        v
+Inspect WorkflowTaskInstanceDetails when diagnostics are required
+```
 
 ---
 
@@ -348,15 +781,15 @@ A simplified profiling example is:
 
 Useful fields include:
 
-| Field | Meaning |
-|---|---|
-| `event` | Callback event such as execute, retry, success, failure, or skipped. |
-| `dag_id` | The Airflow DAG that produced the event. |
-| `task_id` | The Airflow task that produced the event. |
-| `run_id` | Identifies the Airflow DAG run. |
-| `try_number` | The task attempt number. |
-| `exception` | Exception information when available. |
-| `logs` | Application-specific diagnostic log entries collected during the task. |
+| Field        | Meaning                                                                |
+| ------------ | ---------------------------------------------------------------------- |
+| `event`      | Callback event such as execute, retry, success, failure, or skipped.   |
+| `dag_id`     | The Airflow DAG that produced the event.                               |
+| `task_id`    | The Airflow task that produced the event.                              |
+| `run_id`     | Identifies the Airflow DAG run.                                        |
+| `try_number` | The task attempt number.                                               |
+| `exception`  | Exception information when available.                                  |
+| `logs`       | Application-specific diagnostic log entries collected during the task. |
 
 Entries in `logs` may include:
 
@@ -762,67 +1195,73 @@ using `DatasetIds`.
 
 ---
 
-## 10. Workflow Definition Reference
+## 10. Workflow Configuration Reference
 
-The IDs below reflect the currently configured workflow definitions and are primarily useful for interpreting `ProcessId` and `StepId` values returned by the API.
+Workflow definitions should be obtained through:
 
-### 10.1 Dataset Onboarding
+```text
+GET /api/workflow-process/config
+```
 
-| Property | Value |
-|---|---|
-| Process ID | `25593b3b-f2b8-4304-bba2-e6eb6e3f4872` |
-| Name | Dataset Onboarding |
+rather than by maintaining workflow and step IDs independently in the client.
 
-Configured steps:
+The endpoint returns a `WorkflowProcessConfig`:
 
-| Order | Step | Step ID | Airflow DAG |
-|---:|---|---|---|
-| 0 | Dataset Onboarding | `8352e21f-a84f-4d41-92c8-30dc05577235` | `DatasetOnboarding_test` |
-| 1 | Dataset Profiling | `7d115bb4-21f2-4c70-af08-1cc066aeb033` | `DatasetProfiling_test` |
-| 2 | Dataset Packaging | `bc5ed9e1-ac8c-47b4-b986-7b28165bdc82` | `DatasetPackaging_test` |
-| 3 | Dataset Recommendation Registering | `ebb8dffb-8f5f-447b-9986-8753ae8db398` | `DatasetRecommendationRegistering_test` |
-| 4 | Cross Dataset Discovery Ingestion | `ed906ed4-5445-4df6-af9f-ffc4dde5300f` | `CDD_Ingest_test` |
+```text
+WorkflowProcessConfig
+└── Items[]
+    ├── Id
+    ├── Kind
+    ├── Name
+    ├── Description
+    └── Steps[]
+        ├── Id
+        ├── Kind
+        ├── Order
+        └── TaskId
+```
 
-### 10.2 Standalone workflow definitions
+### 10.1 Workflow process configuration item
 
-| Workflow | Process ID | Step ID | Airflow DAG |
-|---|---|---|---|
-| Dataset Profiling | `97852575-fa6e-4475-9725-7f8f8ff34e03` | `62a67d16-e9fd-405c-98e8-7fda4cf42bec` | `DatasetProfiling_test` |
-| Dataset Packaging | `c6a8da71-0d78-458b-afed-f06b6ffe092e` | `97b486d4-fd09-4815-8d6a-17a8bf4c07d8` | `DatasetPackaging_test` |
-| Dataset Recommendation Registering | `2b13dc1e-0a10-4c73-b3ec-15e760745c37` | `d51f0120-0070-4e9e-8e2f-a2eb7bfc7620` | `DatasetRecommendationRegistering_test` |
-| Cross Dataset Discovery Ingestion | `caddac49-0db9-48ad-be52-d3a68031263b` | `805aea17-7f23-40dd-8430-f653621caaf6` | `CDD_Ingest_test` |
+Each item describes one workflow definition.
 
----
+| Field         | Description                                                                 |
+| ------------- | --------------------------------------------------------------------------- |
+| `Id`          | Identifier of the workflow definition. Matches `WorkflowProcess.ProcessId`. |
+| `Kind`        | Workflow type.                                                              |
+| `Name`        | Human-readable name of the workflow.                                        |
+| `Description` | Description of the workflow's purpose.                                      |
+| `Steps`       | Ordered workflow-step definitions belonging to the workflow.                |
 
-## 11. Endpoint Summary
+For example:
 
-| Method | Endpoint | Purpose |
-|---|---|---|
-| `GET` | `/api/storage/upload/allowed-extension` | Get allowed file extensions for dataset uploads. |
-| `POST` | `/api/storage/upload/dataset` | Stage dataset files before onboarding. |
-| `POST` | `/api/workflow-process/onboard` | Start the complete dataset onboarding workflow. |
-| `GET` | `/api/workflow-process/{id}` | Retrieve one workflow process and selected fields. |
-| `POST` | `/api/workflow-process/query` | Search workflow processes, including by dataset or user. |
-| `GET` | `/api/workflow-process/step/{id}` | Retrieve one workflow process step. |
-| `POST` | `/api/workflow-process/step/query` | Search workflow process steps. |
-| `POST` | `/api/workflow-process/profile` | Start a standalone profiling workflow. |
-| `POST` | `/api/workflow-process/package` | Start a standalone packaging workflow. |
-| `POST` | `/api/workflow-process/recommendation-register` | Start a standalone recommendation-registration workflow. |
-| `POST` | `/api/workflow-process/cdd-ingest` | Start a standalone Cross Dataset Discovery ingestion workflow. |
+```json
+{
+  "id": "25593b3b-f2b8-4304-bba2-e6eb6e3f4872",
+  "kind": 0,
+  "name": "Dataset Onboarding",
+  "description": "Onboards a new dataset by collecting and registering its metadata and data location within the platform.",
+  "steps": [...]
+}
+```
 
----
+### 10.2 Workflow step configuration item
 
-## 12. Operational Rules at a Glance
+Each configured step contains:
 
-1. A Dataset Onboarding request creates one workflow process containing all five configured stages.
-2. Successful onboarding steps automatically trigger the next configured step.
-3. Airflow retries leave the corresponding workflow step in `InProgress`.
-4. Task execution, retry, success, failure, and diagnostic information is accumulated in `WorkflowTaskInstanceDetails`.
-5. A terminal step failure immediately marks the whole onboarding workflow as `Failed`.
-6. A failed workflow process cannot be resumed or changed back to `InProgress`.
-7. Recovery decisions should be based on the collected task logs, not only on the name of the failed step.
-8. Re-running onboarding creates a new workflow process and preserves the earlier failed execution.
-9. Standalone processing endpoints create separate one-step workflows.
-10. Standalone workflows do not resume an onboarding chain or automatically continue to later stages.
-11. Workflow executions for a dataset can be found through `/api/workflow-process/query` using `DatasetIds`.
-12. Historical workflow executions remain available for diagnostics and comparison.
+| Field    | Description                                                              |
+| -------- | ------------------------------------------------------------------------ |
+| `Id`     | Identifier of the configured step. Matches `WorkflowProcessStep.StepId`. |
+| `Kind`   | Type of processing stage represented by the step.                        |
+| `Order`  | Position of the step within its parent workflow.                         |
+| `TaskId` | Underlying workflow-orchestrator task/DAG identifier.                    |
+
+The configuration should be used whenever a client needs to:
+
+- determine which workflow a `WorkflowProcess` represents;
+- determine which stage a `WorkflowProcessStep` represents;
+- display a human-readable stage name;
+- order process steps correctly;
+- associate a step with the underlying workflow-orchestrator task.
+
+This avoids coupling clients to hardcoded workflow-process IDs, step IDs, or step ordering.

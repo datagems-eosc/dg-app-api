@@ -5,6 +5,7 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 {
 	public interface IWorkflowProcessService
 	{
+		Task<WorkflowProcessConfig> BrowseWorkflowProcessConfig();
 		Task<App.Model.WorkflowProcess> ExecuteOnboardingFlow(DatasetPersist model, IFieldSet fields = null);
 		Task<App.Model.WorkflowProcess> ExecuteProfilingFlow(DatasetProfiling model, IFieldSet fields = null);
 		Task<App.Model.WorkflowProcess> ExecutePackagingFlow(App.Model.DatasetPackaging model, IFieldSet fields = null);

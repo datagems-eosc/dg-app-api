@@ -76,6 +76,7 @@ namespace DataGEMS.Gateway.App.Authorization
 		//Workflow Process
 		public const String BrowseWorkflowProcess = "BrowseWorkflowProcess";
 		public const String EditWorkflowProcess = "EditWorkflowProcess";
+		public const String BrowseWorkflowProcessConfig = "BrowseWorkflowProcessConfig";
 		//Workflow Process Step
 		public const String BrowseWorkflowProcessStep = "BrowseWorkflowProcessStep";
 		public const String EditWorkflowProcessStep = "EditWorkflowProcessStep";

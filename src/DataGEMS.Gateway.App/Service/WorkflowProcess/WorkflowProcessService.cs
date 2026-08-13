@@ -72,6 +72,13 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 			this._dbContext = dbContext;
 		}
 
+		public async Task<WorkflowProcessConfig> BrowseWorkflowProcessConfig()
+		{
+			this._logger.Debug(new MapLogEntry("browse-workflow-process-config"));
+			await this._authorizationService.AuthorizeForce(Permission.BrowseWorkflowProcessConfig);
+			return this._config;
+		}
+
 		public async Task UpdateWorkflowProcessStep(WorkflowProcessStepPersist model)
 		{
 			this._logger.Debug(new MapLogEntry("update-workflow-process-step").And("model", model));
