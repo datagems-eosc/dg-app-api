@@ -659,53 +659,6 @@ Configured step
 Displayable workflow stage
 ```
 
-#### Suggested client-side resolution
-
-Conceptually, a client can resolve the response as follows:
-
-```text
-processConfig =
-    config.Items
-        .find(item => item.Id == process.ProcessId)
-
-resolvedSteps =
-    process.Steps
-        .map(processStep => {
-            configStep =
-                processConfig.Steps
-                    .find(step => step.Id == processStep.StepId)
-
-            stageConfig =
-                config.Items
-                    .find(item => item.Kind == configStep.Kind)
-
-            return {
-                id: processStep.Id,
-                stepId: processStep.StepId,
-                name: stageConfig.Name,
-                description: stageConfig.Description,
-                order: configStep.Order,
-                taskId: configStep.TaskId,
-                status: processStep.Status
-            }
-        })
-        .orderBy(step => step.order)
-```
-
-The exact client implementation may differ, but the important relationships are:
-
-```text
-ProcessId -> workflow configuration item
-
-StepId -> configured workflow step
-
-configured step Kind -> human-readable workflow/stage definition
-
-configured step Order -> display/execution order
-
-process step Status -> runtime state
-```
-
 #### `WorkflowTaskInstanceDetails`
 
 For normal progress monitoring, the client generally only needs:
