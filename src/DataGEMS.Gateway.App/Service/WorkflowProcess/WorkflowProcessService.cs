@@ -75,7 +75,9 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 		public async Task<WorkflowProcessConfig> BrowseWorkflowProcessConfig()
 		{
 			this._logger.Debug(new MapLogEntry("browse-workflow-process-config"));
-			await this._authorizationService.AuthorizeForce(Permission.BrowseWorkflowProcessConfig);
+			List<Guid> datasetIds = await this._authorizationContentResolver.EffectiveContextAffiliatedDatasets(Permission.BrowseWorkflowProcessConfig);
+			if (datasetIds == null || datasetIds.Count == 0) await this._authorizationService.AuthorizeForce(Permission.BrowseWorkflowProcessConfig);
+
 			return this._config;
 		}
 

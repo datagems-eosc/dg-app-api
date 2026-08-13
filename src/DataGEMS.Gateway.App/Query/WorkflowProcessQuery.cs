@@ -61,7 +61,7 @@ namespace DataGEMS.Gateway.App.Query
 			}
 			if (this._authorize.HasFlag(AuthorizationFlags.Context))
 			{
-				List<Guid> permittedDatasetIds = await this._authorizationContentResolver.EffectiveContextAffiliatedDatasets(Permission.BrowseDataset);
+				List<Guid> permittedDatasetIds = await this._authorizationContentResolver.EffectiveContextAffiliatedDatasets(Permission.BrowseWorkflowProcess);
 				if (permittedDatasetIds != null && permittedDatasetIds.Count > 0)
 				{
 					query = query.Where(x => x.DatasetId != null && permittedDatasetIds.Contains(x.DatasetId.Value));

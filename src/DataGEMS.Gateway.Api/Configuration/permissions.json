@@ -460,7 +460,7 @@
 			//WorkflowProcess
 			"BrowseWorkflowProcess": {
 				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_system" ],
-				"ContextRoles": [],
+				"ContextRoles": [ "dg_ds-manage" ],
 				"Claims": [],
 				"Clients": [],
 				"AllowAnonymous": false,
@@ -468,15 +468,15 @@
 			},
 			"EditWorkflowProcess": {
 				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_system" ],
-				"ContextRoles": [],
+				"ContextRoles": [ "dg_ds-manage" ],
 				"Claims": [],
 				"Clients": [],
 				"AllowAnonymous": false,
 				"AllowAuthenticated": false
 			},
 			"BrowseWorkflowProcessConfig": {
-				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_dataset-uploader", "GLOBAL_dg_dataset-curator", "GLOBAL_dg_system" ],
-				"ContextRoles": [],
+				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_system" ],
+				"ContextRoles": [ "dg_ds-browse" ],
 				"Claims": [],
 				"Clients": [],
 				"AllowAnonymous": false,
