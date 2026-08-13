@@ -1,0 +1,3457 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://datagems-eosc.github.io/dg-app-api/v0.0.53/data-flows/">
+      
+      
+        <link rel="prev" href="../context-grants/">
+      
+      
+        <link rel="next" href="../openapi/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../images/favicon.jpg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Data Flows - DataGEMS Gateway API Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../stylesheets/custom-footer.css">
+    
+      <link rel="stylesheet" href="../stylesheets/mkdocsoad.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#data-onboarding-processing-flow-endpoints" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+          <aside class="md-banner md-banner--warning">
+            <div class="md-banner__inner md-grid md-typeset">
+              
+    
+  <div>
+    You're not viewing the latest version.
+    <a href="../.."> 
+      <strong>Click here to go to latest.</strong>
+    </a>
+  </div>
+
+            </div>
+            <script>var el=document.querySelector("[data-md-component=outdated]"),base=new URL(".."),outdated=__md_get("__outdated",sessionStorage,base);!0===outdated&&el&&(el.hidden=!1)</script>
+          </aside>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="DataGEMS Gateway API Docs" class="md-header__button md-logo" aria-label="DataGEMS Gateway API Docs" data-md-component="logo">
+      
+  <img src="../images/datagems-portal-icon.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            DataGEMS Gateway API Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Data Flows
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/datagems-eosc/dg-app-api/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="DataGEMS Gateway API Docs" class="md-nav__button md-logo" aria-label="DataGEMS Gateway API Docs" data-md-component="logo">
+      
+  <img src="../images/datagems-portal-icon.png" alt="logo">
+
+    </a>
+    DataGEMS Gateway API Docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/datagems-eosc/dg-app-api/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    System
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../datastore/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Datastores
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api-overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../error-codes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Status & Error Codes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../context-grants/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Context Grants
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data Flows
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data Flows
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-workflow-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Workflow Model
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Workflow Model">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-dataset-onboarding-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.1 Dataset onboarding workflow
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-workflow-and-step-statuses" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.2 Workflow and step statuses
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-preparing-data-for-onboarding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Preparing Data for Onboarding
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Preparing Data for Onboarding">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-data-location-kinds" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 Data location kinds
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-check-allowed-upload-extensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 Check allowed upload extensions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-upload-dataset-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 Upload dataset files
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-starting-dataset-onboarding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Starting Dataset Onboarding
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Starting Dataset Onboarding">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-basic-onboarding-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 Basic onboarding example
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-file-based-onboarding-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 File-based onboarding example
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-monitoring-a-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Monitoring a Workflow
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Monitoring a Workflow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-get-the-workflow-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 Get the workflow configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-get-a-workflow-process-by-id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 Get a workflow process by ID
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-interpreting-the-current-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 Interpreting the current state
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#44-reading-the-workflow-process-response-using-the-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.4 Reading the workflow process response using the configuration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.4 Reading the workflow process response using the configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#resolve-the-workflow-definition" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resolve the workflow definition
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resolve-each-process-step" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resolve each process step
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#suggested-client-side-resolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Suggested client-side resolution
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#workflowtaskinstancedetails" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        WorkflowTaskInstanceDetails
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-task-level-diagnostics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Task-Level Diagnostics
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Task-Level Diagnostics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-airflow-retries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 Airflow retries
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-finding-workflow-executions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Finding Workflow Executions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Finding Workflow Executions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-query-workflow-processes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 Query workflow processes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-query-workflow-process-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 Query workflow process steps
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-get-a-workflow-process-step-by-id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 Get a workflow process step by ID
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-failure-diagnosis-and-recovery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Failure Diagnosis and Recovery
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Failure Diagnosis and Recovery">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-recommended-diagnostic-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 Recommended diagnostic flow
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-restarting-onboarding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 Restarting onboarding
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-standalone-processing-workflows" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Standalone Processing Workflows
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. Standalone Processing Workflows">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81-dataset-profiling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.1 Dataset profiling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82-dataset-packaging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.2 Dataset packaging
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#83-dataset-recommendation-registration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.3 Dataset recommendation registration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#84-cross-dataset-discovery-ingestion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.4 Cross Dataset Discovery ingestion
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#85-important-standalone-workflow-behavior" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.5 Important standalone-workflow behavior
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-recommended-client-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Recommended Client Flow
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. Recommended Client Flow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-prepare-the-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1 — Prepare the data
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-start-onboarding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2 — Start onboarding
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-monitor-the-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3 — Monitor the workflow
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4-interpret-the-terminal-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4 — Interpret the terminal state
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-5-discover-historical-executions-when-needed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 5 — Discover historical executions when needed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-workflow-configuration-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Workflow Configuration Reference
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10. Workflow Configuration Reference">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#101-workflow-process-configuration-item" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.1 Workflow process configuration item
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#102-workflow-step-configuration-item" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.2 Workflow step configuration item
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../openapi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OpenAPI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup & Monitoring
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Setup & Monitoring
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../automations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Automations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging & Accounting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../maintenance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Maintenance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Material
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Material
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../onboarding/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Onboarding
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../qa/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quality Assurance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../faq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FAQ & Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../license/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    License
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://datagems-eosc.github.io/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-workflow-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Workflow Model
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Workflow Model">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-dataset-onboarding-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.1 Dataset onboarding workflow
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-workflow-and-step-statuses" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.2 Workflow and step statuses
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-preparing-data-for-onboarding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Preparing Data for Onboarding
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Preparing Data for Onboarding">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-data-location-kinds" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 Data location kinds
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-check-allowed-upload-extensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 Check allowed upload extensions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-upload-dataset-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 Upload dataset files
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-starting-dataset-onboarding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Starting Dataset Onboarding
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Starting Dataset Onboarding">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-basic-onboarding-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 Basic onboarding example
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-file-based-onboarding-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 File-based onboarding example
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-monitoring-a-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Monitoring a Workflow
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Monitoring a Workflow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-get-the-workflow-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 Get the workflow configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-get-a-workflow-process-by-id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 Get a workflow process by ID
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-interpreting-the-current-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 Interpreting the current state
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#44-reading-the-workflow-process-response-using-the-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.4 Reading the workflow process response using the configuration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.4 Reading the workflow process response using the configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#resolve-the-workflow-definition" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resolve the workflow definition
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resolve-each-process-step" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resolve each process step
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#suggested-client-side-resolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Suggested client-side resolution
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#workflowtaskinstancedetails" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        WorkflowTaskInstanceDetails
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-task-level-diagnostics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Task-Level Diagnostics
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Task-Level Diagnostics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-airflow-retries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 Airflow retries
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-finding-workflow-executions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Finding Workflow Executions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Finding Workflow Executions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-query-workflow-processes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 Query workflow processes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-query-workflow-process-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 Query workflow process steps
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-get-a-workflow-process-step-by-id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 Get a workflow process step by ID
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-failure-diagnosis-and-recovery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Failure Diagnosis and Recovery
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Failure Diagnosis and Recovery">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-recommended-diagnostic-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 Recommended diagnostic flow
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-restarting-onboarding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 Restarting onboarding
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-standalone-processing-workflows" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Standalone Processing Workflows
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. Standalone Processing Workflows">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81-dataset-profiling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.1 Dataset profiling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82-dataset-packaging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.2 Dataset packaging
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#83-dataset-recommendation-registration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.3 Dataset recommendation registration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#84-cross-dataset-discovery-ingestion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.4 Cross Dataset Discovery ingestion
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#85-important-standalone-workflow-behavior" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.5 Important standalone-workflow behavior
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-recommended-client-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Recommended Client Flow
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. Recommended Client Flow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-prepare-the-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1 — Prepare the data
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-start-onboarding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2 — Start onboarding
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-monitor-the-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3 — Monitor the workflow
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4-interpret-the-terminal-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4 — Interpret the terminal state
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-5-discover-historical-executions-when-needed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 5 — Discover historical executions when needed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-workflow-configuration-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Workflow Configuration Reference
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10. Workflow Configuration Reference">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#101-workflow-process-configuration-item" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.1 Workflow process configuration item
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#102-workflow-step-configuration-item" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.2 Workflow step configuration item
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+  
+
+
+  <nav class="md-path" aria-label="Navigation" >
+    <ol class="md-path__list">
+      
+        
+  
+  
+    <li class="md-path__item">
+      <a href=".." class="md-path__link">
+        
+  <span class="md-ellipsis">
+    Overview
+  </span>
+
+      </a>
+    </li>
+  
+
+      
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../api-overview/" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    API
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ol>
+  </nav>
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="data-onboarding-processing-flow-endpoints">Data Onboarding &amp; Processing Flow Endpoints<a class="headerlink" href="#data-onboarding-processing-flow-endpoints" title="Permanent link">&para;</a></h1>
+<p>The data onboarding and processing flows are implemented across DataGEMS components such as the <a href="https://datagems-eosc.github.io/data-model-management">DataGEMS Data Model Management</a>, the <a href="https://datagems-eosc.github.io/dg-data-workflow">DataGEMS Data Workflow Orchestrator</a>, the <a href="https://datagems-eosc.github.io/dg-dataset-profiler">Dataset Profiler</a>, and other components documented in the <a href="https://datagems-eosc.github.io/">DataGEMS documentation</a>.</p>
+<p>The Gateway API provides the user-facing entry points for starting and monitoring these flows and coordinates their execution with the underpinning components.</p>
+<p>The main workflow endpoint group is:</p>
+<div class="highlight"><pre><span></span><code>/api/workflow-process
+</code></pre></div>
+<p>More information about request models, field projections, validation rules, and response schemas can be found in the <a href="../openapi/">OpenAPI Reference</a>.</p>
+<hr />
+<h2 id="1-workflow-model">1. Workflow Model<a class="headerlink" href="#1-workflow-model" title="Permanent link">&para;</a></h2>
+<p>A workflow execution is represented by a <code>WorkflowProcess</code>.</p>
+<p>A <code>WorkflowProcess</code> contains one or more <code>WorkflowProcessStep</code> entries. Each step represents one configured processing stage. While the underlying Airflow DAG is running, task-instance callbacks update the corresponding workflow step so that the Gateway can expose the current state and collected execution details.</p>
+<h3 id="11-dataset-onboarding-workflow">1.1 Dataset onboarding workflow<a class="headerlink" href="#11-dataset-onboarding-workflow" title="Permanent link">&para;</a></h3>
+<p>A normal dataset onboarding request creates <strong>one workflow process</strong> containing the complete processing chain:</p>
+<div class="highlight"><pre><span></span><code>Dataset Onboarding
+        |
+        v
+Dataset Profiling
+        |
+        v
+Dataset Packaging
+        |
+        v
+Dataset Recommendation Registering
+        |
+        v
+Cross Dataset Discovery Ingestion
+</code></pre></div>
+<p>When a step succeeds, the Gateway automatically starts the next configured step. The client does not need to wait for each DAG to finish and manually invoke the next stage.</p>
+<p>Conceptually:</p>
+<div class="highlight"><pre><span></span><code>Client
+  |
+  | POST /api/workflow-process/onboard
+  v
+Gateway
+  |
+  | starts onboarding DAG
+  v
+Workflow Orchestrator
+  |
+  | task callbacks update the current WorkflowProcessStep
+  v
+Gateway
+  |
+  | successful step finalization
+  v
+starts next configured DAG
+  |
+  v
+Profiling -&gt; Packaging -&gt; Recommendation Registration -&gt; CDD Ingestion
+</code></pre></div>
+<p>If a step fails terminally, the chain stops and later steps remain pending.</p>
+<h3 id="12-workflow-and-step-statuses">1.2 Workflow and step statuses<a class="headerlink" href="#12-workflow-and-step-statuses" title="Permanent link">&para;</a></h3>
+<p>Both <code>WorkflowProcess</code> and <code>WorkflowProcessStep</code> use the same status values:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Value</th>
+<th>Status</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;"><code>0</code></td>
+<td><code>InProgress</code></td>
+<td>The process or step is currently executing. Airflow tasks that are waiting to be retried also leave the step in this state.</td>
+</tr>
+<tr>
+<td style="text-align: right;"><code>1</code></td>
+<td><code>Failed</code></td>
+<td>The process or step failed terminally. If a step fails, the parent workflow process also becomes <code>Failed</code>.</td>
+</tr>
+<tr>
+<td style="text-align: right;"><code>2</code></td>
+<td><code>Succeeded</code></td>
+<td>The process or step completed successfully. In the onboarding workflow, the next configured step can then start automatically.</td>
+</tr>
+<tr>
+<td style="text-align: right;"><code>3</code></td>
+<td><code>Pending</code></td>
+<td>The step has not started yet and is waiting for preceding steps to complete.</td>
+</tr>
+</tbody>
+</table>
+<p>A typical in-progress workflow may look like:</p>
+<div class="highlight"><pre><span></span><code>Dataset Onboarding                  Succeeded
+Dataset Profiling                   Succeeded
+Dataset Packaging                   InProgress
+Dataset Recommendation Registering  Pending
+CDD Ingestion                       Pending
+
+WorkflowProcess                     InProgress
+</code></pre></div>
+<p>A failed workflow may look like:</p>
+<div class="highlight"><pre><span></span><code>Dataset Onboarding                  Succeeded
+Dataset Profiling                   Succeeded
+Dataset Packaging                   Failed
+Dataset Recommendation Registering  Pending
+CDD Ingestion                       Pending
+
+WorkflowProcess                     Failed
+</code></pre></div>
+<p>A failed workflow process is terminal. Its status is not changed later, even if another workflow is subsequently executed successfully for the same dataset.</p>
+<hr />
+<h2 id="2-preparing-data-for-onboarding">2. Preparing Data for Onboarding<a class="headerlink" href="#2-preparing-data-for-onboarding" title="Permanent link">&para;</a></h2>
+<p>Before a dataset can be onboarded, its data must be accessible to the platform.</p>
+<p>Supported approaches include:</p>
+<ul>
+<li>Upload data files directly through the Gateway API.</li>
+<li>Reference data available through HTTP/HTTPS or FTP/FTPS.</li>
+<li>Reference data already staged on the platform as raw files.</li>
+<li>Reference data already staged on the platform in a relational database.</li>
+</ul>
+<p>Uploading files and referencing publicly accessible data are available to appropriately authorized users. Referencing already staged files or relational databases is intended for administrative scenarios.</p>
+<h3 id="21-data-location-kinds">2.1 Data location kinds<a class="headerlink" href="#21-data-location-kinds" title="Permanent link">&para;</a></h3>
+<p>The <code>DataLocations</code> property indicates where the source data is located.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Value</th>
+<th>Kind</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;"><code>0</code></td>
+<td><code>File</code></td>
+<td>Data is stored in a local or network filesystem path.</td>
+</tr>
+<tr>
+<td style="text-align: right;"><code>1</code></td>
+<td><code>Http</code></td>
+<td>Data is accessible through HTTP or HTTPS.</td>
+</tr>
+<tr>
+<td style="text-align: right;"><code>2</code></td>
+<td><code>Ftp</code></td>
+<td>Data is accessible through FTP or FTPS.</td>
+</tr>
+<tr>
+<td style="text-align: right;"><code>3</code></td>
+<td><code>Remote</code></td>
+<td>Reserved but currently not used.</td>
+</tr>
+<tr>
+<td style="text-align: right;"><code>4</code></td>
+<td><code>Staged</code></td>
+<td>The dataset is already staged.</td>
+</tr>
+<tr>
+<td style="text-align: right;"><code>5</code></td>
+<td><code>Database</code></td>
+<td>The dataset is stored in a database.</td>
+</tr>
+</tbody>
+</table>
+<p>Refer to the OpenAPI reference for the current list.</p>
+<h3 id="22-check-allowed-upload-extensions">2.2 Check allowed upload extensions<a class="headerlink" href="#22-check-allowed-upload-extensions" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>GET /api/storage/upload/allowed-extension
+</code></pre></div>
+<p>Example:</p>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>--location<span class="w"> </span><span class="s1">&#39;&lt;base url&gt;/api/storage/upload/allowed-extension&#39;</span><span class="w"> </span><span class="se">\</span>
+--header<span class="w"> </span><span class="s1">&#39;Authorization: Bearer ey...Bg&#39;</span>
+</code></pre></div>
+<p>Example response:</p>
+<div class="highlight"><pre><span></span><code><span class="p">[</span><span class="s2">&quot;.csv&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;.xlsx&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;.txt&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;.pdf&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;.png&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;.jpeg&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;.jpg&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;.md&quot;</span><span class="p">]</span>
+</code></pre></div>
+<h3 id="23-upload-dataset-files">2.3 Upload dataset files<a class="headerlink" href="#23-upload-dataset-files" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>POST /api/storage/upload/dataset
+</code></pre></div>
+<p>The endpoint stages uploaded files in a controlled storage location so that they can later be referenced during onboarding.</p>
+<p>Example:</p>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>--location<span class="w"> </span><span class="s1">&#39;&lt;base url&gt;/api/storage/upload/dataset&#39;</span><span class="w"> </span><span class="se">\</span>
+--header<span class="w"> </span><span class="s1">&#39;Authorization: Bearer eyJ...zg&#39;</span><span class="w"> </span><span class="se">\</span>
+--form<span class="w"> </span><span class="s1">&#39;file1=@&quot;/path/to/file/test1.csv&quot;&#39;</span><span class="w"> </span><span class="se">\</span>
+--form<span class="w"> </span><span class="s1">&#39;file2=@&quot;/path/to/file/test2.csv&quot;&#39;</span>
+</code></pre></div>
+<p>Example response:</p>
+<div class="highlight"><pre><span></span><code><span class="p">[</span>
+<span class="w">  </span><span class="s2">&quot;/path/to/staged/test1.8fd16d58ce0c45c99532060bf61ecbd4.csv&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="s2">&quot;/path/to/staged/test2.d7ccbfdd929f4158ab7e446a65ebc726.csv&quot;</span>
+<span class="p">]</span>
+</code></pre></div>
+<p>The returned paths must be preserved by the caller and supplied as data locations in the onboarding request.</p>
+<hr />
+<h2 id="3-starting-dataset-onboarding">3. Starting Dataset Onboarding<a class="headerlink" href="#3-starting-dataset-onboarding" title="Permanent link">&para;</a></h2>
+<p>Dataset onboarding is started through:</p>
+<div class="highlight"><pre><span></span><code>POST /api/workflow-process/onboard
+</code></pre></div>
+<p>The request contains the dataset metadata and its data locations.</p>
+<p>The endpoint also accepts the <code>f</code> query parameter used by the Gateway field-set mechanism. Each <code>f</code> value selects a field to include in the returned <code>WorkflowProcess</code>.</p>
+<h3 id="31-basic-onboarding-example">3.1 Basic onboarding example<a class="headerlink" href="#31-basic-onboarding-example" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>--location<span class="w"> </span><span class="s1">&#39;&lt;base url&gt;/api/workflow-process/onboard?f=Id&#39;</span><span class="w"> </span><span class="se">\</span>
+--header<span class="w"> </span><span class="s1">&#39;Authorization: Bearer ey...aQ&#39;</span><span class="w"> </span><span class="se">\</span>
+--header<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+--data<span class="w"> </span><span class="s1">&#39;{</span>
+<span class="s1">  &quot;CiteAs&quot;: &quot;ca&quot;,</span>
+<span class="s1">  &quot;ConformsTo&quot;: &quot;ct&quot;,</span>
+<span class="s1">  &quot;doi&quot;: &quot;10.1000/1234567890&quot;,</span>
+<span class="s1">  &quot;Country&quot;: [&quot;GR&quot;],</span>
+<span class="s1">  &quot;license&quot;: &quot;https://cds.climate.copernicus.eu/datasets/reanalysis-era5-land?tab=download&quot;,</span>
+<span class="s1">  &quot;name&quot;: &quot;Era5land&quot;,</span>
+<span class="s1">  &quot;description&quot;: &quot;A global atmospheric reanalysis dataset produced by the European Centre for Medium-Range Weather Forecasts (ECMWF) and has data available from 1950, providing a consistent view of the evolution of land variables. It has an enhanced resolution of 0.1° x 0.1°, while the temporal frequency of the model output is hourly.&quot;,</span>
+<span class="s1">  &quot;mimeType&quot;: &quot;application/db&quot;,</span>
+<span class="s1">  &quot;url&quot;: &quot;https://cds.climate.copernicus.eu/datasets/reanalysis-era5-land?tab=download&quot;,</span>
+<span class="s1">  &quot;headline&quot;: &quot;Meteorological data time series by ECMWF&quot;,</span>
+<span class="s1">  &quot;keywords&quot;: [</span>
+<span class="s1">    &quot;weather&quot;,</span>
+<span class="s1">    &quot;weather prediction&quot;</span>
+<span class="s1">  ],</span>
+<span class="s1">  &quot;fieldOfScience&quot;: [</span>
+<span class="s1">    &quot;EARTH AND RELATED ENVIRONMENTAL SCIENCES&quot;</span>
+<span class="s1">  ],</span>
+<span class="s1">  &quot;language&quot;: [</span>
+<span class="s1">    &quot;en&quot;</span>
+<span class="s1">  ],</span>
+<span class="s1">  &quot;datePublished&quot;: &quot;2025-05-24&quot;,</span>
+<span class="s1">  &quot;DataLocations&quot;: [</span>
+<span class="s1">    {</span>
+<span class="s1">      &quot;Kind&quot;: 5,</span>
+<span class="s1">      &quot;Location&quot;: &quot;ds_era5_land&quot;</span>
+<span class="s1">    }</span>
+<span class="s1">  ]</span>
+<span class="s1">}&#39;</span>
+</code></pre></div>
+<p>Because only <code>Id</code> was requested, the response contains only the newly created workflow process identifier:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;7c380cfa-c509-469c-a181-67064089ff2b&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>The returned ID should be used to monitor this specific workflow execution.</p>
+<h3 id="32-file-based-onboarding-example">3.2 File-based onboarding example<a class="headerlink" href="#32-file-based-onboarding-example" title="Permanent link">&para;</a></h3>
+<p>For a previously uploaded file, a data location can reference the staged path:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;Name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dataset-test-A&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;Description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dataset-test-A&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;License&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dataset-test-A&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;Url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://dataset-test-A.gr&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;Headline&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dataset-test-A&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;Keywords&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;dataset-test-A&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;FieldOfScience&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;dataset-test-A&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;Language&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;en&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;Country&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;GR&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;DatePublished&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-10-22&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;CiteAs&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dataset-test-A&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;Doi&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dataset-test-A&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;DataLocations&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;Kind&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;Location&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/path/to/staged/test1.8fd16d58ce0c45c99532060bf61ecbd4.csv&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<hr />
+<h2 id="4-monitoring-a-workflow">4. Monitoring a Workflow<a class="headerlink" href="#4-monitoring-a-workflow" title="Permanent link">&para;</a></h2>
+<p>The recommended monitoring flow consists of two pieces of information:</p>
+<ol>
+<li>the <strong>workflow configuration</strong>, which describes what a workflow and its steps represent and in which order they execute;</li>
+<li>the <strong>workflow process</strong>, which describes the current execution state of those steps.</li>
+</ol>
+<p>The configuration can be retrieved through <code>/api/workflow-process/config</code> and does not need to be inferred from hardcoded workflow or step IDs.</p>
+<p>The <code>WorkflowProcess.Id</code> returned when onboarding is started should then be retained and used to retrieve the current execution state.</p>
+<h3 id="41-get-the-workflow-configuration">4.1 Get the workflow configuration<a class="headerlink" href="#41-get-the-workflow-configuration" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>GET /api/workflow-process/config
+</code></pre></div>
+<p>Returns the currently configured workflow process definitions.</p>
+<p>Example:</p>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>--location<span class="w"> </span><span class="s1">&#39;&lt;base url&gt;/api/workflow-process/config&#39;</span><span class="w"> </span><span class="se">\</span>
+--header<span class="w"> </span><span class="s1">&#39;Authorization: Bearer ey...aQ&#39;</span>
+</code></pre></div>
+<p>The response is a <code>WorkflowProcessConfig</code> containing the available workflow definitions and their configured steps.</p>
+<p>For example, the Dataset Onboarding workflow is represented as:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;items&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;25593b3b-f2b8-4304-bba2-e6eb6e3f4872&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;kind&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Dataset Onboarding&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Onboards a new dataset by collecting and registering its metadata and data location within the platform.&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;steps&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;8352e21f-a84f-4d41-92c8-30dc05577235&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;order&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;kind&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;taskId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;DatasetOnboarding_test&quot;</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;7d115bb4-21f2-4c70-af08-1cc066aeb033&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;order&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;kind&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;taskId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;DatasetProfiling_test&quot;</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;bc5ed9e1-ac8c-47b4-b986-7b28165bdc82&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;order&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;kind&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;taskId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;DatasetPackaging_test&quot;</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ebb8dffb-8f5f-447b-9986-8753ae8db398&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;order&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;kind&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;taskId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;DatasetRecommendationRegistering_test&quot;</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ed906ed4-5445-4df6-af9f-ffc4dde5300f&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;order&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;kind&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;taskId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;CDD_Ingest_test&quot;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">      </span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>The example above shows only the Dataset Onboarding item for brevity. The actual response also contains the configured standalone workflow definitions.</p>
+<p>The relevant configuration fields are:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>items[].id</code></td>
+<td>Identifies a workflow definition. It corresponds to <code>WorkflowProcess.ProcessId</code>.</td>
+</tr>
+<tr>
+<td><code>items[].kind</code></td>
+<td>Identifies the type of workflow.</td>
+</tr>
+<tr>
+<td><code>items[].name</code></td>
+<td>Human-readable workflow name.</td>
+</tr>
+<tr>
+<td><code>items[].description</code></td>
+<td>Description of the workflow's purpose.</td>
+</tr>
+<tr>
+<td><code>items[].steps[].id</code></td>
+<td>Identifies a configured workflow step. It corresponds to <code>WorkflowProcessStep.StepId</code>.</td>
+</tr>
+<tr>
+<td><code>items[].steps[].kind</code></td>
+<td>Identifies the type of processing stage represented by the step.</td>
+</tr>
+<tr>
+<td><code>items[].steps[].order</code></td>
+<td>Defines the position of the step inside the workflow.</td>
+</tr>
+<tr>
+<td><code>items[].steps[].taskId</code></td>
+<td>Identifies the underlying workflow-orchestrator task/DAG associated with the step.</td>
+</tr>
+</tbody>
+</table>
+<p>The configuration is particularly important when interpreting a workflow process response because the <code>steps</code> array returned by the process endpoint should <strong>not be assumed to be ordered by execution order</strong>.</p>
+<p>The frontend should use the configuration's <code>Order</code> value to order the returned process steps.</p>
+<hr />
+<h3 id="42-get-a-workflow-process-by-id">4.2 Get a workflow process by ID<a class="headerlink" href="#42-get-a-workflow-process-by-id" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>GET /api/workflow-process/{id}
+</code></pre></div>
+<p>Example:</p>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>--location<span class="w"> </span><span class="s1">&#39;&lt;base url&gt;/api/workflow-process/7c380cfa-c509-469c-a181-67064089ff2b?f=Id&amp;f=ProcessId&amp;f=Dataset.Id&amp;f=Status&amp;f=CreatedAt&amp;f=UpdatedAt&amp;f=Steps.Id&amp;f=Steps.StepId&amp;f=Steps.Status&amp;f=Steps.WorkflowTaskInstanceDetails&#39;</span><span class="w"> </span><span class="se">\</span>
+--header<span class="w"> </span><span class="s1">&#39;Authorization: Bearer ey...aQ&#39;</span>
+</code></pre></div>
+<p>A useful monitoring response should provide enough information to answer:</p>
+<ol>
+<li>Is the overall workflow still running, completed, or failed?</li>
+<li>Which processing step is currently active, or which step failed?</li>
+<li>What happened inside the underlying Airflow tasks?</li>
+</ol>
+<p>The main fields are:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Id</code></td>
+<td>Identifies this workflow execution.</td>
+</tr>
+<tr>
+<td><code>ProcessId</code></td>
+<td>Identifies the configured workflow definition. Match this against <code>config.items[].id</code>.</td>
+</tr>
+<tr>
+<td><code>Dataset.Id</code></td>
+<td>Identifies the dataset associated with the workflow.</td>
+</tr>
+<tr>
+<td><code>Status</code></td>
+<td>Gives the overall workflow state.</td>
+</tr>
+<tr>
+<td><code>Steps.Id</code></td>
+<td>Identifies each workflow process step instance.</td>
+</tr>
+<tr>
+<td><code>Steps.StepId</code></td>
+<td>Identifies the configured step definition. Match this against <code>config.items[].steps[].id</code>.</td>
+</tr>
+<tr>
+<td><code>Steps.Status</code></td>
+<td>Gives the execution state of each processing stage.</td>
+</tr>
+<tr>
+<td><code>Steps.WorkflowTaskInstanceDetails</code></td>
+<td>Contains task-level callback events and diagnostic logs.</td>
+</tr>
+<tr>
+<td><code>CreatedAt</code> / <code>UpdatedAt</code></td>
+<td>Indicate when this execution was created and last updated.</td>
+</tr>
+</tbody>
+</table>
+<p>If the workflow process cannot be found, the endpoint returns <code>404</code>.</p>
+<p>An example response is:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;222eec2d-0c65-4242-86bf-15acb1ad1e48&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;processId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;25593b3b-f2b8-4304-bba2-e6eb6e3f4872&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;dataset&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;a72ee943-7a56-46e8-88b6-2cf382b2859b&quot;</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;steps&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;96f240c6-d3b9-4690-8a98-7d98cafbde31&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;stepId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;7d115bb4-21f2-4c70-af08-1cc066aeb033&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;7d18f642-a2d2-412f-9398-aba5aaf1ac68&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;stepId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;8352e21f-a84f-4d41-92c8-30dc05577235&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;25f0f6af-d55f-4178-92c8-ad612e1c0667&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;stepId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;bc5ed9e1-ac8c-47b4-b986-7b28165bdc82&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1a2bc96e-5cfd-4ec6-bcca-0aca41e1983c&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;stepId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ebb8dffb-8f5f-447b-9986-8753ae8db398&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;e45d197f-63eb-479f-8fc8-768a21597a02&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;stepId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ed906ed4-5445-4df6-af9f-ffc4dde5300f&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;createdAt&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-08-12T12:43:14.94128Z&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;updatedAt&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-08-12T12:49:14.596913Z&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+<hr />
+<h3 id="43-interpreting-the-current-state">4.3 Interpreting the current state<a class="headerlink" href="#43-interpreting-the-current-state" title="Permanent link">&para;</a></h3>
+<p>The <code>WorkflowProcess.Status</code> represents the overall state of the workflow, while each <code>WorkflowProcessStep.Status</code> represents the state of an individual processing stage.</p>
+<p>To understand the workflow's current progress, the client should combine:</p>
+<div class="highlight"><pre><span></span><code>Workflow configuration
+        +
+WorkflowProcess response
+</code></pre></div>
+<p>The configuration answers:</p>
+<div class="highlight"><pre><span></span><code>What does this process/step represent?
+In which order should the steps be displayed?
+</code></pre></div>
+<p>while the process response answers:</p>
+<div class="highlight"><pre><span></span><code>What is happening to this particular execution?
+</code></pre></div>
+<p>The step statuses are:</p>
+<table>
+<thead>
+<tr>
+<th>Status</th>
+<th style="text-align: right;">Value</th>
+<th>Interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>InProgress</code></td>
+<td style="text-align: right;"><code>0</code></td>
+<td>The step is currently being processed. This is normally the current active stage. An Airflow retry also leaves the step in this state.</td>
+</tr>
+<tr>
+<td><code>Failed</code></td>
+<td style="text-align: right;"><code>1</code></td>
+<td>The step failed terminally. The parent <code>WorkflowProcess</code> also becomes <code>Failed</code> and no later pending steps are started.</td>
+</tr>
+<tr>
+<td><code>Succeeded</code></td>
+<td style="text-align: right;"><code>2</code></td>
+<td>The step completed successfully. If the workflow is still <code>InProgress</code>, execution has moved to, or is about to move to, the next configured step.</td>
+</tr>
+<tr>
+<td><code>Pending</code></td>
+<td style="text-align: right;"><code>3</code></td>
+<td>The step has not started yet and is waiting for preceding steps to complete successfully.</td>
+</tr>
+</tbody>
+</table>
+<p>For an <code>InProgress</code> workflow, the typical ordered pattern is:</p>
+<div class="highlight"><pre><span></span><code>Succeeded
+Succeeded
+InProgress
+Pending
+Pending
+</code></pre></div>
+<p>For example:</p>
+<div class="highlight"><pre><span></span><code>Dataset Onboarding                  Succeeded
+Dataset Profiling                   Succeeded
+Dataset Packaging                   InProgress
+Dataset Recommendation Registering  Pending
+Cross Dataset Discovery Ingestion   Pending
+
+WorkflowProcess                     InProgress
+</code></pre></div>
+<p>This means:</p>
+<ul>
+<li>Dataset Onboarding has completed successfully.</li>
+<li>Dataset Profiling has completed successfully.</li>
+<li>Dataset Packaging is the current active stage.</li>
+<li>Dataset Recommendation Registering and Cross Dataset Discovery Ingestion have not started.</li>
+<li>No additional processing endpoint needs to be invoked by the client.</li>
+</ul>
+<p>A step may remain <code>InProgress</code> while an underlying Airflow task is being retried. An <code>InProgress</code> status therefore does not by itself mean that processing is stuck.</p>
+<p>When all configured steps succeed:</p>
+<div class="highlight"><pre><span></span><code>Dataset Onboarding                  Succeeded
+Dataset Profiling                   Succeeded
+Dataset Packaging                   Succeeded
+Dataset Recommendation Registering  Succeeded
+Cross Dataset Discovery Ingestion   Succeeded
+
+WorkflowProcess                     Succeeded
+</code></pre></div>
+<p>the complete workflow has finished successfully.</p>
+<p>If a step fails:</p>
+<div class="highlight"><pre><span></span><code>Dataset Onboarding                  Succeeded
+Dataset Profiling                   Succeeded
+Dataset Packaging                   Failed
+Dataset Recommendation Registering  Pending
+Cross Dataset Discovery Ingestion   Pending
+
+WorkflowProcess                     Failed
+</code></pre></div>
+<p>then:</p>
+<ul>
+<li>the failed step identifies where processing stopped;</li>
+<li>earlier <code>Succeeded</code> steps completed normally;</li>
+<li>later <code>Pending</code> steps were never executed and should not be interpreted as failures;</li>
+<li>the failed step's <code>WorkflowTaskInstanceDetails</code> should be inspected before deciding on a recovery action.</li>
+</ul>
+<p>Once a <code>WorkflowProcess</code> becomes <code>Failed</code>, it remains failed.</p>
+<hr />
+<h3 id="44-reading-the-workflow-process-response-using-the-configuration">4.4 Reading the workflow process response using the configuration<a class="headerlink" href="#44-reading-the-workflow-process-response-using-the-configuration" title="Permanent link">&para;</a></h3>
+<p>The workflow process response contains runtime identifiers and statuses. The configuration endpoint supplies the metadata required to interpret those identifiers.</p>
+<p>The relationship is:</p>
+<div class="highlight"><pre><span></span><code>WorkflowProcess.ProcessId
+        |
+        v
+WorkflowProcessConfig.Items[].Id
+</code></pre></div>
+<p>and, for each step:</p>
+<div class="highlight"><pre><span></span><code>WorkflowProcess.Steps[].StepId
+        |
+        v
+WorkflowProcessConfig.Items[].Steps[].Id
+</code></pre></div>
+<h4 id="resolve-the-workflow-definition">Resolve the workflow definition<a class="headerlink" href="#resolve-the-workflow-definition" title="Permanent link">&para;</a></h4>
+<p>Given:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;processId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;25593b3b-f2b8-4304-bba2-e6eb6e3f4872&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>find the configuration item where:</p>
+<div class="highlight"><pre><span></span><code>configItem.Id == WorkflowProcess.ProcessId
+</code></pre></div>
+<p>For the example, this resolves to:</p>
+<div class="highlight"><pre><span></span><code>Dataset Onboarding
+</code></pre></div>
+<p>The selected configuration item also provides the complete set of configured steps and their execution order.</p>
+<h4 id="resolve-each-process-step">Resolve each process step<a class="headerlink" href="#resolve-each-process-step" title="Permanent link">&para;</a></h4>
+<p>A workflow process step contains:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;e45d197f-63eb-479f-8fc8-768a21597a02&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;stepId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ed906ed4-5445-4df6-af9f-ffc4dde5300f&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><code>id</code> and <code>stepId</code> represent different things:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>steps[].id</code></td>
+<td>ID of this particular <code>WorkflowProcessStep</code> execution. It can be used with <code>GET /api/workflow-process/step/{id}</code>.</td>
+</tr>
+<tr>
+<td><code>steps[].stepId</code></td>
+<td>ID of the configured step definition. Match this against the selected workflow configuration item's <code>Steps[].Id</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>For each process step:</p>
+<div class="highlight"><pre><span></span><code>processStep.StepId
+        |
+        v
+find matching configStep.Id
+        |
+        +--&gt; configStep.Order
+        +--&gt; configStep.Kind
+        +--&gt; configStep.TaskId
+</code></pre></div>
+<p>The <code>Order</code> determines where the step belongs in the workflow.</p>
+<blockquote>
+<p><strong>Important:</strong> do not use the position of an entry in the <code>WorkflowProcess.steps</code> response array to determine execution order.</p>
+</blockquote>
+<p>In the example response, Dataset Profiling appears in the array before Dataset Onboarding even though onboarding executes first.</p>
+<p>The frontend should therefore join the process steps with the workflow configuration and sort them by the configuration's <code>Order</code>.</p>
+<p>Conceptually:</p>
+<div class="highlight"><pre><span></span><code>WorkflowProcess
+    |
+    | processId
+    v
+WorkflowProcessConfigItem
+    |
+    | steps[].stepId -&gt; config Steps[].Id
+    v
+Configured step
+    |
+    +--&gt; Order
+    +--&gt; Kind
+    +--&gt; TaskId
+    |
+    + process step Status
+    v
+Displayable workflow stage
+</code></pre></div>
+<h4 id="suggested-client-side-resolution">Suggested client-side resolution<a class="headerlink" href="#suggested-client-side-resolution" title="Permanent link">&para;</a></h4>
+<p>Conceptually, a client can resolve the response as follows:</p>
+<div class="highlight"><pre><span></span><code>processConfig =
+    config.Items
+        .find(item =&gt; item.Id == process.ProcessId)
+
+resolvedSteps =
+    process.Steps
+        .map(processStep =&gt; {
+            configStep =
+                processConfig.Steps
+                    .find(step =&gt; step.Id == processStep.StepId)
+
+            stageConfig =
+                config.Items
+                    .find(item =&gt; item.Kind == configStep.Kind)
+
+            return {
+                id: processStep.Id,
+                stepId: processStep.StepId,
+                name: stageConfig.Name,
+                description: stageConfig.Description,
+                order: configStep.Order,
+                taskId: configStep.TaskId,
+                status: processStep.Status
+            }
+        })
+        .orderBy(step =&gt; step.order)
+</code></pre></div>
+<p>The exact client implementation may differ, but the important relationships are:</p>
+<div class="highlight"><pre><span></span><code>ProcessId -&gt; workflow configuration item
+
+StepId -&gt; configured workflow step
+
+configured step Kind -&gt; human-readable workflow/stage definition
+
+configured step Order -&gt; display/execution order
+
+process step Status -&gt; runtime state
+</code></pre></div>
+<h4 id="workflowtaskinstancedetails"><code>WorkflowTaskInstanceDetails</code><a class="headerlink" href="#workflowtaskinstancedetails" title="Permanent link">&para;</a></h4>
+<p>For normal progress monitoring, the client generally only needs:</p>
+<div class="highlight"><pre><span></span><code>Id
+Status
+Steps.Id
+Steps.StepId
+Steps.Status
+</code></pre></div>
+<p>A smaller request can therefore be used:</p>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>--location<span class="w"> </span><span class="s1">&#39;&lt;base url&gt;/api/workflow-process/&lt;workflow-process-id&gt;?f=Id&amp;f=Status&amp;f=Steps.Id&amp;f=Steps.StepId&amp;f=Steps.Status&#39;</span><span class="w"> </span><span class="se">\</span>
+--header<span class="w"> </span><span class="s1">&#39;Authorization: Bearer ey...aQ&#39;</span>
+</code></pre></div>
+<p><code>WorkflowTaskInstanceDetails</code> should be requested when detailed execution information is required, particularly for a failed or long-running step:</p>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>--location<span class="w"> </span><span class="s1">&#39;&lt;base url&gt;/api/workflow-process/&lt;workflow-process-id&gt;?f=Id&amp;f=Status&amp;f=Steps.Id&amp;f=Steps.StepId&amp;f=Steps.Status&amp;f=Steps.WorkflowTaskInstanceDetails&#39;</span><span class="w"> </span><span class="se">\</span>
+--header<span class="w"> </span><span class="s1">&#39;Authorization: Bearer ey...aQ&#39;</span>
+</code></pre></div>
+<p>In summary:</p>
+<div class="highlight"><pre><span></span><code>GET /api/workflow-process/config
+        |
+        v
+Understand workflow definitions and step order
+        |
+        v
+GET /api/workflow-process/{id}
+        |
+        v
+Read WorkflowProcess.Status
+        |
+        v
+Join Steps.StepId with configuration Steps.Id
+        |
+        v
+Sort steps by configuration Order
+        |
+        v
+Read each Steps.Status
+        |
+        v
+Determine completed / active / pending / failed stages
+        |
+        v
+Inspect WorkflowTaskInstanceDetails when diagnostics are required
+</code></pre></div>
+<hr />
+<h2 id="5-task-level-diagnostics">5. Task-Level Diagnostics<a class="headerlink" href="#5-task-level-diagnostics" title="Permanent link">&para;</a></h2>
+<p><code>WorkflowTaskInstanceDetails</code> contains the task-instance events and logs collected from the underlying Airflow DAG.</p>
+<p>The value is stored as text containing newline-separated JSON event objects. Each event represents a callback from an Airflow task instance.</p>
+<p>A simplified profiling example is:</p>
+<div class="highlight"><pre><span></span><code>{&quot;event&quot;:&quot;execute&quot;,&quot;dag_id&quot;:&quot;DATASET_PROFILING_test&quot;,&quot;task_id&quot;:&quot;trigger_profile&quot;,&quot;run_id&quot;:&quot;...&quot;,&quot;try_number&quot;:1,&quot;map_index&quot;:-1,&quot;exception&quot;:null,&quot;logs&quot;:[]}
+{&quot;event&quot;:&quot;success&quot;,&quot;dag_id&quot;:&quot;DATASET_PROFILING_test&quot;,&quot;task_id&quot;:&quot;trigger_profile&quot;,&quot;run_id&quot;:&quot;...&quot;,&quot;try_number&quot;:1,&quot;map_index&quot;:-1,&quot;exception&quot;:null,&quot;logs&quot;:[...]}
+{&quot;event&quot;:&quot;execute&quot;,&quot;dag_id&quot;:&quot;DATASET_PROFILING_test&quot;,&quot;task_id&quot;:&quot;wait_to_complete_profiling&quot;,&quot;run_id&quot;:&quot;...&quot;,&quot;try_number&quot;:1,&quot;map_index&quot;:-1,&quot;exception&quot;:null,&quot;logs&quot;:[]}
+{&quot;event&quot;:&quot;success&quot;,&quot;dag_id&quot;:&quot;DATASET_PROFILING_test&quot;,&quot;task_id&quot;:&quot;wait_to_complete_profiling&quot;,&quot;run_id&quot;:&quot;...&quot;,&quot;try_number&quot;:1,&quot;map_index&quot;:-1,&quot;exception&quot;:null,&quot;logs&quot;:[...]}
+</code></pre></div>
+<p>Useful fields include:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>event</code></td>
+<td>Callback event such as execute, retry, success, failure, or skipped.</td>
+</tr>
+<tr>
+<td><code>dag_id</code></td>
+<td>The Airflow DAG that produced the event.</td>
+</tr>
+<tr>
+<td><code>task_id</code></td>
+<td>The Airflow task that produced the event.</td>
+</tr>
+<tr>
+<td><code>run_id</code></td>
+<td>Identifies the Airflow DAG run.</td>
+</tr>
+<tr>
+<td><code>try_number</code></td>
+<td>The task attempt number.</td>
+</tr>
+<tr>
+<td><code>exception</code></td>
+<td>Exception information when available.</td>
+</tr>
+<tr>
+<td><code>logs</code></td>
+<td>Application-specific diagnostic log entries collected during the task.</td>
+</tr>
+</tbody>
+</table>
+<p>Entries in <code>logs</code> may include:</p>
+<ul>
+<li>log level,</li>
+<li>message,</li>
+<li>payload,</li>
+<li>response from an underpinning service,</li>
+<li>timestamp,</li>
+<li>task ID,</li>
+<li>sequence number,</li>
+<li>retry or reschedule information.</li>
+</ul>
+<p>For example, profiling logs may contain the payload sent to the Dataset Profiler, the returned profiling job ID, later profiling status checks, and the response returned when the completed profile is fetched.</p>
+<h3 id="51-airflow-retries">5.1 Airflow retries<a class="headerlink" href="#51-airflow-retries" title="Permanent link">&para;</a></h3>
+<p>An Airflow retry does <strong>not</strong> immediately change the step to <code>Failed</code>.</p>
+<p>While retries remain available:</p>
+<div class="highlight"><pre><span></span><code>WorkflowProcessStep.Status = InProgress
+</code></pre></div>
+<p>The retry callback appends additional events and logs to <code>WorkflowTaskInstanceDetails</code>.</p>
+<p>A step remaining <code>InProgress</code> for some time therefore does not necessarily mean that it is stuck. Inspect <code>event</code>, <code>try_number</code>, <code>exception</code>, and the related logs when more detail is required.</p>
+<p>Only a terminal failure causes the workflow step and its parent workflow process to become <code>Failed</code>.</p>
+<hr />
+<h2 id="6-finding-workflow-executions">6. Finding Workflow Executions<a class="headerlink" href="#6-finding-workflow-executions" title="Permanent link">&para;</a></h2>
+<p>The direct <code>GET /api/workflow-process/{id}</code> endpoint is the simplest way to monitor a workflow when its ID is already known.</p>
+<p>The query endpoints are useful when the caller needs to discover workflow executions, for example all workflows associated with a dataset or user.</p>
+<h3 id="61-query-workflow-processes">6.1 Query workflow processes<a class="headerlink" href="#61-query-workflow-processes" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>POST /api/workflow-process/query
+</code></pre></div>
+<p>The request body is a <code>WorkflowProcessLookup</code>.</p>
+<p>Supported process-specific filters include:</p>
+<ul>
+<li><code>Ids</code></li>
+<li><code>ExcludedIds</code></li>
+<li><code>UserIds</code></li>
+<li><code>DatasetIds</code></li>
+</ul>
+<p>The common lookup model also supports paging, ordering, metadata, and field projection as explained in <a href="../api-overview/">api overview</a>.</p>
+<p>Example: find workflows for a dataset.</p>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>--location<span class="w"> </span><span class="s1">&#39;&lt;base url&gt;/api/workflow-process/query&#39;</span><span class="w"> </span><span class="se">\</span>
+--header<span class="w"> </span><span class="s1">&#39;Authorization: Bearer ey...aQ&#39;</span><span class="w"> </span><span class="se">\</span>
+--header<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+--data<span class="w"> </span><span class="s1">&#39;{</span>
+<span class="s1">  &quot;DatasetIds&quot;: [</span>
+<span class="s1">    &quot;a72ee943-7a56-46e8-88b6-2cf382b2859b&quot;</span>
+<span class="s1">  ],</span>
+<span class="s1">  &quot;Project&quot;: {</span>
+<span class="s1">    &quot;Fields&quot;: [</span>
+<span class="s1">      &quot;Id&quot;,</span>
+<span class="s1">      &quot;ProcessId&quot;,</span>
+<span class="s1">      &quot;Dataset.Id&quot;,</span>
+<span class="s1">      &quot;Status&quot;,</span>
+<span class="s1">      &quot;CreatedAt&quot;,</span>
+<span class="s1">      &quot;UpdatedAt&quot;,</span>
+<span class="s1">      &quot;Steps.Id&quot;,</span>
+<span class="s1">      &quot;Steps.StepId&quot;,</span>
+<span class="s1">      &quot;Steps.Status&quot;</span>
+<span class="s1">    ]</span>
+<span class="s1">  }</span>
+<span class="s1">}&#39;</span>
+</code></pre></div>
+<p>The response is:</p>
+<div class="highlight"><pre><span></span><code>QueryResult&lt;WorkflowProcess&gt;
+</code></pre></div>
+<p>and contains the matching workflow processes together with the result count.</p>
+<p>When multiple results exist for the same dataset:</p>
+<ul>
+<li><code>Id</code> distinguishes individual workflow executions.</li>
+<li><code>ProcessId</code> identifies which workflow definition was run.</li>
+<li><code>Status</code> shows the current or terminal state of each execution.</li>
+<li><code>CreatedAt</code> and <code>UpdatedAt</code> help distinguish older and newer executions.</li>
+<li><code>Steps.StepId</code> identifies the configured processing stage.</li>
+<li><code>Steps.Status</code> shows where each execution is or where it stopped.</li>
+</ul>
+<p>Previous workflow executions remain available as historical records.</p>
+<blockquote>
+<p>When paging is used, ordering must also be supplied.</p>
+</blockquote>
+<h3 id="62-query-workflow-process-steps">6.2 Query workflow process steps<a class="headerlink" href="#62-query-workflow-process-steps" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>POST /api/workflow-process/step/query
+</code></pre></div>
+<p>The request body is a <code>WorkflowProcessStepLookup</code>.</p>
+<p>Supported step-specific filters include:</p>
+<ul>
+<li><code>Ids</code></li>
+<li><code>ExcludedIds</code></li>
+<li><code>ProcessIds</code></li>
+</ul>
+<p>Example: retrieve the steps belonging to a workflow process.</p>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>--location<span class="w"> </span><span class="s1">&#39;&lt;base url&gt;/api/workflow-process/step/query&#39;</span><span class="w"> </span><span class="se">\</span>
+--header<span class="w"> </span><span class="s1">&#39;Authorization: Bearer ey...aQ&#39;</span><span class="w"> </span><span class="se">\</span>
+--header<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+--data<span class="w"> </span><span class="s1">&#39;{</span>
+<span class="s1">  &quot;ProcessIds&quot;: [</span>
+<span class="s1">    &quot;&lt;workflow-process-id&gt;&quot;</span>
+<span class="s1">  ],</span>
+<span class="s1">  &quot;Project&quot;: {</span>
+<span class="s1">    &quot;Fields&quot;: [</span>
+<span class="s1">      &quot;Id&quot;,</span>
+<span class="s1">      &quot;StepId&quot;,</span>
+<span class="s1">      &quot;Status&quot;,</span>
+<span class="s1">      &quot;CreatedAt&quot;,</span>
+<span class="s1">      &quot;UpdatedAt&quot;,</span>
+<span class="s1">      &quot;WorkflowTaskInstanceDetails&quot;</span>
+<span class="s1">    ]</span>
+<span class="s1">  }</span>
+<span class="s1">}&#39;</span>
+</code></pre></div>
+<p>The response is:</p>
+<div class="highlight"><pre><span></span><code>QueryResult&lt;WorkflowProcessStep&gt;
+</code></pre></div>
+<h3 id="63-get-a-workflow-process-step-by-id">6.3 Get a workflow process step by ID<a class="headerlink" href="#63-get-a-workflow-process-step-by-id" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>GET /api/workflow-process/step/{id}
+</code></pre></div>
+<p>Example:</p>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>--location<span class="w"> </span><span class="s1">&#39;&lt;base url&gt;/api/workflow-process/step/&lt;workflow-process-step-id&gt;?f=Id&amp;f=StepId&amp;f=Status&amp;f=CreatedAt&amp;f=UpdatedAt&amp;f=WorkflowTaskInstanceDetails&#39;</span><span class="w"> </span><span class="se">\</span>
+--header<span class="w"> </span><span class="s1">&#39;Authorization: Bearer ey...aQ&#39;</span>
+</code></pre></div>
+<p>If the workflow process step cannot be found, the endpoint returns <code>404</code>.</p>
+<hr />
+<h2 id="7-failure-diagnosis-and-recovery">7. Failure Diagnosis and Recovery<a class="headerlink" href="#7-failure-diagnosis-and-recovery" title="Permanent link">&para;</a></h2>
+<p>A failed step should <strong>not</strong> automatically be interpreted as an instruction to call the standalone endpoint for that processing stage.</p>
+<p>A failure may be caused by:</p>
+<ul>
+<li>an unavailable underpinning service,</li>
+<li>an HTTP or network communication failure,</li>
+<li>invalid or unavailable input data,</li>
+<li>an infrastructure issue that exhausted its retries,</li>
+<li>an unexpected response from another DataGEMS component,</li>
+<li>a configuration problem,</li>
+<li>an application bug,</li>
+<li>or another blocking condition.</li>
+</ul>
+<p>Recovery should therefore begin with the collected task logs.</p>
+<h3 id="71-recommended-diagnostic-flow">7.1 Recommended diagnostic flow<a class="headerlink" href="#71-recommended-diagnostic-flow" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>WorkflowProcess = Failed
+        |
+        v
+Identify the WorkflowProcessStep with Status = Failed
+        |
+        v
+Inspect WorkflowTaskInstanceDetails
+        |
+        v
+Identify the failed Airflow task and its last attempt
+        |
+        v
+Inspect exception, messages, payloads and service responses
+        |
+        v
+Resolve the underlying problem
+        |
+        v
+Decide what workflow action, if any, is appropriate
+</code></pre></div>
+<p>For example, if the packaging step failed because the Airflow task could not communicate with an underpinning service, immediately calling:</p>
+<div class="highlight"><pre><span></span><code>POST /api/workflow-process/package
+</code></pre></div>
+<p>may simply reproduce the failure. It also does not repair or resume the failed onboarding workflow.</p>
+<h3 id="72-restarting-onboarding">7.2 Restarting onboarding<a class="headerlink" href="#72-restarting-onboarding" title="Permanent link">&para;</a></h3>
+<p>Once a Dataset Onboarding <code>WorkflowProcess</code> becomes <code>Failed</code>, it remains failed permanently.</p>
+<p>If the diagnosed problem requires the full onboarding flow to be executed again, submit a new request:</p>
+<div class="highlight"><pre><span></span><code>POST /api/workflow-process/onboard
+</code></pre></div>
+<p>This creates a <strong>new</strong> <code>WorkflowProcess</code> with a new ID.</p>
+<p>Conceptually:</p>
+<div class="highlight"><pre><span></span><code>Workflow A
+Onboarding -&gt; Profiling -&gt; Packaging (Failed)
+Status: Failed
+        |
+        | diagnose and resolve the blocking issue
+        v
+Workflow B
+Onboarding -&gt; Profiling -&gt; Packaging -&gt; Recommendation -&gt; CDD
+Status: InProgress / Succeeded
+</code></pre></div>
+<p>Workflow B does not modify Workflow A. The earlier failed execution remains available for diagnostics and historical reference.</p>
+<hr />
+<h2 id="8-standalone-processing-workflows">8. Standalone Processing Workflows<a class="headerlink" href="#8-standalone-processing-workflows" title="Permanent link">&para;</a></h2>
+<p>The Gateway also exposes individual processing stages as standalone workflows.</p>
+<p>These endpoints create new, independent <code>WorkflowProcess</code> instances. They do <strong>not</strong> resume an existing onboarding workflow and should not be treated as generic "retry the failed step" endpoints.</p>
+<h3 id="81-dataset-profiling">8.1 Dataset profiling<a class="headerlink" href="#81-dataset-profiling" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>POST /api/workflow-process/profile
+</code></pre></div>
+<p>Example:</p>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>--location<span class="w"> </span><span class="s1">&#39;&lt;base url&gt;/api/workflow-process/profile?f=Id&amp;f=Status&#39;</span><span class="w"> </span><span class="se">\</span>
+--header<span class="w"> </span><span class="s1">&#39;Authorization: Bearer ey...aQ&#39;</span><span class="w"> </span><span class="se">\</span>
+--header<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+--data<span class="w"> </span><span class="s1">&#39;{</span>
+<span class="s1">  &quot;id&quot;: &quot;&lt;dataset uuid&gt;&quot;,</span>
+<span class="s1">  &quot;dataStoreKind&quot;: 0,</span>
+<span class="s1">  &quot;DatabaseName&quot;: null</span>
+<span class="s1">}&#39;</span>
+</code></pre></div>
+<p>Supported <code>DataStoreKind</code> values include:</p>
+<ul>
+<li><code>FileSystem = 0</code> — the dataset is stored in a filesystem.</li>
+<li><code>RelationalDatabase = 1</code> — the dataset is stored in a relational database.</li>
+</ul>
+<p>For uploaded, downloaded, or staged raw files, use <code>FileSystem</code>. <code>RelationalDatabase</code> is intended for datasets already staged in a relational database, in which case <code>DatabaseName</code> is also used.</p>
+<h3 id="82-dataset-packaging">8.2 Dataset packaging<a class="headerlink" href="#82-dataset-packaging" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>POST /api/workflow-process/package
+</code></pre></div>
+<p>Example:</p>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>--location<span class="w"> </span><span class="s1">&#39;&lt;base url&gt;/api/workflow-process/package?f=Id&amp;f=Status&#39;</span><span class="w"> </span><span class="se">\</span>
+--header<span class="w"> </span><span class="s1">&#39;Authorization: Bearer ey...aQ&#39;</span><span class="w"> </span><span class="se">\</span>
+--header<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+--data<span class="w"> </span><span class="s1">&#39;{</span>
+<span class="s1">  &quot;id&quot;: &quot;&lt;dataset uuid&gt;&quot;</span>
+<span class="s1">}&#39;</span>
+</code></pre></div>
+<h3 id="83-dataset-recommendation-registration">8.3 Dataset recommendation registration<a class="headerlink" href="#83-dataset-recommendation-registration" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>POST /api/workflow-process/recommendation-register
+</code></pre></div>
+<p>Example:</p>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>--location<span class="w"> </span><span class="s1">&#39;&lt;base url&gt;/api/workflow-process/recommendation-register?f=Id&amp;f=Status&#39;</span><span class="w"> </span><span class="se">\</span>
+--header<span class="w"> </span><span class="s1">&#39;Authorization: Bearer ey...aQ&#39;</span><span class="w"> </span><span class="se">\</span>
+--header<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+--data<span class="w"> </span><span class="s1">&#39;{</span>
+<span class="s1">  &quot;id&quot;: &quot;&lt;dataset uuid&gt;&quot;</span>
+<span class="s1">}&#39;</span>
+</code></pre></div>
+<h3 id="84-cross-dataset-discovery-ingestion">8.4 Cross Dataset Discovery ingestion<a class="headerlink" href="#84-cross-dataset-discovery-ingestion" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>POST /api/workflow-process/cdd-ingest
+</code></pre></div>
+<p>Example:</p>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>--location<span class="w"> </span><span class="s1">&#39;&lt;base url&gt;/api/workflow-process/cdd-ingest?f=Id&amp;f=Status&#39;</span><span class="w"> </span><span class="se">\</span>
+--header<span class="w"> </span><span class="s1">&#39;Authorization: Bearer ey...aQ&#39;</span><span class="w"> </span><span class="se">\</span>
+--header<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+--data<span class="w"> </span><span class="s1">&#39;{</span>
+<span class="s1">  &quot;id&quot;: &quot;&lt;dataset uuid&gt;&quot;</span>
+<span class="s1">}&#39;</span>
+</code></pre></div>
+<h3 id="85-important-standalone-workflow-behavior">8.5 Important standalone-workflow behavior<a class="headerlink" href="#85-important-standalone-workflow-behavior" title="Permanent link">&para;</a></h3>
+<p>Each standalone endpoint creates a new process containing only the requested stage.</p>
+<p>For example:</p>
+<div class="highlight"><pre><span></span><code>POST /api/workflow-process/package
+</code></pre></div>
+<p>creates a Dataset Packaging workflow containing only a packaging step.</p>
+<p>If it succeeds, it does <strong>not</strong> automatically continue with:</p>
+<div class="highlight"><pre><span></span><code>Recommendation Registration
+        |
+        v
+CDD Ingestion
+</code></pre></div>
+<p>Likewise, a successful standalone workflow does not modify the state of an earlier failed Dataset Onboarding process.</p>
+<p>Whether a standalone workflow is appropriate after a failure depends on the actual failure cause and the intended recovery procedure.</p>
+<hr />
+<h2 id="9-recommended-client-flow">9. Recommended Client Flow<a class="headerlink" href="#9-recommended-client-flow" title="Permanent link">&para;</a></h2>
+<p>For a normal dataset onboarding integration:</p>
+<h3 id="step-1-prepare-the-data">Step 1 — Prepare the data<a class="headerlink" href="#step-1-prepare-the-data" title="Permanent link">&para;</a></h3>
+<p>Upload files when necessary or provide another supported <code>DataLocation</code>.</p>
+<h3 id="step-2-start-onboarding">Step 2 — Start onboarding<a class="headerlink" href="#step-2-start-onboarding" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>POST /api/workflow-process/onboard?f=Id
+</code></pre></div>
+<p>Store the returned <code>WorkflowProcess.Id</code>.</p>
+<h3 id="step-3-monitor-the-workflow">Step 3 — Monitor the workflow<a class="headerlink" href="#step-3-monitor-the-workflow" title="Permanent link">&para;</a></h3>
+<p>Periodically request:</p>
+<div class="highlight"><pre><span></span><code>GET /api/workflow-process/{id}
+</code></pre></div>
+<p>At minimum, request:</p>
+<div class="highlight"><pre><span></span><code>Id
+Status
+Steps.Id
+Steps.StepId
+Steps.Status
+</code></pre></div>
+<p>Request <code>Steps.WorkflowTaskInstanceDetails</code> when task-level diagnostics are required.</p>
+<h3 id="step-4-interpret-the-terminal-state">Step 4 — Interpret the terminal state<a class="headerlink" href="#step-4-interpret-the-terminal-state" title="Permanent link">&para;</a></h3>
+<p>If the process is <code>Succeeded</code>, all configured onboarding stages completed successfully.</p>
+<p>If the process is <code>Failed</code>, identify the failed step, inspect its <code>WorkflowTaskInstanceDetails</code>, resolve the underlying problem, and only then decide whether a new onboarding process or another explicit workflow execution is appropriate.</p>
+<h3 id="step-5-discover-historical-executions-when-needed">Step 5 — Discover historical executions when needed<a class="headerlink" href="#step-5-discover-historical-executions-when-needed" title="Permanent link">&para;</a></h3>
+<p>If the process ID is no longer known, or multiple executions need to be reviewed, query by dataset:</p>
+<div class="highlight"><pre><span></span><code>POST /api/workflow-process/query
+</code></pre></div>
+<p>using <code>DatasetIds</code>.</p>
+<hr />
+<h2 id="10-workflow-configuration-reference">10. Workflow Configuration Reference<a class="headerlink" href="#10-workflow-configuration-reference" title="Permanent link">&para;</a></h2>
+<p>Workflow definitions should be obtained through:</p>
+<div class="highlight"><pre><span></span><code>GET /api/workflow-process/config
+</code></pre></div>
+<p>rather than by maintaining workflow and step IDs independently in the client.</p>
+<p>The endpoint returns a <code>WorkflowProcessConfig</code>:</p>
+<div class="highlight"><pre><span></span><code>WorkflowProcessConfig
+└── Items[]
+    ├── Id
+    ├── Kind
+    ├── Name
+    ├── Description
+    └── Steps[]
+        ├── Id
+        ├── Kind
+        ├── Order
+        └── TaskId
+</code></pre></div>
+<h3 id="101-workflow-process-configuration-item">10.1 Workflow process configuration item<a class="headerlink" href="#101-workflow-process-configuration-item" title="Permanent link">&para;</a></h3>
+<p>Each item describes one workflow definition.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Id</code></td>
+<td>Identifier of the workflow definition. Matches <code>WorkflowProcess.ProcessId</code>.</td>
+</tr>
+<tr>
+<td><code>Kind</code></td>
+<td>Workflow type.</td>
+</tr>
+<tr>
+<td><code>Name</code></td>
+<td>Human-readable name of the workflow.</td>
+</tr>
+<tr>
+<td><code>Description</code></td>
+<td>Description of the workflow's purpose.</td>
+</tr>
+<tr>
+<td><code>Steps</code></td>
+<td>Ordered workflow-step definitions belonging to the workflow.</td>
+</tr>
+</tbody>
+</table>
+<p>For example:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;25593b3b-f2b8-4304-bba2-e6eb6e3f4872&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;kind&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Dataset Onboarding&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Onboards a new dataset by collecting and registering its metadata and data location within the platform.&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;steps&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="err">...</span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="102-workflow-step-configuration-item">10.2 Workflow step configuration item<a class="headerlink" href="#102-workflow-step-configuration-item" title="Permanent link">&para;</a></h3>
+<p>Each configured step contains:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Id</code></td>
+<td>Identifier of the configured step. Matches <code>WorkflowProcessStep.StepId</code>.</td>
+</tr>
+<tr>
+<td><code>Kind</code></td>
+<td>Type of processing stage represented by the step.</td>
+</tr>
+<tr>
+<td><code>Order</code></td>
+<td>Position of the step within its parent workflow.</td>
+</tr>
+<tr>
+<td><code>TaskId</code></td>
+<td>Underlying workflow-orchestrator task/DAG identifier.</td>
+</tr>
+</tbody>
+</table>
+<p>The configuration should be used whenever a client needs to:</p>
+<ul>
+<li>determine which workflow a <code>WorkflowProcess</code> represents;</li>
+<li>determine which stage a <code>WorkflowProcessStep</code> represents;</li>
+<li>display a human-readable stage name;</li>
+<li>order process steps correctly;</li>
+<li>associate a step with the underlying workflow-orchestrator task.</li>
+</ul>
+<p>This avoids coupling clients to hardcoded workflow-process IDs, step IDs, or step ordering.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+  <footer class="custom-footer">
+    <div class="footer-content">
+      <img src="../images/EN-Funded-by-the-EU-POS-7.png" alt="EU logo" class="footer-logo" />
+      <p class="footer-text">
+        DataGEMS is a Research and Innovation Action funded by the European Union under the Horizon Europe Research and Innovation Programme via Grant Agreement No 101188416.
+      </p>
+
+      <div class="footer-social-icons">
+        
+          <a href="https://github.com/datagems-eosc/" target="_blank" rel="noopener">
+            <span class="icon">
+              <i class="fab fa-github"></i>
+            </span>
+          </a>
+        
+          <a href="https://www.instagram.com/datagems_eosc" target="_blank" rel="noopener">
+            <span class="icon">
+              <i class="fab fa-instagram"></i>
+            </span>
+          </a>
+        
+          <a href="https://x.com/datagems_eosc" target="_blank" rel="noopener">
+            <span class="icon">
+              <i class="fab fa-x-twitter"></i>
+            </span>
+          </a>
+        
+          <a href="https://www.youtube.com/@DataGEMS-65n" target="_blank" rel="noopener">
+            <span class="icon">
+              <i class="fab fa-youtube"></i>
+            </span>
+          </a>
+        
+          <a href="https://www.linkedin.com/company/eosc-datagems" target="_blank" rel="noopener">
+            <span class="icon">
+              <i class="fab fa-linkedin"></i>
+            </span>
+          </a>
+        
+          <a href="https://www.facebook.com/datagems.eosc/" target="_blank" rel="noopener">
+            <span class="icon">
+              <i class="fab fa-facebook"></i>
+            </span>
+          </a>
+        
+      </div>
+    </div>
+  </footer>
+
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.path", "navigation.top"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"alias": true, "default": "latest", "provider": "mike"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
