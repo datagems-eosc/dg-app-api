@@ -37,7 +37,7 @@
 		"UploadRules": {
 			//50ΜΒ = 52428800 bytes
 			"MaxFileSize": 52428800,
-			"AllowedExtensions": [ ".csv", ".xlsx", ".txt", ".pdf", ".png", ".jpeg", ".jpg", ".md" ]
+			"AllowedExtensions": [ ".csv", ".xlsx", ".txt", ".pdf", ".png", ".jpeg", ".jpg", ".md", ".docx", ".pptx", ".m4a" ]
 		},
 		"DownloadRules": {
 			//50ΜΒ = 52428800 bytes
