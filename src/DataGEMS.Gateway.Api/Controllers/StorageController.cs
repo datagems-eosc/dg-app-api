@@ -89,6 +89,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		}
 
 		[RequestSizeLimit(325_058_560)]
+		[RequestFormLimits(MultipartBodyLengthLimit = 325_058_560)]
 		[HttpPost("upload/dataset")]
 		[Authorize]
 		[ModelStateValidationFilter]
