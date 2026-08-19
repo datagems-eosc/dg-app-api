@@ -88,6 +88,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			return allowed;
 		}
 
+		[RequestSizeLimit(325_058_560)]
 		[HttpPost("upload/dataset")]
 		[Authorize]
 		[ModelStateValidationFilter]
