@@ -41,7 +41,8 @@
 		},
 		"DownloadRules": {
 			//50ΜΒ = 52428800 bytes
-			"MaxFileSize": 52428800,
+			//310MB = 325058560 bytes
+			"MaxFileSize": 325058560,
 			"AllowedExtensions": null
 		}
 	}
