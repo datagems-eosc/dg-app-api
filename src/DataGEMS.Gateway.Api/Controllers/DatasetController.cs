@@ -139,6 +139,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 
 		[HttpPost("{update}")]
 		[Authorize]
+		[ValidationFilter(typeof(App.Model.DatasetPersist.PersistValidator), "model")]
 		[ModelStateValidationFilter]
 		[SwaggerOperation(Summary = "Update dataset")]
 		[SwaggerResponse(statusCode: 200, description: "The updated dataset", type: typeof(QueryResult<App.Model.Dataset>))]
