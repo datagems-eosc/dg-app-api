@@ -16,9 +16,11 @@ using DataGEMS.Gateway.App.Censor;
 using DataGEMS.Gateway.App.Common;
 using DataGEMS.Gateway.App.ErrorCode;
 using DataGEMS.Gateway.App.Exception;
+using DataGEMS.Gateway.App.Model;
 using DataGEMS.Gateway.App.Model.Builder;
 using DataGEMS.Gateway.App.Query;
 using DataGEMS.Gateway.App.Service.DataManagement;
+using DataGEMS.Gateway.App.Service.TaskOrchestrator;
 using DataGEMS.Gateway.App.Service.WorkflowProcess;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -39,6 +41,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		private readonly ErrorThesaurus _errors;
 		private readonly IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> _localizer;
 		private readonly IWorkflowProcessService _workflowProcessService;
+		private readonly ITaskOrchestratorService _taskOrchestratorService;
 
 		public DatasetController(
 			CensorFactory censorFactory,
@@ -49,7 +52,8 @@ namespace DataGEMS.Gateway.Api.Controllers
 			IDataManagementService datasetService,
 			IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> localizer,
 			ErrorThesaurus errors,
-			IWorkflowProcessService workflowProcessService)
+			IWorkflowProcessService workflowProcessService,
+			ITaskOrchestratorService taskOrchestratorService)
 		{
 			this._censorFactory = censorFactory;
 			this._queryFactory = queryFactory;
@@ -60,6 +64,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			this._localizer = localizer;
 			this._errors = errors;
 			this._workflowProcessService = workflowProcessService;
+			this._taskOrchestratorService = taskOrchestratorService;
 		}
 
 		[HttpPost("query")]
@@ -130,6 +135,42 @@ namespace DataGEMS.Gateway.Api.Controllers
 			this._accountingService.AccountFor(KnownActions.Query, KnownResources.Dataset.AsAccountable());
 
 			return model;
+		}
+
+		[HttpPost("{update}")]
+		[Authorize]
+		[ModelStateValidationFilter]
+		[SwaggerOperation(Summary = "Update dataset")]
+		[SwaggerResponse(statusCode: 200, description: "The updated dataset", type: typeof(QueryResult<App.Model.Dataset>))]
+		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
+		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
+		[SwaggerResponse(statusCode: 404, description: "Could not locate item with the provided id")]
+		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
+		[SwaggerResponse(statusCode: 500, description: "Internal error")]
+		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
+		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
+		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
+		public async Task<App.Model.Dataset> Update(
+			[FromBody]
+			[SwaggerParameter(description: "The model to update", Required = true)]
+			DatasetPersist model,
+
+			[FromQuery]
+			[ModelBinder(Name = "f")]
+			[SwaggerParameter(description: "The fields to include in the response model", Required = true)]
+			[LookupFieldSetQueryStringOpenApi]
+			IFieldSet fieldSet)
+		{
+			this._logger.Debug(new MapLogEntry("update").And("type", nameof(App.Model.Dataset)).And("model", model).And("fields", fieldSet));
+
+			IFieldSet censoredFields = await this._censorFactory.Censor<DatasetCensor>().Censor(fieldSet, CensorContext.AsCensor());
+			if (fieldSet.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+
+			Dataset returnModel = await this._taskOrchestratorService.UpdateDatasetAsync(model, censoredFields);
+
+			this._accountingService.AccountFor(KnownActions.Persist, KnownResources.Dataset.AsAccountable());
+
+			return returnModel;
 		}
 
 		[HttpPost("onboard")]
@@ -291,5 +332,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 
 			return id;
 		}
+
+
 	}
 }

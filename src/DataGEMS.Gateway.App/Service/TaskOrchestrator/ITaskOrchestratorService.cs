@@ -11,6 +11,7 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 		Task<string> AdHocQueryPreviewAsync(Guid adHocId, int lines);
 		Task<List<Guid>> DatasetRecommendationAsync(Guid seedDatasetId, int n);
 		Task<QueryDisambiguationViewModel> QueryDisambiguationAsync(DisambiguationInfo info, IFieldSet fields = null);
+		Task<Dataset> UpdateDatasetAsync(DatasetPersist model, IFieldSet fields = null);
 	}
 
 	public class DisambiguationInfo

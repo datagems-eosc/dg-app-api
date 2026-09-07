@@ -12,6 +12,8 @@ using DataGEMS.Gateway.App.Event;
 using DataGEMS.Gateway.App.Exception;
 using DataGEMS.Gateway.App.LogTracking;
 using DataGEMS.Gateway.App.Model;
+using DataGEMS.Gateway.App.Model.Builder;
+using DataGEMS.Gateway.App.Query;
 using DataGEMS.Gateway.App.Service.Discovery.Model;
 using DataGEMS.Gateway.App.Service.TaskOrchestrator.Model;
 using Microsoft.EntityFrameworkCore;
@@ -242,6 +244,38 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 			App.Model.QueryDisambiguationViewModel model = await _builderFactory.Builder<App.Model.Builder.QueryDisambiguationBuilder>()
 				.Build(FieldSet.Build(fields, nameof(App.Model.QueryDisambiguation.Results)).Ensure(nameof(App.Model.QueryDisambiguation.Results)), queryDisambiguation);
 			return model;
+		}
+
+		public async Task<Dataset> UpdateDatasetAsync(DatasetPersist model, IFieldSet fields = null)
+		{
+			Guid? userId = await this._authorizationContentResolver.CurrentUserId();
+			if (!userId.HasValue) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+			List<Guid> datasetIds = await this._authorizationContentResolver.EffectiveContextAffiliatedDatasets(Permission.EditDataset);
+			if (datasetIds == null || !datasetIds.Contains(model.Id.Value)) throw new DGUnauthorizedException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+
+			string token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
+			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
+			string requestUrl = $"{this._config.BaseUrl}{this._config.DatasetUpdateEndpoint}";
+			string requestBody = this._jsonHandlingService.ToJsonSafe(new
+			{
+				ap = BuildDatasetUpdateAnalyticalPattern(model)
+			});
+			this._logger.Debug("Sending request to {url} with request body {body}", requestUrl, requestBody);
+			HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, requestUrl)
+			{
+				Content = new StringContent(requestBody, Encoding.UTF8, "application/json")
+			};
+			httpRequest.Headers.Add(HeaderNames.Accept, "application/json");
+			httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+			httpRequest.Headers.Add(this._logTrackingCorrelationConfig.HeaderName, this._logCorrelationScope.CorrelationId);
+			_ = await this.SendRequest(httpRequest);
+
+			DatasetHttpQuery query = this._queryFactory.Query<DatasetHttpQuery>().Ids(model.Id.Value);
+			App.Service.DataManagement.Model.Dataset data = ((await query.CollectAsync()))?.Items.FirstOrDefault();
+			if (data == null) throw new DGNotFoundException(this._localizer["general_notFound", model.Id.Value, nameof(App.Model.Dataset)]);
+			App.Model.Dataset returnModel = await this._builderFactory.Builder<DatasetBuilder>().Authorize(AuthorizationFlags.Any).Build(fields, data);
+			if (returnModel == null) throw new DGNotFoundException(this._localizer["general_notFound", model.Id.Value, nameof(App.Model.Dataset)]);
+			return returnModel;
 		}
 
 		private async Task<string> SendRequest(HttpRequestMessage request, TimeSpan? timeout = null)
@@ -634,6 +668,104 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 			}
 
 			return ap;
+		}
+
+		private static AnalyticalPattern BuildDatasetUpdateAnalyticalPattern(DatasetPersist model)
+		{
+			DateTime now = DateTime.UtcNow;
+			AnalyticalPatternNode analyticalPatternNode = new AnalyticalPatternNode
+			{
+				Id = Guid.NewGuid(),
+				Labels = ["Analytical_Pattern"],
+				Properties = new Dictionary<string, object>
+				{
+					{ "description", "Analytical Pattern to update a dataset" },
+					{ "name", "Update Dataset AP" },
+					{ "process", "update" },
+					{ "publishedDate", now.ToString("yyyy-MM-dd") },
+					{ "startTime", now.ToString("HH:mm:ss") }
+				}
+			};
+			AnalyticalPatternNode operatorNode = new AnalyticalPatternNode
+			{
+				Id = Guid.NewGuid(),
+				Labels = ["DataModelManagement_Operator", "Operator"],
+				Properties = new Dictionary<string, object>
+				{
+					{ "description", "An operator to update a dataset into DataGEMS" },
+					{ "name", "Update Operator" },
+					{ "command", "update" },
+					{ "publishedDate", now.ToString("yyyy-MM-dd") },
+					{ "startTime", now.ToString("HH:mm:ss") }
+				}
+			};
+
+			AnalyticalPatternNode datasetNode = new AnalyticalPatternNode
+			{
+				Id = Guid.NewGuid(),
+				Labels = ["sc:Dataset"],
+				Properties = []
+			};
+			if (model.Headline != null) datasetNode.Properties["headline"] = model.Headline;
+			if (model.DatePublished != null) datasetNode.Properties["datePublished"] = model.DatePublished;
+			if (model.License != null) datasetNode.Properties["license"] = model.License;
+			if (model.Language != null) datasetNode.Properties["inLanguage"] = model.Language;
+			if (model.CiteAs != null) datasetNode.Properties["citeAs"] = model.CiteAs;
+			if (model.Country != null) datasetNode.Properties["country"] = model.Country;
+			if (model.Description != null) datasetNode.Properties["description"] = model.Description;
+			if (model.Doi != null) datasetNode.Properties["doi"] = model.Doi;
+			if (model.FieldOfScience != null) datasetNode.Properties["fieldOfScience"] = model.FieldOfScience;
+			if (model.Keywords != null) datasetNode.Properties["keywords"] = model.Keywords;
+			if (model.Name != null) datasetNode.Properties["name"] = model.Name;
+			if (model.Url != null) datasetNode.Properties["url"] = model.Url;
+
+			AnalyticalPatternNode userNode = new AnalyticalPatternNode
+			{
+				Id = Guid.NewGuid(),
+				Labels = ["User"]
+			};
+			AnalyticalPatternNode taskNode = new AnalyticalPatternNode
+			{
+				Id = Guid.NewGuid(),
+				Labels = ["Task"],
+				Properties = new Dictionary<string, object>
+				{
+					{ "description", "Task to update a dataset" },
+					{ "name", "Dataset Update Task" },
+				}
+			};
+
+			AnalyticalPatternEdge consistEdge = new AnalyticalPatternEdge
+			{
+				From = analyticalPatternNode.Id,
+				To = operatorNode.Id,
+				Labels = ["consist_of"]
+			};
+
+			AnalyticalPatternEdge inputEdge = new AnalyticalPatternEdge
+			{
+				From = datasetNode.Id,
+				To = operatorNode.Id,
+				Labels = ["input"]
+			};
+			AnalyticalPatternEdge accomplishedEdge = new AnalyticalPatternEdge
+			{
+				From = taskNode.Id,
+				To = analyticalPatternNode.Id,
+				Labels = ["is_accomplished"]
+			};
+			AnalyticalPatternEdge requestEdge = new AnalyticalPatternEdge
+			{
+				From = userNode.Id,
+				To = taskNode.Id,
+				Labels = ["request"]
+			};
+
+			return new AnalyticalPattern
+			{
+				Nodes = [analyticalPatternNode, operatorNode, datasetNode, userNode, taskNode],
+				Edges = [consistEdge, inputEdge, accomplishedEdge, requestEdge]
+			};
 		}
 	}
 
