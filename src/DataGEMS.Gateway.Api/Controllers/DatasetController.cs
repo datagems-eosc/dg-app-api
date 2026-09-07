@@ -137,7 +137,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			return model;
 		}
 
-		[HttpPost("{update}")]
+		[HttpPost("update")]
 		[Authorize]
 		[ValidationFilter(typeof(App.Model.DatasetPersist.PersistValidator), "model")]
 		[ModelStateValidationFilter]

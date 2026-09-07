@@ -12,7 +12,7 @@ namespace DataGEMS.Gateway.App.Common
 
 		[JsonProperty("labels")]
 		public List<string> Labels { get; set; }
-		[JsonProperty("properties")]
+		[JsonProperty("properties", NullValueHandling = NullValueHandling.Ignore)]
 		public Dictionary<string, object> Properties { get; set; }
 	}
 }

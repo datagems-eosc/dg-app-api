@@ -261,7 +261,7 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 				ap = BuildDatasetUpdateAnalyticalPattern(model)
 			});
 			this._logger.Debug("Sending request to {url} with request body {body}", requestUrl, requestBody);
-			HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, requestUrl)
+			HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Put, requestUrl)
 			{
 				Content = new StringContent(requestBody, Encoding.UTF8, "application/json")
 			};
@@ -689,20 +689,21 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 			AnalyticalPatternNode operatorNode = new AnalyticalPatternNode
 			{
 				Id = Guid.NewGuid(),
-				Labels = ["DataModelManagement_Operator", "Operator"],
+				Labels = ["Operator"],
 				Properties = new Dictionary<string, object>
 				{
 					{ "description", "An operator to update a dataset into DataGEMS" },
 					{ "name", "Update Operator" },
 					{ "command", "update" },
 					{ "publishedDate", now.ToString("yyyy-MM-dd") },
-					{ "startTime", now.ToString("HH:mm:ss") }
+					{ "startTime", now.ToString("HH:mm:ss") },
+					{ "step", 1 }
 				}
 			};
 
 			AnalyticalPatternNode datasetNode = new AnalyticalPatternNode
 			{
-				Id = Guid.NewGuid(),
+				Id = model.Id.Value,
 				Labels = ["sc:Dataset"],
 				Properties = []
 			};
@@ -711,7 +712,7 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 			if (model.License != null) datasetNode.Properties["license"] = model.License;
 			if (model.Language != null) datasetNode.Properties["inLanguage"] = model.Language;
 			if (model.CiteAs != null) datasetNode.Properties["citeAs"] = model.CiteAs;
-			if (model.Country != null) datasetNode.Properties["country"] = model.Country;
+			if (model.Country != null) datasetNode.Properties["country"] = model.Country.FirstOrDefault();
 			if (model.Description != null) datasetNode.Properties["description"] = model.Description;
 			if (model.Doi != null) datasetNode.Properties["doi"] = model.Doi;
 			if (model.FieldOfScience != null) datasetNode.Properties["fieldOfScience"] = model.FieldOfScience;
