@@ -1,4 +1,5 @@
 ﻿using Cite.Tools.Data.Builder;
+using Cite.Tools.FieldSet;
 using Cite.Tools.Json;
 using Cite.Tools.Logging.Extensions;
 using DataGEMS.Gateway.App.AccessToken;
@@ -7,6 +8,7 @@ using DataGEMS.Gateway.App.Common;
 using DataGEMS.Gateway.App.ErrorCode;
 using DataGEMS.Gateway.App.Exception;
 using DataGEMS.Gateway.App.LogTracking;
+using DataGEMS.Gateway.App.Service.DatasetLinking.Model;
 using Microsoft.Extensions.Logging;
 using System.Net.Http.Headers;
 
@@ -51,6 +53,28 @@ namespace DataGEMS.Gateway.App.Service.DatasetLinking
 			_jsonHandlingService = jsonHandlingService;
 			_builderFactory = builderFactory;
 			_authorizationContentResolver = authorizationContentResolver;
+		}
+
+		public async Task<DatasetLinkingStatus> GetJobStatusByIdAsync(Guid id)
+		{
+			string token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
+			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
+
+			string requestUrl = $"{this._config.BaseUrl}{this._config.JobStatusEndpoint}".Replace("{jobId}", id.ToString());
+			this._logger.Debug("Sending request to {requestUrl}", requestUrl);
+			HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Get, requestUrl);
+			httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+			httpRequest.Headers.Add(this._logTrackingCorrelationConfig.HeaderName, this._logCorrelationScope.CorrelationId);
+
+			string content = await this.SendRequest(httpRequest);
+			DatasetLinkingJobStatus rawResponse = null;
+			try { rawResponse = this._jsonHandlingService.FromJson<DatasetLinkingJobStatus>(content); }
+			catch (System.Exception ex)
+			{
+				this._logger.LogError(ex, "Failed to parse response: {content}", content);
+				throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.DatasetLinking, this._logCorrelationScope.CorrelationId);
+			}
+			return rawResponse.Status;
 		}
 
 		public async Task<string> GetJobByIdAsync(Guid id)

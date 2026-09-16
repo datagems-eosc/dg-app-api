@@ -339,6 +339,32 @@ namespace DataGEMS.Gateway.Api.Controllers
 		}
 
 
+		[HttpGet("linking/status/{id}")]
+		[Authorize]
+		[ModelStateValidationFilter]
+		[SwaggerOperation(Summary = "Get dataset linking status")]
+		[SwaggerResponse(statusCode: 200, description: "The status of the linking job", type: typeof(DatasetLinkingStatus))]
+		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
+		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
+		[SwaggerResponse(statusCode: 404, description: "Could not locate item with the provided id")]
+		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
+		[SwaggerResponse(statusCode: 500, description: "Internal error")]
+		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
+		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
+		public async Task<DatasetLinkingStatus> GetLinkingStatus(
+			[FromRoute]
+			[SwaggerParameter(description: "The id of the job", Required = true)]
+			Guid id)
+		{
+			this._logger.Debug(new MapLogEntry("get").And("type", nameof(App.Model.Dataset)).And("id", id));
+
+			DatasetLinkingStatus result = await this._datasetLinkingService.GetJobStatusByIdAsync(id);
+
+			this._accountingService.AccountFor(KnownActions.LinkingStatus, KnownResources.Dataset.AsAccountable());
+
+			return result;
+		}
+
 		[HttpGet("linking/result/{id}")]
 		[Authorize]
 		[ModelStateValidationFilter]

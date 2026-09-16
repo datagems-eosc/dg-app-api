@@ -20,6 +20,7 @@ namespace DataGEMS.Gateway.App.Accounting
 		CddIngest = 14,
 		LinkingReport = 15,
 		LinkingResult = 16,
+		LinkingStatus = 17,
 	}
 
 	public enum KnownUnits : short
