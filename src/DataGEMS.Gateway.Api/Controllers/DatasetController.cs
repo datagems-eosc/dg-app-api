@@ -20,6 +20,7 @@ using DataGEMS.Gateway.App.Model;
 using DataGEMS.Gateway.App.Model.Builder;
 using DataGEMS.Gateway.App.Query;
 using DataGEMS.Gateway.App.Service.DataManagement;
+using DataGEMS.Gateway.App.Service.DatasetLinking;
 using DataGEMS.Gateway.App.Service.TaskOrchestrator;
 using DataGEMS.Gateway.App.Service.WorkflowProcess;
 using Microsoft.AspNetCore.Authorization;
@@ -42,6 +43,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		private readonly IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> _localizer;
 		private readonly IWorkflowProcessService _workflowProcessService;
 		private readonly ITaskOrchestratorService _taskOrchestratorService;
+		private readonly IDatasetLinkingService _datasetLinkingService;
 
 		public DatasetController(
 			CensorFactory censorFactory,
@@ -53,7 +55,8 @@ namespace DataGEMS.Gateway.Api.Controllers
 			IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> localizer,
 			ErrorThesaurus errors,
 			IWorkflowProcessService workflowProcessService,
-			ITaskOrchestratorService taskOrchestratorService)
+			ITaskOrchestratorService taskOrchestratorService,
+			IDatasetLinkingService datasetLinkingService)
 		{
 			this._censorFactory = censorFactory;
 			this._queryFactory = queryFactory;
@@ -65,6 +68,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			this._errors = errors;
 			this._workflowProcessService = workflowProcessService;
 			this._taskOrchestratorService = taskOrchestratorService;
+			this._datasetLinkingService = datasetLinkingService;
 		}
 
 		[HttpPost("query")]
@@ -335,5 +339,30 @@ namespace DataGEMS.Gateway.Api.Controllers
 		}
 
 
+		[HttpGet("linking/result/{id}")]
+		[Authorize]
+		[ModelStateValidationFilter]
+		[SwaggerOperation(Summary = "Get dataset linking result")]
+		[SwaggerResponse(statusCode: 200, description: "The matching dataset", type: typeof(string))]
+		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
+		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
+		[SwaggerResponse(statusCode: 404, description: "Could not locate item with the provided id")]
+		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
+		[SwaggerResponse(statusCode: 500, description: "Internal error")]
+		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
+		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
+		public async Task<string> GetLinkingResult(
+			[FromRoute]
+			[SwaggerParameter(description: "The id of the job", Required = true)]
+			Guid id)
+		{
+			this._logger.Debug(new MapLogEntry("get").And("type", nameof(App.Model.Dataset)).And("id", id));
+
+			string result = await this._datasetLinkingService.GetJobByIdAsync(id);
+
+			this._accountingService.AccountFor(KnownActions.LinkingResult, KnownResources.Dataset.AsAccountable());
+
+			return result;
+		}
 	}
 }

@@ -19,6 +19,7 @@ namespace DataGEMS.Gateway.App.Accounting
 		Preview = 13,
 		CddIngest = 14,
 		LinkingReport = 15,
+		LinkingResult = 16,
 	}
 
 	public enum KnownUnits : short

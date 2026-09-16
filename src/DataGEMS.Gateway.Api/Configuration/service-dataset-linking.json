@@ -1,0 +1,9 @@
+{
+  "DatasetLinkingService": {
+    "Scope": "datagems",
+    "BaseUrl": "%{DatasetLinkingBaseUrl}%",
+    "StartRefineEndpoint": "jobs/refine",
+    "JobStatusEndpoint": "jobs/{jobId}",
+    "JobResultEndpoint": "jobs/{jobId}/result"
+  }
+}

@@ -103,6 +103,10 @@ namespace DataGEMS.Gateway.Api
 							.AddJsonFileInPaths("service-data-management.json", sharedConfigPath, "Configuration")
 							.AddJsonFileInPaths("service-data-management.override.json", sharedConfigPath, "Configuration")
 							.AddJsonFileInPaths($"service-data-management.{env.EnvironmentName}.json", sharedConfigPath, "Configuration")
+							//service dataset linking
+							.AddJsonFileInPaths("service-dataset-linking.json", sharedConfigPath, "Configuration")
+							.AddJsonFileInPaths("service-dataset-linking.override.json", sharedConfigPath, "Configuration")
+							.AddJsonFileInPaths($"service-dataset-linking.{env.EnvironmentName}.json", sharedConfigPath, "Configuration")
 							//service dataset packaging
 							.AddJsonFileInPaths("service-dataset-packaging.json", sharedConfigPath, "Configuration")
 							.AddJsonFileInPaths("service-dataset-packaging.override.json", sharedConfigPath, "Configuration")

@@ -32,6 +32,7 @@ using DataGEMS.Gateway.App.Service.Collection;
 using DataGEMS.Gateway.App.Service.Conversation;
 using DataGEMS.Gateway.App.Service.DataManagement;
 using DataGEMS.Gateway.App.Service.DatasetFileManagement;
+using DataGEMS.Gateway.App.Service.DatasetLinking;
 using DataGEMS.Gateway.App.Service.DatasetPackaging;
 using DataGEMS.Gateway.App.Service.DatasetRecommender;
 using DataGEMS.Gateway.App.Service.Discovery;
@@ -102,6 +103,7 @@ namespace DataGEMS.Gateway.Api
 				.AddAAIServices(this._config.GetSection("AAIService:Service"), this._config.GetSection("AAIService:Cache")) //AAI Keycloak
 				.AddQueryRecommenderServices(this._config.GetSection("QueryRecommenderService")) //Query Recommender API
 				.AddDatasetFileManagementServices() //Dataset File Management API
+				.AddDatasetLinkingServices(this._config.GetSection("DatasetLinkingService")) //Dataset Linking API
 				.AddDatasetRecommenderServices(this._config.GetSection("DatasetRecommenderService")) //Dataset Recommender API
 				.AddDatasetPackagingServices(this._config.GetSection("DatasetPackagingService")) //Dataset Packaging API
 				.AddWorkflowProcessServices(this._config.GetSection("WorkflowProcess")) //Add Workflow Process Services
