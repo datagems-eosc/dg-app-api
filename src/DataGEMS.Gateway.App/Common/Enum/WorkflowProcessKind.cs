@@ -8,11 +8,13 @@ namespace DataGEMS.Gateway.App.Common
 		DatasetOnboarding = 0,
 		[Description("Dataset Profiling")]
 		DatasetProfiling = 1,
+		[Description("Dataset Linking Report")]
+		DatasetLinkingReport = 2,
 		[Description("Dataset Packaging")]
-		DatasetPackaging = 2,
+		DatasetPackaging = 3,
 		[Description("Dataset Recommendation Registering")]
-		DatasetRecommendationRegistering = 3,
+		DatasetRecommendationRegistering = 4,
 		[Description("Dataset CDD Ingest")]
-		CDD_Ingest = 4
+		CDD_Ingest = 5
 	}
 }

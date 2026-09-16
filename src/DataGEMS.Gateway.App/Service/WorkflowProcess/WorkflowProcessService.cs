@@ -138,7 +138,7 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 			await this.ExecutePackaging(datasetId, data.ProcessId, data.Id, data.StepId, steps[2].TaskId);
 		}
 
-		public async Task FinilizePackagingStep(WorkflowProcessStepPersist model, Guid datasetId)
+		public async Task FinilizeLinkingReportStep(WorkflowProcessStepPersist model, Guid datasetId)
 		{
 			await this.UpdateWorkflowProcessStep(model);
 
@@ -148,10 +148,10 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 			Data.WorkflowProcessStep data = await this._queryFactory.Query<WorkflowProcessStepQuery>().ProcessIds(model.ProcessId.Value).StepIds(steps[3].Id).FirstAsync();
 			if (data == null) throw new DGNotFoundException(this._localizer["general_notFound", model.Id.Value, nameof(App.Model.WorkflowProcessStep)]);
 
-			await this.ExecuteRecommendationRegistering(datasetId, data.ProcessId, data.Id, data.StepId, steps[3].TaskId);
+			await this.ExecutePackaging(datasetId, data.ProcessId, data.Id, data.StepId, steps[3].TaskId);
 		}
 
-		public async Task FinilizeRecommendationStep(WorkflowProcessStepPersist model, Guid datasetId)
+		public async Task FinilizePackagingStep(WorkflowProcessStepPersist model, Guid datasetId)
 		{
 			await this.UpdateWorkflowProcessStep(model);
 
@@ -161,7 +161,20 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 			Data.WorkflowProcessStep data = await this._queryFactory.Query<WorkflowProcessStepQuery>().ProcessIds(model.ProcessId.Value).StepIds(steps[4].Id).FirstAsync();
 			if (data == null) throw new DGNotFoundException(this._localizer["general_notFound", model.Id.Value, nameof(App.Model.WorkflowProcessStep)]);
 
-			await this.ExecuteCddIngestion(datasetId, data.ProcessId, data.Id, data.StepId, steps[4].TaskId);
+			await this.ExecuteRecommendationRegistering(datasetId, data.ProcessId, data.Id, data.StepId, steps[4].TaskId);
+		}
+
+		public async Task FinilizeRecommendationStep(WorkflowProcessStepPersist model, Guid datasetId)
+		{
+			await this.UpdateWorkflowProcessStep(model);
+
+			WorkflowProcessConfig.WorkflowProcessConfigItem configuration = this._config.Items.FirstOrDefault(x => x.Kind == Common.WorkflowProcessKind.DatasetOnboarding);
+			List<WorkflowProcessConfig.WorkflowProcessConfigItem.WorkflowProcessConfigItemStep> steps = configuration.Steps.OrderBy(x => x.Order).ToList();
+
+			Data.WorkflowProcessStep data = await this._queryFactory.Query<WorkflowProcessStepQuery>().ProcessIds(model.ProcessId.Value).StepIds(steps[5].Id).FirstAsync();
+			if (data == null) throw new DGNotFoundException(this._localizer["general_notFound", model.Id.Value, nameof(App.Model.WorkflowProcessStep)]);
+
+			await this.ExecuteCddIngestion(datasetId, data.ProcessId, data.Id, data.StepId, steps[5].TaskId);
 		}
 
 		public async Task FinilizeCddIngestionStep(WorkflowProcessStepPersist model, Guid datasetId)
@@ -236,6 +249,24 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 			return persisted;
 		}
 
+		public async Task<App.Model.WorkflowProcess> ExecuteLinkingReportFlow(DatasetLinkingReport model, IFieldSet fields = null)
+		{
+			this._logger.Debug(new MapLogEntry("execute-linking-report-flow").And("fields", fields));
+			await this._authorizationService.AuthorizeForce(Permission.CanExecuteDatasetLinkingReport);
+			WorkflowProcessConfig.WorkflowProcessConfigItem configuration = this._config.Items.FirstOrDefault(x => x.Kind == Common.WorkflowProcessKind.DatasetLinkingReport);
+			(Data.WorkflowProcess data, IOrderedEnumerable<WorkflowProcessConfig.WorkflowProcessConfigItem.WorkflowProcessConfigItemStep> steps, List<Data.WorkflowProcessStep> stepData) = await this.PersistFlow(configuration);
+			try
+			{
+				await this.ExecuteLinkingReport(model.Id.Value, stepData.First().Id, data.Id, stepData.First().StepId, steps.First().TaskId);
+			}
+			catch
+			{
+				await PersistFailedFlow(data, stepData);
+				throw;
+			}
+			App.Model.WorkflowProcess persisted = await this._builderFactory.Builder<App.Model.Builder.WorkflowProcessBuilder>().Build(FieldSet.Build(fields, nameof(App.Model.WorkflowProcess.Id)), data);
+			return persisted;
+		}
 
 		public async Task<App.Model.WorkflowProcess> ExecutePackagingFlow(App.Model.DatasetPackaging model, IFieldSet fields = null)
 		{
@@ -503,6 +534,33 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 				nameof(App.Model.WorkflowExecution.Id),
 				nameof(App.Model.WorkflowExecution.WorkflowId),
 				]
+			});
+		}
+
+		private async Task ExecuteLinkingReport(Guid datasetId, Guid processId, Guid stepId, Guid stepIdentifier, string identifyingTag)
+		{
+			this._logger.Debug(new MapLogEntry("execute-linking-report").And("processId", processId).And("stepId", stepId));
+			await this._authorizationService.AuthorizeForce(Permission.CanExecuteDatasetLinkingReport);
+			List<Airflow.Model.AirflowDag> definitions = await this._queryFactory.Query<WorkflowDefinitionHttpQuery>().Kinds(Enum.Parse<Common.WorkflowDefinitionKind>(identifyingTag)).ExcludeStaled(true).CollectAsync();
+			if (definitions == null || definitions.Count == 0) throw new DGNotFoundException(this._localizer["general_notFound", identifyingTag, nameof(App.Model.WorkflowDefinition)]);
+			if (definitions.Count > 1) throw new DGFoundManyException(this._localizer["general_nonUnique", identifyingTag, nameof(App.Model.WorkflowDefinition)]);
+			Airflow.Model.AirflowDag selectedDefinition = definitions.FirstOrDefault();
+			_ = await this._airflowService.ExecuteWorkflowAsync(new App.Model.WorkflowExecutionArgs
+			{
+				WorkflowId = selectedDefinition.Id,
+				Configurations = new
+				{
+					id = datasetId,
+					workflow_process_step_information = new
+					{
+						id = stepId,
+						step_id = stepIdentifier,
+						process_id = processId,
+					},
+				}
+			}, new FieldSet
+			{
+				Fields = [nameof(App.Model.WorkflowExecution.Id), nameof(App.Model.WorkflowExecution.WorkflowId),]
 			});
 		}
 

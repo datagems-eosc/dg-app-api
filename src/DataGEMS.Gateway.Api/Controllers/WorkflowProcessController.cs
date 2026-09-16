@@ -306,6 +306,44 @@ namespace DataGEMS.Gateway.Api.Controllers
 			return process;
 		}
 
+		[HttpPost("linking_report")]
+		[Authorize]
+		[ModelStateValidationFilter]
+		[ServiceFilter(typeof(AppTransactionFilter))]
+		[SwaggerOperation(Summary = "dataset linking report")]
+		[SwaggerResponse(statusCode: 200, description: "The linking report process", type: typeof(WorkflowProcess))]
+		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
+		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
+		[SwaggerResponse(statusCode: 404, description: "Could not locate item with the provided id")]
+		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
+		[SwaggerResponse(statusCode: 500, description: "Internal error")]
+		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
+		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
+		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
+		public async Task<WorkflowProcess> LinkingReport(
+			[FromBody]
+			[SwaggerRequestBody(description: "The linking report to apply", Required = true)]
+			App.Model.DatasetLinkingReport model,
+
+			[FromQuery]
+			[ModelBinder(Name = "f")]
+			[SwaggerParameter(description: "The fields to include in the response model", Required = true)]
+			[LookupFieldSetQueryStringOpenApi]
+			IFieldSet fieldSet)
+		{
+			this._logger.Debug(new MapLogEntry("linking_report"));
+
+			IFieldSet censoredFields = await this._censorFactory.Censor<WorkflowProcessCensor>().Censor(fieldSet, CensorContext.AsCensor());
+			if (fieldSet.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+
+			var response = await this._workflowProcessService.ExecuteLinkingReportFlow(model, censoredFields);
+
+			this._accountingService.AccountFor(KnownActions.LinkingReport, KnownResources.Dataset.AsAccountable());
+			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.Workflow.AsAccountable());
+
+			return response;
+		}
+
 
 		[HttpPost("package")]
 		[Authorize]
@@ -507,6 +545,32 @@ namespace DataGEMS.Gateway.Api.Controllers
 			this._logger.Debug(new MapLogEntry("persisting").And("type", nameof(App.Model.WorkflowProfilingStepFinalize)));
 
 			await this._workflowProcessService.FinilizeProfilingStep(model.WorkflowProcessStep, model.DatasetId.Value);
+
+			this._accountingService.AccountFor(KnownActions.Persist, KnownResources.WorkflowProcessStep.AsAccountable());
+			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.Workflow.AsAccountable());
+		}
+
+		[HttpPost("step/finalize-linking-report")]
+		[Authorize]
+		[ModelStateValidationFilter]
+		[ValidationFilter(typeof(App.Model.WorkflowLinkingReportStepFinalize.Validator), "model")]
+		[ServiceFilter(typeof(AppTransactionFilter))]
+		[SwaggerOperation(Summary = "Update a workflow process step")]
+		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
+		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
+		[SwaggerResponse(statusCode: 404, description: "Could not locate item with the provided id")]
+		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
+		[SwaggerResponse(statusCode: 500, description: "Internal error")]
+		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
+		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
+		public async Task WorkflowFinalizeLinkingReport(
+			[FromBody]
+			[SwaggerRequestBody(description: "The model to persist", Required = true)]
+			App.Model.WorkflowLinkingReportStepFinalize model)
+		{
+			this._logger.Debug(new MapLogEntry("persisting").And("type", nameof(App.Model.WorkflowLinkingReportStepFinalize)));
+
+			await this._workflowProcessService.FinilizeLinkingReportStep(model.WorkflowProcessStep, model.DatasetId.Value);
 
 			this._accountingService.AccountFor(KnownActions.Persist, KnownResources.WorkflowProcessStep.AsAccountable());
 			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.Workflow.AsAccountable());

@@ -9,21 +9,23 @@ namespace DataGEMS.Gateway.App.Common
 		DatasetOnboarding = 0,
 		[Description("Dataset Profiling")]
 		DatasetProfiling = 1,
+		[Description("Dataset Linking Report")]
+		DatasetLinkingReport = 2,
 		[Description("Dataset Packaging")]
-		DatasetPackaging = 2,
+		DatasetPackaging = 3,
 		[Description("Dataset Recommendation Registering")]
-		DatasetRecommendationRegistering = 3,
+		DatasetRecommendationRegistering = 4,
 		[Description("Dataset CDD Ingest")]
-		CDD_Ingest = 4,
+		CDD_Ingest = 5,
 		[Description("Dataset Onboarding test")]
-		DatasetOnboarding_test = 5,
+		DatasetOnboarding_test = 6,
 		[Description("Dataset Profiling test")]
-		DatasetProfiling_test = 6,
+		DatasetProfiling_test = 7,
 		[Description("Dataset Packaging test")]
-		DatasetPackaging_test = 7,
+		DatasetPackaging_test = 8,
 		[Description("Dataset Recommendation Registering test")]
-		DatasetRecommendationRegistering_test = 8,
+		DatasetRecommendationRegistering_test = 9,
 		[Description("Dataset CDD Ingest test")]
-		CDD_Ingest_test = 9,
+		CDD_Ingest_test = 10,
 	}
 }

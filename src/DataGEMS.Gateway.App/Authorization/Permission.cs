@@ -64,6 +64,7 @@ namespace DataGEMS.Gateway.App.Authorization
 		public const String BrowseWorkflowDefinition = "BrowseWorkflowDefinition";
 		public const String CanExecuteDatasetOnboarding = "CanExecuteDatasetOnboarding";
 		public const String CanExecuteDatasetProfiling = "CanExecuteDatasetProfiling";
+		public const String CanExecuteDatasetLinkingReport = "CanExecuteDatasetLinkingReport";
 		public const String CanExecuteDatasetPackaging = "CanExecuteDatasetPackaging";
 		public const String CanExecuteDatasetRecommendationRegistering = "CanExecuteDatasetRecommendationRegistering";
 		public const String CanExecuteDatasetCddIngest = "CanExecuteDatasetCddIngest";

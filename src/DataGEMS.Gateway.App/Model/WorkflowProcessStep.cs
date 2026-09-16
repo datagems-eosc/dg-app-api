@@ -143,6 +143,44 @@ namespace DataGEMS.Gateway.App.Model
 		}
 	}
 
+	public class WorkflowLinkingReportStepFinalize
+	{
+		public WorkflowProcessStepPersist WorkflowProcessStep { get; set; }
+		public Guid? DatasetId { get; set; }
+
+		public class Validator : BaseValidator<WorkflowLinkingReportStepFinalize>
+		{
+			public Validator(
+				IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> localizer,
+				ValidatorFactory validatorFactory,
+				ILogger<Validator> logger,
+				ErrorThesaurus errors) : base(validatorFactory, logger, errors)
+			{
+				this._localizer = localizer;
+			}
+			private readonly IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> _localizer;
+			protected override IEnumerable<ISpecification> Specifications(WorkflowLinkingReportStepFinalize item)
+			{
+				return [
+					//WorkflowProcessStepPersist must not be null
+					this.Spec()
+						.Must(() => item.WorkflowProcessStep != null)
+						.FailOn(nameof(WorkflowLinkingReportStepFinalize.WorkflowProcessStep)).FailWith(this._localizer["validation_required", nameof(WorkflowLinkingReportStepFinalize.WorkflowProcessStep)]),
+					//WorkflowProcessStepPersist must be valid
+					this.RefSpec()
+						.If(() => item.WorkflowProcessStep != null)
+						.On(nameof(WorkflowLinkingReportStepFinalize.WorkflowProcessStep))
+						.Over(item.WorkflowProcessStep)
+						.Using(() => _validatorFactory[typeof(WorkflowProcessStepPersist.PersistValidator)]),
+					//DatasetId must be valid
+					this.Spec()
+						.Must(() => this.IsValidGuid(item.DatasetId))
+						.FailOn(nameof(WorkflowLinkingReportStepFinalize.DatasetId)).FailWith(this._localizer["validation_required", nameof(WorkflowLinkingReportStepFinalize.DatasetId)]),
+				];
+			}
+		}
+	}
+
 	public class WorkflowPackagingStepFinalize
 	{
 		public WorkflowProcessStepPersist WorkflowProcessStep { get; set; }

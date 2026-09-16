@@ -18,6 +18,7 @@ namespace DataGEMS.Gateway.App.Accounting
 		RecommendationRegister = 12,
 		Preview = 13,
 		CddIngest = 14,
+		LinkingReport = 15,
 	}
 
 	public enum KnownUnits : short

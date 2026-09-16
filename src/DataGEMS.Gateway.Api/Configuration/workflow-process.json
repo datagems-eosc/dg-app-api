@@ -20,21 +20,27 @@
             "TaskId": "DatasetProfiling_test"
           },
           {
-            "Id": "bc5ed9e1-ac8c-47b4-b986-7b28165bdc82",
+            "Id": "01f82bae-761b-47bd-9c61-641892cc0279",
             "Order": 2,
             "Kind": 2,
+            "TaskId": "DatasetLinkingReport"
+          },
+          {
+            "Id": "bc5ed9e1-ac8c-47b4-b986-7b28165bdc82",
+            "Order": 3,
+            "Kind": 3,
             "TaskId": "DatasetPackaging_test"
           },
           {
             "Id": "ebb8dffb-8f5f-447b-9986-8753ae8db398",
-            "Order": 3,
-            "Kind": 3,
+            "Order": 4,
+            "Kind": 4,
             "TaskId": "DatasetRecommendationRegistering_test"
           },
           {
             "Id": "ed906ed4-5445-4df6-af9f-ffc4dde5300f",
-            "Order": 4,
-            "Kind": 4,
+            "Order": 5,
+            "Kind": 5,
             "TaskId": "CDD_Ingest_test"
           }
         ]
