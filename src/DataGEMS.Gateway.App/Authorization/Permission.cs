@@ -50,6 +50,7 @@ namespace DataGEMS.Gateway.App.Authorization
 		public const String PowerSearchDataset = "PowerSearchDataset";
 		public const String DownloadDatasetFile = "DownloadDatasetFile";
 		public const String BrowseDatasetFiles = "BrowseDatasetFiles";
+		public const String LinkRefineDataset = "LinkRefineDataset";
 		//DatasetCollection
 		public const String BrowseDatasetCollection = "BrowseDatasetCollection";
 		//Pilot

@@ -331,4 +331,34 @@ namespace DataGEMS.Gateway.App.Model
 		}
 	}
 
+	public class DatasetLinkingRefinement
+	{
+		public Guid? Id1 { get; set; }
+		public Guid? Id2 { get; set; }
+		public class LinkingRefinementValidator : BaseValidator<DatasetLinkingRefinement>
+		{
+			public LinkingRefinementValidator(
+				IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> localizer,
+				ValidatorFactory validatorFactory,
+				ILogger<LinkingRefinementValidator> logger,
+				ErrorThesaurus errors) : base(validatorFactory, logger, errors)
+			{
+				this._localizer = localizer;
+			}
+			private readonly IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> _localizer;
+			protected override IEnumerable<ISpecification> Specifications(DatasetLinkingRefinement item)
+			{
+				return [
+					//id must be set
+					this.Spec()
+						.Must(() => this.IsValidGuid(item.Id1))
+						.FailOn(nameof(DatasetLinkingRefinement.Id1)).FailWith(this._localizer["validation_required", nameof(DatasetLinkingRefinement.Id1)]),
+					this.Spec()
+						.Must(() => this.IsValidGuid(item.Id2))
+						.FailOn(nameof(DatasetLinkingRefinement.Id2)).FailWith(this._localizer["validation_required", nameof(DatasetLinkingRefinement.Id2)]),
+				];
+			}
+		}
+	}
+
 }

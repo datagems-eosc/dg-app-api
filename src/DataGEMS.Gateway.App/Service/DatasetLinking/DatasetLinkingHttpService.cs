@@ -1,5 +1,4 @@
 ﻿using Cite.Tools.Data.Builder;
-using Cite.Tools.FieldSet;
 using Cite.Tools.Json;
 using Cite.Tools.Logging.Extensions;
 using DataGEMS.Gateway.App.AccessToken;
@@ -8,9 +7,11 @@ using DataGEMS.Gateway.App.Common;
 using DataGEMS.Gateway.App.ErrorCode;
 using DataGEMS.Gateway.App.Exception;
 using DataGEMS.Gateway.App.LogTracking;
+using DataGEMS.Gateway.App.Model;
 using DataGEMS.Gateway.App.Service.DatasetLinking.Model;
 using Microsoft.Extensions.Logging;
 using System.Net.Http.Headers;
+using Microsoft.AspNetCore.DataProtection;
 
 namespace DataGEMS.Gateway.App.Service.DatasetLinking
 {
@@ -27,6 +28,7 @@ namespace DataGEMS.Gateway.App.Service.DatasetLinking
 		private readonly JsonHandlingService _jsonHandlingService;
 		private readonly BuilderFactory _builderFactory;
 		private readonly IAuthorizationContentResolver _authorizationContentResolver;
+		private readonly IDataProtectionProvider _dataProtectionProvider;
 
 		public DatasetLinkingHttpService(
 			IAccessTokenService accessTokenService,
@@ -39,28 +41,62 @@ namespace DataGEMS.Gateway.App.Service.DatasetLinking
 			ErrorThesaurus errors,
 			JsonHandlingService jsonHandlingService,
 			BuilderFactory builderFactory,
-			IAuthorizationContentResolver authorizationContentResolver
+			IAuthorizationContentResolver authorizationContentResolver,
+			IDataProtectionProvider dataProtectionProvider
 		)
 		{
-			_accessTokenService = accessTokenService;
-			_httpClientFactory = httpClientFactory;
-			_config = config;
-			_logTrackingCorrelationConfig = logTrackingCorrelationConfig;
-			_logCorrelationScope = logCorrelationScope;
-			_logger = logger;
-			_requestAccessToken = requestAccessToken;
-			_errors = errors;
-			_jsonHandlingService = jsonHandlingService;
-			_builderFactory = builderFactory;
-			_authorizationContentResolver = authorizationContentResolver;
+			this._accessTokenService = accessTokenService;
+			this._httpClientFactory = httpClientFactory;
+			this._config = config;
+			this._logTrackingCorrelationConfig = logTrackingCorrelationConfig;
+			this._logCorrelationScope = logCorrelationScope;
+			this._logger = logger;
+			this._requestAccessToken = requestAccessToken;
+			this._errors = errors;
+			this._jsonHandlingService = jsonHandlingService;
+			this._builderFactory = builderFactory;
+			this._authorizationContentResolver = authorizationContentResolver;
+			this._dataProtectionProvider = dataProtectionProvider;
 		}
 
-		public async Task<DatasetLinkingStatus> GetJobStatusByIdAsync(Guid id)
+
+		public async Task<string> RefineLinkingAsync(DatasetLinkingRefinement model)
 		{
+			List<Guid> allowedDatasetIds = await this._authorizationContentResolver.EffectiveContextAffiliatedDatasets(Permission.LinkRefineDataset);
+			if (!allowedDatasetIds.Contains(model.Id1.Value) || !allowedDatasetIds.Contains(model.Id2.Value)) throw new DGUnauthorizedException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+
 			string token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
 
-			string requestUrl = $"{this._config.BaseUrl}{this._config.JobStatusEndpoint}".Replace("{jobId}", id.ToString());
+			string requestUrl = $"{this._config.BaseUrl}{this._config.StartRefineEndpoint}".Replace("{datasetId1}", model.Id1.Value.ToString()).Replace("{datasetId2}", model.Id2.Value.ToString());
+			this._logger.Debug("Sending request to {requestUrl}", requestUrl);
+			HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, requestUrl)
+			{
+				Content = new FormUrlEncodedContent(new Dictionary<string, string>())
+			};
+			httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+			httpRequest.Headers.Add(this._logTrackingCorrelationConfig.HeaderName, this._logCorrelationScope.CorrelationId);
+			string content = await this.SendRequest(httpRequest);
+			RefineLinkingResponse rawResponse = null;
+			try { rawResponse = this._jsonHandlingService.FromJson<RefineLinkingResponse>(content); }
+			catch (System.Exception ex)
+			{
+				this._logger.LogError(ex, "Failed to parse response: {content}", content);
+				throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.DatasetLinking, this._logCorrelationScope.CorrelationId);
+			}
+
+			string encodedResponse = this._dataProtectionProvider.CreateProtector("DatasetLinkingJobId", this._authorizationContentResolver.CurrentUser()).Protect(rawResponse.JobId.ToString());
+			return encodedResponse;
+		}
+
+		public async Task<DatasetLinkingStatus> GetJobStatusByIdAsync(string id)
+		{
+			string decodedId = this._dataProtectionProvider.CreateProtector("DatasetLinkingJobId", this._authorizationContentResolver.CurrentUser()).Unprotect(id);
+
+			string token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
+			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
+
+			string requestUrl = $"{this._config.BaseUrl}{this._config.JobStatusEndpoint}".Replace("{jobId}", decodedId);
 			this._logger.Debug("Sending request to {requestUrl}", requestUrl);
 			HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Get, requestUrl);
 			httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
@@ -77,12 +113,13 @@ namespace DataGEMS.Gateway.App.Service.DatasetLinking
 			return rawResponse.Status;
 		}
 
-		public async Task<string> GetJobByIdAsync(Guid id)
+		public async Task<string> GetJobByIdAsync(string id)
 		{
+			string decodedId = this._dataProtectionProvider.CreateProtector("DatasetLinkingJobId", this._authorizationContentResolver.CurrentUser()).Unprotect(id);
 			string token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
 
-			string requestUrl = $"{this._config.BaseUrl}{this._config.JobResultEndpoint}".Replace("{jobId}", id.ToString());
+			string requestUrl = $"{this._config.BaseUrl}{this._config.JobResultEndpoint}".Replace("{jobId}", decodedId);
 			this._logger.Debug("Sending request to {requestUrl}", requestUrl);
 			HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Get, requestUrl);
 			httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
@@ -102,7 +139,7 @@ namespace DataGEMS.Gateway.App.Service.DatasetLinking
 			catch (System.Exception ex)
 			{
 				this._logger.Error(ex, $"could not complete the request. response was {response?.StatusCode}");
-				throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, (int?)response?.StatusCode, UnderpinningServiceType.QueryRecommender, this._logCorrelationScope.CorrelationId);
+				throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, (int?)response?.StatusCode, UnderpinningServiceType.DatasetLinking, this._logCorrelationScope.CorrelationId);
 			}
 
 			try { response.EnsureSuccessStatusCode(); }
@@ -112,11 +149,12 @@ namespace DataGEMS.Gateway.App.Service.DatasetLinking
 				try { errorPayload = await response.Content.ReadAsStringAsync(); } catch (System.Exception) { }
 				this._logger.Error(ex, "non successful response. StatusCode was {statusCode} and Payload {errorPayload}", response?.StatusCode, errorPayload);
 				bool includeErrorPayload = response != null && (response.StatusCode == System.Net.HttpStatusCode.BadRequest || response.StatusCode == System.Net.HttpStatusCode.UnprocessableContent);
-				throw new Exception.DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, (int?)response?.StatusCode, UnderpinningServiceType.QueryRecommender, this._logCorrelationScope.CorrelationId, includeErrorPayload ? errorPayload : null);
+				throw new Exception.DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, (int?)response?.StatusCode, UnderpinningServiceType.DatasetLinking, this._logCorrelationScope.CorrelationId, includeErrorPayload ? errorPayload : null);
 			}
 			string content = await response.Content.ReadAsStringAsync();
 			this._logger.Debug("Response content: {content}", content);
 			return content;
 		}
+
 	}
 }

@@ -338,6 +338,31 @@ namespace DataGEMS.Gateway.Api.Controllers
 			return id;
 		}
 
+		[HttpPost("linking/refinement")]
+		[Authorize]
+		[ModelStateValidationFilter]
+		[ValidationFilter(typeof(App.Model.DatasetLinkingRefinement.LinkingRefinementValidator), "model")]
+		[ServiceFilter(typeof(AppTransactionFilter))]
+		[SwaggerOperation(Summary = "Refine dataset linking")]
+		[SwaggerResponse(statusCode: 200, description: "The refined linking result", type: typeof(string))]
+		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
+		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
+		[SwaggerResponse(statusCode: 404, description: "Could not locate item with the provided id")]
+		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
+		[SwaggerResponse(statusCode: 500, description: "Internal error")]
+		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
+		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
+		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
+		public async Task<string> LinkingRefinement(
+			[FromBody]
+			[SwaggerRequestBody(description: "The dataset linking refinement to apply", Required = true)]
+			App.Model.DatasetLinkingRefinement model)
+		{
+			this._logger.Debug(new MapLogEntry("linking-refinement").And("model", model));
+			string result = await this._datasetLinkingService.RefineLinkingAsync(model);
+			this._accountingService.AccountFor(KnownActions.LinkingRefinement, KnownResources.Dataset.AsAccountable());
+			return result;
+		}
 
 		[HttpGet("linking/status/{id}")]
 		[Authorize]
@@ -354,7 +379,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		public async Task<DatasetLinkingStatus> GetLinkingStatus(
 			[FromRoute]
 			[SwaggerParameter(description: "The id of the job", Required = true)]
-			Guid id)
+			string id)
 		{
 			this._logger.Debug(new MapLogEntry("get").And("type", nameof(App.Model.Dataset)).And("id", id));
 
@@ -380,7 +405,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		public async Task<string> GetLinkingResult(
 			[FromRoute]
 			[SwaggerParameter(description: "The id of the job", Required = true)]
-			Guid id)
+			string id)
 		{
 			this._logger.Debug(new MapLogEntry("get").And("type", nameof(App.Model.Dataset)).And("id", id));
 
