@@ -165,4 +165,10 @@
   <data name="validation_includedFeaturesMismatch" xml:space="preserve">
     <value>Included features must be among the allowed properties.</value>
   </data>
+  <data name="validation_nonNegativeIfSet" xml:space="preserve">
+    <value>Item's {0} value must be non-negative if set.</value>
+  </data>
+  <data name="validation_rangeIfSet" xml:space="preserve">
+    <value>Item's {0} value must be greater than or equal to {1} and less than or equal to {2}, if set.</value>
+  </data>
 </root>

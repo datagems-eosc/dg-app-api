@@ -335,6 +335,12 @@ namespace DataGEMS.Gateway.App.Model
 	{
 		public Guid? Id1 { get; set; }
 		public Guid? Id2 { get; set; }
+
+		public decimal? KeywordContribution { get; set; }
+		public decimal? HeadlineContribution { get; set; }
+		public decimal? DescriptionContribution { get; set; }
+		public decimal? PairSimilarityThreshold { get; set; }
+
 		public class LinkingRefinementValidator : BaseValidator<DatasetLinkingRefinement>
 		{
 			public LinkingRefinementValidator(
@@ -349,13 +355,31 @@ namespace DataGEMS.Gateway.App.Model
 			protected override IEnumerable<ISpecification> Specifications(DatasetLinkingRefinement item)
 			{
 				return [
-					//id must be set
+					//dataset ids must be set
 					this.Spec()
 						.Must(() => this.IsValidGuid(item.Id1))
 						.FailOn(nameof(DatasetLinkingRefinement.Id1)).FailWith(this._localizer["validation_required", nameof(DatasetLinkingRefinement.Id1)]),
 					this.Spec()
 						.Must(() => this.IsValidGuid(item.Id2))
 						.FailOn(nameof(DatasetLinkingRefinement.Id2)).FailWith(this._localizer["validation_required", nameof(DatasetLinkingRefinement.Id2)]),
+					// contribution values must be equal to or greater than 0, if set
+					this.Spec()
+						.If(() => item.KeywordContribution != null)
+						.Must(() => item.KeywordContribution >= 0)
+						.FailOn(nameof(DatasetLinkingRefinement.KeywordContribution)).FailWith(this._localizer["validation_nonNegativeIfSet", nameof(DatasetLinkingRefinement.KeywordContribution)]),
+					this.Spec()
+						.If(() => item.HeadlineContribution != null)
+						.Must(() => item.HeadlineContribution >= 0)
+						.FailOn(nameof(DatasetLinkingRefinement.HeadlineContribution)).FailWith(this._localizer["validation_nonNegativeIfSet", nameof(DatasetLinkingRefinement.HeadlineContribution)]),
+					this.Spec()
+						.If(() => item.DescriptionContribution != null)
+						.Must(() => item.DescriptionContribution >= 0)
+						.FailOn(nameof(DatasetLinkingRefinement.DescriptionContribution)).FailWith(this._localizer["validation_nonNegativeIfSet", nameof(DatasetLinkingRefinement.DescriptionContribution)]),
+					// pair similarity threshold must be between 0 and 100 if set
+					this.Spec()
+						.If(() => item.PairSimilarityThreshold != null)
+						.Must(() => item.PairSimilarityThreshold >= 0 && item.PairSimilarityThreshold <= 100)
+						.FailOn(nameof(DatasetLinkingRefinement.PairSimilarityThreshold)).FailWith(this._localizer["validation_rangeIfSet", nameof(DatasetLinkingRefinement.PairSimilarityThreshold), 0, 100])
 				];
 			}
 		}

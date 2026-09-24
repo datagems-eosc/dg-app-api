@@ -13,6 +13,7 @@ using Microsoft.Extensions.Logging;
 using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using Cite.Tools.Cipher;
+using System.Collections.Specialized;
 
 namespace DataGEMS.Gateway.App.Service.DatasetLinking
 {
@@ -73,10 +74,19 @@ namespace DataGEMS.Gateway.App.Service.DatasetLinking
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
 
 			string requestUrl = $"{this._config.BaseUrl}{this._config.StartRefineEndpoint}".Replace("{datasetId1}", model.Id1.Value.ToString()).Replace("{datasetId2}", model.Id2.Value.ToString());
+			UriBuilder uriBuilder = new UriBuilder(requestUrl);
+			NameValueCollection query = System.Web.HttpUtility.ParseQueryString(uriBuilder.Query);
+			if (model.KeywordContribution.HasValue) query["kw"] = model.KeywordContribution.Value.ToString();
+			if (model.HeadlineContribution.HasValue) query["head"] = model.HeadlineContribution.Value.ToString();
+			if (model.DescriptionContribution.HasValue) query["desc"] = model.DescriptionContribution.Value.ToString();
+			if (model.PairSimilarityThreshold.HasValue) query["th"] = model.PairSimilarityThreshold.Value.ToString();
+			uriBuilder.Query = query.ToString();
+			requestUrl = uriBuilder.Uri.ToString();
+
 			this._logger.Debug("Sending request to {requestUrl}", requestUrl);
 			HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, requestUrl)
 			{
-				Content = new FormUrlEncodedContent(new Dictionary<string, string>())
+				Content = new FormUrlEncodedContent(new Dictionary<string, string>()),
 			};
 			httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 			httpRequest.Headers.Add(this._logTrackingCorrelationConfig.HeaderName, this._logCorrelationScope.CorrelationId);
