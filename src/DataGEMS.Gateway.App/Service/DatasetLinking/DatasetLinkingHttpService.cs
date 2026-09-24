@@ -99,22 +99,20 @@ namespace DataGEMS.Gateway.App.Service.DatasetLinking
 				throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.DatasetLinking, this._logCorrelationScope.CorrelationId);
 			}
 
-			string encodedResponse = this._cipherService.EncryptSymetricAes($"{rawResponse.JobId}_{await this._authorizationContentResolver.CurrentUserId()}", this._cipherProfiles.GenericProfileName);
+			string encodedResponse = this._cipherService.EncryptSymetricAes($"{await this._authorizationContentResolver.CurrentUserId()}", this._cipherProfiles.GenericProfileName);
 			encodedResponse = Uri.EscapeDataString(encodedResponse);
-			return encodedResponse;
+			return rawResponse.JobId + "_" + encodedResponse;
 		}
 
 		public async Task<DatasetLinkingStatus> GetJobStatusByIdAsync(string id)
 		{
-			string decodedId = null;
-			string encodedId = Uri.UnescapeDataString(id);
+			string[] fragments = id.Split('_');
+			if (fragments.Length != 2 || string.IsNullOrEmpty(fragments[0]) || string.IsNullOrEmpty(fragments[1])) throw new DGUnauthorizedException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
 			try
 			{
-				decodedId = this._cipherService.DecryptSymetricAes(encodedId, this._cipherProfiles.GenericProfileName);
-				string[] decodedFragments = decodedId.Split('_');
-				if (decodedFragments.Length != 2 || decodedFragments[1] != (await this._authorizationContentResolver.CurrentUserId()).ToString()) 
-					throw new DGUnauthorizedException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
-				decodedId = decodedFragments[0];
+				string encodedUserId = Uri.UnescapeDataString(fragments[1]);
+				string decodedUserId = this._cipherService.DecryptSymetricAes(encodedUserId, this._cipherProfiles.GenericProfileName);
+				if (decodedUserId != (await this._authorizationContentResolver.CurrentUserId()).ToString()) throw new DGUnauthorizedException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
 			}
 			catch
 			{
@@ -124,7 +122,7 @@ namespace DataGEMS.Gateway.App.Service.DatasetLinking
 			string token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
 
-			string requestUrl = $"{this._config.BaseUrl}{this._config.JobStatusEndpoint}".Replace("{jobId}", decodedId);
+			string requestUrl = $"{this._config.BaseUrl}{this._config.JobStatusEndpoint}".Replace("{jobId}", fragments[0]);
 			this._logger.Debug("Sending request to {requestUrl}", requestUrl);
 			HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Get, requestUrl);
 			httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
@@ -143,15 +141,13 @@ namespace DataGEMS.Gateway.App.Service.DatasetLinking
 
 		public async Task<string> GetJobByIdAsync(string id)
 		{
-			string decodedId = null;
-			string encodedId = Uri.UnescapeDataString(id);
+			string[] fragments = id.Split('_');
+			if (fragments.Length != 2 || string.IsNullOrEmpty(fragments[0]) || string.IsNullOrEmpty(fragments[1])) throw new DGUnauthorizedException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
 			try
 			{
-				decodedId = this._cipherService.DecryptSymetricAes(encodedId, this._cipherProfiles.GenericProfileName);
-				string[] decodedFragments = decodedId.Split('_');
-				if (decodedFragments.Length != 2 || decodedFragments[1] != (await this._authorizationContentResolver.CurrentUserId()).ToString())
-					throw new DGUnauthorizedException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
-				decodedId = decodedFragments[0];
+				string encodedUserId = Uri.UnescapeDataString(fragments[1]);
+				string decodedUserId = this._cipherService.DecryptSymetricAes(encodedUserId, this._cipherProfiles.GenericProfileName);
+				if (decodedUserId != (await this._authorizationContentResolver.CurrentUserId()).ToString()) throw new DGUnauthorizedException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
 			}
 			catch
 			{
@@ -161,7 +157,7 @@ namespace DataGEMS.Gateway.App.Service.DatasetLinking
 			string token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
 
-			string requestUrl = $"{this._config.BaseUrl}{this._config.JobResultEndpoint}".Replace("{jobId}", decodedId);
+			string requestUrl = $"{this._config.BaseUrl}{this._config.JobResultEndpoint}".Replace("{jobId}", fragments[0]);
 			this._logger.Debug("Sending request to {requestUrl}", requestUrl);
 			HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Get, requestUrl);
 			httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
