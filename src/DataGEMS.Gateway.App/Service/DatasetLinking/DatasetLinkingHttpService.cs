@@ -89,7 +89,7 @@ namespace DataGEMS.Gateway.App.Service.DatasetLinking
 				throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.DatasetLinking, this._logCorrelationScope.CorrelationId);
 			}
 
-			string encodedResponse = this._cipherService.EncryptSymetricAes(rawResponse.JobId.ToString(), this._cipherProfiles.GenericProfileName);
+			string encodedResponse = this._cipherService.EncryptSymetricAes($"{rawResponse.JobId}_{await this._authorizationContentResolver.CurrentUserId()}", this._cipherProfiles.GenericProfileName);
 			encodedResponse = Uri.EscapeDataString(encodedResponse);
 			return encodedResponse;
 		}
@@ -101,6 +101,10 @@ namespace DataGEMS.Gateway.App.Service.DatasetLinking
 			try
 			{
 				decodedId = this._cipherService.DecryptSymetricAes(encodedId, this._cipherProfiles.GenericProfileName);
+				string[] decodedFragments = decodedId.Split('_');
+				if (decodedFragments.Length != 2 || decodedFragments[1] != (await this._authorizationContentResolver.CurrentUserId()).ToString()) 
+					throw new DGUnauthorizedException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+				decodedId = decodedFragments[0];
 			}
 			catch
 			{
@@ -134,6 +138,10 @@ namespace DataGEMS.Gateway.App.Service.DatasetLinking
 			try
 			{
 				decodedId = this._cipherService.DecryptSymetricAes(encodedId, this._cipherProfiles.GenericProfileName);
+				string[] decodedFragments = decodedId.Split('_');
+				if (decodedFragments.Length != 2 || decodedFragments[1] != (await this._authorizationContentResolver.CurrentUserId()).ToString())
+					throw new DGUnauthorizedException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+				decodedId = decodedFragments[0];
 			}
 			catch
 			{
