@@ -12,6 +12,7 @@ using DataGEMS.Gateway.App.Service.DatasetLinking.Model;
 using Microsoft.Extensions.Logging;
 using System.Net.Http.Headers;
 using Microsoft.AspNetCore.DataProtection;
+using System.Security.Cryptography;
 
 namespace DataGEMS.Gateway.App.Service.DatasetLinking
 {
@@ -91,7 +92,15 @@ namespace DataGEMS.Gateway.App.Service.DatasetLinking
 
 		public async Task<DatasetLinkingStatus> GetJobStatusByIdAsync(string id)
 		{
-			string decodedId = this._dataProtectionProvider.CreateProtector("DatasetLinkingJobId", this._authorizationContentResolver.CurrentUser()).Unprotect(id);
+			string decodedId = null;
+			try
+			{
+				decodedId = this._dataProtectionProvider.CreateProtector("DatasetLinkingJobId", this._authorizationContentResolver.CurrentUser()).Unprotect(id);
+			}
+			catch (CryptographicException)
+			{
+				throw new DGUnauthorizedException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+			}
 
 			string token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
@@ -115,7 +124,15 @@ namespace DataGEMS.Gateway.App.Service.DatasetLinking
 
 		public async Task<string> GetJobByIdAsync(string id)
 		{
-			string decodedId = this._dataProtectionProvider.CreateProtector("DatasetLinkingJobId", this._authorizationContentResolver.CurrentUser()).Unprotect(id);
+			string decodedId = null;
+			try
+			{
+				decodedId = this._dataProtectionProvider.CreateProtector("DatasetLinkingJobId", this._authorizationContentResolver.CurrentUser()).Unprotect(id);
+			}
+			catch (CryptographicException)
+			{
+				throw new DGUnauthorizedException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+			}
 			string token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
 
