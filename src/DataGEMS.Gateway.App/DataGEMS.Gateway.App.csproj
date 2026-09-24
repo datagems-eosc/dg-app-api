@@ -9,6 +9,8 @@
   <ItemGroup>
     <PackageReference Include="Cite.Tools.Auth" Version="8.0.1" />
     <PackageReference Include="Cite.Tools.Cache" Version="8.0.0" />
+    <PackageReference Include="Cite.Tools.Cipher" Version="2.0.0" />
+    <PackageReference Include="Cite.Tools.Cipher.Extensions" Version="2.0.0" />
     <PackageReference Include="Cite.Tools.Common" Version="8.0.0" />
     <PackageReference Include="Cite.Tools.Configuration" Version="8.0.0" />
     <PackageReference Include="Cite.Tools.Data.Builder" Version="8.0.0" />

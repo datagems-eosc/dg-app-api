@@ -13,6 +13,8 @@
 
   <ItemGroup>
     <PackageReference Include="AspNetCore.HealthChecks.System" Version="8.0.1" />
+    <PackageReference Include="Cite.Tools.Cipher" Version="2.0.0" />
+    <PackageReference Include="Cite.Tools.Cipher.Extensions" Version="2.0.0" />
     <PackageReference Include="Cite.Tools.Data.Builder.Extensions" Version="8.0.0" />
     <PackageReference Include="Cite.Tools.Data.Censor.Extensions" Version="8.0.0" />
     <PackageReference Include="Cite.Tools.Data.Deleter.Extensions" Version="8.0.0" />

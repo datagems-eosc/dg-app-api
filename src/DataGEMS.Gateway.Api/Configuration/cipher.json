@@ -1,0 +1,30 @@
+{
+  "CipherProfiles": {
+    "GenericProfileName": "DatasetLinkingRefinementSecret"
+  },
+  "Cipher": {
+    "SaltedHash": {
+      "Default": null,
+      "Options": null
+    },
+    "SymetricEncryption": {
+      "Default": null,
+      "Options": {
+        "DatasetLinkingRefinementSecret": {
+          "AES": {
+            "Key": "%{CipherSymetricEncryptionDatasetLinkingRefinementSecretAESKey}%",
+            "IV": "%{CipherSymetricEncryptionDatasetLinkingRefinementSecretAESIV}%"
+          }
+        }
+      }
+    },
+    "Masking": {
+      "Default": null,
+      "Options": null
+    },
+    "DigitalSignature": {
+      "Default": null,
+      "Options": null
+    }
+  }
+}

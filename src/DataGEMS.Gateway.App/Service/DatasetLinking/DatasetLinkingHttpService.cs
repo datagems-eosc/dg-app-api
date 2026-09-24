@@ -11,8 +11,8 @@ using DataGEMS.Gateway.App.Model;
 using DataGEMS.Gateway.App.Service.DatasetLinking.Model;
 using Microsoft.Extensions.Logging;
 using System.Net.Http.Headers;
-using Microsoft.AspNetCore.DataProtection;
 using System.Security.Cryptography;
+using Cite.Tools.Cipher;
 
 namespace DataGEMS.Gateway.App.Service.DatasetLinking
 {
@@ -29,7 +29,8 @@ namespace DataGEMS.Gateway.App.Service.DatasetLinking
 		private readonly JsonHandlingService _jsonHandlingService;
 		private readonly BuilderFactory _builderFactory;
 		private readonly IAuthorizationContentResolver _authorizationContentResolver;
-		private readonly IDataProtectionProvider _dataProtectionProvider;
+		private readonly ICipherService _cipherService;
+		private readonly CipherProfiles _cipherProfiles;
 
 		public DatasetLinkingHttpService(
 			IAccessTokenService accessTokenService,
@@ -43,7 +44,8 @@ namespace DataGEMS.Gateway.App.Service.DatasetLinking
 			JsonHandlingService jsonHandlingService,
 			BuilderFactory builderFactory,
 			IAuthorizationContentResolver authorizationContentResolver,
-			IDataProtectionProvider dataProtectionProvider
+			ICipherService cipherService,
+			CipherProfiles cipherProfiles
 		)
 		{
 			this._accessTokenService = accessTokenService;
@@ -57,7 +59,8 @@ namespace DataGEMS.Gateway.App.Service.DatasetLinking
 			this._jsonHandlingService = jsonHandlingService;
 			this._builderFactory = builderFactory;
 			this._authorizationContentResolver = authorizationContentResolver;
-			this._dataProtectionProvider = dataProtectionProvider;
+			this._cipherService = cipherService;
+			this._cipherProfiles = cipherProfiles;
 		}
 
 
@@ -86,18 +89,20 @@ namespace DataGEMS.Gateway.App.Service.DatasetLinking
 				throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.DatasetLinking, this._logCorrelationScope.CorrelationId);
 			}
 
-			string encodedResponse = this._dataProtectionProvider.CreateProtector("DatasetLinkingJobId", this._authorizationContentResolver.CurrentUser()).Protect(rawResponse.JobId.ToString());
+			string encodedResponse = this._cipherService.EncryptSymetricAes(rawResponse.JobId.ToString(), this._cipherProfiles.GenericProfileName);
+			encodedResponse = Uri.EscapeDataString(encodedResponse);
 			return encodedResponse;
 		}
 
 		public async Task<DatasetLinkingStatus> GetJobStatusByIdAsync(string id)
 		{
 			string decodedId = null;
+			string encodedId = Uri.UnescapeDataString(id);
 			try
 			{
-				decodedId = this._dataProtectionProvider.CreateProtector("DatasetLinkingJobId", this._authorizationContentResolver.CurrentUser()).Unprotect(id);
+				decodedId = this._cipherService.DecryptSymetricAes(encodedId, this._cipherProfiles.GenericProfileName);
 			}
-			catch (CryptographicException)
+			catch
 			{
 				throw new DGUnauthorizedException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
 			}
@@ -125,14 +130,16 @@ namespace DataGEMS.Gateway.App.Service.DatasetLinking
 		public async Task<string> GetJobByIdAsync(string id)
 		{
 			string decodedId = null;
+			string encodedId = Uri.UnescapeDataString(id);
 			try
 			{
-				decodedId = this._dataProtectionProvider.CreateProtector("DatasetLinkingJobId", this._authorizationContentResolver.CurrentUser()).Unprotect(id);
+				decodedId = this._cipherService.DecryptSymetricAes(encodedId, this._cipherProfiles.GenericProfileName);
 			}
-			catch (CryptographicException)
+			catch
 			{
 				throw new DGUnauthorizedException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
 			}
+
 			string token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
 

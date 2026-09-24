@@ -1,4 +1,5 @@
-﻿using Cite.Tools.Data.Builder.Extensions;
+﻿using Cite.Tools.Cipher.Extensions;
+using Cite.Tools.Data.Builder.Extensions;
 using Cite.Tools.Data.Censor.Extensions;
 using Cite.Tools.Data.Deleter.Extensions;
 using Cite.Tools.Data.Query.Extensions;
@@ -28,6 +29,7 @@ using DataGEMS.Gateway.App.Formatting;
 using DataGEMS.Gateway.App.LogTracking;
 using DataGEMS.Gateway.App.Service.AAI;
 using DataGEMS.Gateway.App.Service.Airflow;
+using DataGEMS.Gateway.App.Service.Cipher;
 using DataGEMS.Gateway.App.Service.Collection;
 using DataGEMS.Gateway.App.Service.Conversation;
 using DataGEMS.Gateway.App.Service.DataManagement;
@@ -66,6 +68,7 @@ namespace DataGEMS.Gateway.Api
 			services
 				.AddHttpClient() //HttpClient for outgoing http calls
 				.AddCacheServices(this._config.GetSection("Cache:Provider")) //distributed cache
+				.AddCipherServices(this._config.GetSection("Cipher"), this._config.GetSection("CipherProfiles")) //Cipher
 				.AddSingleton<JsonHandlingService>() //Json Handling
 				.AddErrorThesaurus(this._config.GetSection("ErrorThesaurus")) //Error Thesaurus
 				.AddLocalization(options => options.ResourcesPath = this._config.GetSection("Localization:Path").Get<String>()) //Localization
