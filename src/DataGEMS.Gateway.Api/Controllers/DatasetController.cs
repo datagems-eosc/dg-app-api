@@ -364,7 +364,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			return result;
 		}
 
-		[HttpGet("linking/status/{id}")]
+		[HttpPost("linking/status")]
 		[Authorize]
 		[ModelStateValidationFilter]
 		[SwaggerOperation(Summary = "Get dataset linking status")]
@@ -375,12 +375,13 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
 		[SwaggerResponse(statusCode: 500, description: "Internal error")]
 		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
-		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
+        [Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
+        [Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
 		public async Task<DatasetLinkingStatus> GetLinkingStatus(
-			[FromRoute]
+			[FromBody]
 			[SwaggerParameter(description: "The id of the job", Required = true)]
 			string id)
-		{
+		{ 
 			this._logger.Debug(new MapLogEntry("get").And("type", nameof(App.Model.Dataset)).And("id", id));
 
 			DatasetLinkingStatus result = await this._datasetLinkingService.GetJobStatusByIdAsync(id);
@@ -390,7 +391,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			return result;
 		}
 
-		[HttpGet("linking/result/{id}")]
+		[HttpPost("linking/result")]
 		[Authorize]
 		[ModelStateValidationFilter]
 		[SwaggerOperation(Summary = "Get dataset linking result")]
@@ -401,9 +402,10 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
 		[SwaggerResponse(statusCode: 500, description: "Internal error")]
 		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
-		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
+        [Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
+        [Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
 		public async Task<string> GetLinkingResult(
-			[FromRoute]
+			[FromBody]
 			[SwaggerParameter(description: "The id of the job", Required = true)]
 			string id)
 		{
