@@ -102,6 +102,14 @@ namespace DataGEMS.Gateway.App.Model
 					this.Spec()
 						.Must(() => item.DatePublished.HasValue)
 						.FailOn(nameof(DatasetPersist.DatePublished)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.DatePublished)]),
+					//country must always be set
+					this.Spec()
+                        .Must(() => item.Country != null && item.Country.Count > 0)
+                        .FailOn(nameof(DatasetPersist.Country)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.Country)]),
+					//countries given must be exactly one
+					this.Spec()
+                        .Must(() => item.Country != null && item.Country.Count == 1)
+                        .FailOn(nameof(DatasetPersist.Country)).FailWith(this._localizer["validation_exactlyOneCountry"]),
 					//data location must be set
 					this.Spec()
 						.Must(() => item.DataLocations != null && item.DataLocations.Count > 0)
