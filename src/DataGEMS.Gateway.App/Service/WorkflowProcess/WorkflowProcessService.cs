@@ -491,7 +491,7 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 				nameof(App.Model.Dataset.Status)), datas.First());
 
 			List<Airflow.Model.AirflowDag> definitions = await this._queryFactory.Query<WorkflowDefinitionHttpQuery>()
-				.Kinds(Common.WorkflowDefinitionKind.DatasetProfiling_test)
+				.Kinds(Common.WorkflowDefinitionKind.DatasetProfiling)
 				.ExcludeStaled(true)
 				.CollectAsync();
 
