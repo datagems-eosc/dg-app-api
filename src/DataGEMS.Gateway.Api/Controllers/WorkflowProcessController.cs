@@ -37,7 +37,6 @@ namespace DataGEMS.Gateway.Api.Controllers
 		private readonly BuilderFactory _builderFactory;
 		private readonly ILogger<DatasetController> _logger;
 		private readonly IAccountingService _accountingService;
-		private readonly IDataManagementService _datasetService;
 		private readonly ErrorThesaurus _errors;
 		private readonly IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> _localizer;
 		private readonly IWorkflowProcessService _workflowProcessService;
@@ -48,7 +47,6 @@ namespace DataGEMS.Gateway.Api.Controllers
 			BuilderFactory builderFactory,
 			ILogger<DatasetController> logger,
 			IAccountingService accountingService,
-			IDataManagementService datasetService,
 			ErrorThesaurus errors,
 			IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> localizer,
 			IWorkflowProcessService workflowProcessService
@@ -59,7 +57,6 @@ namespace DataGEMS.Gateway.Api.Controllers
 			this._builderFactory = builderFactory;
 			this._logger = logger;
 			this._accountingService = accountingService;
-			this._datasetService = datasetService;
 			this._errors = errors;
 			this._localizer = localizer;
 			this._workflowProcessService = workflowProcessService;

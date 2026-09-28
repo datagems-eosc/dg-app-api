@@ -9,7 +9,6 @@ namespace DataGEMS.Gateway.App.Service.DataManagement
         public static IServiceCollection AddDataManagementServices(this IServiceCollection services, IConfigurationSection dataManagementSection)
         {
             services.ConfigurePOCO<DataManagementHttpConfig>(dataManagementSection);
-			services.AddScoped<IDataManagementService, DataManagementService>();
 
 			return services;
         }

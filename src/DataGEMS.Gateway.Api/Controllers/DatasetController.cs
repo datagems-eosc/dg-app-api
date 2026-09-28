@@ -38,7 +38,6 @@ namespace DataGEMS.Gateway.Api.Controllers
 		private readonly BuilderFactory _builderFactory;
 		private readonly ILogger<DatasetController> _logger;
 		private readonly IAccountingService _accountingService;
-		private readonly IDataManagementService _datasetService;
 		private readonly ErrorThesaurus _errors;
 		private readonly IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> _localizer;
 		private readonly IWorkflowProcessService _workflowProcessService;
@@ -51,7 +50,6 @@ namespace DataGEMS.Gateway.Api.Controllers
 			BuilderFactory builderFactory,
 			ILogger<DatasetController> logger,
 			IAccountingService accountingService,
-			IDataManagementService datasetService,
 			IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> localizer,
 			ErrorThesaurus errors,
 			IWorkflowProcessService workflowProcessService,
@@ -63,7 +61,6 @@ namespace DataGEMS.Gateway.Api.Controllers
 			this._builderFactory = builderFactory;
 			this._logger = logger;
 			this._accountingService = accountingService;
-			this._datasetService = datasetService;
 			this._localizer = localizer;
 			this._errors = errors;
 			this._workflowProcessService = workflowProcessService;
@@ -176,166 +173,6 @@ namespace DataGEMS.Gateway.Api.Controllers
 			this._accountingService.AccountFor(KnownActions.Persist, KnownResources.Dataset.AsAccountable());
 
 			return returnModel;
-		}
-
-		[HttpPost("onboard")]
-		[Authorize]
-		[ModelStateValidationFilter]
-		[ValidationFilter(typeof(App.Model.DatasetPersist.OnboardValidator), "model")]
-		[ServiceFilter(typeof(AppTransactionFilter))]
-		[SwaggerOperation(Summary = "Onboard dataset")]
-		[SwaggerResponse(statusCode: 200, description: "The onboarded dataset id", type: typeof(Guid))]
-		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
-		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
-		[SwaggerResponse(statusCode: 404, description: "Could not locate item with the provided id")]
-		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
-		[SwaggerResponse(statusCode: 500, description: "Internal error")]
-		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
-		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
-		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
-		public async Task<Guid> Onboard(
-			[FromBody]
-			[SwaggerRequestBody(description: "The model to onboard", Required = true)]
-			App.Model.DatasetPersist model,
-			[ModelBinder(Name = "f")]
-			[SwaggerParameter(description: "The fields to include in the response model", Required = true)]
-			[LookupFieldSetQueryStringOpenApi]
-			IFieldSet fieldSet)
-		{
-			this._logger.Debug(new MapLogEntry("onboarding").And("type", nameof(App.Model.DatasetPersist)).And("fields", fieldSet));
-
-			//GOTCHA: Ommiting browse permission check in case of new
-			IFieldSet censoredFields = await this._censorFactory.Censor<DatasetCensor>().Censor(fieldSet, CensorContext.AsCensor(), !model.Id.HasValue);
-			if (fieldSet.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
-
-			Guid id = await this._datasetService.OnboardAsync(model, censoredFields);
-
-			this._accountingService.AccountFor(KnownActions.Onboard, KnownResources.Dataset.AsAccountable());
-			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.Workflow.AsAccountable());
-
-			return id;
-		}
-
-
-		[HttpPost("profile")]
-		[Authorize]
-		[ModelStateValidationFilter]
-		[ValidationFilter(typeof(App.Model.DatasetProfiling.ProfilingValidator), "model")]
-		[ServiceFilter(typeof(AppTransactionFilter))]
-		[SwaggerOperation(Summary = "Profile dataset")]
-		[SwaggerResponse(statusCode: 200, description: "The profiled dataset id", type: typeof(Guid))]
-		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
-		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
-		[SwaggerResponse(statusCode: 404, description: "Could not locate item with the provided id")]
-		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
-		[SwaggerResponse(statusCode: 500, description: "Internal error")]
-		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
-		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
-		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
-		public async Task<Guid> Profile(
-			[FromBody]
-			[SwaggerRequestBody(description: "The profile to apply", Required = true)]
-			App.Model.DatasetProfiling model)
-		{
-			this._logger.Debug(new MapLogEntry("profiling").And("model", model));
-
-			Guid idProfiled = await this._datasetService.ProfileAsync(model);
-
-			this._accountingService.AccountFor(KnownActions.Profile, KnownResources.Dataset.AsAccountable());
-			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.Workflow.AsAccountable());
-
-			return idProfiled;
-		}
-
-		[HttpPost("package")]
-		[Authorize]
-		[ModelStateValidationFilter]
-		[ValidationFilter(typeof(App.Model.DatasetPackaging.PackagingValidator), "model")]
-		[ServiceFilter(typeof(AppTransactionFilter))]
-		[SwaggerOperation(Summary = "Package dataset")]
-		[SwaggerResponse(statusCode: 200, description: "The packaged dataset id", type: typeof(Guid))]
-		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
-		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
-		[SwaggerResponse(statusCode: 404, description: "Could not locate item with the provided id")]
-		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
-		[SwaggerResponse(statusCode: 500, description: "Internal error")]
-		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
-		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
-		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
-		public async Task<Guid> Package(
-			[FromBody]
-			[SwaggerRequestBody(description: "The package to apply", Required = true)]
-			App.Model.DatasetPackaging model)
-		{
-			this._logger.Debug(new MapLogEntry("packaging").And("model", model));
-
-			Guid idPackaged = await this._datasetService.PackageAsync(model);
-
-			this._accountingService.AccountFor(KnownActions.Package, KnownResources.Dataset.AsAccountable());
-			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.Workflow.AsAccountable());
-
-			return idPackaged;
-		}
-
-		[HttpPost("recommendation-register")]
-		[Authorize]
-		[ModelStateValidationFilter]
-		[ValidationFilter(typeof(App.Model.DatasetRecommendationRegistering.RecommendationRegisteringValidator), "model")]
-		[ServiceFilter(typeof(AppTransactionFilter))]
-		[SwaggerOperation(Summary = "Register dataset to recommendation")]
-		[SwaggerResponse(statusCode: 200, description: "The registered dataset id", type: typeof(Guid))]
-		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
-		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
-		[SwaggerResponse(statusCode: 404, description: "Could not locate item with the provided id")]
-		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
-		[SwaggerResponse(statusCode: 500, description: "Internal error")]
-		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
-		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
-		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
-		public async Task<Guid> RecommendationRegister(
-			[FromBody]
-			[SwaggerRequestBody(description: "The dataset to register to recommendation", Required = true)]
-			App.Model.DatasetRecommendationRegistering model)
-		{
-			this._logger.Debug(new MapLogEntry("recommendation-registering").And("model", model));
-
-			Guid id = await this._datasetService.RecommendationRegisterAsync(model);
-
-			this._accountingService.AccountFor(KnownActions.RecommendationRegister, KnownResources.Dataset.AsAccountable());
-			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.Workflow.AsAccountable());
-
-			return id;
-		}
-
-
-		[HttpPost("cdd-ingest")]
-		[Authorize]
-		[ModelStateValidationFilter]
-		[ValidationFilter(typeof(App.Model.DatasetCddIngest.CddIngestValidator), "model")]
-		[ServiceFilter(typeof(AppTransactionFilter))]
-		[SwaggerOperation(Summary = "CDD Ingest dataset")]
-		[SwaggerResponse(statusCode: 200, description: "The registered dataset id", type: typeof(Guid))]
-		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
-		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
-		[SwaggerResponse(statusCode: 404, description: "Could not locate item with the provided id")]
-		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
-		[SwaggerResponse(statusCode: 500, description: "Internal error")]
-		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
-		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
-		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
-		public async Task<Guid> CddIngest(
-			[FromBody]
-			[SwaggerRequestBody(description: "The dataset to ingest to CDD", Required = true)]
-			App.Model.DatasetCddIngest model)
-		{
-			this._logger.Debug(new MapLogEntry("cdd-ingest").And("model", model));
-
-			Guid id = await this._datasetService.CddIngestAsync(model);
-
-			this._accountingService.AccountFor(KnownActions.CddIngest, KnownResources.Dataset.AsAccountable());
-			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.Workflow.AsAccountable());
-
-			return id;
 		}
 
 		[HttpPost("linking/refinement")]
