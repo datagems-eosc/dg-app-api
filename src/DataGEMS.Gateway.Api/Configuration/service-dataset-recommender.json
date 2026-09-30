@@ -4,7 +4,8 @@
     "BaseUrl": "%{DatasetRecommenderBaseUrl}%",
     "ExistEndpoint": "dataset/exist?application=ds2ds",
     "RecommendEndpoint": "recommend?entity_id={entityId}&n={recommendationsCount}",
-    "MatheRecommendationsEndpoint": "mathe/recommend",
+    "MatheRecommendationsVideosEndpoint": "mathe/recommend/videos",
+    "MatheRecommendationsDocumentsEndpoint": "mathe/recommend/documents",
     "DefaultRecommendationDatasets": 5
   }
 }

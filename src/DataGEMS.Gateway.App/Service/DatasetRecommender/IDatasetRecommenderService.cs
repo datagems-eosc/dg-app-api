@@ -1,10 +1,11 @@
-﻿using DataGEMS.Gateway.App.Service.DatasetRecommender.Model;
+﻿using DataGEMS.Gateway.App.Common;
+using DataGEMS.Gateway.App.Service.DatasetRecommender.Model;
 
 namespace DataGEMS.Gateway.App.Service.DatasetRecommender
 {
 	public interface IDatasetRecommenderService
 	{
 		Task<HashSet<Guid>> IsInRecommender(List<Guid> datasetIds);
-		Task<MatheRecommendationResponse> RecommendMatheAsync(MatheRecommendationRequest request);
+		Task<MatheRecommendationResponse> RecommendMatheAsync(MatheRecommendationRequest request, DatasetRecommendationType type);
 	}
 }

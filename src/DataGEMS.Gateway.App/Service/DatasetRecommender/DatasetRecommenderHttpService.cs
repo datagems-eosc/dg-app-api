@@ -83,12 +83,23 @@ namespace DataGEMS.Gateway.App.Service.DatasetRecommender
 			return inRecommender;
 		}
 
-		public async Task<MatheRecommendationResponse> RecommendMatheAsync(MatheRecommendationRequest request)
+		public async Task<MatheRecommendationResponse> RecommendMatheAsync(MatheRecommendationRequest request, DatasetRecommendationType type)
 		{
 			await this._authorizationService.AuthorizeForce(Permission.CanRecommendMathE);
 			string token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
-			HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, $"{this._config.BaseUrl}{this._config.MatheRecommendationsEndpoint}")
+			string url_ending = null;
+			switch (type) 
+			{
+				case DatasetRecommendationType.Video:
+					url_ending = this._config.MatheRecommendationsVideosEndpoint;
+					break;
+				case DatasetRecommendationType.Document:
+					url_ending = this._config.MatheRecommendationsDocumentsEndpoint;
+					break;
+			}
+
+			HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, $"{this._config.BaseUrl}{url_ending}")
 			{
 				Content = new StringContent(this._jsonHandlingService.ToJson(request), Encoding.UTF8, "application/json")
 			};
