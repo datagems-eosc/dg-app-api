@@ -318,8 +318,8 @@
 				"AllowAuthenticated": false
 			},
 			"LinkRefineDataset": {
-				"Roles": [ "GLOBAL_dg_admin" ],
-				"ContextRoles": [ "dg_ds-browse" ],
+				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_dataset-curator" ],
+				"ContextRoles": [ "dg_ds-edit" ],
 				"Claims": [],
 				"Clients": [],
 				"AllowAnonymous": false,
