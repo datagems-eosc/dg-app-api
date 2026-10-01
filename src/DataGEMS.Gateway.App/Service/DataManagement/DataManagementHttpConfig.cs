@@ -5,6 +5,7 @@
         public string Scope { get; set; }
         public string BaseUrl { get; set; }
         public string DatasetQueryEndpoint { get; set; }
+		public int MaximumDatasetQueryPageSize { get; set; }
 	}
 }
 

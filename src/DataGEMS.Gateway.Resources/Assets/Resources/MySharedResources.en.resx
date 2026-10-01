@@ -174,4 +174,7 @@
   <data name="validation_exactlyOneCountry" xml:space="preserve">
     <value>Exactly one country must be provided</value>
   </data>
+  <data name="validation_pageSizeTooLarge" xml:space="preserve">
+    <value>A page size of more than {0} is not allowed.</value>
+  </data>
 </root>

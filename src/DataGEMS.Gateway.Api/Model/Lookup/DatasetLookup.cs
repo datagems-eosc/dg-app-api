@@ -4,6 +4,7 @@ using DataGEMS.Gateway.App.Common;
 using DataGEMS.Gateway.App.Common.Validation;
 using DataGEMS.Gateway.App.ErrorCode;
 using DataGEMS.Gateway.App.Query;
+using DataGEMS.Gateway.App.Service.DataManagement;
 using Microsoft.Extensions.Localization;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -46,11 +47,13 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 				IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> localizer,
 				ValidatorFactory validatorFactory,
 				ILogger<QueryValidator> logger,
-				ErrorThesaurus errors) : base(validatorFactory, logger, errors)
+				ErrorThesaurus errors, DataManagementHttpConfig dataManagementHttpConfig) : base(validatorFactory, logger, errors)
 			{
 				this._localizer = localizer;
+				this._dataManagementHttpConfig = dataManagementHttpConfig;
 			}
 
+			private readonly DataManagementHttpConfig _dataManagementHttpConfig;
 			private readonly IStringLocalizer<DataGEMS.Gateway.Resources.MySharedResources> _localizer;
 
 			protected override IEnumerable<ISpecification> Specifications(DatasetLookup item)
@@ -77,6 +80,11 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 						.If(()=> item.Page != null && !item.Page.IsEmpty)
 						.Must(() => item.Order != null && !item.Order.IsEmpty)
 						.FailOn(nameof(DatasetLookup.Page)).FailWith(this._localizer["validation_pagingWithoutOrdering"]),
+					//page size of more than 100 is not allowed
+					this.Spec()
+						.If(()=> item.Page != null && !item.Page.IsEmpty)
+						.Must(() => item.Page.Size <= _dataManagementHttpConfig.MaximumDatasetQueryPageSize)
+						.FailOn(nameof(DatasetLookup.Page)).FailWith(this._localizer["validation_pageSizeTooLarge", _dataManagementHttpConfig.MaximumDatasetQueryPageSize])
 				};
 			}
 		}

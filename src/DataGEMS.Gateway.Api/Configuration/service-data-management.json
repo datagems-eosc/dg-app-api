@@ -1,6 +1,7 @@
 {
 	"DataManagementService": {
 		"Scope": "datagems",
+		"MaximumDatasetQueryPageSize": 100,
 		"BaseUrl": "%{DataModelManagementBaseUrl}%",
 		"DatasetQueryEndpoint": "api/v1/dataset/search"
 	}

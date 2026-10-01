@@ -83,7 +83,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
 		public async Task<QueryResult<App.Model.Dataset>> Query(
 			[FromBody]
-			[SwaggerRequestBody(description: "The query predicates", Required = true)] 
+			[SwaggerRequestBody(description: "The query predicates. The maximum number of results to return is 100.", Required = true)] 
 			DatasetLookup lookup)
 		{
 			this._logger.Debug(new MapLogEntry("querying").And("type", nameof(App.Model.Dataset)).And("lookup", lookup));
