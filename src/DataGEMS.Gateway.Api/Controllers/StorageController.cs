@@ -105,7 +105,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		{
 			this._logger.Debug(new MapLogEntry("uploading").And("fileCount", Request?.Form?.Files?.Count));
 
-			await this._authorizationService.AuthorizeForce(Permission.OnboardDataset);
+			await this._authorizationService.AuthorizeForce(Permission.UploadDatasetFile);
 
 			if (Request?.Form?.Files == null || Request?.Form?.Files?.Count == 0) throw new DGValidationException("No File was provided");
 

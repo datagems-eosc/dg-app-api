@@ -40,13 +40,16 @@ namespace DataGEMS.Gateway.App.Censor
 			this._logger.Debug(new MapLogEntry("censoring").And("type", nameof(Model.WorkflowProcessStep)).And("fields", fields).And("context", context));
 			if (fields == null || fields.IsEmpty()) return null;
 
+
+			List<string> contextRoles = await _authorizationContentResolver.ContextRolesOf();
+
 			IFieldSet censored = new FieldSet();
 			Boolean authZPass = false;
 			switch (context?.Behavior)
 			{
-				case CensorBehavior.Censor: { authZPass = await this._authService.Authorize(Permission.BrowseWorkflowProcessStep); break; }
+				case CensorBehavior.Censor: { authZPass = await this._authService.AuthorizeOrAffiliatedContext(new AffiliatedContextResource(contextRoles), Permission.BrowseWorkflowProcessStep); break; }
 				case CensorBehavior.Throw:
-				default: { authZPass = await this._authService.AuthorizeForce(Permission.BrowseWorkflowProcessStep); break; }
+				default: { authZPass = await this._authService.AuthorizeOrAffiliatedContextForce(new AffiliatedContextResource(contextRoles), Permission.BrowseWorkflowProcessStep); break; }
 			}
 			if (authZPass)
 			{

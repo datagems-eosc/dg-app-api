@@ -37,6 +37,7 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 		private readonly IAirflowService _airflowService;
 		private readonly JsonHandlingService _jsonHandlingService;
 		private readonly Data.AppDbContext _dbContext;
+		private readonly AAIConfig _aAIConfig;
 
 		public WorkflowProcessService(
 			ILogger<WorkflowProcessService> logger,
@@ -53,7 +54,8 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 			EventBroker eventBroker,
 			IAirflowService airflowService,
 			JsonHandlingService jsonHandlingService,
-			Data.AppDbContext dbContext)
+			Data.AppDbContext dbContext,
+			AAIConfig aAIConfig)
 		{
 			this._logger = logger;
 			this._builderFactory = builderFactory;
@@ -70,6 +72,7 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 			this._airflowService = airflowService;
 			this._jsonHandlingService = jsonHandlingService;
 			this._dbContext = dbContext;
+			this._aAIConfig = aAIConfig;
 		}
 
 		public async Task<WorkflowProcessConfig> BrowseWorkflowProcessConfig()
@@ -79,6 +82,15 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 			if (datasetIds == null || datasetIds.Count == 0) await this._authorizationService.AuthorizeForce(Permission.BrowseWorkflowProcessConfig);
 
 			return this._config;
+		}
+
+		private async Task AutoAssignNewDatasetRoles(Guid datasetId)
+		{
+			if (this._aAIConfig.AutoAssignGrantsOnNewDataset == null || this._aAIConfig.AutoAssignGrantsOnNewDataset.Count == 0) return;
+
+			string subjectId = await this._authorizationContentResolver.SubjectIdOfCurrentUser();
+			await this._aaiService.BootstrapUserContextGrants(subjectId);
+			await this._aaiService.AssignDatasetGrantToUser(subjectId, datasetId, this._aAIConfig.AutoAssignGrantsOnNewDataset);
 		}
 
 		public async Task UpdateWorkflowProcessStep(WorkflowProcessStepPersist model)
@@ -216,7 +228,7 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 				await PersistFailedFlow(data, stepData);
 				throw;
 			}
-
+			await this.AutoAssignNewDatasetRoles(datasetId);
 			App.Model.WorkflowProcess persisted = await this._builderFactory.Builder<App.Model.Builder.WorkflowProcessBuilder>().Build(FieldSet.Build(fields, nameof(App.Model.WorkflowProcess.Id)), data);
 			return persisted;
 		}
@@ -394,7 +406,6 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 		private async Task ExecuteOnboarding(DatasetPersist model, Guid id, Guid processId, Guid stepId, string identifyingTag, Guid? datasetId = null)
 		{
 			this._logger.Debug(new MapLogEntry("execute-onboarding").And("model", model).And("processId", processId).And("stepId", stepId));
-			await this._authorizationService.AuthorizeForce(Permission.OnboardDataset);
 			List<Airflow.Model.AirflowDag> definitions = await this._queryFactory.Query<WorkflowDefinitionHttpQuery>().Kinds(Enum.Parse<Common.WorkflowDefinitionKind>(identifyingTag)).ExcludeStaled(true).CollectAsync();
 			if (definitions == null || definitions.Count == 0) throw new DGNotFoundException(this._localizer["general_notFound", identifyingTag, nameof(App.Model.WorkflowDefinition)]);
 			if (definitions.Count > 1) throw new DGFoundManyException(this._localizer["general_nonUnique", identifyingTag, nameof(App.Model.WorkflowDefinition)]);
@@ -467,7 +478,7 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 		private async Task ExecuteProfiling(ProfilingModel profilingModel, Guid processId, Guid stepId, Guid stepIdentifier, string identifyingTag)
 		{
 			this._logger.Debug(new MapLogEntry("execute-profiling").And("profilingModel", profilingModel).And("processId", processId).And("stepId", stepId));
-			await this._authorizationService.AuthorizeForce(Permission.ProfileDataset);
+
 			await this._authorizationService.AuthorizeForce(Permission.CanExecuteDatasetProfiling);
 
 			List<DataManagement.Model.Dataset> datas = (await this._queryFactory.Query<DatasetHttpQuery>().Ids(profilingModel.DatasetId).CollectAsync())?.Items ?? [];
@@ -569,7 +580,6 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 			this._logger.Debug(new MapLogEntry("execute-packaging").And("datasetId", datasetId).And("processId", processId).And("stepId", stepId));
 
 			await this._authorizationService.AuthorizeForce(Permission.CanExecuteDatasetPackaging);
-			await this._authorizationService.AuthorizeForce(Permission.PackageDataset);
 
 			List<Airflow.Model.AirflowDag> definitions = await this._queryFactory.Query<WorkflowDefinitionHttpQuery>().Kinds(Enum.Parse<Common.WorkflowDefinitionKind>(identifyingTag)).ExcludeStaled(true).CollectAsync();
 			if (definitions == null || definitions.Count == 0) throw new DGNotFoundException(this._localizer["general_notFound", identifyingTag, nameof(App.Model.WorkflowDefinition)]);
@@ -597,7 +607,6 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 
 		private async Task ExecuteRecommendationRegistering(Guid datasetId, Guid processId, Guid stepId, Guid stepIdentifier, string identifyingTag)
 		{
-			await this._authorizationService.AuthorizeForce(Permission.RecommendationRegisterDataset);
 			await this._authorizationService.AuthorizeForce(Permission.CanExecuteDatasetRecommendationRegistering);
 
 			List<Airflow.Model.AirflowDag> definitions = await this._queryFactory.Query<WorkflowDefinitionHttpQuery>().Kinds(Enum.Parse<Common.WorkflowDefinitionKind>(identifyingTag)).ExcludeStaled(true).CollectAsync();

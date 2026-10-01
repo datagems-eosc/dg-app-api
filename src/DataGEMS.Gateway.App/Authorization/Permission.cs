@@ -39,7 +39,6 @@ namespace DataGEMS.Gateway.App.Authorization
 		public const string CanRecommendMathE = "CanRecommendMathE";
         //Dataset
         public const String BrowseDataset = "BrowseDataset";
-		public const String OnboardDataset = "OnboardDataset";
 		public const String ProfileDataset = "ProfileDataset";
 		public const String PackageDataset = "PackageDataset";
 		public const String RecommendationRegisterDataset = "RecommendationRegisterDataset";
@@ -51,6 +50,7 @@ namespace DataGEMS.Gateway.App.Authorization
 		public const String DownloadDatasetFile = "DownloadDatasetFile";
 		public const String BrowseDatasetFiles = "BrowseDatasetFiles";
 		public const String LinkRefineDataset = "LinkRefineDataset";
+		public const String UploadDatasetFile = "UploadDatasetFile";
 		//DatasetCollection
 		public const String BrowseDatasetCollection = "BrowseDatasetCollection";
 		//Pilot

@@ -237,14 +237,6 @@
 				"AllowAnonymous": false,
 				"AllowAuthenticated": false
 			},
-			"OnboardDataset": {
-				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_dataset-uploader", "GLOBAL_dg_system" ],
-				"ContextRoles": [],
-				"Claims": [],
-				"Clients": [ "airflow" ],
-				"AllowAnonymous": false,
-				"AllowAuthenticated": false
-			},
 			"ProfileDataset": {
 				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_dataset-curator", "GLOBAL_dg_system" ],
 				"ContextRoles": [],
@@ -317,6 +309,14 @@
 				"AllowAnonymous": false,
 				"AllowAuthenticated": false
 			},
+      "UploadDatasetFile": {
+				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_dataset-uploader", "GLOBAL_dg_dataset-curator", "GLOBAL_dg_system" ],
+        "ContextRoles": [],
+        "Claims": [],
+        "Clients": [],
+        "AllowAnonymous": false,
+        "AllowAuthenticated": false
+      },
 			"LinkRefineDataset": {
 				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_dataset-curator" ],
 				"ContextRoles": [ "dg_ds-edit" ],
@@ -500,7 +500,7 @@
 			},
 			"BrowseWorkflowProcessStep": {
 				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_system" ],
-				"ContextRoles": [],
+				"ContextRoles": [ "dg_ds-manage" ],
 				"Claims": [],
 				"Clients": [],
 				"AllowAnonymous": false,

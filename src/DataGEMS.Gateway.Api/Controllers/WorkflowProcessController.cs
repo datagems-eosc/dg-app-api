@@ -19,7 +19,6 @@ using DataGEMS.Gateway.App.Exception;
 using DataGEMS.Gateway.App.Model;
 using DataGEMS.Gateway.App.Model.Builder;
 using DataGEMS.Gateway.App.Query;
-using DataGEMS.Gateway.App.Service.DataManagement;
 using DataGEMS.Gateway.App.Service.WorkflowProcess;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -251,7 +250,6 @@ namespace DataGEMS.Gateway.Api.Controllers
 		{
 			this._logger.Debug(new MapLogEntry("onboarding").And("type", nameof(App.Model.DatasetPersist)).And("fields", fieldSet));
 
-			//GOTCHA: Ommiting browse permission check in case of new
 			IFieldSet censoredFields = await this._censorFactory.Censor<WorkflowProcessCensor>().Censor(fieldSet, CensorContext.AsCensor());
 			if (fieldSet.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
 
