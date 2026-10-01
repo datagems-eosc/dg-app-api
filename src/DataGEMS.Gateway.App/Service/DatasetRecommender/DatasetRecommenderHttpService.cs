@@ -99,10 +99,13 @@ namespace DataGEMS.Gateway.App.Service.DatasetRecommender
 					break;
 			}
 
+			string requestContent = this._jsonHandlingService.ToJson(request);
 			HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, $"{this._config.BaseUrl}{url_ending}")
 			{
-				Content = new StringContent(this._jsonHandlingService.ToJson(request), Encoding.UTF8, "application/json")
+				Content = new StringContent(requestContent, Encoding.UTF8, "application/json")
 			};
+
+			this._logger.Debug("Sending request to {url} with body {body}", $"{this._config.BaseUrl}{url_ending}", requestContent);
 			httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 			httpRequest.Headers.Add(this._logTrackingCorrelationConfig.HeaderName, this._logCorrelationScope.CorrelationId);
 			string content = await this.SendRequest(httpRequest);

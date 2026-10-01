@@ -15,7 +15,6 @@ using DataGEMS.Gateway.App.ErrorCode;
 using DataGEMS.Gateway.App.Exception;
 using DataGEMS.Gateway.App.Model;
 using DataGEMS.Gateway.App.Service.Conversation;
-using DataGEMS.Gateway.App.Service.DataManagement;
 using DataGEMS.Gateway.App.Service.DatasetRecommender;
 using DataGEMS.Gateway.App.Service.Discovery;
 using DataGEMS.Gateway.App.Service.Discovery.Model;
@@ -118,51 +117,51 @@ namespace DataGEMS.Gateway.Api.Controllers
 		}
 
 
-        [HttpPost("mathe/recommend/documents")]
-        [Authorize]
-        [ModelStateValidationFilter]
-        [ValidationFilter(typeof(MatheRecommendationLookup.RequestValidator), "lookup")]
-        [SwaggerOperation(Summary = "Generate material-based recommendations")]
-        [SwaggerResponse(statusCode: 200, description: "Matching results", type: typeof(SearchResult<App.Service.DatasetRecommender.Model.MatheRecommendationResponse>))]
-        [SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
-        [SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
-        [SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
-        [SwaggerResponse(statusCode: 500, description: "Internal error")]
-        [SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
-        [Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
-        [Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
-        public async Task<SearchResult<App.Service.DatasetRecommender.Model.MatheRecommendationResponse>> RecommendDatasetsDocumentsAsync(
-            [FromBody]
-            [SwaggerRequestBody(description: "The field set to apply for building the results", Required = true)]
-            MatheRecommendationLookup lookup
-            )
-        {
-            this._logger.Debug(new MapLogEntry("mathE recommendation").And("type", nameof(App.Model.Dataset)).And("request", lookup));
-            var serviceRequest = new App.Service.DatasetRecommender.Model.MatheRecommendationRequest
-            {
-                QuestionId = lookup.QuestionId,
-                Question = lookup.Question,
-                RecommendedMaterialsCount = lookup.RecommendedMaterialsCount
-            };
-            App.Service.DatasetRecommender.Model.MatheRecommendationResponse response = await this._datasetRecommenderService.RecommendMatheAsync(serviceRequest, App.Common.DatasetRecommendationType.Document);
+		[HttpPost("mathe/recommend/documents")]
+		[Authorize]
+		[ModelStateValidationFilter]
+		[ValidationFilter(typeof(MatheRecommendationLookup.RequestValidator), "lookup")]
+		[SwaggerOperation(Summary = "Generate material-based recommendations")]
+		[SwaggerResponse(statusCode: 200, description: "Matching results", type: typeof(SearchResult<App.Service.DatasetRecommender.Model.MatheRecommendationResponse>))]
+		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
+		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
+		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
+		[SwaggerResponse(statusCode: 500, description: "Internal error")]
+		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
+		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
+		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
+		public async Task<SearchResult<App.Service.DatasetRecommender.Model.MatheRecommendationResponse>> RecommendDatasetsDocumentsAsync(
+			[FromBody]
+			[SwaggerRequestBody(description: "The field set to apply for building the results", Required = true)]
+			MatheRecommendationLookup lookup
+			)
+		{
+			this._logger.Debug(new MapLogEntry("mathE recommendation").And("type", nameof(App.Model.Dataset)).And("request", lookup));
+			var serviceRequest = new App.Service.DatasetRecommender.Model.MatheRecommendationRequest
+			{
+				QuestionId = lookup.QuestionId,
+				Question = lookup.Question,
+				RecommendedMaterialsCount = lookup.RecommendedMaterialsCount
+			};
+			App.Service.DatasetRecommender.Model.MatheRecommendationResponse response = await this._datasetRecommenderService.RecommendMatheAsync(serviceRequest, App.Common.DatasetRecommendationType.Document);
 
-            this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.DatasetRecommender.AsAccountable());
+			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.DatasetRecommender.AsAccountable());
 
-            Guid? conversationId = await this.UpdateConversation(lookup.ConversationOptions?.ConversationId, lookup.ConversationOptions?.AutoCreateConversation, lookup.Question, null, new MatheRecommendationQueryConversationEntry
-            {
-                Version = App.Service.DatasetRecommender.Model.MatheRecommendationRequest.ModelVersion,
-                Payload = serviceRequest
-            },
-            new MatheRecommendationResponseConversationEntry()
-            {
-                Version = App.Service.DatasetRecommender.Model.MatheRecommendationResponse.ModelVersion,
-                Payload = response
-            });
+			Guid? conversationId = await this.UpdateConversation(lookup.ConversationOptions?.ConversationId, lookup.ConversationOptions?.AutoCreateConversation, lookup.Question, null, new MatheRecommendationQueryConversationEntry
+			{
+				Version = App.Service.DatasetRecommender.Model.MatheRecommendationRequest.ModelVersion,
+				Payload = serviceRequest
+			},
+			new MatheRecommendationResponseConversationEntry()
+			{
+				Version = App.Service.DatasetRecommender.Model.MatheRecommendationResponse.ModelVersion,
+				Payload = response
+			});
 
-            return new SearchResult<App.Service.DatasetRecommender.Model.MatheRecommendationResponse>(conversationId, response);
-        }
+			return new SearchResult<App.Service.DatasetRecommender.Model.MatheRecommendationResponse>(conversationId, response);
+		}
 
-        [HttpPost("language/linguistic-features")]
+		[HttpPost("language/linguistic-features")]
 		[Authorize]
 		[ModelStateValidationFilter]
 		[ValidationFilter(typeof(LanguagePilotLookup.RequestValidator), "lookup")]
