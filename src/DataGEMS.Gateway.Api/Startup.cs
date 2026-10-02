@@ -67,6 +67,7 @@ namespace DataGEMS.Gateway.Api
 		{
 			services
 				.AddHttpClient() //HttpClient for outgoing http calls
+				.ConfigureHttpClientDefaults(httpClientBuilder => httpClientBuilder.ConfigureHttpClient(httpClient => httpClient.Timeout = TimeSpan.FromSeconds(this._config.GetValue<int>("HttpClient:Timeout"))))
 				.AddCacheServices(this._config.GetSection("Cache:Provider")) //distributed cache
 				.AddCipherServices(this._config.GetSection("Cipher"), this._config.GetSection("CipherProfiles")) //Cipher
 				.AddSingleton<JsonHandlingService>() //Json Handling

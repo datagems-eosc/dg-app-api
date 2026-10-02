@@ -63,6 +63,10 @@ namespace DataGEMS.Gateway.Api
 							.AddJsonFileInPaths("health-check.json", sharedConfigPath, "Configuration")
 							.AddJsonFileInPaths($"health-check.override.json", sharedConfigPath, "Configuration")
 							.AddJsonFileInPaths($"health-check.{env.EnvironmentName}.json", sharedConfigPath, "Configuration")
+							//http client
+							.AddJsonFileInPaths("http-client.json", sharedConfigPath, "Configuration")
+							.AddJsonFileInPaths("http-client.override.json", sharedConfigPath, "Configuration")
+							.AddJsonFileInPaths($"http-client.{env.EnvironmentName}.json", sharedConfigPath, "Configuration")
 							//idp claims
 							.AddJsonFileInPaths("idp.claims.json", sharedConfigPath, "Configuration")
 							.AddJsonFileInPaths("idp.claims.override.json", sharedConfigPath, "Configuration")

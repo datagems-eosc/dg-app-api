@@ -108,7 +108,7 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 			httpRequest.Headers.Add(HeaderNames.Accept, "application/json");
 			httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 			httpRequest.Headers.Add(this._logTrackingCorrelationConfig.HeaderName, this._logCorrelationScope.CorrelationId);
-			string content = await this.SendRequest(httpRequest, TimeSpan.FromMinutes(10));
+			string content = await this.SendRequest(httpRequest);
 			DateTime now = DateTime.UtcNow;
 
 			Guid userId = (await this._authorizationContentResolver.CurrentUserId()).Value;
@@ -278,13 +278,12 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 			return returnModel;
 		}
 
-		private async Task<string> SendRequest(HttpRequestMessage request, TimeSpan? timeout = null)
+		private async Task<string> SendRequest(HttpRequestMessage request)
 		{
 			HttpResponseMessage response = null;
 			try
 			{
 				var chosenClient = this._httpClientFactory.CreateClient();
-				if (timeout.HasValue) chosenClient.Timeout = timeout.Value;
 				response = await chosenClient.SendAsync(request);
 				this._logger.Debug("Received response with status code {statusCode}", response?.StatusCode);
 			}
