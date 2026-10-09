@@ -8,7 +8,7 @@ using DataGEMS.Gateway.App.Service.AAI;
 
 namespace DataGEMS.Gateway.App.Authorization
 {
-    public class AuthorizationContentResolver : IAuthorizationContentResolver
+	public class AuthorizationContentResolver : IAuthorizationContentResolver
 	{
 		private readonly ICurrentPrincipalResolverService _currentPrincipalResolverService;
 		private readonly IAuthorizationService _authorizationService;
@@ -232,6 +232,27 @@ namespace DataGEMS.Gateway.App.Authorization
 			List<Guid> datasetIds = grants.Where(x => x.TargetType == ContextGrant.TargetKind.Dataset && contextRolesWithPermission.Contains(x.Role)).Select(x => x.TargetId).Distinct().ToList();
 
 			return datasetIds;
+		}
+
+		public async Task<List<DatasetContextGrants>> RetrieveAllDatasetContextGrants(IEnumerable<Guid> datasetIds)
+		{
+			if (datasetIds == null || !datasetIds.Any()) return [];
+			return await this._aaiService.LookupDatasetContextGrants(datasetIds);
+		}
+
+		public async Task<List<DatasetContextGrants>> RetrieveEffectiveDatasetContextGrants(IEnumerable<Guid> datasetIds, string permission)
+		{
+			if (datasetIds == null) return [];
+			HashSet<Guid> datasetIdsMap = datasetIds.ToHashSet();
+			if (datasetIdsMap.Count == 0) return [];
+			ISet<string> contextRolesWithPermission = this._permissionPolicyService.ContextRolesHaving(permission);
+			if (contextRolesWithPermission == null || contextRolesWithPermission.Count == 0) return [];
+
+			Dictionary<Guid, HashSet<string>> rolesByDataset = await this.EffectiveContextRolesForDatasetOfUser(datasetIdsMap);
+			HashSet<Guid> manageableDatasetIds = rolesByDataset.Where(x => datasetIdsMap.Contains(x.Key) && x.Value != null && x.Value.Any(role => contextRolesWithPermission.Contains(role))).Select(x => x.Key).ToHashSet();
+			if (manageableDatasetIds.Count == 0) return [];
+
+			return await this.RetrieveAllDatasetContextGrants(manageableDatasetIds);
 		}
 	}
 }

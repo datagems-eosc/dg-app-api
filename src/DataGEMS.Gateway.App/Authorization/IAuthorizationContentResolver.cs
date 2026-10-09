@@ -1,4 +1,6 @@
 ﻿
+using DataGEMS.Gateway.App.Common.Auth;
+
 namespace DataGEMS.Gateway.App.Authorization
 {
 	public interface IAuthorizationContentResolver
@@ -31,5 +33,7 @@ namespace DataGEMS.Gateway.App.Authorization
 
 		Task<List<Guid>> ContextAffiliatedCollections(String permissions);
 		Task<List<Guid>> EffectiveContextAffiliatedDatasets(String permissions);
+		Task<List<DatasetContextGrants>> RetrieveAllDatasetContextGrants(IEnumerable<Guid> datasetIds);
+		Task<List<DatasetContextGrants>> RetrieveEffectiveDatasetContextGrants(IEnumerable<Guid> datasetIds, string permission);
 	}
 }

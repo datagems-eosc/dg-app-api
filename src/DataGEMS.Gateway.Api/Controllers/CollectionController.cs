@@ -26,7 +26,7 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace DataGEMS.Gateway.Api.Controllers
 {
-    [Route("api/collection")]
+	[Route("api/collection")]
 	public class CollectionController : ControllerBase
 	{
 		private readonly CensorFactory _censorFactory;

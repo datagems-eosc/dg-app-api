@@ -8,6 +8,7 @@ namespace DataGEMS.Gateway.App.Authorization
 		public const String LookupContextGrantGroups = "LookupContextGrantGroups";
 		public const String AddUserToContextGrantGroup = "AddUserToContextGrantGroup";
 		public const String RemoveUserFromContextGrantGroup = "RemoveUserFromContextGrantGroup";
+		public const String LookupDatasetContextGrants = "LookupDatasetContextGrants";
 		//Collection
 		public const String BrowseCollection = "BrowseCollection";
 		public const String CreateCollection = "CreateCollection";
@@ -37,8 +38,8 @@ namespace DataGEMS.Gateway.App.Authorization
 		public const String CanRetrievePackage = "CanRetrievePackage";
 		public const String CanRecommend = "CanRecommend";
 		public const string CanRecommendMathE = "CanRecommendMathE";
-        //Dataset
-        public const String BrowseDataset = "BrowseDataset";
+		//Dataset
+		public const String BrowseDataset = "BrowseDataset";
 		public const String ProfileDataset = "ProfileDataset";
 		public const String PackageDataset = "PackageDataset";
 		public const String RecommendationRegisterDataset = "RecommendationRegisterDataset";

@@ -12,6 +12,7 @@ using DataGEMS.Gateway.Api.Transaction;
 using DataGEMS.Gateway.Api.Validation;
 using DataGEMS.Gateway.App.Accounting;
 using DataGEMS.Gateway.App.Authorization;
+using DataGEMS.Gateway.App.Common.Auth;
 using DataGEMS.Gateway.App.ErrorCode;
 using DataGEMS.Gateway.App.Event;
 using DataGEMS.Gateway.App.Exception;
@@ -654,6 +655,46 @@ namespace DataGEMS.Gateway.Api.Controllers
 
 			await this._aaiService.UnassignCollectionGrantFromUserGroup(groupId, collectionId, role);
 			this._accountingService.AccountFor(KnownActions.Delete, KnownResources.ContextGrantAssignment.AsAccountable());
+		}
+
+		[HttpGet("context-grants/dataset")]
+		[Authorize]
+		[ModelStateValidationFilter]
+		[SwaggerOperation(Summary = "Retrieve user and user group rights for the provided datasets")]
+		[SwaggerResponse(statusCode: 200, description: "The dataset rights visible to the caller", type: typeof(List<DatasetContextGrants>))]
+		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
+		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
+		[SwaggerResponse(statusCode: 403, description: "The caller is not permitted to retrieve the requested rights")]
+		[SwaggerResponse(statusCode: 500, description: "Internal error")]
+		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
+		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
+		public async Task<ActionResult<List<DatasetContextGrants>>> ContextGrantsDataset(
+			[FromQuery]
+			[SwaggerParameter(description: "The dataset ids to retrieve rights for", Required = true)]
+			Guid[] id)
+		{
+			this._logger.Debug(new MapLogEntry("context-grants").And("target", "dataset").And("id", id));
+
+			if (id == null || id.Length == 0 || id.Any(x => x == Guid.Empty))
+			{
+				return this.BadRequest("At least one valid dataset id is required.");
+			}
+
+			HashSet<Guid> datasetIds = id.ToHashSet();
+			List<DatasetContextGrants> result = null;
+			
+			if (await this._authorizationContentResolver.HasPermission(Permission.LookupContextGrantOther))
+			{
+				result = await this._authorizationContentResolver.RetrieveAllDatasetContextGrants(datasetIds);
+			}
+			else
+			{
+				result = await this._authorizationContentResolver.RetrieveEffectiveDatasetContextGrants(datasetIds, Permission.LookupDatasetContextGrants);
+				if (result.Count == 0) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+			}
+			this._accountingService.AccountFor(KnownActions.Query, KnownResources.ContextGrantAssignment.AsAccountable());
+
+			return result;
 		}
 	}
 }

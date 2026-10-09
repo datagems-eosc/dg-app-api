@@ -22,5 +22,6 @@ namespace DataGEMS.Gateway.App.Service.AAI
 		Task UnassignDatasetGrantFromUserGroup(String groupId, Guid datasetId, String role);
 		Task DeleteCollectionGrants(Guid collectionId);
 		Task DeleteDatasetGrants(Guid datasetId);
+		Task<List<DatasetContextGrants>> LookupDatasetContextGrants(IEnumerable<Guid> datasetIds);
 	}
 }

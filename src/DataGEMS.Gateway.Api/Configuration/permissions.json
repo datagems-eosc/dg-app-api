@@ -11,6 +11,14 @@
 				"AllowAnonymous": false,
 				"AllowAuthenticated": false
 			},
+			"LookupDatasetContextGrants": {
+				"Roles": [ "GLOBAL_dg_admin" ],
+				"ContextRoles": [ "dg_ds-manage" ],
+				"Claims": [],
+				"Clients": [],
+				"AllowAnonymous": false,
+				"AllowAuthenticated": false
+			},
 			"LookupContextGrantGroups": {
 				"Roles": [ "GLOBAL_dg_user" ],
 				"ContextRoles": [],
