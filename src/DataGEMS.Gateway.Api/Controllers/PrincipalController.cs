@@ -675,15 +675,12 @@ namespace DataGEMS.Gateway.Api.Controllers
 		{
 			this._logger.Debug(new MapLogEntry("context-grants").And("target", "dataset").And("id", id));
 
-			if (id == null || id.Length == 0 || id.Any(x => x == Guid.Empty))
-			{
-				return this.BadRequest("At least one valid dataset id is required.");
-			}
+			if (id == null || id.Length == 0 || id.Any(x => x == Guid.Empty)) return new List<DatasetContextGrants>();
 
 			HashSet<Guid> datasetIds = id.ToHashSet();
 			List<DatasetContextGrants> result = null;
 			
-			if (await this._authorizationContentResolver.HasPermission(Permission.LookupContextGrantOther))
+			if (await this._authorizationContentResolver.HasPermission(Permission.LookupDatasetContextGrants))
 			{
 				result = await this._authorizationContentResolver.RetrieveAllDatasetContextGrants(datasetIds);
 			}
