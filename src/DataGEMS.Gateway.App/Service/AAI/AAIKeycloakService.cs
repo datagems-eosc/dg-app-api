@@ -601,6 +601,7 @@ namespace DataGEMS.Gateway.App.Service.AAI
 			if (datasetIds == null) return [];
 			HashSet<Guid> datasetIdsMap = datasetIds.ToHashSet();
 			if (datasetIdsMap.Count == 0) return [];
+			const int pageSize = 100;
 
 			string token = await this._accessTokenService.GetClientAccessTokenAsync(this._config.Scope);
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
@@ -614,62 +615,85 @@ namespace DataGEMS.Gateway.App.Service.AAI
 
 			foreach (Guid datasetId in datasetIdsMap)
 			{
-				using HttpRequestMessage request = new HttpRequestMessage(
-					HttpMethod.Get,
-					$"{this._config.BaseUrl}{this._config.GroupsEndpoint}?briefRepresentation=false&search={Uri.EscapeDataString(datasetId.ToString())}&exact=true");
-				request.Headers.Add(HeaderNames.Accept, "application/json");
-				request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
-				string content = await this.SendRequest(request);
-				List<Model.Group> roots;
-				try
+				string datasetIdToUse = datasetId.ToString().ToLowerInvariant();
+				int first = 0;
+				HashSet<string> processedTargetGroupIds = [];
+				while (true)
 				{
-					roots = String.IsNullOrEmpty(content) ? [] : this._jsonHandlingService.FromJson<List<Model.Group>>(content) ?? [];
-				}
-				catch (System.Exception ex)
-				{
-					this._logger.LogError(ex, "Failed to parse response: {content}", content);
-					throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.AAI, this._logCorrelationScope.CorrelationId);
-				}
+					using HttpRequestMessage request = new HttpRequestMessage(
+						HttpMethod.Get,
+						$"{this._config.BaseUrl}{this._config.GroupsEndpoint}?briefRepresentation=false&search={Uri.EscapeDataString(datasetIdToUse)}&exact=true&first={first}&max={pageSize}");
+					request.Headers.Add(HeaderNames.Accept, "application/json");
+					request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-				foreach (Model.Group principalGroup in roots
-					.Where(x => x.Path != null && x.Path.Equals($"/{this._config.ContextGrantGroupPrefix}", StringComparison.OrdinalIgnoreCase))
-					.SelectMany(x => x.SubGroups ?? []))
-				{
-					if (principalGroup.Attributes == null || !principalGroup.Attributes.TryGetValue(this._config.ContextGrantTypeAttributeName, out List<string> principalTypes) || principalTypes == null) continue;
-
-					bool isUser = principalTypes.Any(x => string.Equals(x, this._config.ContextGrantTypeUserAttributeValue, StringComparison.OrdinalIgnoreCase));
-					bool isGroup = principalTypes.Any(x => string.Equals(x, this._config.ContextGrantTypeGroupAttributeValue, StringComparison.OrdinalIgnoreCase));
-					if (!isUser && !isGroup) continue;
-
-					string principalId = isUser ? principalGroup.Name : principalGroup.Id;
-					foreach (Model.Group targetGroup in principalGroup.SubGroups ?? [])
+					string content = await this.SendRequest(request);
+					List<Model.Group> roots;
+					try
 					{
-						if (!Guid.TryParse(targetGroup.Name, out Guid targetDatasetId) || targetDatasetId != datasetId) continue;
-						List<ContextGrant> grants = this.ConvertToContextGrant(principalId, principalGroup, targetGroup);
-						if (grants == null) continue;
-						HashSet<string> roles = grants.Where(x => x.TargetType == ContextGrant.TargetKind.Dataset).Select(x => x.Role).ToHashSet();
-						if (roles.Count == 0) continue;
-						List<DatasetRoles> principals = isUser ? result[datasetId].Users : result[datasetId].UserGroups;
-						DatasetRoles existing = principals.FirstOrDefault(x => string.Equals(x.Id, principalId, StringComparison.OrdinalIgnoreCase));
+						roots = String.IsNullOrEmpty(content) ? [] : this._jsonHandlingService.FromJson<List<Model.Group>>(content) ?? [];
+					}
+					catch (System.Exception ex)
+					{
+						this._logger.LogError(ex, "Failed to parse response: {content}", content);
+						throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.AAI, this._logCorrelationScope.CorrelationId);
+					}
 
-						if (existing == null)
+					int pageResultCount = CountGroupsByName(roots, datasetIdToUse);
+					foreach (Model.Group principalGroup in roots
+						.Where(x => x.Path != null && x.Path.Equals($"/{this._config.ContextGrantGroupPrefix}", StringComparison.OrdinalIgnoreCase))
+						.SelectMany(x => x.SubGroups ?? []))
+					{
+						if (principalGroup.Attributes == null || !principalGroup.Attributes.TryGetValue(this._config.ContextGrantTypeAttributeName, out List<string> principalTypes) || principalTypes == null) continue;
+
+						bool isUser = principalTypes.Any(x => string.Equals(x, this._config.ContextGrantTypeUserAttributeValue, StringComparison.OrdinalIgnoreCase));
+						bool isGroup = principalTypes.Any(x => string.Equals(x, this._config.ContextGrantTypeGroupAttributeValue, StringComparison.OrdinalIgnoreCase));
+						if (!isUser && !isGroup) continue;
+
+						string principalId = isUser ? principalGroup.Name : principalGroup.Id;
+						foreach (Model.Group targetGroup in principalGroup.SubGroups ?? [])
 						{
-							principals.Add(new DatasetRoles
+							if (!Guid.TryParse(targetGroup.Name, out Guid targetDatasetId) || targetDatasetId != datasetId) continue;
+							if (!String.IsNullOrEmpty(targetGroup.Id) && !processedTargetGroupIds.Add(targetGroup.Id)) continue;
+							List<ContextGrant> grants = this.ConvertToContextGrant(principalId, principalGroup, targetGroup);
+							if (grants == null) continue;
+							HashSet<string> roles = grants.Where(x => x.TargetType == ContextGrant.TargetKind.Dataset).Select(x => x.Role).ToHashSet();
+							if (roles.Count == 0) continue;
+							List<DatasetRoles> principals = isUser ? result[datasetId].Users : result[datasetId].UserGroups;
+							DatasetRoles existing = principals.FirstOrDefault(x => string.Equals(x.Id, principalId, StringComparison.OrdinalIgnoreCase));
+
+							if (existing == null)
 							{
-								Id = principalId,
-								Roles = roles
-							});
-						}
-						else
-						{
-							existing.Roles.UnionWith(roles);
+								principals.Add(new DatasetRoles
+								{
+									Id = principalId,
+									Roles = roles
+								});
+							}
+							else
+							{
+								existing.Roles.UnionWith(roles);
+							}
 						}
 					}
+
+					if (pageResultCount < pageSize) break;
+					first += pageSize;
 				}
 			}
 
 			return result.Values.ToList();
+		}
+
+		private static int CountGroupsByName(IEnumerable<Model.Group> groups, string name)
+		{
+			if (groups == null) return 0;
+			int count = 0;
+			foreach (Model.Group group in groups)
+			{
+				if (string.Equals(group.Name, name, StringComparison.OrdinalIgnoreCase)) count++;
+				count += CountGroupsByName(group.SubGroups, name);
+			}
+			return count;
 		}
 	}
 }
