@@ -602,7 +602,9 @@ namespace DataGEMS.Gateway.App.Service.AAI
 			HashSet<Guid> datasetIdsMap = datasetIds.ToHashSet();
 			if (datasetIdsMap.Count == 0) return [];
 
-			Model.Group root = await this.FindContextGrantRoot();
+			string token = await this._accessTokenService.GetClientAccessTokenAsync(this._config.Scope);
+			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
+
 			Dictionary<Guid, DatasetContextGrants> result = datasetIdsMap.ToDictionary(x => x, x => new DatasetContextGrants
 			{
 				DatasetId = x,
@@ -610,64 +612,64 @@ namespace DataGEMS.Gateway.App.Service.AAI
 				UserGroups = []
 			});
 
-			foreach (Model.Group principalGroup in await this.FindSubGroups(root.Id))
+			foreach (Guid datasetId in datasetIdsMap)
 			{
-				if (principalGroup.Attributes == null || !principalGroup.Attributes.TryGetValue(this._config.ContextGrantTypeAttributeName, out List<string> principalTypes) || principalTypes == null) continue;
+				using HttpRequestMessage request = new HttpRequestMessage(
+					HttpMethod.Get,
+					$"{this._config.BaseUrl}{this._config.GroupsEndpoint}?briefRepresentation=false&search={Uri.EscapeDataString(datasetId.ToString())}&exact=true");
+				request.Headers.Add(HeaderNames.Accept, "application/json");
+				request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-				bool isUser = principalTypes.Any(x => string.Equals(x, this._config.ContextGrantTypeUserAttributeValue, StringComparison.OrdinalIgnoreCase));
-				bool isGroup = principalTypes.Any(x => string.Equals(x, this._config.ContextGrantTypeGroupAttributeValue, StringComparison.OrdinalIgnoreCase));
-				if (!isUser && !isGroup) continue;
-
-				string principalId = isUser ? principalGroup.Name : principalGroup.Id;
-				List<Model.Group> targetGroups = await this.FindSubGroups(principalGroup.Id);
-
-				foreach (Model.Group targetGroup in targetGroups)
+				string content = await this.SendRequest(request);
+				List<Model.Group> roots;
+				try
 				{
-					if (!Guid.TryParse(targetGroup.Name, out Guid datasetId) || !datasetIdsMap.Contains(datasetId)) continue;
-					List<ContextGrant> grants = this.ConvertToContextGrant(principalId, principalGroup, targetGroup);
-					if (grants == null) continue;
-					HashSet<string> roles = grants.Where(x => x.TargetType == ContextGrant.TargetKind.Dataset).Select(x => x.Role).ToHashSet();
-					if (roles.Count == 0) continue;
-					List<DatasetRoles> principals = isUser ? result[datasetId].Users : result[datasetId].UserGroups;
-					DatasetRoles existing = principals.FirstOrDefault(x => string.Equals(x.Id, principalId, StringComparison.OrdinalIgnoreCase));
+					roots = String.IsNullOrEmpty(content) ? [] : this._jsonHandlingService.FromJson<List<Model.Group>>(content) ?? [];
+				}
+				catch (System.Exception ex)
+				{
+					this._logger.LogError(ex, "Failed to parse response: {content}", content);
+					throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.AAI, this._logCorrelationScope.CorrelationId);
+				}
 
-					if (existing == null)
+				foreach (Model.Group principalGroup in roots
+					.Where(x => x.Path != null && x.Path.Equals($"/{this._config.ContextGrantGroupPrefix}", StringComparison.OrdinalIgnoreCase))
+					.SelectMany(x => x.SubGroups ?? []))
+				{
+					if (principalGroup.Attributes == null || !principalGroup.Attributes.TryGetValue(this._config.ContextGrantTypeAttributeName, out List<string> principalTypes) || principalTypes == null) continue;
+
+					bool isUser = principalTypes.Any(x => string.Equals(x, this._config.ContextGrantTypeUserAttributeValue, StringComparison.OrdinalIgnoreCase));
+					bool isGroup = principalTypes.Any(x => string.Equals(x, this._config.ContextGrantTypeGroupAttributeValue, StringComparison.OrdinalIgnoreCase));
+					if (!isUser && !isGroup) continue;
+
+					string principalId = isUser ? principalGroup.Name : principalGroup.Id;
+					foreach (Model.Group targetGroup in principalGroup.SubGroups ?? [])
 					{
-						principals.Add(new DatasetRoles
+						if (!Guid.TryParse(targetGroup.Name, out Guid targetDatasetId) || targetDatasetId != datasetId) continue;
+						List<ContextGrant> grants = this.ConvertToContextGrant(principalId, principalGroup, targetGroup);
+						if (grants == null) continue;
+						HashSet<string> roles = grants.Where(x => x.TargetType == ContextGrant.TargetKind.Dataset).Select(x => x.Role).ToHashSet();
+						if (roles.Count == 0) continue;
+						List<DatasetRoles> principals = isUser ? result[datasetId].Users : result[datasetId].UserGroups;
+						DatasetRoles existing = principals.FirstOrDefault(x => string.Equals(x.Id, principalId, StringComparison.OrdinalIgnoreCase));
+
+						if (existing == null)
 						{
-							Id = principalId,
-							Roles = roles
-						});
-					}
-					else
-					{
-						existing.Roles.UnionWith(roles);
+							principals.Add(new DatasetRoles
+							{
+								Id = principalId,
+								Roles = roles
+							});
+						}
+						else
+						{
+							existing.Roles.UnionWith(roles);
+						}
 					}
 				}
 			}
 
 			return result.Values.ToList();
-		}
-
-		private async Task<Model.Group> FindContextGrantRoot()
-		{
-			string token = await this._accessTokenService.GetClientAccessTokenAsync(this._config.Scope);
-			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
-			using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"{this._config.BaseUrl}{this._config.GroupsEndpoint}" + $"?search={this._config.ContextGrantGroupPrefix}");
-			request.Headers.Add(HeaderNames.Accept, "application/json");
-			request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-			string content = await this.SendRequest(request);
-			List<Model.Group> groups;
-			try
-			{
-				groups = this._jsonHandlingService.FromJson<List<Model.Group>>(content);
-			}
-			catch (System.Exception ex)
-			{
-				this._logger.LogError(ex, "problem converting response: {content}", content);
-				throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.AAI, this._logCorrelationScope.CorrelationId);
-			}
-			return groups.FirstOrDefault();
 		}
 	}
 }
