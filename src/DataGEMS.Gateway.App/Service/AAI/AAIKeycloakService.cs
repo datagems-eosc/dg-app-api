@@ -596,12 +596,38 @@ namespace DataGEMS.Gateway.App.Service.AAI
 			return content;
 		}
 
+		/// <summary>
+		/// Retrieves user and user-group role grants for the specified datasets from Keycloak context-grant groups.
+		/// </summary>
+		/// <param name="datasetIds">
+		/// The dataset IDs to look up. Duplicate IDs are processed once.
+		/// If null or empty, an empty list is returned without contacting Keycloak.
+		/// </param>
+		/// <returns>
+		/// A list containing one entry per distinct dataset ID. Each entry contains separate collections of users and user groups, together with their dataset roles.
+		/// Datasets without matching grants are included with empty principal collections.
+		/// </returns>
+		/// <remarks>
+		/// Obtains a client access token and searches Keycloak separately for each dataset ID as an exact group-name search term. Results are retrieved in pages of {QueryingPaginationSize} matching groups.
+		/// 
+		/// Processes principal groups directly beneath the configured context-grant root, identified by its path. Each principal group's configured type attribute determines whether it represents a user or a user group.
+		/// Groups with missing or unrecognized type attributes are skipped. If both types are present, the principal is treated as a user.
+		/// 
+		/// For user principals, the principal group's name is used as the principal ID. For user-group principals, the Keycloak group ID is used instead.
+		/// Direct children of each principal group are inspected for names that parse as the requested dataset ID. Matching target groups with a nonempty group ID are processed only once per dataset across all pages.
+		/// 
+		/// Converts each matching target group into context grants and retains only roles whose target type is a dataset. Target groups that produce no grants or no dataset roles are skipped. Roles are merged for principals with the same ID using an ordinal, case-insensitive ID comparison.
+		/// 
+		/// After each page, recursively counts groups whose names match the searched dataset ID throughout the returned hierarchy. Ancestor groups with different names do not contribute to this count. A count below the page size ends pagination; otherwise, the offset advances by {QueryingPaginationSize} and another page is requested.
+		/// A full final page therefore results in an additional request.
+		/// 
+		/// The pagination stopping condition assumes that the returned hierarchy contains all matching groups selected for the requested page.
+		/// </remarks>
 		public async Task<List<DatasetContextGrants>> LookupDatasetContextGrants(IEnumerable<Guid> datasetIds)
 		{
 			if (datasetIds == null) return [];
 			HashSet<Guid> datasetIdsMap = datasetIds.ToHashSet();
 			if (datasetIdsMap.Count == 0) return [];
-			const int pageSize = 100;
 
 			string token = await this._accessTokenService.GetClientAccessTokenAsync(this._config.Scope);
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
@@ -622,7 +648,7 @@ namespace DataGEMS.Gateway.App.Service.AAI
 				{
 					using HttpRequestMessage request = new HttpRequestMessage(
 						HttpMethod.Get,
-						$"{this._config.BaseUrl}{this._config.GroupsEndpoint}?briefRepresentation=false&search={Uri.EscapeDataString(datasetIdToUse)}&exact=true&first={first}&max={pageSize}");
+						$"{this._config.BaseUrl}{this._config.GroupsEndpoint}?briefRepresentation=false&search={datasetIdToUse}&exact=true&first={first}&max={this._config.QueryingPaginationSize}");
 					request.Headers.Add(HeaderNames.Accept, "application/json");
 					request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
@@ -630,7 +656,7 @@ namespace DataGEMS.Gateway.App.Service.AAI
 					List<Model.Group> roots;
 					try
 					{
-						roots = String.IsNullOrEmpty(content) ? [] : this._jsonHandlingService.FromJson<List<Model.Group>>(content) ?? [];
+						roots = this._jsonHandlingService.FromJson<List<Model.Group>>(content) ?? [];
 					}
 					catch (System.Exception ex)
 					{
@@ -676,14 +702,26 @@ namespace DataGEMS.Gateway.App.Service.AAI
 						}
 					}
 
-					if (pageResultCount < pageSize) break;
-					first += pageSize;
+					if (pageResultCount < this._config.QueryingPaginationSize) break;
+					first += this._config.QueryingPaginationSize;
 				}
 			}
 
 			return result.Values.ToList();
 		}
 
+		/// <summary>
+		/// Recursively counts groups whose names match the specified name, including groups at every level of the supplied hierarchy.
+		/// </summary>
+		/// <param name="groups">
+		/// The groups to inspect. If null, the count is zero.
+		/// </param>
+		/// <param name="name">
+		/// The group name to match using an ordinal, case-insensitive comparison.
+		/// </param>
+		/// <returns>
+		/// The total number of matching groups in the supplied collection and all nested subgroups.
+		/// </returns>
 		private static int CountGroupsByName(IEnumerable<Model.Group> groups, string name)
 		{
 			if (groups == null) return 0;
