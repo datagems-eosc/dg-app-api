@@ -215,43 +215,47 @@ namespace DataGEMS.Gateway.App.Service.AAI
 			String token = await this._accessTokenService.GetClientAccessTokenAsync(this._config.Scope);
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
 
-			HttpRequestMessage lookupHttpRequest = null;
-			if (String.IsNullOrEmpty(parentId)) lookupHttpRequest = new HttpRequestMessage(HttpMethod.Get, $"{this._config.BaseUrl}{this._config.GroupsEndpoint}");
-			else lookupHttpRequest = new HttpRequestMessage(HttpMethod.Get, $"{this._config.BaseUrl}{this._config.GroupChildrenEndpoint.Replace("{groupId}", parentId)}");
-			lookupHttpRequest.Headers.Add(HeaderNames.Accept, "application/json");
-			lookupHttpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+			String requestUrl = String.IsNullOrEmpty(parentId) ? 
+				$"{this._config.BaseUrl}{this._config.GroupsEndpoint}" : 
+				$"{this._config.BaseUrl}{this._config.GroupChildrenEndpoint.Replace("{groupId}", parentId)}";
 
-			String groupsContent = await this.SendRequest(lookupHttpRequest);
-			List<Model.Group> groups = null;
-			try { groups = String.IsNullOrEmpty(groupsContent) ? new List<Model.Group>() : this._jsonHandlingService.FromJson<List<Model.Group>>(groupsContent); }
-			catch (System.Exception ex)
+			int first = 0;
+			List<Model.Group> matchingGroups = [];
+
+			while (true)
 			{
-				this._logger.LogError(ex, "Failed to parse response: {content}", groupsContent);
-				throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.AAI, this._logCorrelationScope.CorrelationId);
-			}
-
-			if (groups != null && groups.Count(x => x.Name == name) == 1) return groups.FirstOrDefault(x => x.Name == name)?.Id;
-			else if (groups != null && groups.Count(x => x.Name == name) > 1) throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.AAI, this._logCorrelationScope.CorrelationId);
-			else
-			{
-				Model.Group create = new Model.Group() { Name = name, Attributes = attributes };
-
-				String requestUrl = null;
-				if (String.IsNullOrEmpty(parentId)) requestUrl = $"{this._config.BaseUrl}{this._config.GroupsEndpoint}";
-				else requestUrl = $"{this._config.BaseUrl}{this._config.GroupChildrenEndpoint.Replace("{groupId}", parentId)}";
-
-				HttpRequestMessage createHttpRequest = new HttpRequestMessage(HttpMethod.Post, requestUrl)
+				String separator = requestUrl.Contains('?') ? "&" : "?";
+				using HttpRequestMessage lookupHttpRequest = new HttpRequestMessage(HttpMethod.Get, $"{requestUrl}{separator}first={first}&max={this._config.QueryingPaginationSize}");
+				lookupHttpRequest.Headers.Add(HeaderNames.Accept, "application/json");
+				lookupHttpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+				String groupsContent = await this.SendRequest(lookupHttpRequest);
+				List<Model.Group> groups;
+				try { groups = String.IsNullOrEmpty(groupsContent) ? new List<Model.Group>() : this._jsonHandlingService.FromJson<List<Model.Group>>(groupsContent); }
+				catch (System.Exception ex)
 				{
-					Content = new StringContent(this._jsonHandlingService.ToJson(create), Encoding.UTF8, "application/json")
-				};
-				createHttpRequest.Headers.Add(HeaderNames.Accept, "application/json");
-				createHttpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
-				String content = await this.SendRequest(createHttpRequest, true);
-				String[] locationParts = content.Split('/', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-				if (locationParts.Length == 0) throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.AAI, this._logCorrelationScope.CorrelationId);
-				return locationParts.Last();
+					this._logger.LogError(ex, "Failed to parse response: {content}", groupsContent);
+					throw new DGUnderpinningException( this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.AAI, this._logCorrelationScope.CorrelationId);
+				}
+				matchingGroups.AddRange(groups.Where(x => x.Name == name));
+				if (matchingGroups.Count > 1) throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.AAI, this._logCorrelationScope.CorrelationId);
+				if (groups.Count < this._config.QueryingPaginationSize) break;
+				first += this._config.QueryingPaginationSize;
 			}
+
+			if (matchingGroups.Count == 1) return matchingGroups[0].Id;
+			Model.Group create = new Model.Group() { Name = name, Attributes = attributes };
+
+			using HttpRequestMessage createHttpRequest = new HttpRequestMessage(HttpMethod.Post, requestUrl)
+			{
+				Content = new StringContent(this._jsonHandlingService.ToJson(create), Encoding.UTF8, "application/json")
+			};
+			createHttpRequest.Headers.Add(HeaderNames.Accept, "application/json");
+			createHttpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+			String content = await this.SendRequest(createHttpRequest, true);
+			String[] locationParts = content.Split('/', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+			if (locationParts.Length == 0) throw new DGUnderpinningException(this._errors.UnderpinningService.Code, this._errors.UnderpinningService.Message, null, UnderpinningServiceType.AAI, this._logCorrelationScope.CorrelationId);
+			return locationParts.Last();
 		}
 
 		private async Task EnsureRole(String groupId, String roleName)
