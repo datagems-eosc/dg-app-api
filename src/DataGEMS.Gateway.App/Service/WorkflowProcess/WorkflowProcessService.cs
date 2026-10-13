@@ -210,7 +210,7 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 			await this._authorizationService.AuthorizeForce(Permission.CanExecuteDatasetOnboarding);
 
 			WorkflowProcessConfig.WorkflowProcessConfigItem configuration = this._config.Items.FirstOrDefault(x => x.Kind == Common.WorkflowProcessKind.DatasetOnboarding);
-			Guid datasetId = Guid.NewGuid();
+			Guid datasetId = model.DataLocations.Any(x => x.Kind == Common.DataLocationKind.Staged) ? Guid.Parse(model.DataLocations.First(x => x.Kind == Common.DataLocationKind.Staged).Location) : Guid.NewGuid();
 			(Data.WorkflowProcess data, IOrderedEnumerable<WorkflowProcessConfig.WorkflowProcessConfigItem.WorkflowProcessConfigItemStep> steps, List<Data.WorkflowProcessStep> stepData) = await this.PersistFlow(configuration, datasetId);
 
 			try
