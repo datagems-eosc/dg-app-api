@@ -118,7 +118,7 @@ namespace DataGEMS.Gateway.App.Service.AAI
 
 			List<Service.AAI.Model.Group> children = new List<Service.AAI.Model.Group>();
 			int first = 0;
-			int max = 100;
+			int max = this._config.QueryingPaginationSize;
 
 			while (true)
 			{
@@ -155,7 +155,7 @@ namespace DataGEMS.Gateway.App.Service.AAI
 
 			List<Service.AAI.Model.Group> groups = new List<Service.AAI.Model.Group>();
 			int first = 0;
-			int max = 100;
+			int max = this._config.QueryingPaginationSize;
 
 			while (true)
 			{
