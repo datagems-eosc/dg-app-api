@@ -38,7 +38,26 @@
 			//50ΜΒ = 52428800 bytes
 			//310MB = 325058560 bytes
 			"MaxFileSize": 325058560,
-			"AllowedExtensions": [ ".csv", ".tsv", ".xlsx", ".xls", ".txt", ".pdf", ".png", ".jpeg", ".jpg", ".md", ".docx", ".pptx", ".m4a", ".json" ]
+			"AllowedExtensions": [
+				".csv",
+				".tsv",
+				".xlsx",
+				".xls",
+				".txt",
+				".pdf",
+				".png",
+				".jpeg",
+				".jpg",
+				".md",
+				".docx",
+				".pptx",
+				".m4a",
+				".json",
+				".ttl",
+				".trig",
+				".nt",
+        ".nq"
+			]
 		},
 		"DownloadRules": {
 			//50ΜΒ = 52428800 bytes
