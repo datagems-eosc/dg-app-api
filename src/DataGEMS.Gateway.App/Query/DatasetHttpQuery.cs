@@ -28,11 +28,9 @@ namespace DataGEMS.Gateway.App.Query
 		private Common.Enum.DatasetState? _datasetStatus { get; set; }
 		private DateTime? _publishedDateFrom { get; set; }
 		private DateTime? _publishedDateTo { get; set; }
-
-		//TODO: Apply like filter
 		private String _like { get; set; }
-
-		//TODO: Apply paging
+		private List<string> _fieldsOfScience { get; set; }
+		private string _license { get; set; }
 		public Paging Page { get; set; }
 		public Ordering Order { get; set; }
 
@@ -78,10 +76,13 @@ namespace DataGEMS.Gateway.App.Query
 		public DatasetHttpQuery CollectionIds(IEnumerable<Guid> collectionIds) { this._collectionIds = collectionIds?.ToList(); return this; }
 		public DatasetHttpQuery CollectionIds(Guid collectionId) { this._collectionIds = collectionId.AsList(); return this; }
 		public DatasetHttpQuery Like(String like) { this._like = like; return this; }
+		public DatasetHttpQuery License(string license) { this._license = license; return this; }
 		public DatasetHttpQuery Types(IEnumerable<string> types) { this._types = types?.ToList(); return this; }
 		public DatasetHttpQuery Types(string type) { this._types = type.AsList(); return this; }
 		public DatasetHttpQuery MimeTypes(IEnumerable<string> mimeTypes) { this._mimeTypes = mimeTypes?.ToList(); return this; }
 		public DatasetHttpQuery MimeTypes(string mimeType) { this._mimeTypes = mimeType.AsList(); return this; }
+		public DatasetHttpQuery FieldsOfScience(IEnumerable<string> fieldsOfScience) { this._fieldsOfScience = fieldsOfScience?.ToList(); return this; }
+		public DatasetHttpQuery FieldsOfScience(string fieldOfScience) { this._fieldsOfScience = fieldOfScience.AsList(); return this; }
 		public DatasetHttpQuery State(Common.Enum.DatasetState state) { this._datasetStatus = state; return this; }
 		public DatasetHttpQuery PublishedDateFrom(DateTime date) { this._publishedDateFrom = date; return this; }
 		public DatasetHttpQuery PublishedDateTo(DateTime date) { this._publishedDateTo = date; return this; }
@@ -89,8 +90,8 @@ namespace DataGEMS.Gateway.App.Query
 
 		protected bool IsFalseQuery()
 		{
-			return this._ids.IsNotNullButEmpty() || this._excludedIds.IsNotNullButEmpty() || this._collectionIds.IsNotNullButEmpty() || 
-				this._types.IsNotNullButEmpty() || this._mimeTypes.IsNotNullButEmpty();
+			return this._ids.IsNotNullButEmpty() || this._excludedIds.IsNotNullButEmpty() || this._collectionIds.IsNotNullButEmpty() ||
+				this._types.IsNotNullButEmpty() || this._mimeTypes.IsNotNullButEmpty() || this._fieldsOfScience.IsNotNullButEmpty();
 		}
 
 		public async Task<QueryResult> CollectAsync()
@@ -164,12 +165,14 @@ namespace DataGEMS.Gateway.App.Query
 			else if (this._ids != null && this._ids.Count > 0) datasetIdsToUse = this._ids;
 
 			if(datasetIdsToUse!=null && datasetIdsToUse.Count > 0) datasetIdsToUse.ForEach(x => qs = qs.Add("nodeIds", x.ToString()));
-
+			if (this._like != null) qs = qs.Add("like", $"*{this._like}*");
+			if (this._license != null) qs = qs.Add("license", this._license);
 			if (this._types != null) this._types.ForEach(x => qs = qs.Add("types", x));
 			if (this._publishedDateFrom != null) qs = qs.Add("publishedDateFrom", this._publishedDateFrom.Value.ToString("yyyy-MM-dd"));
 			if (this._publishedDateTo != null) qs = qs.Add("publishedDateTo", this._publishedDateTo.Value.ToString("yyyy-MM-dd"));
 			if (this._datasetStatus != null) qs = qs.Add("status", this._datasetStatus.Value.ToString().ToLower());
 			if (this._mimeTypes != null) this._mimeTypes.ForEach(x => qs = qs.Add("mimeTypes", x));
+			if (this._fieldsOfScience != null) this._fieldsOfScience.ForEach(x => qs = qs.Add("fieldsOfScience", x));
 
 			return qs;
 		}

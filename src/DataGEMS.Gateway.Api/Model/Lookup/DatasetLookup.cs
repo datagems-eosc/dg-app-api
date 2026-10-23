@@ -24,6 +24,10 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 		public App.Common.Enum.DatasetState? State { get; set; }
 		[SwaggerSchema(description: "Limit lookup to items whose name matches the pattern")]
 		public String Like { get; set; }
+		[SwaggerSchema(description: "Limit lookup to items belonging to the specific fields of science. If set, the list of fields of science must not be empty")]
+		public List<string> FieldsOfScience { get; set; }
+		[SwaggerSchema(description: "Limit lookup to items with specific license.")]
+		public string License { get; set; }
 
 		public DatasetHttpQuery Enrich(QueryFactory factory)
 		{
@@ -33,8 +37,10 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 			if (this.ExcludedIds != null) query.ExcludedIds(this.ExcludedIds);
 			if (this.CollectionIds != null) query.CollectionIds(this.CollectionIds);
 			if (this.MimeTypes != null) query.MimeTypes(this.MimeTypes);
+			if (this.FieldsOfScience != null) query.FieldsOfScience(this.FieldsOfScience);
 			if (this.State != null) query.State(this.State.Value);
 			if (!String.IsNullOrEmpty(this.Like)) query.Like(this.Like);
+			if (!String.IsNullOrEmpty(this.License)) query.License(this.License);
 
 			this.EnrichCommon(query);
 
@@ -75,6 +81,10 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 					this.Spec()
 						.Must(() => !item.MimeTypes.IsNotNullButEmpty())
 						.FailOn(nameof(DatasetLookup.MimeTypes)).FailWith(this._localizer["validation_setButEmpty", nameof(DatasetLookup.MimeTypes)]),
+					//FieldsOfScience must be null or not empty
+					this.Spec()
+						.Must(() => !item.FieldsOfScience.IsNotNullButEmpty())
+						.FailOn(nameof(DatasetLookup.FieldsOfScience)).FailWith(this._localizer["validation_setButEmpty", nameof(DatasetLookup.FieldsOfScience)]),
 					//paging without ordering not supported
 					this.Spec()
 						.If(()=> item.Page != null && !item.Page.IsEmpty)

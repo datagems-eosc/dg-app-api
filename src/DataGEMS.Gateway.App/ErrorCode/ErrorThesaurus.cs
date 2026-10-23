@@ -15,5 +15,6 @@ namespace DataGEMS.Gateway.App.ErrorCode
 		public ErrorDescription UploadRestricted { get; set; }
 		public ErrorDescription UnauthorizedToken { get; set; }
 		public ErrorDescription InvalidValue { get; set; }
+		public ErrorDescription UserIdNotFound { get; set; }
 	}
 }

@@ -18,7 +18,8 @@
 			"GroupChildrenEndpoint": "groups/{groupId}/children",
 			"RolesEndpoint": "roles/{roleName}",
 			"UserGroupsEndpoint": "users/{userId}/groups",
-			"UserGroupMembershipEndpoint": "users/{userId}/groups/{groupId}"
+			"UserGroupMembershipEndpoint": "users/{userId}/groups/{groupId}",
+			"QueryingPaginationSize":  100
 		},
 		"Cache": {
 			"LookupCache": {
