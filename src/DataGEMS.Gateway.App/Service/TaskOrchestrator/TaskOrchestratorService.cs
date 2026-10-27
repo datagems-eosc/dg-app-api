@@ -161,7 +161,7 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 		{
 			String token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
-			Guid userId = await this._authorizationContentResolver.CurrentUserId() 
+			Guid userId = await this._authorizationContentResolver.SubjectIdOfCurrentUserAsGuid()
 				?? throw new DGApplicationException(this._errors.UserIdNotFound.Code, this._errors.UserIdNotFound.Message);
 			string apRequest = this._analyticalPatternTemplates.CrossDatasetDiscoveryLookup
 				.Replace("{{ap_node_id}}", Guid.NewGuid().ToString())

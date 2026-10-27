@@ -432,7 +432,7 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 						location = x.Location,
 					})),
 					date_published = model.DatePublished,
-					userId = await this._authorizationContentResolver.CurrentUserId(),
+					userId = await this._authorizationContentResolver.SubjectIdOfCurrentUserAsGuid(),
 					doi = model.Doi,
 					workflow_process_step_information = new
 					{

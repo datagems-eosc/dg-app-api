@@ -3,6 +3,8 @@ using Cite.Tools.Common.Extensions;
 using Cite.Tools.Data.Query;
 using Cite.WebTools.CurrentPrincipal;
 using DataGEMS.Gateway.App.Common.Auth;
+using DataGEMS.Gateway.App.ErrorCode;
+using DataGEMS.Gateway.App.Exception;
 using DataGEMS.Gateway.App.Query;
 using DataGEMS.Gateway.App.Service.AAI;
 
@@ -16,6 +18,7 @@ namespace DataGEMS.Gateway.App.Authorization
 		private readonly IPermissionPolicyService _permissionPolicyService;
 		private readonly QueryFactory _queryFactory;
 		private readonly IAAIService _aaiService;
+		private readonly ErrorThesaurus _errors;
 
 		public AuthorizationContentResolver(
 			ICurrentPrincipalResolverService currentPrincipalResolverService,
@@ -23,7 +26,8 @@ namespace DataGEMS.Gateway.App.Authorization
 			IPermissionPolicyService permissionPolicyService,
 			IAAIService aaiService,
 			QueryFactory queryFactory,
-			ClaimExtractor extractor)
+			ClaimExtractor extractor,
+			ErrorThesaurus errors)
 		{
 			this._currentPrincipalResolverService = currentPrincipalResolverService;
 			this._authorizationService = authorizationService;
@@ -31,6 +35,7 @@ namespace DataGEMS.Gateway.App.Authorization
 			this._queryFactory = queryFactory;
 			this._aaiService = aaiService;
 			this._extractor = extractor;
+			this._errors = errors;
 		}
 
 		public Boolean HasAuthenticated()
@@ -82,6 +87,14 @@ namespace DataGEMS.Gateway.App.Authorization
 			}
 			if (String.IsNullOrEmpty(subjectId)) return null;
 			return subjectId;
+		}
+
+		public async Task<Guid?> SubjectIdOfCurrentUserAsGuid()
+		{
+			string subjectId = await this.SubjectIdOfCurrentUser();
+			if (string.IsNullOrEmpty(subjectId)) return null;
+			if (Guid.TryParse(subjectId, out Guid subjectIdAsGuid)) return subjectIdAsGuid;
+			throw new DGApplicationException(this._errors.InvalidValue.Code, string.Format(this._errors.InvalidValue.Message, nameof(subjectId)));
 		}
 
 		public async Task<Boolean> HasPermission(params String[] permissions)

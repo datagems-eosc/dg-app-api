@@ -12,6 +12,7 @@ namespace DataGEMS.Gateway.App.Authorization
 		Task<String> SubjectIdOfCurrentUser();
 		Task<String> SubjectIdOfUserId(Guid? userId);
 		Task<String> SubjectIdOfUserIdentifier(String userIdentifier);
+		Task<Guid?> SubjectIdOfCurrentUserAsGuid();
 
 		Task<Boolean> HasPermission(params String[] permissions);
 
