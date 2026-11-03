@@ -39,6 +39,7 @@ using DataGEMS.Gateway.App.Service.DatasetPackaging;
 using DataGEMS.Gateway.App.Service.DatasetRecommender;
 using DataGEMS.Gateway.App.Service.Discovery;
 using DataGEMS.Gateway.App.Service.InDataExploration;
+using DataGEMS.Gateway.App.Service.IntentDisambiguation;
 using DataGEMS.Gateway.App.Service.QueryRecommender;
 using DataGEMS.Gateway.App.Service.Storage;
 using DataGEMS.Gateway.App.Service.TaskOrchestrator;
@@ -111,6 +112,7 @@ namespace DataGEMS.Gateway.Api
 				.AddDatasetRecommenderServices(this._config.GetSection("DatasetRecommenderService")) //Dataset Recommender API
 				.AddDatasetPackagingServices(this._config.GetSection("DatasetPackagingService")) //Dataset Packaging API
 				.AddWorkflowProcessServices(this._config.GetSection("WorkflowProcess")) //Add Workflow Process Services
+				.AddIntentDisambiguationServices(this._config.GetSection("IntentDisambiguationService")) //Intent Disambiguation API
 			;
 
 			services

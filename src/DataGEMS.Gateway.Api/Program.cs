@@ -127,6 +127,10 @@ namespace DataGEMS.Gateway.Api
 							.AddJsonFileInPaths("service-in-data-exploration.json", sharedConfigPath, "Configuration")
 							.AddJsonFileInPaths("service-in-data-exploration.override.json", sharedConfigPath, "Configuration")
 							.AddJsonFileInPaths($"service-in-data-exploration.{env.EnvironmentName}.json", sharedConfigPath, "Configuration")
+							//service intent disambiguation
+							.AddJsonFileInPaths("service-intent-disambiguation.json", sharedConfigPath, "Configuration")
+							.AddJsonFileInPaths("service-intent-disambiguation.override.json", sharedConfigPath, "Configuration")
+							.AddJsonFileInPaths($"service-intent-disambiguation.{env.EnvironmentName}.json", sharedConfigPath, "Configuration")
 							// service query recommender
 							.AddJsonFileInPaths("service-query-recommender.json", sharedConfigPath, "Configuration")
 							.AddJsonFileInPaths("service-query-recommender.override.json", sharedConfigPath, "Configuration")

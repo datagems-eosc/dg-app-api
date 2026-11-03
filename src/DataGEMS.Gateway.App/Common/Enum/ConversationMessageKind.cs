@@ -29,5 +29,9 @@ namespace DataGEMS.Gateway.App.Common
 		QueryDisambiguationQuery = 10,
 		[Description("Query Disambiguation Response")]
 		QueryDisambiguationResponse = 11,
+		[Description("Intent Disambiguation")]
+		IntentDisambiguation = 12,
+		[Description("Intent Disambiguation Response")]
+		IntentDisambiguationResponse = 13,
 	}
 }

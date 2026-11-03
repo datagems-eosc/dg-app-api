@@ -13,5 +13,6 @@ namespace DataGEMS.Gateway.App.Common
 		DatasetRecommender = 7,
 		DatasetPackaging = 8,
 		DatasetLinking = 9,
+		IntentDisambiguation = 10,
 	}
 }

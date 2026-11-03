@@ -63,6 +63,7 @@ namespace DataGEMS.Gateway.App.Accounting
 		QueryDisambiguation = 18,
 		WorkflowProcess = 19,
 		WorkflowProcessStep = 20,
+		IntentDisambiguation = 21,
 	}
 
 	public class AccountingInfo

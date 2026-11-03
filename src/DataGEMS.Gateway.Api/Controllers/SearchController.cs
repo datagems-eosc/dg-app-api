@@ -23,6 +23,7 @@ using DataGEMS.Gateway.App.Service.DatasetPackaging;
 using DataGEMS.Gateway.App.Service.DatasetRecommender;
 using DataGEMS.Gateway.App.Service.Discovery;
 using DataGEMS.Gateway.App.Service.InDataExploration;
+using DataGEMS.Gateway.App.Service.IntentDisambiguation;
 using DataGEMS.Gateway.App.Service.QueryRecommender;
 using DataGEMS.Gateway.App.Service.TaskOrchestrator;
 using Microsoft.AspNetCore.Authorization;
@@ -51,6 +52,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		private readonly QueryFactory _queryFactory;
 		private readonly IDatasetPackagingService _packagingService;
 		private readonly IDatasetRecommenderService _datasetRecommenderService;
+		private readonly IIntentDisambiguationService _intentDisambiguationService;
 
 		public SearchController(
 			CensorFactory censorFactory,
@@ -67,7 +69,8 @@ namespace DataGEMS.Gateway.Api.Controllers
 			BuilderFactory builderFactory,
 			QueryFactory queryFactory,
 			IDatasetPackagingService datasetPackagingService,
-			IDatasetRecommenderService datasetRecommenderService)
+			IDatasetRecommenderService datasetRecommenderService,
+			IIntentDisambiguationService intentDisambiguationService)
 		{
 			this._censorFactory = censorFactory;
 			this._crossDatasetDiscoveryService = crossDatasetDiscoveryService;
@@ -84,12 +87,13 @@ namespace DataGEMS.Gateway.Api.Controllers
 			this._queryFactory = queryFactory;
 			this._packagingService = datasetPackagingService;
 			this._datasetRecommenderService = datasetRecommenderService;
+			this._intentDisambiguationService = intentDisambiguationService;
 		}
 
 		[HttpPost("cross-dataset")]
 		[Authorize]
 		[ModelStateValidationFilter]
-		[ValidationFilter(typeof(CrossDatasetDiscoveryLookup.CrossDatasetDiscoveryLookupValidator), "lookup")]
+		[ValidationFilter(typeof(CrossDatasetDiscoveryLookup.CrossDatasetDiscoveryLookupValidator), "request")]
 		[SwaggerOperation(Summary = "Cross-dataset search")]
 		[SwaggerResponse(statusCode: 200, description: "Matching results", type: typeof(SearchResult<List<App.Model.CrossDatasetDiscovery>>))]
 		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
@@ -104,7 +108,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			[SwaggerRequestBody(description: "The discovery query", Required = true)]
 			CrossDatasetDiscoveryLookup lookup)
 		{
-			this._logger.Debug(new MapLogEntry("cross dataset discovering").And("type", nameof(App.Model.CrossDatasetDiscovery)).And("lookup", lookup));
+			this._logger.Debug(new MapLogEntry("cross dataset discovering").And("type", nameof(App.Model.CrossDatasetDiscovery)).And("request", lookup));
 
 			IFieldSet censoredFields = await this._censorFactory.Censor<CrossDatasetDiscoveryCensor>().Censor(lookup.Project, CensorContext.AsCensor());
 			if (lookup.Project.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
@@ -143,7 +147,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[HttpPost("in-data-explore")]
 		[Authorize]
 		[ModelStateValidationFilter]
-		[ValidationFilter(typeof(InDataExplorationLookup.InDataExplorationLookupValidator), "lookup")]
+		[ValidationFilter(typeof(InDataExplorationLookup.InDataExplorationLookupValidator), "request")]
 		[SwaggerOperation(Summary = "Explore in selected data")]
 		[SwaggerResponse(statusCode: 200, description: "Matching results", type: typeof(SearchResult<List<App.Model.InDataExplore>>))]
 		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
@@ -158,7 +162,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			[SwaggerRequestBody(description: "The exploration query", Required = true)]
 			InDataExplorationLookup lookup)
 		{
-			this._logger.Debug(new MapLogEntry("in data exploration").And("type", nameof(App.Model.InDataExplore)).And("lookup", lookup));
+			this._logger.Debug(new MapLogEntry("in data exploration").And("type", nameof(App.Model.InDataExplore)).And("request", lookup));
 
 			IFieldSet censoredFields = await this._censorFactory.Censor<InDataExplorationCensor>().Censor(lookup.Project, CensorContext.AsCensor());
 			if (lookup.Project.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
@@ -193,10 +197,74 @@ namespace DataGEMS.Gateway.Api.Controllers
 			return new SearchResult<App.Model.InDataExplore>(conversationId, results);
 		}
 
+		[HttpPost("disambiguate-intent")]
+		[Authorize]
+		[ModelStateValidationFilter]
+		[ValidationFilter(typeof(IntentDisambiguationRequest.Validator), "request")]
+		[SwaggerOperation(Summary = "Decides whether the text a user typed asks for datasets or for an answer.")]
+		[SwaggerResponse(statusCode: 200, description: "Matching results", type: typeof(SearchResult<App.Model.IntentDisambiguation>))]
+		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
+		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
+		[SwaggerResponse(statusCode: 403, description: "The requested operation is not permitted based on granted permissions")]
+		[SwaggerResponse(statusCode: 500, description: "Internal error")]
+		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
+		[Consumes(System.Net.Mime.MediaTypeNames.Application.Json)]
+		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
+		public async Task<SearchResult<App.Model.IntentDisambiguation>> DisambiguateIntentAsync(
+			[FromBody]
+			[SwaggerRequestBody(description: "The intent disambiguation options", Required = true)]
+			IntentDisambiguationRequest request,
+
+			[FromQuery]
+			[ModelBinder(Name = "f")]
+			[SwaggerParameter(description: "The fields to include in the response model", Required = true)]
+			[LookupFieldSetQueryStringOpenApi]
+			IFieldSet fieldSet
+		)
+		{
+			this._logger.Debug(new MapLogEntry("intent disambiguation").And("request", request));
+
+			//IFieldSet censoredFields = await this._censorFactory.Censor<IntentDisambiguationCensor>().Censor(fieldSet, CensorContext.AsCensor(), request.Context?.DatasetIds);
+			//if (fieldSet.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+
+			var info = new App.Service.IntentDisambiguation.Model.IntentDisambiguationRequest
+			{
+				Query = request.Query,
+				Context = request.Context == null ? null : new App.Service.IntentDisambiguation.Model.IntentDisambiguationRequest.IntentDisambiguationRequestContext
+				{
+					Domain = request.Context.Domain,
+					DatasetIds = request.Context.DatasetIds,
+					History = request.Context.History
+				}
+			};
+			//IntentDisambiguation results = await this._intentDisambiguationService.DisambiguateIntentAsync(info, censoredFields);
+			IntentDisambiguation results = await this._intentDisambiguationService.DisambiguateIntentAsync(info, fieldSet);
+
+			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.IntentDisambiguation.AsAccountable());
+
+			Guid? conversationId = await this.UpdateConversation(
+				request.ConversationOptions?.ConversationId,
+				request.ConversationOptions?.AutoCreateConversation,
+				request.Query,
+				null,
+				new App.Common.Conversation.IntentDisambiguationConversationEntry()
+				{
+					Version = ExploreInfo.ModelVersion,
+					Payload = info
+				},
+				new App.Common.Conversation.IntentDisambiguationResponseConversationEntry()
+				{
+					Version = IntentDisambiguation.ModelVersion,
+					Payload = results
+				});
+
+			return new SearchResult<IntentDisambiguation>(conversationId, results);
+		}
+
 		[HttpPost("disambiguate-query")]
 		[Authorize]
 		[ModelStateValidationFilter]
-		[ValidationFilter(typeof(QueryDisambiguationLookup.QueryDisambiguationLookupValidator), "lookup")]
+		[ValidationFilter(typeof(QueryDisambiguationLookup.QueryDisambiguationLookupValidator), "request")]
 		[SwaggerOperation(Summary = "Disambiguates the provided query by resolving ambiguous terms or intent and returns clearer, more specific versions")]
 		[SwaggerResponse(statusCode: 200, description: "Matching results", type: typeof(SearchResult<App.Model.QueryDisambiguationViewModel>))]
 		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
@@ -212,7 +280,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			QueryDisambiguationLookup lookup
 		)
 		{
-			this._logger.Debug(new MapLogEntry("query disambiguation").And("lookup", lookup));
+			this._logger.Debug(new MapLogEntry("query disambiguation").And("request", lookup));
 
 			IFieldSet censoredFields = await this._censorFactory.Censor<QueryDisambiguationCensor>().Censor(lookup.Project, CensorContext.AsCensor(), lookup.DatasetIds);
 			if (lookup.Project.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
@@ -250,7 +318,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[HttpPost("recommend")]
 		[Authorize]
 		[ModelStateValidationFilter]
-		[ValidationFilter(typeof(QueryRecommendationLookup.QueryRecommendationLookupValidator), "lookup")]
+		[ValidationFilter(typeof(QueryRecommendationLookup.QueryRecommendationLookupValidator), "request")]
 		[SwaggerOperation(Summary = "Recommend possible queries")]
 		[SwaggerResponse(statusCode: 200, description: "Matching results", type: typeof(SearchResult<List<App.Model.QueryRecommendation>>))]
 		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
@@ -265,7 +333,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			[SwaggerRequestBody(description: "The query recommendation options", Required = true)]
 			QueryRecommendationLookup lookup)
 		{
-			this._logger.Debug(new MapLogEntry("query recommendation").And("type", nameof(App.Model.QueryRecommendation)).And("lookup", lookup));
+			this._logger.Debug(new MapLogEntry("query recommendation").And("type", nameof(App.Model.QueryRecommendation)).And("request", lookup));
 
 			IFieldSet censoredFields = await this._censorFactory.Censor<QueryRecommenderCensor>().Censor(lookup.Project, CensorContext.AsCensor());
 			if (lookup.Project.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
@@ -398,7 +466,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[HttpPost("ad-hoc/query")]
 		[Authorize]
 		[ModelStateValidationFilter]
-		[ValidationFilter(typeof(AdHocQueryLookup.QueryValidator), "lookup")]
+		[ValidationFilter(typeof(AdHocQueryLookup.QueryValidator), "request")]
 		[SwaggerOperation(Summary = "Query ad-hoc queries")]
 		[SwaggerResponse(statusCode: 200, description: "The list of matching ad-hoc query results along with the count", type: typeof(QueryResult<App.Model.AdHocQuery>))]
 		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
@@ -413,7 +481,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			[SwaggerRequestBody(description: "The query predicates", Required = true)]
 			AdHocQueryLookup lookup)
 		{
-			this._logger.Debug(new MapLogEntry("querying").And("type", nameof(App.Model.AdHocQuery)).And("lookup", lookup));
+			this._logger.Debug(new MapLogEntry("querying").And("type", nameof(App.Model.AdHocQuery)).And("request", lookup));
 
 			Guid? userId = await this._authorizationContentResolver.CurrentUserId();
 			if (!userId.HasValue) throw new DGApplicationException(this._errors.UserSync.Code, this._errors.UserSync.Message);
@@ -442,7 +510,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
 		public async Task<AdHocQuery> GetAdHocResult(
 			[FromRoute]
-			[SwaggerParameter(description: "The id of the item to lookup", Required = true)]
+			[SwaggerParameter(description: "The id of the item to request", Required = true)]
 			Guid id,
 			[ModelBinder(Name = "f")]
 			[SwaggerParameter(description: "The fields to include in the response model", Required = true)]
@@ -478,7 +546,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
 		public async Task<string> GetAdHocPreview(
 			[FromRoute]
-			[SwaggerParameter(description: "The id of the item to lookup", Required = true)]
+			[SwaggerParameter(description: "The id of the item to request", Required = true)]
 			Guid id,
 
 			[FromRoute]
@@ -497,7 +565,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[HttpPost("package/recommend")]
 		[Authorize]
 		[ModelStateValidationFilter]
-		[ValidationFilter(typeof(PackageRecommendationLookup.PackageRecommendationLookupValidator), "lookup")]
+		[ValidationFilter(typeof(PackageRecommendationLookup.PackageRecommendationLookupValidator), "request")]
 		[SwaggerOperation(Summary = "Recommend possible packages")]
 		[SwaggerResponse(statusCode: 200, description: "Matching results", type: typeof(SearchResult<List<App.Model.PackageRecommendation>>))]
 		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
@@ -512,7 +580,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			[SwaggerRequestBody(description: "The package recommendation options", Required = true)]
 			PackageRecommendationLookup lookup)
 		{
-			this._logger.Debug(new MapLogEntry("package recommendation").And("type", nameof(App.Model.PackageRecommendation)).And("lookup", lookup));
+			this._logger.Debug(new MapLogEntry("package recommendation").And("type", nameof(App.Model.PackageRecommendation)).And("request", lookup));
 
 			IFieldSet censoredFields = await this._censorFactory.Censor<PackageRecommenderCensor>().Censor(lookup.Project, CensorContext.AsCensor());
 			if (lookup.Project.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);

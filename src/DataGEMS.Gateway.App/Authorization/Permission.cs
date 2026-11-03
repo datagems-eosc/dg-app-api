@@ -54,6 +54,8 @@ namespace DataGEMS.Gateway.App.Authorization
 		public const String UploadDatasetFile = "UploadDatasetFile";
 		//DatasetCollection
 		public const String BrowseDatasetCollection = "BrowseDatasetCollection";
+		//IntentDisambiguation
+		public const String CanExecuteIntentDisambiguation = "CanExecuteIntentDisambiguation";
 		//Pilot
 		public const String CanExecuteLinguisticFeatures = "CanExecuteLinguisticFeatures";
 		//User

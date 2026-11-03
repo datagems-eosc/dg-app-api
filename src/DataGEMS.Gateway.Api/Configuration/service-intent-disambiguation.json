@@ -1,0 +1,7 @@
+{
+  "IntentDisambiguationService": {
+    "Scope": "datagems",
+    "BaseUrl": "%{IntentDisambiguationBaseUrl}%",
+    "IntentEndpoint": "api/v1/intent"
+  }
+}
