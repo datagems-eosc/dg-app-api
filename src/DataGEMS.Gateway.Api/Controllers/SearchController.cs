@@ -224,8 +224,8 @@ namespace DataGEMS.Gateway.Api.Controllers
 		{
 			this._logger.Debug(new MapLogEntry("intent disambiguation").And("request", request));
 
-			//IFieldSet censoredFields = await this._censorFactory.Censor<IntentDisambiguationCensor>().Censor(fieldSet, CensorContext.AsCensor(), request.Context?.DatasetIds);
-			//if (fieldSet.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+			IFieldSet censoredFields = await this._censorFactory.Censor<IntentDisambiguationCensor>().Censor(fieldSet, CensorContext.AsCensor());
+			if (fieldSet.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
 
 			var info = new App.Service.IntentDisambiguation.Model.IntentDisambiguationRequest
 			{
@@ -237,8 +237,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 					History = request.Context.History
 				}
 			};
-			//IntentDisambiguation results = await this._intentDisambiguationService.DisambiguateIntentAsync(info, censoredFields);
-			IntentDisambiguation results = await this._intentDisambiguationService.DisambiguateIntentAsync(info, fieldSet);
+			IntentDisambiguation results = await this._intentDisambiguationService.DisambiguateIntentAsync(info, censoredFields);
 
 			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.IntentDisambiguation.AsAccountable());
 

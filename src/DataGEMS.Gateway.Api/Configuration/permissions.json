@@ -219,6 +219,15 @@
 				"AllowAnonymous": false,
 				"AllowAuthenticated": false
 			},
+			//intent disambiguation
+			"CanExecuteIntentDisambiguation": {
+				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_user", "GLOBAL_dg_system", "GLOBAL_dg_dataset-curator" ],
+				"ContextRoles": [ "dg_ds-browse" ],
+        "Claims": [],
+        "Clients": [],
+        "AllowAnonymous": false,
+        "AllowAuthenticated": false
+			},
 			//Pilot
 			"CanExecuteLinguisticFeatures": {
 				"Roles": [ "GLOBAL_dg_admin", "GLOBAL_dg_user" ],

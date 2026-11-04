@@ -35,33 +35,25 @@ namespace DataGEMS.Gateway.App.Censor
 			this._claimExtractor = claimExtractor;
 		}
 
-		//public async Task<IFieldSet> Censor(IFieldSet fields, CensorContext context, IEnumerable<Guid> datasetIds)
-		//{
-		//	this._logger.Debug(new MapLogEntry("censoring").And("type", nameof(Model.IntentDisambiguation)).And("fields", fields).And("context", context));
-		//	if (fields == null || fields.IsEmpty() || datasetIds == null || !datasetIds.Any()) return null;
+		public async Task<IFieldSet> Censor(IFieldSet fields, CensorContext context)
+		{
+			this._logger.Debug(new MapLogEntry("censoring").And("type", nameof(Model.IntentDisambiguation)).And("fields", fields).And("context", context));
+			if (fields == null || fields.IsEmpty()) return null;
 
-		//	List<string> contextRoles = await _authorizationContentResolver.ContextRolesOf();
+			List<string> contextRoles = await _authorizationContentResolver.ContextRolesOf();
 
-		//	IFieldSet censored = new FieldSet();
-		//	bool authZPass = false;
-		//	switch (context?.Behavior)
-		//	{
-		//		case CensorBehavior.Censor: { authZPass = await this._authService.AuthorizeOrAffiliatedContext(new AffiliatedContextResource(contextRoles), Permission.CanExecuteIntentDisambiguation); break; }
-		//		case CensorBehavior.Throw:
-		//		default: { authZPass = await this._authService.AuthorizeOrAffiliatedContextForce(new AffiliatedContextResource(contextRoles), Permission.CanExecuteIntentDisambiguation); break; }
-		//	}
+			IFieldSet censored = new FieldSet();
+			bool authZPass = false;
+			switch (context?.Behavior)
+			{
+				case CensorBehavior.Censor: { authZPass = await this._authService.AuthorizeOrAffiliatedContext(new AffiliatedContextResource(contextRoles), Permission.CanExecuteIntentDisambiguation); break; }
+				case CensorBehavior.Throw:
+				default: { authZPass = await this._authService.AuthorizeOrAffiliatedContextForce(new AffiliatedContextResource(contextRoles), Permission.CanExecuteIntentDisambiguation); break; }
+			}
 
-		//	List<Guid> allowMetadataProjectionDatasetIds = await this._authorizationContentResolver.EffectiveContextAffiliatedDatasets(Permission.CanPowerDisambiguate);
-		//	bool blockMetadata = datasetIds.Any(x => !allowMetadataProjectionDatasetIds.Contains(x));
-		//	if (authZPass)
-		//	{
-		//		censored = censored.Merge(fields.ExtractNonPrefixed());
-		//		if (blockMetadata &&
-		//			censored.HasField(nameof(Model.IntentDisambiguation.Metadata)))
-		//			censored.Fields = censored.Fields.Where(x => !x.Equals(nameof(Model.IntentDisambiguation.Metadata), StringComparison.CurrentCultureIgnoreCase)).ToHashSet();
-		//	}
+			if (authZPass) censored = censored.Merge(fields.ExtractNonPrefixed());
 
-		//	return censored;
-		//}
+			return censored;
+		}
 	}
 }

@@ -28,6 +28,7 @@ namespace DataGEMS.Gateway.App.Service.IntentDisambiguation
 		private readonly ErrorThesaurus _errors;
 		private readonly JsonHandlingService _jsonHandlingService;
 		private readonly BuilderFactory _builderFactory;
+		private readonly IAuthorizationContentResolver _authorizationContentResolver;
 
 		public IntentDisambiguationHttpService(
 			IAccessTokenService accessTokenService,
@@ -39,7 +40,8 @@ namespace DataGEMS.Gateway.App.Service.IntentDisambiguation
 			RequestTokenIntercepted requestAccessToken,
 			ErrorThesaurus errors,
 			JsonHandlingService jsonHandlingService,
-			BuilderFactory builderFactory)
+			BuilderFactory builderFactory,
+			IAuthorizationContentResolver authorizationContentResolver)
 		{
 			this._accessTokenService = accessTokenService;
 			this._httpClientFactory = httpClientFactory;
@@ -51,10 +53,17 @@ namespace DataGEMS.Gateway.App.Service.IntentDisambiguation
 			this._errors = errors;
 			this._jsonHandlingService = jsonHandlingService;
 			this._builderFactory = builderFactory;
+			this._authorizationContentResolver = authorizationContentResolver;
 		}
 
 		public async Task<App.Model.IntentDisambiguation> DisambiguateIntentAsync(IntentDisambiguationRequest request, IFieldSet fieldSet)
 		{
+			if (request.Context != null && request.Context.DatasetIds != null)
+			{
+				List<Guid> datasetIds = await this._authorizationContentResolver.EffectiveContextAffiliatedDatasets(Permission.CanExecuteIntentDisambiguation);
+				if (request.Context.DatasetIds.Any(x => !datasetIds.Contains(x))) throw new DGUnauthorizedException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+			}
+
 			string token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
 
