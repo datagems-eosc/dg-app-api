@@ -29,6 +29,7 @@ namespace DataGEMS.Gateway.App.Service.IntentDisambiguation
 		private readonly JsonHandlingService _jsonHandlingService;
 		private readonly BuilderFactory _builderFactory;
 		private readonly IAuthorizationContentResolver _authorizationContentResolver;
+		private readonly IAuthorizationService _authorizationService;
 
 		public IntentDisambiguationHttpService(
 			IAccessTokenService accessTokenService,
@@ -41,7 +42,8 @@ namespace DataGEMS.Gateway.App.Service.IntentDisambiguation
 			ErrorThesaurus errors,
 			JsonHandlingService jsonHandlingService,
 			BuilderFactory builderFactory,
-			IAuthorizationContentResolver authorizationContentResolver)
+			IAuthorizationContentResolver authorizationContentResolver,
+			IAuthorizationService authorizationService)
 		{
 			this._accessTokenService = accessTokenService;
 			this._httpClientFactory = httpClientFactory;
@@ -54,14 +56,24 @@ namespace DataGEMS.Gateway.App.Service.IntentDisambiguation
 			this._jsonHandlingService = jsonHandlingService;
 			this._builderFactory = builderFactory;
 			this._authorizationContentResolver = authorizationContentResolver;
+			this._authorizationService = authorizationService;
 		}
 
 		public async Task<App.Model.IntentDisambiguation> DisambiguateIntentAsync(IntentDisambiguationRequest request, IFieldSet fieldSet)
 		{
-			if (request.Context != null && request.Context.DatasetIds != null)
+			List<Guid> requestedDatasetIds = request.Context?.DatasetIds;
+			if (requestedDatasetIds?.Count > 0)
 			{
-				List<Guid> datasetIds = await this._authorizationContentResolver.EffectiveContextAffiliatedDatasets(Permission.CanExecuteIntentDisambiguation);
-				if (request.Context.DatasetIds.Any(x => !datasetIds.Contains(x))) throw new DGUnauthorizedException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+				bool globallyAuthorized = await this._authorizationService.Authorize(Permission.CanExecuteIntentDisambiguation);
+				if (!globallyAuthorized)
+				{
+					HashSet<Guid> allowedDatasetIds = (await this._authorizationContentResolver.EffectiveContextAffiliatedDatasets(Permission.CanExecuteIntentDisambiguation)).ToHashSet();
+					if (requestedDatasetIds.Any(x => !allowedDatasetIds.Contains(x))) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+				}
+			}
+			else
+			{
+				await this._authorizationService.AuthorizeOrAffiliatedContextForce(new AffiliatedContextResource(await this._authorizationContentResolver.ContextRolesOf()), Permission.CanExecuteIntentDisambiguation);
 			}
 
 			string token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
