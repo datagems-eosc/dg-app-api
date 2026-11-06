@@ -93,7 +93,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[HttpPost("cross-dataset")]
 		[Authorize]
 		[ModelStateValidationFilter]
-		[ValidationFilter(typeof(CrossDatasetDiscoveryLookup.CrossDatasetDiscoveryLookupValidator), "request")]
+		[ValidationFilter(typeof(CrossDatasetDiscoveryLookup.CrossDatasetDiscoveryLookupValidator), "lookup")]
 		[SwaggerOperation(Summary = "Cross-dataset search")]
 		[SwaggerResponse(statusCode: 200, description: "Matching results", type: typeof(SearchResult<List<App.Model.CrossDatasetDiscovery>>))]
 		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
