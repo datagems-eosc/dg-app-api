@@ -11,11 +11,11 @@ namespace DataGEMS.Gateway.App.Service.IntentDisambiguation.Model
 
 		public class IntentDisambiguationRequestContext
 		{
-			[JsonProperty("domain")]
+			[JsonProperty("domain", NullValueHandling = NullValueHandling.Ignore)]
 			public string Domain { get; set; }
-			[JsonProperty("dataset_ids")]
+			[JsonProperty("dataset_ids", NullValueHandling = NullValueHandling.Ignore)]
 			public List<Guid> DatasetIds { get; set; }
-			[JsonProperty("history")]
+			[JsonProperty("history", NullValueHandling = NullValueHandling.Ignore)]
 			public List<string> History { get; set; }
 		}
 	}
