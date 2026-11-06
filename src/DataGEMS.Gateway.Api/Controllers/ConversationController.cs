@@ -476,7 +476,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			[LookupFieldSetQueryStringOpenApi]
 			IFieldSet fieldSet)
 		{
-			this._logger.Debug(new MapLogEntry("adding").And("conversationId", conversationId).And("datasetId", datasetId).And("fields", fieldSet));
+			this._logger.Debug(new MapLogEntry("delete").And("conversationId", conversationId).And("datasetId", datasetId).And("fields", fieldSet));
 
 			Guid? userId = await this._authorizationContentResolver.CurrentUserId();
 			if (!userId.HasValue) throw new DGApplicationException(this._errors.UserSync.Code, this._errors.UserSync.Message);

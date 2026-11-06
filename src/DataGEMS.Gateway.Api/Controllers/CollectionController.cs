@@ -296,7 +296,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			[LookupFieldSetQueryStringOpenApi]
 			IFieldSet fieldSet)
 		{
-			this._logger.Debug(new MapLogEntry("adding").And("collectionId", collectionId).And("datasetId", datasetId).And("fields", fieldSet));
+			this._logger.Debug(new MapLogEntry("delete").And("collectionId", collectionId).And("datasetId", datasetId).And("fields", fieldSet));
 
 			IFieldSet censoredFields = await this._censorFactory.Censor<CollectionCensor>().Censor(fieldSet, CensorContext.AsCensor());
 			if (fieldSet.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
