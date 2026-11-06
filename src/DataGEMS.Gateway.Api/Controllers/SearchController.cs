@@ -147,7 +147,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[HttpPost("in-data-explore")]
 		[Authorize]
 		[ModelStateValidationFilter]
-		[ValidationFilter(typeof(InDataExplorationLookup.InDataExplorationLookupValidator), "request")]
+		[ValidationFilter(typeof(InDataExplorationLookup.InDataExplorationLookupValidator), "lookup")]
 		[SwaggerOperation(Summary = "Explore in selected data")]
 		[SwaggerResponse(statusCode: 200, description: "Matching results", type: typeof(SearchResult<List<App.Model.InDataExplore>>))]
 		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
