@@ -321,7 +321,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[HttpPost("recommend")]
 		[Authorize]
 		[ModelStateValidationFilter]
-		[ValidationFilter(typeof(QueryRecommendationLookup.QueryRecommendationLookupValidator), "request")]
+		[ValidationFilter(typeof(QueryRecommendationLookup.QueryRecommendationLookupValidator), "lookup")]
 		[SwaggerOperation(Summary = "Recommend possible queries")]
 		[SwaggerResponse(statusCode: 200, description: "Matching results", type: typeof(SearchResult<List<App.Model.QueryRecommendation>>))]
 		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
