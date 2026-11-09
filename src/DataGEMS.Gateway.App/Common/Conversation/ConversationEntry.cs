@@ -18,5 +18,7 @@ namespace DataGEMS.Gateway.App.Common.Conversation
 	{
 		public abstract ConversationMessageKind Kind { get; }
 		public String Version { get; set; }
+		[JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+		public String TrackAs { get; set; }
 	}
 }

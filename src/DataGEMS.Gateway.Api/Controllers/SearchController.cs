@@ -133,6 +133,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 				new App.Common.Conversation.CrossDatasetQueryConversationEntry()
 				{
 					Version = DiscoverInfo.ModelVersion,
+					TrackAs = lookup.ConversationOptions?.TrackAs,
 					Payload = request
 				},
 				new App.Common.Conversation.CrossDatasetResponseConversationEntry()
@@ -186,6 +187,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 				new App.Common.Conversation.InDataExploreQueryConversationEntry()
 				{
 					Version = ExploreInfo.ModelVersion,
+					TrackAs = lookup.ConversationOptions?.TrackAs,
 					Payload = request
 				},
 				new App.Common.Conversation.InDataSimpleExploreResponseConversationEntry()
@@ -249,6 +251,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 				new App.Common.Conversation.IntentDisambiguationConversationEntry()
 				{
 					Version = ExploreInfo.ModelVersion,
+					TrackAs = request.ConversationOptions?.TrackAs,
 					Payload = info
 				},
 				new App.Common.Conversation.IntentDisambiguationResponseConversationEntry()
@@ -302,6 +305,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 				new App.Common.Conversation.QueryDisambiguationQueryConversationEntry()
 				{
 					Version = ExploreInfo.ModelVersion,
+					TrackAs = lookup.ConversationOptions?.TrackAs,
 					Payload = info
 				},
 				new App.Common.Conversation.QueryDisambiguationResponseConversationEntry()
@@ -354,6 +358,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 				new App.Common.Conversation.QueryRecommenderQueryConversationEntry()
 				{
 					Version = ExploreInfo.ModelVersion,
+					TrackAs = lookup.ConversationOptions?.TrackAs,
 					Payload = request
 				},
 				new App.Common.Conversation.QueryRecommenderResponseConversationEntry()

@@ -14,6 +14,8 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 		public Boolean? AutoCreateConversation { get; set; }
 		[SwaggerSchema(description: "Option to auto update the conversation datasets with the query context. Leaving it empty is equivalent to false. Should not be true if Conversation id is not provided of autocreate is set to true")]
 		public Boolean? AutoUpdateDatasets { get; set; }
+		[SwaggerSchema(description: "Optional alternative text to use when displaying the search term in the conversation")]
+		public string TrackAs { get; set; }
 
 		public class ConversationOptionsValidator : BaseValidator<ConversationOptions>
 		{

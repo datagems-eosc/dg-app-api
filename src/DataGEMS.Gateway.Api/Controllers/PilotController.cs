@@ -105,6 +105,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			Guid? conversationId = await this.UpdateConversation(lookup.ConversationOptions?.ConversationId, lookup.ConversationOptions?.AutoCreateConversation, lookup.Question, null, new MatheRecommendationQueryConversationEntry
 			{
 				Version = App.Service.DatasetRecommender.Model.MatheRecommendationRequest.ModelVersion,
+				TrackAs = lookup.ConversationOptions?.TrackAs,
 				Payload = serviceRequest
 			},
 			new MatheRecommendationResponseConversationEntry()
@@ -150,6 +151,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			Guid? conversationId = await this.UpdateConversation(lookup.ConversationOptions?.ConversationId, lookup.ConversationOptions?.AutoCreateConversation, lookup.Question, null, new MatheRecommendationQueryConversationEntry
 			{
 				Version = App.Service.DatasetRecommender.Model.MatheRecommendationRequest.ModelVersion,
+				TrackAs = lookup.ConversationOptions?.TrackAs,
 				Payload = serviceRequest
 			},
 			new MatheRecommendationResponseConversationEntry()
@@ -207,6 +209,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			new LinguisticFeaturesQueryConversationEntry()
 			{
 				Version = LanguagePilotRequest.ModelVersion,
+				TrackAs = lookup.ConversationOptions?.TrackAs,
 				Payload = corpusAnalysisRequest
 			},
 			new LinguisticFeaturesResponseConversationEntry()
