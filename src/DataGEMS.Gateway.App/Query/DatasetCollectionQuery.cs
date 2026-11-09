@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DataGEMS.Gateway.App.Query
 {
-    public class DatasetCollectionQuery : Cite.Tools.Data.Query.Query<Data.DatasetCollection>
+	public class DatasetCollectionQuery : Cite.Tools.Data.Query.Query<Data.DatasetCollection>
 	{
 		private List<Guid> _ids { get; set; }
 		private List<Guid> _excludedIds { get; set; }
