@@ -14,6 +14,12 @@ namespace DataGEMS.Gateway.App.Common.Conversation
 	[SubTypeConverterMap(ConversationMessageKind.MatheRecommendationResponse, typeof(MatheRecommendationResponseConversationEntry))]
 	[SubTypeConverterMap(ConversationMessageKind.LinguisticFeaturesQuery, typeof(LinguisticFeaturesQueryConversationEntry))]
 	[SubTypeConverterMap(ConversationMessageKind.LinguisticFeaturesResponse, typeof(LinguisticFeaturesResponseConversationEntry))]
+	[SubTypeConverterMap(ConversationMessageKind.QueryRecommenderQuery, typeof(QueryRecommenderQueryConversationEntry))]
+	[SubTypeConverterMap(ConversationMessageKind.QueryRecommenderResponse, typeof(QueryRecommenderResponseConversationEntry))]
+	[SubTypeConverterMap(ConversationMessageKind.QueryDisambiguationQuery, typeof(QueryDisambiguationQueryConversationEntry))]
+	[SubTypeConverterMap(ConversationMessageKind.QueryDisambiguationResponse, typeof(QueryDisambiguationResponseConversationEntry))]
+	[SubTypeConverterMap(ConversationMessageKind.IntentDisambiguation, typeof(IntentDisambiguationConversationEntry))]
+	[SubTypeConverterMap(ConversationMessageKind.IntentDisambiguationResponse, typeof(IntentDisambiguationResponseConversationEntry))]
 	public abstract class ConversationEntry
 	{
 		public abstract ConversationMessageKind Kind { get; }
