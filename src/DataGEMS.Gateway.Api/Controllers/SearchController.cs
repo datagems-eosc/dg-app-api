@@ -470,7 +470,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		[HttpPost("ad-hoc/query")]
 		[Authorize]
 		[ModelStateValidationFilter]
-		[ValidationFilter(typeof(AdHocQueryLookup.QueryValidator), "request")]
+		[ValidationFilter(typeof(AdHocQueryLookup.QueryValidator), "lookup")]
 		[SwaggerOperation(Summary = "Query ad-hoc queries")]
 		[SwaggerResponse(statusCode: 200, description: "The list of matching ad-hoc query results along with the count", type: typeof(QueryResult<App.Model.AdHocQuery>))]
 		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request")]
