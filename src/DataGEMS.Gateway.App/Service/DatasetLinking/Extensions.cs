@@ -10,7 +10,7 @@ namespace DataGEMS.Gateway.App.Service.DatasetLinking
 		{
 			services.ConfigurePOCO<DatasetLinkingHttpConfig>(datasetLinkingConfigurationSection);
 
-			services.AddTransient<IDatasetLinkingService, DatasetLinkingHttpService>();
+			services.AddScoped<IDatasetLinkingService, DatasetLinkingHttpService>();
 
 			return services;
 		}
