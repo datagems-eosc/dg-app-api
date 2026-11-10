@@ -100,7 +100,7 @@ namespace DataGEMS.Gateway.App.Model.Builder
 			if (!datas.Any()) return null;
 			this._logger.Debug(new MapLogEntry("collecting count").And("type", nameof(Model.Dataset)).And("data", datas?.Count()));
 
-			List<Guid> ids = datas.Where(x => !x.Equals(Guid.Empty)).Select(x => x.Id).Distinct().ToList();
+			List<Guid> ids = datas.Where(x => x.Id != Guid.Empty).Select(x => x.Id).Distinct().ToList();
 			if (ids.Count == 0) return null;
 
 			IQueryable<Data.DatasetCollection> query = await this._queryFactory.Query<DatasetCollectionQuery>().Authorize(this._authorize).CollectionIds(ids).ApplyAsync();
