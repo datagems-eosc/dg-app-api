@@ -86,8 +86,11 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 
 		public async Task<AdHocQuery> AdHocQueryAsync(AdHocQueryEvaluate evaluate, IFieldSet fields = null)
 		{
-			List<Guid> datasetIds = await this._authorizationContentResolver.EffectiveContextAffiliatedDatasets(Permission.PowerSearchDataset);
-			if (evaluate.Arguments != null && evaluate.Arguments.Select(x => x.DatasetId).Any(x => !datasetIds.Contains(x.Value))) throw new DGUnauthorizedException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+			if (!await this._authorizationContentResolver.HasPermission(Permission.PowerSearchDataset))
+			{
+				List<Guid> datasetIds = await this._authorizationContentResolver.EffectiveContextAffiliatedDatasets(Permission.PowerSearchDataset);
+				if (evaluate.Arguments != null && evaluate.Arguments.Select(x => x.DatasetId).Any(x => !datasetIds.Contains(x.Value))) throw new DGUnauthorizedException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+			}
 
 			string token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
@@ -191,8 +194,11 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 		{
 			Guid? userId = await this._authorizationContentResolver.CurrentUserId();
 			if (!userId.HasValue) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
-			List<Guid> datasetIds = await this._authorizationContentResolver.EffectiveContextAffiliatedDatasets(Permission.CanRecommend);
-			if (datasetIds == null || !datasetIds.Contains(seedDatasetId)) throw new DGUnauthorizedException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+			if (!await this._authorizationContentResolver.HasPermission(Permission.CanRecommend))
+			{
+				List<Guid> datasetIds = await this._authorizationContentResolver.EffectiveContextAffiliatedDatasets(Permission.CanRecommend);
+				if (datasetIds == null || !datasetIds.Contains(seedDatasetId)) throw new DGUnauthorizedException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+			}
 
 			string token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
@@ -218,8 +224,11 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 		{
 			Guid? userId = await this._authorizationContentResolver.CurrentUserId();
 			if (!userId.HasValue) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
-			List<Guid> datasetIds = await this._authorizationContentResolver.EffectiveContextAffiliatedDatasets(Permission.CanDisambiguate);
-			if (datasetIds == null || info.DatasetIds.Any(x => !datasetIds.Contains(x))) throw new DGUnauthorizedException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+			if (!await this._authorizationContentResolver.HasPermission(Permission.CanDisambiguate))
+			{
+				List<Guid> datasetIds = await this._authorizationContentResolver.EffectiveContextAffiliatedDatasets(Permission.CanDisambiguate);
+				if (datasetIds == null || info.DatasetIds.Any(x => !datasetIds.Contains(x))) throw new DGUnauthorizedException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+			}
 
 			string token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);
@@ -252,8 +261,11 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 		{
 			Guid? userId = await this._authorizationContentResolver.CurrentUserId();
 			if (!userId.HasValue) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
-			List<Guid> datasetIds = await this._authorizationContentResolver.EffectiveContextAffiliatedDatasets(Permission.EditDataset);
-			if (datasetIds == null || !datasetIds.Contains(model.Id.Value)) throw new DGUnauthorizedException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+			if (!await this._authorizationContentResolver.HasPermission(Permission.EditDataset))
+			{
+				List<Guid> datasetIds = await this._authorizationContentResolver.EffectiveContextAffiliatedDatasets(Permission.EditDataset);
+				if (datasetIds == null || !datasetIds.Contains(model.Id.Value)) throw new DGUnauthorizedException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+			}
 
 			string token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);

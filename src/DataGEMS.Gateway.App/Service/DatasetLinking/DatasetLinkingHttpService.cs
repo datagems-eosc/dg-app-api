@@ -67,8 +67,11 @@ namespace DataGEMS.Gateway.App.Service.DatasetLinking
 
 		public async Task<string> RefineLinkingAsync(DatasetLinkingRefinement model)
 		{
-			List<Guid> allowedDatasetIds = await this._authorizationContentResolver.EffectiveContextAffiliatedDatasets(Permission.LinkRefineDataset);
-			if (!allowedDatasetIds.Contains(model.Id1.Value) || !allowedDatasetIds.Contains(model.Id2.Value)) throw new DGUnauthorizedException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+			if (!await this._authorizationContentResolver.HasPermission(Permission.LinkRefineDataset))
+			{
+				List<Guid> allowedDatasetIds = await this._authorizationContentResolver.EffectiveContextAffiliatedDatasets(Permission.LinkRefineDataset);
+				if (!allowedDatasetIds.Contains(model.Id1.Value) || !allowedDatasetIds.Contains(model.Id2.Value)) throw new DGUnauthorizedException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+			}
 
 			string token = await this._accessTokenService.GetExchangeAccessTokenAsync(this._requestAccessToken.AccessToken, this._config.Scope);
 			if (token == null) throw new DGApplicationException(this._errors.TokenExchange.Code, this._errors.TokenExchange.Message);

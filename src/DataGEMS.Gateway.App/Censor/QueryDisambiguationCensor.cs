@@ -51,8 +51,12 @@ namespace DataGEMS.Gateway.App.Censor
 				default: { authZPass = await this._authService.AuthorizeOrAffiliatedContextForce(new AffiliatedContextResource(contextRoles), Permission.CanDisambiguate); break; }
 			}
 
-			List<Guid> allowMetadataProjectionDatasetIds = await this._authorizationContentResolver.EffectiveContextAffiliatedDatasets(Permission.CanDisambiguate);
-			bool blockMetadata = datasetIds.Any(x=> !allowMetadataProjectionDatasetIds.Contains(x));
+			bool blockMetadata = false;
+			if (!await this._authorizationContentResolver.HasPermission(Permission.CanDisambiguate))
+			{
+				List<Guid> allowMetadataProjectionDatasetIds = await this._authorizationContentResolver.EffectiveContextAffiliatedDatasets(Permission.CanDisambiguate);
+				blockMetadata = datasetIds.Any(x => !allowMetadataProjectionDatasetIds.Contains(x));
+			}
 			if (authZPass)
 			{
 				censored = censored.Merge(fields.ExtractNonPrefixed());
