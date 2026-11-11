@@ -147,7 +147,7 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 			Data.WorkflowProcessStep data = await this._queryFactory.Query<WorkflowProcessStepQuery>().ProcessIds(model.ProcessId.Value).StepIds(steps[2].Id).FirstAsync();
 			if (data == null) throw new DGNotFoundException(this._localizer["general_notFound", model.Id.Value, nameof(App.Model.WorkflowProcessStep)]);
 
-			await this.ExecutePackaging(datasetId, data.ProcessId, data.Id, data.StepId, steps[2].TaskId);
+			await this.ExecuteLinkingReport(datasetId, data.ProcessId, data.Id, data.StepId, steps[2].TaskId);
 		}
 
 		public async Task FinilizeLinkingReportStep(WorkflowProcessStepPersist model, Guid datasetId)
@@ -314,7 +314,7 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 
 			try
 			{
-				await this.ExecutePackaging(model.Id.Value, stepData.First().Id, data.Id, stepData.First().StepId, steps.First().TaskId);
+				await this.ExecuteRecommendationRegistering(model.Id.Value, stepData.First().Id, data.Id, stepData.First().StepId, steps.First().TaskId);
 			}
 			catch
 			{
@@ -337,7 +337,7 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 
 			try
 			{
-				await this.ExecutePackaging(model.Id.Value, stepData.First().Id, data.Id, stepData.First().StepId, steps.First().TaskId);
+				await this.ExecuteCddIngestion(model.Id.Value, stepData.First().Id, data.Id, stepData.First().StepId, steps.First().TaskId);
 			}
 			catch
 			{

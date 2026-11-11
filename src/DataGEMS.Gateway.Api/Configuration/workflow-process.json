@@ -60,14 +60,28 @@
         ]
       },
       {
-        "Id": "c6a8da71-0d78-458b-afed-f06b6ffe092e",
+        "Id": "6e8e7e0c-17ea-4e21-8c08-fbf7bc5348f6",
         "Kind": 2,
+        "Name": "Dataset Linking Report",
+        "Description": "Generates a report describing links between the dataset and other datasets.",
+        "Steps": [
+          {
+            "Id": "b470595e-c2a4-4766-89c3-773a7580ce28",
+            "Kind": 2,
+            "Order": 0,
+            "TaskId": "DatasetLinkingReport"
+          }
+        ]
+      },
+      {
+        "Id": "c6a8da71-0d78-458b-afed-f06b6ffe092e",
+        "Kind": 3,
         "Name": "Dataset Packaging",
         "Description": "Prepares a dataset and its associated metadata for distribution, storage, or use by downstream services and workflows.",
         "Steps": [
           {
             "Id": "97b486d4-fd09-4815-8d6a-17a8bf4c07d8",
-            "Kind": 2,
+            "Kind": 3,
             "Order": 0,
             "TaskId": "DatasetPackaging"
           }
@@ -75,13 +89,13 @@
       },
       {
         "Id": "2b13dc1e-0a10-4c73-b3ec-15e760745c37",
-        "Kind": 3,
+        "Kind": 4,
         "Name": "Dataset Recomnmendation Registering",
         "Description": "Generates and registers dataset-to-dataset recommendations to support the discovery of related or relevant datasets.",
         "Steps": [
           {
             "Id": "d51f0120-0070-4e9e-8e2f-a2eb7bfc7620",
-            "Kind": 3,
+            "Kind": 4,
             "Order": 0,
             "TaskId": "DatasetRecommendationRegistering"
           }
@@ -89,13 +103,13 @@
       },
       {
         "Id": "caddac49-0db9-48ad-be52-d3a68031263b",
-        "Kind": 4,
+        "Kind": 5,
         "Name": "Cross Dataset Discovery Ingestion",
         "Description": "Ingests dataset information into the Cross Dataset Discovery service so that datasets can be indexed, analyzed, and discovered.",
         "Steps": [
           {
             "Id": "805aea17-7f23-40dd-8430-f653621caaf6",
-            "Kind": 4,
+            "Kind": 5,
             "Order": 0,
             "TaskId": "CDD_Ingest"
           }
