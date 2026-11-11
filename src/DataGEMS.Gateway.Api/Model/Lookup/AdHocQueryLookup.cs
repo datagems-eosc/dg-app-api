@@ -15,8 +15,6 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 		public List<Guid> Ids { get; set; }
 		[SwaggerSchema(description: "Limit lookup to items belonging to specific user ids. If set, the list of ids must not be empty")]
 		public List<Guid> UserIds { get; set; }
-		[SwaggerSchema(description: "Limit lookup to items belonging to specific dataset ids. If set, the list of ids must not be empty")]
-		public List<Guid> DatasetIds { get; set; }
 		[SwaggerSchema(description: "Exclude from the lookup items with specific ids. If set, the list of ids must not be empty")]
 		public List<Guid> ExcludedIds { get; set; }
 		[SwaggerSchema(description: "Limit lookup to items that are active, or inactive or both. If set, the list of flags must not be empty")]
@@ -28,7 +26,6 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 
 			if (this.Ids != null) query.Ids(this.Ids);
 			if (this.UserIds != null) query.UserIds(this.UserIds);
-			if (this.DatasetIds != null) query.UserIds(this.DatasetIds);
 			if (this.ExcludedIds != null) query.ExcludedIds(this.ExcludedIds);
 			if (this.IsActive != null) query.IsActive(this.IsActive);
 
@@ -61,10 +58,6 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 					this.Spec()
 						.Must(() => !item.Ids.IsNotNullButEmpty())
 						.FailOn(nameof(AdHocQueryLookup.UserIds)).FailWith(this._localizer["validation_setButEmpty", nameof(AdHocQueryLookup.UserIds)]),
-					//dataset ids must be null or not empty
-					this.Spec()
-						.Must(() => !item.Ids.IsNotNullButEmpty())
-						.FailOn(nameof(AdHocQueryLookup.DatasetIds)).FailWith(this._localizer["validation_setButEmpty", nameof(AdHocQueryLookup.DatasetIds)]),
 					//excludedIds must be null or not empty
 					this.Spec()
 						.Must(() => !item.ExcludedIds.IsNotNullButEmpty())

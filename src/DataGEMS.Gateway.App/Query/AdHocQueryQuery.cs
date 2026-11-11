@@ -13,7 +13,6 @@ namespace DataGEMS.Gateway.App.Query
 		private List<Guid> _ids { get; set; }
 		private List<Guid> _excludedIds { get; set; }
 		private List<Guid> _userIds { get; set; }
-		private List<Guid> _datasetIds { get; set; }
 		private List<IsActive> _isActive { get; set; }
 		private AuthorizationFlags _authorize { get; set; } = AuthorizationFlags.None;
 
@@ -34,8 +33,6 @@ namespace DataGEMS.Gateway.App.Query
 		public AdHocQueryQuery ExcludedIds(Guid excludedId) { this._excludedIds = this.ToList(excludedId.AsArray()); return this; }
 		public AdHocQueryQuery UserIds(IEnumerable<Guid> userIds) { this._userIds = this.ToList(userIds); return this; }
 		public AdHocQueryQuery UserIds(Guid userId) { this._userIds = this.ToList(userId.AsArray()); return this; }
-		public AdHocQueryQuery DatasetIds(IEnumerable<Guid> datasetIds) { this._datasetIds = this.ToList(datasetIds); return this; }
-		public AdHocQueryQuery DatasetIds(Guid datasetId) { this._datasetIds = this.ToList(datasetId.AsArray()); return this; }
 		public AdHocQueryQuery IsActive(IEnumerable<IsActive> isActive) { this._isActive = this.ToList(isActive); return this; }
 		public AdHocQueryQuery IsActive(IsActive isActive) { this._isActive = this.ToList(isActive.AsArray()); return this; }
 		public AdHocQueryQuery EnableTracking() { base.NoTracking = false; return this; }
@@ -47,7 +44,7 @@ namespace DataGEMS.Gateway.App.Query
 		protected override bool IsFalseQuery()
 		{
 			return this.IsEmpty(this._ids) || this.IsEmpty(this._excludedIds) || this.IsEmpty(this._userIds) ||
-				this.IsEmpty(this._isActive) || this.IsEmpty(this._datasetIds);
+				this.IsEmpty(this._isActive);
 		}
 
 		public async Task<AdHocQueryResult> Find(Guid id, Boolean tracked = true)
