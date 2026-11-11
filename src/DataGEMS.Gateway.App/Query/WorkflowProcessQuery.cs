@@ -54,20 +54,19 @@ namespace DataGEMS.Gateway.App.Query
 			{
 				if (await this._authorizationContentResolver.HasPermission(Permission.BrowseWorkflowProcess)) return query;
 			}
-			if (this._authorize.HasFlag(AuthorizationFlags.Owner))
-			{
-				Guid? currentUser = await this._authorizationContentResolver.CurrentUserId();
-				if (currentUser != null) return query.Where(x => x.UserId == currentUser);
-			}
+			Guid? currentUser = this._authorize.HasFlag(AuthorizationFlags.Owner)
+				? await this._authorizationContentResolver.CurrentUserId()
+				: null;
+			List<Guid> permittedDatasetIds = null;
 			if (this._authorize.HasFlag(AuthorizationFlags.Context))
 			{
-				List<Guid> permittedDatasetIds = await this._authorizationContentResolver.EffectiveContextAffiliatedDatasets(Permission.BrowseWorkflowProcess);
-				if (permittedDatasetIds != null && permittedDatasetIds.Count > 0)
-				{
-					return query.Where(x => x.DatasetId != null && permittedDatasetIds.Contains(x.DatasetId.Value));
-				}
+				permittedDatasetIds = await this._authorizationContentResolver.EffectiveContextAffiliatedDatasets(Permission.BrowseWorkflowProcess);
 			}
-			return query.Where(x => false);
+			if (!currentUser.HasValue && (permittedDatasetIds == null || permittedDatasetIds.Count == 0)) return query.Where(x => false);
+
+			return query.Where(x =>
+				(currentUser.HasValue && x.UserId == currentUser.Value) ||
+				(permittedDatasetIds != null && x.DatasetId.HasValue && permittedDatasetIds.Contains(x.DatasetId.Value)));
 		}
 
 		protected override Task<IQueryable<WorkflowProcess>> ApplyFiltersAsync(IQueryable<WorkflowProcess> query)
