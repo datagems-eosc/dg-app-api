@@ -124,7 +124,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		{
 			this._logger.Debug(new MapLogEntry("get").And("type", nameof(App.Model.Dataset)).And("id", id).And("fields", fieldSet));
 
-			IFieldSet censoredFields = await this._censorFactory.Censor<DatasetCensor>().Censor(fieldSet, CensorContext.AsCensor());
+			IFieldSet censoredFields = await this._censorFactory.Censor<DatasetCensor>().Censor(fieldSet, CensorContext.AsCensor(), datasetId: id);
 			if (fieldSet.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
 
 			DatasetHttpQuery query = this._queryFactory.Query<DatasetHttpQuery>().Ids(id);

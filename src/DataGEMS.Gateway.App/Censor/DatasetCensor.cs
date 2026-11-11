@@ -36,12 +36,14 @@ namespace DataGEMS.Gateway.App.Censor
 			this._claimExtractor = claimExtractor;
 		}
 
-		public async Task<IFieldSet> Censor(IFieldSet fields, CensorContext context, Boolean? isNewItem = null)
+		public async Task<IFieldSet> Censor(IFieldSet fields, CensorContext context, Boolean? isNewItem = null, Guid? datasetId = null)
 		{
 			this._logger.Debug(new MapLogEntry("censoring").And("type", nameof(Model.Dataset)).And("fields", fields).And("context", context));
 			if (fields == null || fields.IsEmpty()) return null;
 
-			List<string> contextRoles = await _authorizationContentResolver.ContextRolesOf();
+			IEnumerable<string> contextRoles = datasetId.HasValue
+				? await this._authorizationContentResolver.EffectiveContextRolesForDatasetOfUser(datasetId.Value)
+				: await this._authorizationContentResolver.ContextRolesOf();
 
 			IFieldSet censored = new FieldSet();
 			Boolean authZPass = false;
