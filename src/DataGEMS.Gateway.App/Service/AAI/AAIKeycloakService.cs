@@ -1,4 +1,5 @@
-﻿using Cite.Tools.Json;
+﻿using Cite.Tools.Common.Extensions;
+using Cite.Tools.Json;
 using Cite.Tools.Logging.Extensions;
 using DataGEMS.Gateway.App.AccessToken;
 using DataGEMS.Gateway.App.Common;
@@ -360,15 +361,15 @@ namespace DataGEMS.Gateway.App.Service.AAI
 			List<Model.Group> children = await this.FindSubGroups(principalGroup.Id);
 			if (children == null || children.Count == 0) return new List<ContextGrant>();
 
-			List<ContextGrant> grants = new List<ContextGrant>();
+			HashSet<ContextGrant> grants = new HashSet<ContextGrant>(new ContextGrantComparer());
 
 			foreach (Model.Group child in children)
 			{
 				List<ContextGrant> targetGrants = this.ConvertToContextGrant(userGroupId, principalGroup, child);
 				if (targetGrants == null) continue;
-				grants.AddRange(targetGrants);
+				grants.UnionWith(targetGrants);
 			}
-			return grants;
+			return grants.ToList();
 		}
 
 		public async Task<List<ContextGrant>> LookupUserContextGrants(String userSubjectId)
@@ -378,7 +379,7 @@ namespace DataGEMS.Gateway.App.Service.AAI
 			List<Model.Group> groups = await this.FindUserGroups(userSubjectIdToUse);
 			if (groups == null || groups.Count == 0) return new List<ContextGrant>();
 
-			List<ContextGrant> grants = new List<ContextGrant>();
+			HashSet<ContextGrant> grants = new HashSet<ContextGrant>(new ContextGrantComparer());
 			foreach (Model.Group group in groups)
 			{
 				List<Model.Group> children = await this.FindSubGroups(group.Id);
@@ -388,10 +389,11 @@ namespace DataGEMS.Gateway.App.Service.AAI
 				{
 					List<ContextGrant> targetGrants = this.ConvertToContextGrant(userSubjectId, group, child);
 					if (targetGrants == null) continue;
-					grants.AddRange(targetGrants);
+					grants.UnionWith(targetGrants);
 				}
 			}
-			return grants;
+
+			return grants.ToList();
 		}
 
 		public async Task AssignCollectionGrantToUser(String subjectId, Guid collectionId, String role)

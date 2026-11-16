@@ -3,6 +3,7 @@ using Cite.Tools.Logging.Extensions;
 using Cite.WebTools.CurrentPrincipal;
 using DataGEMS.Gateway.App.Data;
 using DataGEMS.Gateway.App.Service.AAI;
+using Microsoft.EntityFrameworkCore;
 
 namespace DataGEMS.Gateway.Api.AccessToken
 {
@@ -30,7 +31,7 @@ namespace DataGEMS.Gateway.Api.AccessToken
 				return;
 			}
 
-			User user = dbContext.Users.FirstOrDefault(x=> x.IdpSubjectId == idpSubjectId);
+			User user = await dbContext.Users.FirstOrDefaultAsync(x => x.IdpSubjectId == idpSubjectId);
 			if (user == null)
 			{
 				user = new User() { Id = Guid.NewGuid(), IdpSubjectId = idpSubjectId, CreatedAt = DateTime.UtcNow, };

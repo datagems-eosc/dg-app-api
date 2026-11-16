@@ -38,7 +38,7 @@ namespace DataGEMS.Gateway.App.Service.AAI
 		{
 			this._eventBroker.UserTouched += OnUserTouched;
 			this._eventBroker.UserDeleted += OnUserDeleted;
-			this._eventBroker.HierarchyContextGrantTouched += OnHierarhcyContextGrantTouched;
+			this._eventBroker.HierarchyContextGrantTouched += OnHierarchyContextGrantTouched;
 		}
 
 		private async void OnUserDeleted(object sender, OnUserEventArgs e)
@@ -69,7 +69,7 @@ namespace DataGEMS.Gateway.App.Service.AAI
 			await PurgeUserPrincipalGroupCache(subjectIds);
 		}
 
-		private async void OnHierarhcyContextGrantTouched(object sender, OnEventArgs<String> e)
+		private async void OnHierarchyContextGrantTouched(object sender, OnEventArgs<String> e)
 		{
 			this._logger.Debug(new MapLogEntry("received event")
 				.And("event", nameof(OnUserTouched))
