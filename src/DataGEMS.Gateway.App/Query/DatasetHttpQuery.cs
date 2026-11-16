@@ -4,6 +4,7 @@ using Cite.Tools.FieldSet;
 using Cite.Tools.Json;
 using Cite.Tools.Logging.Extensions;
 using DataGEMS.Gateway.App.AccessToken;
+using DataGEMS.Gateway.App.Authorization;
 using DataGEMS.Gateway.App.Common;
 using DataGEMS.Gateway.App.ErrorCode;
 using DataGEMS.Gateway.App.Exception;
@@ -31,6 +32,7 @@ namespace DataGEMS.Gateway.App.Query
 		private String _like { get; set; }
 		private List<string> _fieldsOfScience { get; set; }
 		private string _license { get; set; }
+		private List<String> _permissions { get; set; }
 		public Paging Page { get; set; }
 		public Ordering Order { get; set; }
 
@@ -44,6 +46,7 @@ namespace DataGEMS.Gateway.App.Query
 		private readonly ErrorThesaurus _errors;
 		private readonly JsonHandlingService _jsonHandlingService;
 		private readonly QueryFactory _queryFactory;
+		private readonly IAuthorizationContentResolver _authorizationContentResolver;
 
 		public DatasetHttpQuery(
 			IHttpClientFactory httpClientFactory,
@@ -55,7 +58,8 @@ namespace DataGEMS.Gateway.App.Query
 			ILogger<DatasetHttpQuery> logger,
 			JsonHandlingService jsonHandlingService,
 			ErrorThesaurus errors,
-			QueryFactory queryFactory)
+			QueryFactory queryFactory,
+			IAuthorizationContentResolver authorizationContentResolver)
 		{
 			this._httpClientFactory = httpClientFactory;
 			this._accessTokenService = accessTokenService;
@@ -67,6 +71,7 @@ namespace DataGEMS.Gateway.App.Query
 			this._jsonHandlingService = jsonHandlingService;
 			this._errors = errors;
 			this._queryFactory = queryFactory;
+			this._authorizationContentResolver = authorizationContentResolver;
 		}
 
 		public DatasetHttpQuery Ids(IEnumerable<Guid> ids) { this._ids = ids?.ToList(); return this; }
@@ -86,12 +91,14 @@ namespace DataGEMS.Gateway.App.Query
 		public DatasetHttpQuery State(Common.Enum.DatasetState state) { this._datasetStatus = state; return this; }
 		public DatasetHttpQuery PublishedDateFrom(DateTime date) { this._publishedDateFrom = date; return this; }
 		public DatasetHttpQuery PublishedDateTo(DateTime date) { this._publishedDateTo = date; return this; }
+		public DatasetHttpQuery Permissions(IEnumerable<String> permissions) { this._permissions = permissions?.ToList(); return this; }
+		public DatasetHttpQuery Permissions(String permission) { this._permissions = permission.AsList(); return this; }
 
 
 		protected bool IsFalseQuery()
 		{
 			return this._ids.IsNotNullButEmpty() || this._excludedIds.IsNotNullButEmpty() || this._collectionIds.IsNotNullButEmpty() ||
-				this._types.IsNotNullButEmpty() || this._mimeTypes.IsNotNullButEmpty() || this._fieldsOfScience.IsNotNullButEmpty();
+				this._types.IsNotNullButEmpty() || this._mimeTypes.IsNotNullButEmpty() || this._fieldsOfScience.IsNotNullButEmpty() || this._permissions.IsNotNullButEmpty();
 		}
 
 		public async Task<QueryResult> CollectAsync()
@@ -165,6 +172,18 @@ namespace DataGEMS.Gateway.App.Query
 			}
 			else if (this._ids != null && this._ids.Count > 0) datasetIdsToUse = this._ids;
 
+			List<Guid> permittedDatasetIds = await this.PermittedDatasetIdsAsync();
+			if (permittedDatasetIds != null)
+			{
+				if (permittedDatasetIds.Count == 0) return null;
+				if (datasetIdsToUse == null || datasetIdsToUse.Count == 0) datasetIdsToUse = permittedDatasetIds;
+				else
+				{
+					datasetIdsToUse = datasetIdsToUse.Intersect(permittedDatasetIds).ToList();
+					if (datasetIdsToUse.Count == 0) return null;
+				}
+			}
+
 			if(datasetIdsToUse!=null && datasetIdsToUse.Count > 0) datasetIdsToUse.ForEach(x => qs = qs.Add("nodeIds", x.ToString()));
 			if (this._like != null) qs = qs.Add("like", $"*{this._like}*");
 			if (this._license != null) qs = qs.Add("license", this._license);
@@ -176,6 +195,20 @@ namespace DataGEMS.Gateway.App.Query
 			if (this._fieldsOfScience != null) this._fieldsOfScience.ForEach(x => qs = qs.Add("fieldsOfScience", x));
 
 			return qs;
+		}
+
+		private async Task<List<Guid>> PermittedDatasetIdsAsync()
+		{
+			if (this._permissions == null || this._permissions.Count == 0) return null;
+
+			HashSet<Guid> permitted = [];
+			foreach (String permission in this._permissions.Distinct())
+			{
+				if (await this._authorizationContentResolver.HasPermission(permission)) return null;
+				List<Guid> affiliated = await this._authorizationContentResolver.EffectiveContextAffiliatedDatasets(permission);
+				if (affiliated != null) permitted.UnionWith(affiliated);
+			}
+			return permitted.ToList();
 		}
 
 		private QueryString BuildPaging(QueryString qs, Paging paging)

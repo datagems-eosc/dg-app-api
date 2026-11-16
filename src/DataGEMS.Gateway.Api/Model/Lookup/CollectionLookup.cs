@@ -23,6 +23,8 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 		public List<String> ContextRoles { get; set; }
 		[SwaggerSchema(description: "Limit lookup to items that the provided user has explicit access kind. This should only be set in combination with ContextRoles. If left empty, the current user is used")]
 		public String ContextRoleSubjectId { get; set; }
+		[SwaggerSchema(description: "Limit lookup to items on which the current user holds any of the specified permissions, either globally or through context grants. If set, the list of values must not be empty")]
+		public List<String> Permissions { get; set; }
 
 		public CollectionQuery Enrich(QueryFactory factory)
 		{
@@ -34,6 +36,7 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 			if (!String.IsNullOrEmpty(this.Like)) query.Like(this.Like);
 			if (this.ContextRoles != null) query.ContextRolesInMemory(this.ContextRoles);
 			if (!String.IsNullOrEmpty(this.ContextRoleSubjectId)) query.ContextRoleSubjectIdInMemory(this.ContextRoleSubjectId);
+			if (this.Permissions != null) query.Permissions(this.Permissions);
 
 			this.EnrichCommon(query);
 
@@ -77,6 +80,10 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 						.If(() => item.ContextRoles == null || item.ContextRoles.Count == 0)
 						.Must(() => String.IsNullOrEmpty(item.ContextRoleSubjectId))
 						.FailOn(nameof(CollectionLookup.ContextRoleSubjectId)).FailWith(this._localizer["validation_overPosting"]),
+					//permissions must be null or not empty
+					this.Spec()
+						.Must(() => !item.Permissions.IsNotNullButEmpty())
+						.FailOn(nameof(CollectionLookup.Permissions)).FailWith(this._localizer["validation_setButEmpty", nameof(CollectionLookup.Permissions)]),
 					//paging without ordering not supported
 					this.Spec()
 						.If(()=> item.Page != null && !item.Page.IsEmpty)

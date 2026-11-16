@@ -28,6 +28,8 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 		public List<string> FieldsOfScience { get; set; }
 		[SwaggerSchema(description: "Limit lookup to items with specific license.")]
 		public string License { get; set; }
+		[SwaggerSchema(description: "Limit lookup to items on which the current user holds any of the specified permissions, either globally or through context grants. If set, the list of values must not be empty")]
+		public List<String> Permissions { get; set; }
 
 		public DatasetHttpQuery Enrich(QueryFactory factory)
 		{
@@ -41,6 +43,7 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 			if (this.State != null) query.State(this.State.Value);
 			if (!String.IsNullOrEmpty(this.Like)) query.Like(this.Like);
 			if (!String.IsNullOrEmpty(this.License)) query.License(this.License);
+			if (this.Permissions != null) query.Permissions(this.Permissions);
 
 			this.EnrichCommon(query);
 
@@ -85,6 +88,10 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 					this.Spec()
 						.Must(() => !item.FieldsOfScience.IsNotNullButEmpty())
 						.FailOn(nameof(DatasetLookup.FieldsOfScience)).FailWith(this._localizer["validation_setButEmpty", nameof(DatasetLookup.FieldsOfScience)]),
+					//permissions must be null or not empty
+					this.Spec()
+						.Must(() => !item.Permissions.IsNotNullButEmpty())
+						.FailOn(nameof(DatasetLookup.Permissions)).FailWith(this._localizer["validation_setButEmpty", nameof(DatasetLookup.Permissions)]),
 					//paging without ordering not supported
 					this.Spec()
 						.If(()=> item.Page != null && !item.Page.IsEmpty)

@@ -13,6 +13,7 @@ namespace DataGEMS.Gateway.App.Query
 		private String _like { get; set; }
 		private List<String> _contextRolesInMemory { get; set; }
 		private String _contextRoleSubjectIdInMemory { get; set; }
+		private List<String> _permissions { get; set; }
 		private AuthorizationFlags _authorize { get; set; } = AuthorizationFlags.None;
 
 		public CollectionQuery(
@@ -44,10 +45,12 @@ namespace DataGEMS.Gateway.App.Query
 		public CollectionQuery ContextRolesInMemory(IEnumerable<String> contextRoles) { this._contextRolesInMemory = contextRoles?.ToList(); return this; }
 		public CollectionQuery ContextRolesInMemory(String contextRole) { this._contextRolesInMemory = contextRole.AsList(); return this; }
 		public CollectionQuery ContextRoleSubjectIdInMemory(String subjectId) { this._contextRoleSubjectIdInMemory = subjectId; return this; }
+		public CollectionQuery Permissions(IEnumerable<String> permissions) { this._permissions = permissions?.ToList(); return this; }
+		public CollectionQuery Permissions(String permission) { this._permissions = permission.AsList(); return this; }
 
 		protected override bool IsFalseQuery()
 		{
-			return this.IsEmpty(this._ids) || this.IsEmpty(this._excludedIds) || this.IsEmpty(this._datasetIds) || this.IsEmpty(this._contextRolesInMemory);
+			return this.IsEmpty(this._ids) || this.IsEmpty(this._excludedIds) || this.IsEmpty(this._datasetIds) || this.IsEmpty(this._contextRolesInMemory) || this.IsEmpty(this._permissions);
 		}
 
 		protected override bool RequiresInMemoryFiltering()
@@ -98,14 +101,33 @@ namespace DataGEMS.Gateway.App.Query
 			return query.Where(x => union.Contains(x.Id));
 		}
 
-		protected override Task<IQueryable<Collection>> ApplyFiltersAsync(IQueryable<Collection> query)
+		protected override async Task<IQueryable<Collection>> ApplyFiltersAsync(IQueryable<Collection> query)
 		{
 			if (this._ids != null) query = query.Where(x => this._ids.Contains(x.Id));
 			if (this._excludedIds != null) query = query.Where(x => !this._excludedIds.Contains(x.Id));
 			if (this._datasetIds != null) query = query.Where(x => x.Datasets.Any(y => this._datasetIds.Contains(y.DatasetId)));
 			if (!String.IsNullOrEmpty(this._like)) query = query.Where(x => EF.Functions.ILike(x.Name, this._like));
+			if (this._permissions != null)
+			{
+				List<Guid> permittedCollectionIds = await this.PermittedCollectionIdsAsync();
+				if (permittedCollectionIds != null) query = query.Where(x => permittedCollectionIds.Contains(x.Id));
+			}
 
-			return Task.FromResult(query);
+			return query;
+		}
+
+		private async Task<List<Guid>> PermittedCollectionIdsAsync()
+		{
+			if (this._permissions == null || this._permissions.Count == 0) return null;
+
+			HashSet<Guid> permitted = [];
+			foreach (String permission in this._permissions.Distinct())
+			{
+				if (await this._authorizationContentResolver.HasPermission(permission)) return null;
+				List<Guid> affiliated = await this._authorizationContentResolver.ContextAffiliatedCollections(permission);
+				if (affiliated != null) permitted.UnionWith(affiliated);
+			}
+			return permitted.ToList();
 		}
 
 		protected override async Task<List<Collection>> FilterAsync(List<Collection> items)
