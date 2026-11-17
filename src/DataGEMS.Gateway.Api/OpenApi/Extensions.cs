@@ -55,6 +55,7 @@ namespace DataGEMS.Gateway.Api.OpenApi
 					options.SchemaFilter<LookupHeaderSchemaFilter>();
 					options.SchemaFilter<LookupFieldSetSchemaFilter>();
 					options.SchemaFilter<EnumDescriptionFilter>();
+					options.SchemaFilter<DescriptionAttributeSchemaFilter>();
 					options.OperationFilter<SecurityRequirementsOperationFilter>();
 					options.ParameterFilter<LookupFieldSetQueryStringSchemaFilter>();
 				})

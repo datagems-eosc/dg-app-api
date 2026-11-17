@@ -1,5 +1,7 @@
-﻿using Cite.Tools.Data.Builder;
+﻿using Cite.Tools.Common.Extensions;
+using Cite.Tools.Data.Builder;
 using Cite.Tools.Data.Query;
+using Cite.Tools.FieldSet;
 using Cite.Tools.Json;
 using DataGEMS.Gateway.App.AccessToken;
 using DataGEMS.Gateway.App.Authorization;
@@ -7,6 +9,7 @@ using DataGEMS.Gateway.App.Common;
 using DataGEMS.Gateway.App.Data;
 using DataGEMS.Gateway.App.ErrorCode;
 using DataGEMS.Gateway.App.Exception;
+using DataGEMS.Gateway.App.Model.Builder;
 using DataGEMS.Gateway.App.Query;
 using DataGEMS.Gateway.App.Service.DatasetFileManagement.Model;
 using DataGEMS.Gateway.App.Service.Storage;
@@ -15,6 +18,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using System.Net.Mime;
+using Deconstructed = DataGEMS.Gateway.App.Model.DeconstructedDatasetAnalyticalPattern;
 
 namespace DataGEMS.Gateway.App.Service.DatasetFileManagement
 {
@@ -71,16 +75,17 @@ namespace DataGEMS.Gateway.App.Service.DatasetFileManagement
 			if (datas.Count > 1) throw new DGFoundManyException(this._localizer["general_nonUnique", datasetId, nameof(App.Model.Dataset)]);
 			if (datas.First().ProfileRaw == null) throw new DGApplicationException(this._localizer["dataset_noProfile", datasetId]);
 			AnalyticalPattern profile = this._jsonHandlingService.FromJsonSafe<AnalyticalPattern>(this._jsonHandlingService.ToJsonSafe(datas.First().ProfileRaw));
-			
-			List<AnalyticalPatternNode> fileSets = profile.Nodes?.Where(x => x.Labels.Contains("cr:FileSet") && x.Properties != null && x.Properties.ContainsKey("contentUrl")).ToList();
-			List<DatasetFileSet> nodes = fileSets?.Select(x => new DatasetFileSet
+			List<Deconstructed.Distribution> distributions = await this.DistributionsOf(profile);
+
+			List<Deconstructed.Distribution> fileSets = distributions.Where(x => x.Kind == Deconstructed.DistributionKind.FileSet && x.ContentUrl != null).ToList();
+			List<DatasetFileSet> nodes = fileSets.Select(x => new DatasetFileSet
 			{
-				Id = x.Id,
-				Path = this._storageService.NormalizePath((string)x.Properties["contentUrl"]),
+				Id = x.Id.Value,
+				Path = this._storageService.NormalizePath(x.ContentUrl),
 				FileSets = [],
 				Files = []
 			})
-			.OrderBy(x => x.Path.Count(y => y == Path.DirectorySeparatorChar)).ToList() ?? [];
+			.OrderBy(x => x.Path.Count(y => y == Path.DirectorySeparatorChar)).ToList();
 
 			var roots = new List<DatasetFileSet>();
 
@@ -102,20 +107,20 @@ namespace DataGEMS.Gateway.App.Service.DatasetFileManagement
 			{
 				Id = datasetId,
 				Files = [],
-				FileSets = fileSets != null && fileSets.Count > 0 ? roots : [],
+				FileSets = fileSets.Count > 0 ? roots : [],
 				Path = await this._storageService.DirectoryOf(StorageType.Dataset, datasetId.ToString())
 			};
 
-			IEnumerable<DatasetFile> fileObjects = profile.Nodes?.Where(x => x.Labels.Contains("cr:FileObject")).Select(x => new DatasetFile
+			List<DatasetFile> fileObjects = distributions.Where(x => x.Kind == Deconstructed.DistributionKind.FileObject).Select(x => new DatasetFile
 			{
-				Id = x.Id,
-				Path = x.Properties != null && x.Properties.ContainsKey("contentUrl") ? (string)x.Properties["contentUrl"] : "",
-				Size = x.Properties != null && x.Properties.ContainsKey("contentSize") ? (string)x.Properties["contentSize"] : "0 B",
-				Name = x.Properties != null && x.Properties.ContainsKey("name") ? (string)x.Properties["name"] : "",
-				MimeType = x.Properties != null && x.Properties.ContainsKey("encodingFormat") ? (string)x.Properties["encodingFormat"] : null,
-				Description = x.Properties != null && x.Properties.ContainsKey("description") ? (string)x.Properties["description"] : null,
-				Sha256 = x.Properties != null && x.Properties.ContainsKey("sha256") ? (string)x.Properties["sha256"] : null,
-			}) ?? [];
+				Id = x.Id.Value,
+				Path = x.ContentUrl ?? "",
+				Size = x.ContentSize ?? "0 B",
+				Name = x.Name ?? "",
+				MimeType = x.EncodingFormat,
+				Description = x.Description,
+				Sha256 = x.Sha256,
+			}).ToList();
 
 			foreach (var file in fileObjects)
 			{
@@ -155,6 +160,21 @@ namespace DataGEMS.Gateway.App.Service.DatasetFileManagement
 			}
 		}
 
+		private async Task<List<Deconstructed.Distribution>> DistributionsOf(AnalyticalPattern profile)
+		{
+			IFieldSet fields = new FieldSet(
+				new String[] { nameof(Deconstructed.Distributions), nameof(Deconstructed.Distribution.Id) }.AsIndexer(),
+				new String[] { nameof(Deconstructed.Distributions), nameof(Deconstructed.Distribution.Kind) }.AsIndexer(),
+				new String[] { nameof(Deconstructed.Distributions), nameof(Deconstructed.Distribution.Name) }.AsIndexer(),
+				new String[] { nameof(Deconstructed.Distributions), nameof(Deconstructed.Distribution.Description) }.AsIndexer(),
+				new String[] { nameof(Deconstructed.Distributions), nameof(Deconstructed.Distribution.ContentUrl) }.AsIndexer(),
+				new String[] { nameof(Deconstructed.Distributions), nameof(Deconstructed.Distribution.ContentSize) }.AsIndexer(),
+				new String[] { nameof(Deconstructed.Distributions), nameof(Deconstructed.Distribution.EncodingFormat) }.AsIndexer(),
+				new String[] { nameof(Deconstructed.Distributions), nameof(Deconstructed.Distribution.Sha256) }.AsIndexer());
+			Deconstructed model = await this._builderFactory.Builder<DeconstructedDatasetAnalyticalPatternBuilder>().Build(fields, profile);
+			return model?.Distributions ?? [];
+		}
+
 		private static bool IsSubPathOf(string childPath, string parentPath)
 		{
 			return childPath.StartsWith(parentPath + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase);
@@ -187,7 +207,7 @@ namespace DataGEMS.Gateway.App.Service.DatasetFileManagement
 			AdHocQueryTaskOrchestratorResponse response = this._jsonHandlingService.FromJsonSafe<AdHocQueryTaskOrchestratorResponse>(data.AnalyticalPattern);
 			if (response.Code != 200) throw new DGApplicationException(response.Code, response.Message);
 			AnalyticalPattern ap = response.AnalyticalPattern;
-			AnalyticalPatternNode node = ap.Nodes?.FirstOrDefault(x => x.Labels != null && x.Labels.Contains("cr:FileObject") && x.Labels.Contains("Data"));
+			AnalyticalPatternNode node = ap?.Nodes?.FirstOrDefault(x => x.HasLabel(AnalyticalPatternLabels.Node.FileObject) && x.HasLabel(AnalyticalPatternLabels.Node.Data));
 			if (node == null) throw new DGApplicationException(this._localizer["adHocQueryResult_notSupportedFormat", adHocQueryId]);
 
 			FileDetails fileDetails = await this.ExtractFileFromAnalyticalPattern(ap, node.Id);
@@ -199,9 +219,8 @@ namespace DataGEMS.Gateway.App.Service.DatasetFileManagement
 		{
 			AnalyticalPatternNode node = ap.Nodes?.FirstOrDefault(x => x.Id == fileObjectNodeId);
 			if (node == null) throw new DGNotFoundException(this._localizer["general_notFound", fileObjectNodeId, nameof(AnalyticalPatternNode)]);
-			if (node.Properties == null || node.Properties.Count == 0 || !node.Properties.ContainsKey("contentUrl")) return null;
-
-			string path = (string)node.Properties["contentUrl"];
+			string path = node.PropertyAsString("contentUrl");
+			if (String.IsNullOrEmpty(path)) return null;
 			string normalized = path.StartsWith("s3://") ? "/s3/" + path.Substring("s3://".Length) : path;
 
 			if (!File.Exists(normalized)) return null;
@@ -209,8 +228,8 @@ namespace DataGEMS.Gateway.App.Service.DatasetFileManagement
 			return new FileDetails
 			{
 				Contents = await this._storageService.ReadByteSafeAsync(normalized),
-				FileName = node.Properties.ContainsKey("name") ? (string)node.Properties["name"] : null,
-				ContentType = node.Properties.ContainsKey("encodingFormat") ? (string)node.Properties["encodingFormat"] : MediaTypeNames.Application.Octet,
+				FileName = node.PropertyAsString("name"),
+				ContentType = node.PropertyAsString("encodingFormat") ?? MediaTypeNames.Application.Octet,
 			};
 		}
 	}

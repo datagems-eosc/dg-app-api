@@ -2,6 +2,7 @@
 using Cite.Tools.Data.Censor;
 using Cite.Tools.Data.Query;
 using Cite.Tools.FieldSet;
+using Cite.Tools.Json;
 using Cite.Tools.Logging;
 using Cite.Tools.Logging.Extensions;
 using Cite.WebTools.Validation;
@@ -43,6 +44,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 		private readonly IWorkflowProcessService _workflowProcessService;
 		private readonly ITaskOrchestratorService _taskOrchestratorService;
 		private readonly IDatasetLinkingService _datasetLinkingService;
+		private readonly JsonHandlingService _jsonHandlingService;
 
 		public DatasetController(
 			CensorFactory censorFactory,
@@ -54,7 +56,8 @@ namespace DataGEMS.Gateway.Api.Controllers
 			ErrorThesaurus errors,
 			IWorkflowProcessService workflowProcessService,
 			ITaskOrchestratorService taskOrchestratorService,
-			IDatasetLinkingService datasetLinkingService)
+			IDatasetLinkingService datasetLinkingService,
+			JsonHandlingService jsonHandlingService)
 		{
 			this._censorFactory = censorFactory;
 			this._queryFactory = queryFactory;
@@ -66,6 +69,7 @@ namespace DataGEMS.Gateway.Api.Controllers
 			this._workflowProcessService = workflowProcessService;
 			this._taskOrchestratorService = taskOrchestratorService;
 			this._datasetLinkingService = datasetLinkingService;
+			this._jsonHandlingService = jsonHandlingService;
 		}
 
 		[HttpPost("query")]
@@ -131,6 +135,94 @@ namespace DataGEMS.Gateway.Api.Controllers
 			App.Service.DataManagement.Model.Dataset data = ((await query.CollectAsync()))?.Items.FirstOrDefault();
 			if (data == null) throw new DGNotFoundException(this._localizer["general_notFound", id, nameof(App.Model.Dataset)]);
 			App.Model.Dataset model = await this._builderFactory.Builder<DatasetBuilder>().Authorize(AuthorizationFlags.Any).Build(censoredFields, data);
+			if (model == null) throw new DGNotFoundException(this._localizer["general_notFound", id, nameof(App.Model.Dataset)]);
+
+			this._accountingService.AccountFor(KnownActions.Query, KnownResources.Dataset.AsAccountable());
+
+			return model;
+		}
+
+		private const String GetPropertiesDescription = """
+			Returns the properties of a dataset, deconstructed from the dataset profile (the Analytical Pattern graph produced by the dataset profiler) into a typed hierarchy:
+
+			```
+			dataset            the dataset metadata (sc:Dataset)
+			distributions[]    files, sheets, file sets, database tables and connections (cr:FileObject, cr:FileSet, dg:DatabaseConnection)
+			recordSets[]       logical tables / sheets (cr:RecordSet)
+			  fields[]         the columns of the record set (cr:Field)
+			  dataQuality[]    data quality assessments (dg:DataQuality)
+			    errors[]       individual data quality issues (dg:DataQualityError)
+			```
+
+			Column statistics that may be present in the profile are **not** exposed.
+
+			### Selecting properties
+
+			Only the properties requested through the `f` query parameter are returned; everything else is omitted from the response. Nested properties are requested with `.` qualified names, repeating the parameter once per property. Property names are case-insensitive.
+
+			| Group | Available properties |
+			|---|---|
+			| `dataset` | `id`, `name`, `description`, `headline`, `license`, `url`, `citeAs`, `doi`, `version`, `conformsTo`, `access`, `status`, `archivedAt`, `uploadedBy`, `datePublished`, `keywords`, `fieldOfScience`, `language`, `country` |
+			| `distributions` | `id`, `kind`, `labels`, `type`, `name`, `description`, `contentUrl`, `contentSize`, `encodingFormat`, `sha256`, `includes`, `containedIn` |
+			| `recordSets` | `id`, `name`, `examples` |
+			| `recordSets.fields` | `id`, `name`, `column`, `description`, `dataType`, `semanticType`, `sample`, `sources` |
+			| `recordSets.dataQuality` | `id`, `summary` |
+			| `recordSets.dataQuality.errors` | `id`, `errorType`, `column`, `description`, `totalAffectedRows`, `examples` |
+
+			Examples:
+
+			* Dataset overview: `f=dataset.name&f=dataset.description&f=dataset.keywords&f=dataset.license`
+			* Files of the dataset: `f=distributions.id&f=distributions.kind&f=distributions.name&f=distributions.encodingFormat&f=distributions.containedIn`
+			* Schema of the dataset: `f=recordSets.name&f=recordSets.fields.name&f=recordSets.fields.dataType&f=recordSets.fields.semanticType`
+			* Data quality report: `f=recordSets.name&f=recordSets.dataQuality.summary&f=recordSets.dataQuality.errors.column&f=recordSets.dataQuality.errors.errorType&f=recordSets.dataQuality.errors.description&f=recordSets.dataQuality.errors.totalAffectedRows`
+
+			### Notes
+
+			* Relations between distributions and fields are expressed through ids: `distributions.containedIn` holds the ids of the containing distributions (a sheet in its workbook, a table in its database connection) and `recordSets.fields.sources` the ids of the distributions a field is read from. Request the respective `id` properties to resolve them.
+			* `distributions.id` of file distributions can be used as the `fileObjectNodeId` of the file download endpoint (`GET api/storage/download/dataset/{datasetId}/file-object/{fileObjectNodeId}`).
+			* `distributions.contentUrl` of database connections contains the connection string of the database.
+			* Values that are not present in the profile are omitted from the response, even when requested.
+
+			### Authorization
+
+			The same rules as the dataset lookup (`GET api/dataset/{id}`) apply: the caller must hold the *BrowseDataset* permission, either globally or through a context grant on this dataset. Otherwise the request fails with 403.
+			""";
+
+		[HttpGet("{id}/properties")]
+		[Authorize]
+		[ModelStateValidationFilter]
+		[SwaggerOperation(Summary = "Lookup the properties of a dataset, deconstructed from its profile", Description = GetPropertiesDescription, OperationId = "GetDatasetProperties")]
+		[SwaggerResponse(statusCode: 200, description: "The requested properties of the dataset. Only the properties requested through the f parameter are populated", type: typeof(App.Model.DeconstructedDatasetAnalyticalPattern))]
+		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request, e.g. a malformed dataset id")]
+		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]
+		[SwaggerResponse(statusCode: 403, description: "The caller does not hold the BrowseDataset permission, neither globally nor through a context grant on the dataset")]
+		[SwaggerResponse(statusCode: 404, description: "Could not locate a dataset with the provided id")]
+		[SwaggerResponse(statusCode: 424, description: "The data management service failed to return the dataset")]
+		[SwaggerResponse(statusCode: 500, description: "Internal error, including the dataset having no profile yet (it has not been profiled) or an unreadable profile")]
+		[SwaggerResponse(statusCode: 503, description: "An underpinning service indicated failure")]
+		[Produces(System.Net.Mime.MediaTypeNames.Application.Json)]
+		public async Task<App.Model.DeconstructedDatasetAnalyticalPattern> GetProperties(
+			[FromRoute]
+			[SwaggerParameter(description: "The id of the dataset whose properties to lookup", Required = true)]
+			Guid id,
+			[ModelBinder(Name = "f")]
+			[SwaggerParameter(description: "The properties to include in the response model, repeated once per property. Nested properties are qualified with '.' (e.g. recordSets.fields.name). See the operation description for the full list of available properties", Required = true)]
+			[LookupFieldSetQueryStringOpenApi]
+			IFieldSet fieldSet)
+		{
+			this._logger.Debug(new MapLogEntry("get").And("type", nameof(App.Model.DeconstructedDatasetAnalyticalPattern)).And("id", id).And("fields", fieldSet));
+
+			IFieldSet censoredFields = await this._censorFactory.Censor<DeconstructedDatasetAnalyticalPatternCensor>().Censor(fieldSet, CensorContext.AsCensor(), id);
+			if (fieldSet.CensoredAsUnauthorized(censoredFields)) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+
+			DatasetHttpQuery query = this._queryFactory.Query<DatasetHttpQuery>().Ids(id);
+			App.Service.DataManagement.Model.Dataset data = ((await query.CollectAsync()))?.Items.FirstOrDefault();
+			if (data == null) throw new DGNotFoundException(this._localizer["general_notFound", id, nameof(App.Model.Dataset)]);
+			if (data.ProfileRaw == null) throw new DGApplicationException(this._localizer["dataset_noProfile", id]);
+
+			AnalyticalPattern profile = this._jsonHandlingService.FromJsonSafe<AnalyticalPattern>(this._jsonHandlingService.ToJsonSafe(data.ProfileRaw));
+			if (profile == null) throw new DGApplicationException(this._localizer["dataset_noProfile", id]);
+			App.Model.DeconstructedDatasetAnalyticalPattern model = await this._builderFactory.Builder<DeconstructedDatasetAnalyticalPatternBuilder>().Build(censoredFields, profile);
 			if (model == null) throw new DGNotFoundException(this._localizer["general_notFound", id, nameof(App.Model.Dataset)]);
 
 			this._accountingService.AccountFor(KnownActions.Query, KnownResources.Dataset.AsAccountable());
