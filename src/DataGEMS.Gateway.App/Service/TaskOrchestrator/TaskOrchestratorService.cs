@@ -217,7 +217,29 @@ namespace DataGEMS.Gateway.App.Service.TaskOrchestrator
 			httpRequest.Headers.Add(this._logTrackingCorrelationConfig.HeaderName, this._logCorrelationScope.CorrelationId);
 			string content = await this.SendRequest(httpRequest);
 			DatasetRecommendationResponse datasetRecommendationResponse = this._jsonHandlingService.FromJsonSafe<DatasetRecommendationResponse>(content);
-			return datasetRecommendationResponse.Content?.AnalyticalPattern?.Nodes?.Where(x => x.Labels.Contains("sc:Dataset") && x.Id != seedDatasetId).Select(x => x.Id).ToList();
+			return ExtractRankedRecommendations(datasetRecommendationResponse.Content?.AnalyticalPattern, seedDatasetId);
+		}
+
+		private static List<Guid> ExtractRankedRecommendations(AnalyticalPattern ap, Guid seedDatasetId)
+		{
+			if (ap?.Nodes == null) return null;
+			HashSet<Guid> datasetNodeIds = ap.Nodes.Where(x => x.HasLabel(AnalyticalPatternLabels.Node.Dataset) && x.Id != seedDatasetId).Select(x => x.Id).ToHashSet();
+			List<Guid> ranked = (ap.Edges ?? [])
+				.Where(x => x.HasLabel("output") && datasetNodeIds.Contains(x.To))
+				.Select((x, index) => new
+				{
+					x.To,
+					Rank = x.Properties != null && x.Properties.TryGetValue("rank", out object rank) ? AnalyticalPatternExtensions.AsLong(rank) : null,
+					Index = index
+				})
+				.OrderBy(x => x.Rank.HasValue ? 0 : 1)
+				.ThenBy(x => x.Rank ?? long.MaxValue)
+				.ThenBy(x => x.Index)
+				.Select(x => x.To)
+				.Distinct()
+				.ToList();
+			if (ranked.Count > 0) return ranked;
+			return ap.Nodes.Where(x => datasetNodeIds.Contains(x.Id)).Select(x => x.Id).Distinct().ToList();
 		}
 
 		public async Task<QueryDisambiguationViewModel> QueryDisambiguationAsync(DisambiguationInfo info, IFieldSet fields = null)

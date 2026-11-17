@@ -423,7 +423,10 @@ namespace DataGEMS.Gateway.Api.Controllers
 			
 			DatasetHttpQuery query = this._queryFactory.Query<DatasetHttpQuery>().Ids(response ?? []);
 			DatasetHttpQuery.QueryResult results = await query.CollectAsync();
-			List<Dataset> models = await this._builderFactory.Builder<DatasetBuilder>().Authorize(AuthorizationFlags.Any).Build(censoredFields, results.Items);
+
+			Dictionary<Guid, int> rankIndex = (response ?? []).Select((id, index) => new { id, index }).GroupBy(x => x.id).ToDictionary(x => x.Key, x => x.First().index);
+			List<App.Service.DataManagement.Model.Dataset> orderedItems = (results.Items ?? []).OrderBy(x => rankIndex.TryGetValue(x.Id, out int index) ? index : int.MaxValue).ToList();
+			List<Dataset> models = await this._builderFactory.Builder<DatasetBuilder>().Authorize(AuthorizationFlags.Any).Build(censoredFields, orderedItems);
 
 			this._accountingService.AccountFor(KnownActions.Invoke, KnownResources.DatasetRecommender.AsAccountable());
 
