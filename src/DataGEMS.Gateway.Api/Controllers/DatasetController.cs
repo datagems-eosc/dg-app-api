@@ -142,56 +142,10 @@ namespace DataGEMS.Gateway.Api.Controllers
 			return model;
 		}
 
-		private const String GetPropertiesDescription = """
-			Returns the properties of a dataset, deconstructed from the dataset profile (the Analytical Pattern graph produced by the dataset profiler) into a typed hierarchy:
-
-			```
-			dataset            the dataset metadata (sc:Dataset)
-			distributions[]    files, sheets, file sets, database tables and connections (cr:FileObject, cr:FileSet, dg:DatabaseConnection)
-			recordSets[]       logical tables / sheets (cr:RecordSet)
-			  fields[]         the columns of the record set (cr:Field)
-			  dataQuality[]    data quality assessments (dg:DataQuality)
-			    errors[]       individual data quality issues (dg:DataQualityError)
-			```
-
-			Column statistics that may be present in the profile are **not** exposed.
-
-			### Selecting properties
-
-			Only the properties requested through the `f` query parameter are returned; everything else is omitted from the response. Nested properties are requested with `.` qualified names, repeating the parameter once per property. Property names are case-insensitive.
-
-			| Group | Available properties |
-			|---|---|
-			| `dataset` | `id`, `name`, `description`, `headline`, `license`, `url`, `citeAs`, `doi`, `version`, `conformsTo`, `access`, `status`, `archivedAt`, `uploadedBy`, `datePublished`, `keywords`, `fieldOfScience`, `language`, `country` |
-			| `distributions` | `id`, `kind`, `labels`, `type`, `name`, `description`, `contentUrl`, `contentSize`, `encodingFormat`, `sha256`, `includes`, `containedIn` |
-			| `recordSets` | `id`, `name`, `examples` |
-			| `recordSets.fields` | `id`, `name`, `column`, `description`, `dataType`, `semanticType`, `sample`, `sources` |
-			| `recordSets.dataQuality` | `id`, `summary` |
-			| `recordSets.dataQuality.errors` | `id`, `errorType`, `column`, `description`, `totalAffectedRows`, `examples` |
-
-			Examples:
-
-			* Dataset overview: `f=dataset.name&f=dataset.description&f=dataset.keywords&f=dataset.license`
-			* Files of the dataset: `f=distributions.id&f=distributions.kind&f=distributions.name&f=distributions.encodingFormat&f=distributions.containedIn`
-			* Schema of the dataset: `f=recordSets.name&f=recordSets.fields.name&f=recordSets.fields.dataType&f=recordSets.fields.semanticType`
-			* Data quality report: `f=recordSets.name&f=recordSets.dataQuality.summary&f=recordSets.dataQuality.errors.column&f=recordSets.dataQuality.errors.errorType&f=recordSets.dataQuality.errors.description&f=recordSets.dataQuality.errors.totalAffectedRows`
-
-			### Notes
-
-			* Relations between distributions and fields are expressed through ids: `distributions.containedIn` holds the ids of the containing distributions (a sheet in its workbook, a table in its database connection) and `recordSets.fields.sources` the ids of the distributions a field is read from. Request the respective `id` properties to resolve them.
-			* `distributions.id` of file distributions can be used as the `fileObjectNodeId` of the file download endpoint (`GET api/storage/download/dataset/{datasetId}/file-object/{fileObjectNodeId}`).
-			* `distributions.contentUrl` of database connections contains the connection string of the database.
-			* Values that are not present in the profile are omitted from the response, even when requested.
-
-			### Authorization
-
-			The same rules as the dataset lookup (`GET api/dataset/{id}`) apply: the caller must hold the *BrowseDataset* permission, either globally or through a context grant on this dataset. Otherwise the request fails with 403.
-			""";
-
 		[HttpGet("{id}/properties")]
 		[Authorize]
 		[ModelStateValidationFilter]
-		[SwaggerOperation(Summary = "Lookup the properties of a dataset, deconstructed from its profile", Description = GetPropertiesDescription, OperationId = "GetDatasetProperties")]
+		[SwaggerOperation(Summary = "Lookup the properties of a dataset, deconstructed from its profile")]
 		[SwaggerResponse(statusCode: 200, description: "The requested properties of the dataset. Only the properties requested through the f parameter are populated", type: typeof(App.Model.DeconstructedDatasetAnalyticalPattern))]
 		[SwaggerResponse(statusCode: 400, description: "Validation problem with the request, e.g. a malformed dataset id")]
 		[SwaggerResponse(statusCode: 401, description: "The request is not authenticated")]

@@ -1372,7 +1372,7 @@
         ],
         "summary": "Query datasets",
         "requestBody": {
-          "description": "The query predicates",
+          "description": "The query predicates. The maximum number of results to return is 100.",
           "content": {
             "application/json": {
               "schema": {
@@ -1483,12 +1483,79 @@
         ]
       }
     },
-    "/api/dataset/onboard": {
+    "/api/dataset/{id}/properties": {
+      "get": {
+        "tags": [
+          "Dataset"
+        ],
+        "summary": "Lookup the properties of a dataset, as deconstructed from its profile",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the dataset to lookup properties for",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "f",
+            "in": "query",
+            "schema": {
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "example": "f=id&f=name&f=foo.id&f=foo.br.id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The dataset properties",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeconstructedDatasetAnalyticalPattern"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "404": {
+            "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/dataset/update": {
       "post": {
         "tags": [
           "Dataset"
         ],
-        "summary": "Onboard dataset",
+        "summary": "Update dataset",
         "parameters": [
           {
             "name": "f",
@@ -1504,24 +1571,21 @@
           }
         ],
         "requestBody": {
-          "description": "The model to onboard",
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/DatasetPersist"
               }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "200": {
-            "description": "The onboarded dataset id",
+            "description": "The updated dataset",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "string",
-                  "format": "uuid"
+                  "$ref": "#/components/schemas/DatasetQueryResult"
                 }
               }
             }
@@ -1552,18 +1616,18 @@
         ]
       }
     },
-    "/api/dataset/profile": {
+    "/api/dataset/linking/refinement": {
       "post": {
         "tags": [
           "Dataset"
         ],
-        "summary": "Profile dataset",
+        "summary": "Refine dataset linking",
         "requestBody": {
-          "description": "The profile to apply",
+          "description": "The dataset linking refinement to apply",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/DatasetProfiling"
+                "$ref": "#/components/schemas/DatasetLinkingRefinement"
               }
             }
           },
@@ -1571,12 +1635,11 @@
         },
         "responses": {
           "200": {
-            "description": "The profiled dataset id",
+            "description": "The refined linking result",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "string",
-                  "format": "uuid"
+                  "type": "string"
                 }
               }
             }
@@ -1607,31 +1670,28 @@
         ]
       }
     },
-    "/api/dataset/package": {
+    "/api/dataset/linking/status": {
       "post": {
         "tags": [
           "Dataset"
         ],
-        "summary": "Package dataset",
+        "summary": "Get dataset linking status",
         "requestBody": {
-          "description": "The package to apply",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/DatasetPackaging"
+                "type": "string"
               }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "200": {
-            "description": "The packaged dataset id",
+            "description": "The status of the linking job",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "string",
-                  "format": "uuid"
+                  "$ref": "#/components/schemas/DatasetLinkingStatus"
                 }
               }
             }
@@ -1662,31 +1722,28 @@
         ]
       }
     },
-    "/api/dataset/recommendation-register": {
+    "/api/dataset/linking/result": {
       "post": {
         "tags": [
           "Dataset"
         ],
-        "summary": "Register dataset to recommendation",
+        "summary": "Get dataset linking result",
         "requestBody": {
-          "description": "The dataset to register to recommendation",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/DatasetRecommendationRegistering"
+                "type": "string"
               }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "200": {
-            "description": "The registered dataset id",
+            "description": "The matching dataset",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "string",
-                  "format": "uuid"
+                  "type": "string"
                 }
               }
             }
@@ -1717,18 +1774,18 @@
         ]
       }
     },
-    "/api/dataset/cdd-ingest": {
+    "/api/pilot/mathe/recommend/videos": {
       "post": {
         "tags": [
-          "Dataset"
+          "Pilot"
         ],
-        "summary": "CDD Ingest dataset",
+        "summary": "Generate material-based recommendations",
         "requestBody": {
-          "description": "The dataset to ingest to CDD",
+          "description": "The field set to apply for building the results",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/DatasetCddIngest"
+                "$ref": "#/components/schemas/MatheRecommendationLookup"
               }
             }
           },
@@ -1736,12 +1793,11 @@
         },
         "responses": {
           "200": {
-            "description": "The registered dataset id",
+            "description": "Matching results",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "string",
-                  "format": "uuid"
+                  "$ref": "#/components/schemas/MatheRecommendationResponseSearchResult"
                 }
               }
             }
@@ -1751,9 +1807,6 @@
           },
           "401": {
             "description": "The request is not authenticated"
-          },
-          "404": {
-            "description": "Could not locate item with the provided id"
           },
           "403": {
             "description": "The requested operation is not permitted based on granted permissions"
@@ -1772,7 +1825,7 @@
         ]
       }
     },
-    "/api/pilot/mathe/recommend": {
+    "/api/pilot/mathe/recommend/documents": {
       "post": {
         "tags": [
           "Pilot"
@@ -2996,6 +3049,64 @@
         ]
       }
     },
+    "/api/principal/context-grants/dataset": {
+      "get": {
+        "tags": [
+          "Principal"
+        ],
+        "summary": "Retrieve user and user group rights for the provided datasets",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "The dataset ids to retrieve rights for",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The dataset rights visible to the caller",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DatasetContextGrants"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "403": {
+            "description": "The caller is not permitted to retrieve the requested rights"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
     "/api/search/cross-dataset": {
       "post": {
         "tags": [
@@ -3071,6 +3182,71 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/InDataExploreListSearchResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
+    "/api/search/disambiguate-intent": {
+      "post": {
+        "tags": [
+          "Search"
+        ],
+        "summary": "Decides whether the text a user typed asks for datasets or for an answer.",
+        "parameters": [
+          {
+            "name": "f",
+            "in": "query",
+            "schema": {
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "example": "f=id&f=name&f=foo.id&f=foo.br.id"
+          }
+        ],
+        "requestBody": {
+          "description": "The intent disambiguation options",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntentDisambiguationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Matching results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntentDisambiguationSearchResult"
                 }
               }
             }
@@ -3412,7 +3588,7 @@
           {
             "name": "id",
             "in": "path",
-            "description": "The id of the item to lookup",
+            "description": "The id of the item to request",
             "required": true,
             "schema": {
               "type": "string",
@@ -3488,7 +3664,7 @@
           {
             "name": "id",
             "in": "path",
-            "description": "The id of the item to lookup",
+            "description": "The id of the item to request",
             "required": true,
             "schema": {
               "type": "string",
@@ -5132,6 +5308,49 @@
         ]
       }
     },
+    "/api/workflow-process/config": {
+      "get": {
+        "tags": [
+          "WorkflowProcess"
+        ],
+        "summary": "Get workflow process config",
+        "responses": {
+          "200": {
+            "description": "The workflow process config",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkflowProcessConfig"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "404": {
+            "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
     "/api/workflow-process/query": {
       "post": {
         "tags": [
@@ -5528,6 +5747,74 @@
         ]
       }
     },
+    "/api/workflow-process/linking_report": {
+      "post": {
+        "tags": [
+          "WorkflowProcess"
+        ],
+        "summary": "dataset linking report",
+        "parameters": [
+          {
+            "name": "f",
+            "in": "query",
+            "schema": {
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "example": "f=id&f=name&f=foo.id&f=foo.br.id"
+          }
+        ],
+        "requestBody": {
+          "description": "The linking report to apply",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DatasetLinkingReport"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The linking report process",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkflowProcess"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "404": {
+            "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
     "/api/workflow-process/package": {
       "post": {
         "tags": [
@@ -5878,6 +6165,50 @@
         ]
       }
     },
+    "/api/workflow-process/step/finalize-linking-report": {
+      "post": {
+        "tags": [
+          "WorkflowProcess"
+        ],
+        "summary": "Update a workflow process step",
+        "requestBody": {
+          "description": "The model to persist",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkflowLinkingReportStepFinalize"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "400": {
+            "description": "Validation problem with the request"
+          },
+          "401": {
+            "description": "The request is not authenticated"
+          },
+          "404": {
+            "description": "Could not locate item with the provided id"
+          },
+          "403": {
+            "description": "The requested operation is not permitted based on granted permissions"
+          },
+          "500": {
+            "description": "Internal error"
+          },
+          "503": {
+            "description": "An underpinning service indicated failure"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [ ]
+          }
+        ]
+      }
+    },
     "/api/workflow-process/step/finalize-packaging": {
       "post": {
         "tags": [
@@ -6178,15 +6509,6 @@
             "description": "Limit lookup to items belonging to specific user ids. If set, the list of ids must not be empty",
             "nullable": true
           },
-          "datasetIds": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "format": "uuid"
-            },
-            "description": "Limit lookup to items belonging to specific dataset ids. If set, the list of ids must not be empty",
-            "nullable": true
-          },
           "excludedIds": {
             "type": "array",
             "items": {
@@ -6382,6 +6704,14 @@
           "contextRoleSubjectId": {
             "type": "string",
             "description": "Limit lookup to items that the provided user has explicit access kind. This should only be set in combination with ContextRoles. If left empty, the current user is used",
+            "nullable": true
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Limit lookup to items on which the current user holds any of the specified permissions, either globally or through context grants. If set, the list of values must not be empty",
             "nullable": true
           },
           "page": {
@@ -6782,6 +7112,10 @@
           "version": {
             "type": "string",
             "nullable": true
+          },
+          "trackAs": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -6882,10 +7216,12 @@
           8,
           9,
           10,
-          11
+          11,
+          12,
+          13
         ],
         "type": "integer",
-        "description": "  (0 - CrossDatasetQuery = 0 - CrossDataset Query, 1 - CrossDatasetResponse = 1 - CrossDataset Response, 2 - InDataExploreQuery = 2 - InDataExplore Query, 3 - InDataExploreResponse = 3 - InDataExplore Response, 4 - QueryRecommenderQuery = 4 - QueryRecommender Query, 5 - QueryRecommenderResponse = 5 - QueryRecommender Response, 6 - MatheRecommendationQuery = 6 - MathE Recommendation Query, 7 - MatheRecommendationResponse = 7 - MathE Recommendation Response, 8 - LinguisticFeaturesQuery = 8 - Linguistic Features Query, 9 - LinguisticFeaturesResponse = 9 - Linguistic Features Response, 10 - QueryDisambiguationQuery = 10 - Query Disambiguation Query, 11 - QueryDisambiguationResponse = 11 - Query Disambiguation Response)",
+        "description": "  (0 - CrossDatasetQuery = 0 - CrossDataset Query, 1 - CrossDatasetResponse = 1 - CrossDataset Response, 2 - InDataExploreQuery = 2 - InDataExplore Query, 3 - InDataExploreResponse = 3 - InDataExplore Response, 4 - QueryRecommenderQuery = 4 - QueryRecommender Query, 5 - QueryRecommenderResponse = 5 - QueryRecommender Response, 6 - MatheRecommendationQuery = 6 - MathE Recommendation Query, 7 - MatheRecommendationResponse = 7 - MathE Recommendation Response, 8 - LinguisticFeaturesQuery = 8 - Linguistic Features Query, 9 - LinguisticFeaturesResponse = 9 - Linguistic Features Response, 10 - QueryDisambiguationQuery = 10 - Query Disambiguation Query, 11 - QueryDisambiguationResponse = 11 - Query Disambiguation Response, 12 - IntentDisambiguation = 12 - Intent Disambiguation, 13 - IntentDisambiguationResponse = 13 - Intent Disambiguation Response)",
         "format": "int32",
         "x-enum-varnames": [
           "0 - CrossDatasetQuery",
@@ -6899,7 +7235,9 @@
           "8 - LinguisticFeaturesQuery",
           "9 - LinguisticFeaturesResponse",
           "10 - QueryDisambiguationQuery",
-          "11 - QueryDisambiguationResponse"
+          "11 - QueryDisambiguationResponse",
+          "12 - IntentDisambiguation",
+          "13 - IntentDisambiguationResponse"
         ],
         "x-enum-descriptions": [
           "0 - CrossDataset Query",
@@ -6913,7 +7251,9 @@
           "8 - Linguistic Features Query",
           "9 - Linguistic Features Response",
           "10 - Query Disambiguation Query",
-          "11 - Query Disambiguation Response"
+          "11 - Query Disambiguation Response",
+          "12 - Intent Disambiguation",
+          "13 - Intent Disambiguation Response"
         ]
       },
       "ConversationMessageLookup": {
@@ -7003,6 +7343,11 @@
           "autoUpdateDatasets": {
             "type": "boolean",
             "description": "Option to auto update the conversation datasets with the query context. Leaving it empty is equivalent to false. Should not be true if Conversation id is not provided of autocreate is set to true",
+            "nullable": true
+          },
+          "trackAs": {
+            "type": "string",
+            "description": "Optional alternative text to use when displaying the search term in the conversation",
             "nullable": true
           }
         },
@@ -7238,6 +7583,78 @@
           "5 - The dataset is stored in a database."
         ]
       },
+      "DataQuality": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "summary": {
+            "type": "string",
+            "nullable": true
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DataQualityError"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DataQualityError": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "errorType": {
+            "type": "string",
+            "nullable": true
+          },
+          "column": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "totalAffectedRows": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "examples": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DataQualityErrorExample"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DataQualityErrorExample": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string",
+            "nullable": true
+          },
+          "row": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "DataStoreKind": {
         "enum": [
           0,
@@ -7366,6 +7783,30 @@
         },
         "additionalProperties": false
       },
+      "DatasetContextGrants": {
+        "type": "object",
+        "properties": {
+          "datasetId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "users": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DatasetRoles"
+            },
+            "nullable": true
+          },
+          "userGroups": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DatasetRoles"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "DatasetHits": {
         "type": "object",
         "properties": {
@@ -7384,6 +7825,173 @@
           }
         },
         "additionalProperties": false
+      },
+      "DatasetInfo": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "headline": {
+            "type": "string",
+            "nullable": true
+          },
+          "license": {
+            "type": "string",
+            "nullable": true
+          },
+          "url": {
+            "type": "string",
+            "nullable": true
+          },
+          "citeAs": {
+            "type": "string",
+            "nullable": true
+          },
+          "doi": {
+            "type": "string",
+            "nullable": true
+          },
+          "version": {
+            "type": "string",
+            "nullable": true
+          },
+          "conformsTo": {
+            "type": "string",
+            "nullable": true
+          },
+          "access": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "archivedAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "uploadedBy": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "datePublished": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "keywords": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "fieldOfScience": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "language": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "country": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DatasetLinkingRefinement": {
+        "type": "object",
+        "properties": {
+          "id1": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "id2": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "keywordContribution": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "headlineContribution": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "descriptionContribution": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "pairSimilarityThreshold": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DatasetLinkingReport": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DatasetLinkingStatus": {
+        "enum": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "type": "integer",
+        "description": "  (0 - Queued = 0 - Queued, 1 - InProgress = 1 - InProgress, 2 - Failed = 2 - Failed, 3 - Completed = 3 - Completed)",
+        "format": "int32",
+        "x-enum-varnames": [
+          "0 - Queued",
+          "1 - InProgress",
+          "2 - Failed",
+          "3 - Completed"
+        ],
+        "x-enum-descriptions": [
+          "0 - Queued",
+          "1 - InProgress",
+          "2 - Failed",
+          "3 - Completed"
+        ]
       },
       "DatasetLookup": {
         "type": "object",
@@ -7429,6 +8037,27 @@
           "like": {
             "type": "string",
             "description": "Limit lookup to items whose name matches the pattern",
+            "nullable": true
+          },
+          "fieldsOfScience": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Limit lookup to items belonging to the specific fields of science. If set, the list of fields of science must not be empty",
+            "nullable": true
+          },
+          "license": {
+            "type": "string",
+            "description": "Limit lookup to items with specific license.",
+            "nullable": true
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Limit lookup to items on which the current user holds any of the specified permissions, either globally or through context grants. If set, the list of values must not be empty",
             "nullable": true
           },
           "page": {
@@ -7596,6 +8225,24 @@
         },
         "additionalProperties": false
       },
+      "DatasetRoles": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true
+          },
+          "roles": {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "DatasetState": {
         "enum": [
           0,
@@ -7632,6 +8279,113 @@
         },
         "additionalProperties": false
       },
+      "DeconstructedDatasetAnalyticalPattern": {
+        "type": "object",
+        "properties": {
+          "dataset": {
+            "$ref": "#/components/schemas/DatasetInfo"
+          },
+          "distributions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Distribution"
+            },
+            "nullable": true
+          },
+          "recordSets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RecordSet"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Distribution": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "kind": {
+            "$ref": "#/components/schemas/DistributionKind"
+          },
+          "labels": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "contentUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "contentSize": {
+            "type": "string",
+            "nullable": true
+          },
+          "encodingFormat": {
+            "type": "string",
+            "nullable": true
+          },
+          "sha256": {
+            "type": "string",
+            "nullable": true
+          },
+          "includes": {
+            "type": "string",
+            "nullable": true
+          },
+          "containedIn": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DistributionKind": {
+        "enum": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "type": "integer",
+        "description": "  (0 - Other = 0 - Other, 1 - FileObject = 1 - FileObject, 2 - FileSet = 2 - FileSet, 3 - DatabaseConnection = 3 - DatabaseConnection)",
+        "format": "int32",
+        "x-enum-varnames": [
+          "0 - Other",
+          "1 - FileObject",
+          "2 - FileSet",
+          "3 - DatabaseConnection"
+        ],
+        "x-enum-descriptions": [
+          "0 - Other",
+          "1 - FileObject",
+          "2 - FileSet",
+          "3 - DatabaseConnection"
+        ]
+      },
       "EntryStatus": {
         "enum": [
           0,
@@ -7660,6 +8414,50 @@
           },
           "recommendation": {
             "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "Field": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "column": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "dataType": {
+            "type": "string",
+            "nullable": true
+          },
+          "semanticType": {
+            "type": "string",
+            "nullable": true
+          },
+          "sample": {
+            "type": "array",
+            "items": { },
+            "nullable": true
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -7893,6 +8691,118 @@
           "0 - None",
           "1 - Table"
         ]
+      },
+      "IntentDisambiguation": {
+        "type": "object",
+        "properties": {
+          "intent": {
+            "$ref": "#/components/schemas/IntentDisambiguationIntentType"
+          },
+          "confidence": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "searchQuery": {
+            "type": "string",
+            "nullable": true
+          },
+          "degraded": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "model": {
+            "type": "string",
+            "nullable": true
+          },
+          "promptVersion": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "IntentDisambiguationIntentType": {
+        "enum": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "type": "integer",
+        "description": "  (0 - dataset_search = 0 - dataset_search, 1 - question = 1 - question, 2 - ambiguous = 2 - ambiguous, 3 - out_of_scope = 3 - out_of_scope)",
+        "format": "int32",
+        "x-enum-varnames": [
+          "0 - dataset_search",
+          "1 - question",
+          "2 - ambiguous",
+          "3 - out_of_scope"
+        ],
+        "x-enum-descriptions": [
+          "0 - dataset_search",
+          "1 - question",
+          "2 - ambiguous",
+          "3 - out_of_scope"
+        ]
+      },
+      "IntentDisambiguationRequest": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "The query to disambiguate",
+            "nullable": true
+          },
+          "context": {
+            "$ref": "#/components/schemas/IntentDisambiguationRequestContext"
+          },
+          "conversationOptions": {
+            "$ref": "#/components/schemas/ConversationOptions"
+          }
+        },
+        "additionalProperties": false
+      },
+      "IntentDisambiguationRequestContext": {
+        "type": "object",
+        "properties": {
+          "domain": {
+            "type": "string",
+            "description": "The domain of the request",
+            "nullable": true
+          },
+          "datasetIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "The IDs of the datasets involved",
+            "nullable": true
+          },
+          "history": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The history of the conversation",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "IntentDisambiguationSearchResult": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "$ref": "#/components/schemas/IntentDisambiguation"
+          },
+          "conversationId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
       },
       "IsActive": {
         "enum": [
@@ -8490,6 +9400,44 @@
         "properties": {
           "material_id": {
             "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "RecordSet": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "examples": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": { },
+              "nullable": true
+            },
+            "nullable": true
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Field"
+            },
+            "nullable": true
+          },
+          "dataQuality": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DataQuality"
+            },
             "nullable": true
           }
         },
@@ -9121,38 +10069,26 @@
           2,
           3,
           4,
-          5,
-          6,
-          7,
-          8,
-          9
+          5
         ],
         "type": "integer",
-        "description": "  (0 - DatasetOnboarding = 0 - Dataset Onboarding, 1 - DatasetProfiling = 1 - Dataset Profiling, 2 - DatasetPackaging = 2 - Dataset Packaging, 3 - DatasetRecommendationRegistering = 3 - Dataset Recommendation Registering, 4 - CDD_Ingest = 4 - Dataset CDD Ingest, 5 - DatasetOnboarding_test = 5 - Dataset Onboarding test, 6 - DatasetProfiling_test = 6 - Dataset Profiling test, 7 - DatasetPackaging_test = 7 - Dataset Packaging test, 8 - DatasetRecommendationRegistering_test = 8 - Dataset Recommendation Registering test, 9 - CDD_Ingest_test = 9 - Dataset CDD Ingest test)",
+        "description": "  (0 - DatasetOnboarding = 0 - Dataset Onboarding, 1 - DatasetProfiling = 1 - Dataset Profiling, 2 - DatasetLinkingReport = 2 - Dataset Linking Report, 3 - DatasetPackaging = 3 - Dataset Packaging, 4 - DatasetRecommendationRegistering = 4 - Dataset Recommendation Registering, 5 - CDD_Ingest = 5 - Dataset CDD Ingest)",
         "format": "int32",
         "x-enum-varnames": [
           "0 - DatasetOnboarding",
           "1 - DatasetProfiling",
-          "2 - DatasetPackaging",
-          "3 - DatasetRecommendationRegistering",
-          "4 - CDD_Ingest",
-          "5 - DatasetOnboarding_test",
-          "6 - DatasetProfiling_test",
-          "7 - DatasetPackaging_test",
-          "8 - DatasetRecommendationRegistering_test",
-          "9 - CDD_Ingest_test"
+          "2 - DatasetLinkingReport",
+          "3 - DatasetPackaging",
+          "4 - DatasetRecommendationRegistering",
+          "5 - CDD_Ingest"
         ],
         "x-enum-descriptions": [
           "0 - Dataset Onboarding",
           "1 - Dataset Profiling",
-          "2 - Dataset Packaging",
-          "3 - Dataset Recommendation Registering",
-          "4 - Dataset CDD Ingest",
-          "5 - Dataset Onboarding test",
-          "6 - Dataset Profiling test",
-          "7 - Dataset Packaging test",
-          "8 - Dataset Recommendation Registering test",
-          "9 - Dataset CDD Ingest test"
+          "2 - Dataset Linking Report",
+          "3 - Dataset Packaging",
+          "4 - Dataset Recommendation Registering",
+          "5 - Dataset CDD Ingest"
         ]
       },
       "WorkflowDefinitionLookup": {
@@ -9383,6 +10319,20 @@
         },
         "additionalProperties": false
       },
+      "WorkflowLinkingReportStepFinalize": {
+        "type": "object",
+        "properties": {
+          "workflowProcessStep": {
+            "$ref": "#/components/schemas/WorkflowProcessStepPersist"
+          },
+          "datasetId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "WorkflowOnboardingStepFinalize": {
         "type": "object",
         "properties": {
@@ -9450,6 +10400,97 @@
           }
         },
         "additionalProperties": false
+      },
+      "WorkflowProcessConfig": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkflowProcessConfigItem"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "WorkflowProcessConfigItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/WorkflowProcessKind"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkflowProcessConfigItemStep"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "WorkflowProcessConfigItemStep": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/WorkflowDefinitionKind"
+          },
+          "order": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "taskId": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "WorkflowProcessKind": {
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "type": "integer",
+        "description": "  (0 - DatasetOnboarding = 0 - Dataset Onboarding, 1 - DatasetProfiling = 1 - Dataset Profiling, 2 - DatasetLinkingReport = 2 - Dataset Linking Report, 3 - DatasetPackaging = 3 - Dataset Packaging, 4 - DatasetRecommendationRegistering = 4 - Dataset Recommendation Registering, 5 - CDD_Ingest = 5 - Dataset CDD Ingest)",
+        "format": "int32",
+        "x-enum-varnames": [
+          "0 - DatasetOnboarding",
+          "1 - DatasetProfiling",
+          "2 - DatasetLinkingReport",
+          "3 - DatasetPackaging",
+          "4 - DatasetRecommendationRegistering",
+          "5 - CDD_Ingest"
+        ],
+        "x-enum-descriptions": [
+          "0 - Dataset Onboarding",
+          "1 - Dataset Profiling",
+          "2 - Dataset Linking Report",
+          "3 - Dataset Packaging",
+          "4 - Dataset Recommendation Registering",
+          "5 - Dataset CDD Ingest"
+        ]
       },
       "WorkflowProcessLookup": {
         "type": "object",
@@ -9528,20 +10569,23 @@
         "enum": [
           0,
           1,
-          2
+          2,
+          3
         ],
         "type": "integer",
-        "description": "  (0 - InProgress = 0 - InProgress, 1 - Failed = 1 - Failed, 2 - Succeeded = 2 - Succeeded)",
+        "description": "  (0 - InProgress = 0 - InProgress, 1 - Failed = 1 - Failed, 2 - Succeeded = 2 - Succeeded, 3 - Pending = 3 - Pending)",
         "format": "int32",
         "x-enum-varnames": [
           "0 - InProgress",
           "1 - Failed",
-          "2 - Succeeded"
+          "2 - Succeeded",
+          "3 - Pending"
         ],
         "x-enum-descriptions": [
           "0 - InProgress",
           "1 - Failed",
-          "2 - Succeeded"
+          "2 - Succeeded",
+          "3 - Pending"
         ]
       },
       "WorkflowProcessStep": {
