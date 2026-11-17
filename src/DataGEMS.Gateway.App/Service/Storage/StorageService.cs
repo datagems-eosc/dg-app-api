@@ -64,6 +64,7 @@ namespace DataGEMS.Gateway.App.Service.Storage
 		public async Task<String> PersistAsync(StorageFile model, byte[] payload)
 		{
 			String path = this.FilePath(model);
+			this.EnsureParentDirectory(path);
 			await File.WriteAllBytesAsync(path, payload);
 			return path;
 		}
@@ -71,6 +72,7 @@ namespace DataGEMS.Gateway.App.Service.Storage
 		public async Task<String> PersistAsync(StorageFile model, IFormFile formFile)
 		{
 			String path = this.FilePath(model);
+			this.EnsureParentDirectory(path);
 			using FileStream fs = new FileStream(path, FileMode.CreateNew);
 			await formFile.CopyToAsync(fs);
 			return path;
@@ -87,6 +89,7 @@ namespace DataGEMS.Gateway.App.Service.Storage
 			String nameWithExtension = this.AppendExtension(model.Name, model.Extension);
 
 			String path = this.FilePath(model);
+			this.EnsureParentDirectory(path);
 
 			using (FileStream fileStream = new FileStream(path, FileMode.Create))
 			{
@@ -197,7 +200,10 @@ namespace DataGEMS.Gateway.App.Service.Storage
 			StorageTypeConfig storageTypeConfig = this._config.Storages.FirstOrDefault(x => x.Type == model.StorageType);
 			if (storageTypeConfig == null) throw new DGApplicationException($"Storage {model.StorageType} not found");
 
+			// the pattern may contain directory separators (e.g. "{nonce}/{filename}.{extension}") to place the file in a sub folder
 			String filename = storageTypeConfig.NamingConventions.NamePattern
+				.Replace('\\', Path.DirectorySeparatorChar)
+				.Replace('/', Path.DirectorySeparatorChar)
 				.Replace("{filename}", model.Name)
 				.Replace("{nonce}", Guid.NewGuid().ToString("N"))
 				.Replace("{extension}", this.GetExtensionWithoutDot(model.Extension));
@@ -207,6 +213,12 @@ namespace DataGEMS.Gateway.App.Service.Storage
 			path = Path.Combine(path, filename);
 
 			return path;
+		}
+
+		private void EnsureParentDirectory(String filePath)
+		{
+			String directory = Path.GetDirectoryName(filePath);
+			if (!String.IsNullOrEmpty(directory)) Directory.CreateDirectory(directory);
 		}
 
 		private String DirectoryPath(StorageType type, String subDirectory = null)

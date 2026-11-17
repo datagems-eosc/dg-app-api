@@ -14,7 +14,7 @@
 				"BasePath": "%{MyStorageBasePath}%",
 				"SubPath": "dataset_upload",
 				"NamingConventions": {
-					"NamePattern": "{filename}.{nonce}.{extension}"
+					"NamePattern": "{nonce}/{filename}.{extension}"
 				}
 			},
 			{
