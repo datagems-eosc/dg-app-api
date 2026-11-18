@@ -135,7 +135,7 @@ namespace DataGEMS.Gateway.App.Service.Conversation
 			{
 				data = await this._dbContext.Conversations.FindAsync(model.Id.Value);
 				if (data == null) throw new DGNotFoundException(this._localizer["general_notFound", model.Id.Value, nameof(Model.Conversation)]);
-				if (!String.Equals(model.ETag, data.UpdatedAt.ToETag())) throw new DGValidationException(this._errors.ETagConflict.Code, string.Format(this._errors.ETagConflict.Message, data.Id, nameof(Data.Conversation)));
+				if (!String.Equals(model.ETag, data.UpdatedAt.ToETag())) throw new DGValidationException(this._errors.HashConflict.Code, string.Format(this._errors.HashConflict.Message, data.Id, nameof(Data.Conversation)));
 			}
 			else
 			{
@@ -172,7 +172,7 @@ namespace DataGEMS.Gateway.App.Service.Conversation
 
 			Data.Conversation data = await this._dbContext.Conversations.FindAsync(model.Id.Value);
 			if (data == null) throw new DGNotFoundException(this._localizer["general_notFound", model.Id.Value, nameof(Model.Conversation)]);
-			if (!String.Equals(model.ETag, data.UpdatedAt.ToETag())) throw new DGValidationException(this._errors.ETagConflict.Code, string.Format(this._errors.ETagConflict.Message, data.Id, nameof(Data.Conversation)));
+			if (!String.Equals(model.ETag, data.UpdatedAt.ToETag())) throw new DGValidationException(this._errors.HashConflict.Code, string.Format(this._errors.HashConflict.Message, data.Id, nameof(Data.Conversation)));
 
 			await this.AuthorizeEditForce(model.Id);
 

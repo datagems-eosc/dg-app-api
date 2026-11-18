@@ -120,7 +120,7 @@ namespace DataGEMS.Gateway.App.Service.Conversation
 				{
 					data = datas.FirstOrDefault(x => x.Id == model.Id.Value);
 					if (data == null) throw new DGNotFoundException(this._localizer["general_notFound", model.Id.Value, nameof(Model.ConversationDataset)]);
-					if (!String.Equals(model.ETag, data.UpdatedAt.ToETag())) throw new DGValidationException(this._errors.ETagConflict.Code, string.Format(this._errors.ETagConflict.Message, data.Id, nameof(Data.ConversationDataset)));
+					if (!String.Equals(model.ETag, data.UpdatedAt.ToETag())) throw new DGValidationException(this._errors.HashConflict.Code, string.Format(this._errors.HashConflict.Message, data.Id, nameof(Data.ConversationDataset)));
 					if (!Guid.Equals(data.ConversationId, model.ConversationId.Value)) throw new DGValidationException(this._errors.ImmutableItem.Code, this._errors.ImmutableItem.Message);
 				}
 				else
