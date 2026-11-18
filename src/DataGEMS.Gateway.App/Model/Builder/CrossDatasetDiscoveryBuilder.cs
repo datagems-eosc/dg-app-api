@@ -9,7 +9,7 @@ using DataGEMS.Gateway.App.Query;
 
 namespace DataGEMS.Gateway.App.Model.Builder
 {
-    public class CrossDatasetDiscoveryBuilder : Builder<CrossDatasetDiscovery, Service.Discovery.Model.CrossDatasetDiscoveryResult>
+	public class CrossDatasetDiscoveryBuilder : Builder<CrossDatasetDiscovery, Service.Discovery.Model.CrossDatasetDiscoveryResult>
 	{
 		private readonly QueryFactory _queryFactory;
 		private readonly BuilderFactory _builderFactory;
@@ -33,15 +33,23 @@ namespace DataGEMS.Gateway.App.Model.Builder
 			if (fields == null || fields.IsEmpty()) return Enumerable.Empty<CrossDatasetDiscovery>().ToList();
 
 			IFieldSet datasetFields = fields.ExtractPrefixed(this.AsPrefix(nameof(CrossDatasetDiscovery.Dataset)));
-			Dictionary<Guid, Dataset> datasetMap = await this.CollectDatasets(datasetFields, datas);
+			List<Service.DataManagement.Model.Dataset> accessibleDatasets = await this.CollectAccessibleDatasets(datasetFields, datas);
+			HashSet<Guid> accessibleDatasetIds = accessibleDatasets.Select(x => x.Id).ToHashSet();
+			List<Service.Discovery.Model.CrossDatasetDiscoveryResult> accessibleDatas = (datas ?? []).Where(x => accessibleDatasetIds.Contains(x.DatasetId)).ToList();
+			int droppedCount = (datas?.Count() ?? 0) - accessibleDatas.Count;
+			if (droppedCount > 0) this._logger.Debug(new MapLogEntry("dropping results of datasets that could not be loaded").And("droppedCount", droppedCount));
+
+			Dictionary<Guid, Dataset> datasetMap = await this.CollectDatasets(datasetFields, accessibleDatasets);
 
 			IFieldSet hitsFields = fields.ExtractPrefixed(this.AsPrefix(nameof(CrossDatasetDiscovery.Hits)));
 
-			Dictionary<Guid, OrderableResult> byDataset = this.GroupResultsByDataset(datas);
+			Dictionary<Guid, OrderableResult> byDataset = this.GroupResultsByDataset(accessibleDatas);
 
 			List<CrossDatasetDiscovery> models = new List<CrossDatasetDiscovery>();
 			foreach (KeyValuePair<Guid, OrderableResult> dpair in byDataset.OrderBy(x=> x.Value.ResultOrdinal))
 			{
+				if (!datasetFields.IsEmpty() && (datasetMap == null || !datasetMap.ContainsKey(dpair.Key) || datasetMap[dpair.Key] == null)) continue;
+
 				CrossDatasetDiscovery m = new CrossDatasetDiscovery();
 
 				if (!datasetFields.IsEmpty() && datasetMap != null && datasetMap.ContainsKey(dpair.Key)) m.Dataset = datasetMap[dpair.Key];
@@ -88,17 +96,25 @@ namespace DataGEMS.Gateway.App.Model.Builder
 			public int ResultOrdinal { get; set; }
 		}
 
-		private async Task<Dictionary<Guid, Dataset>> CollectDatasets(IFieldSet fields, IEnumerable<Service.Discovery.Model.CrossDatasetDiscoveryResult> datas)
+		private async Task<List<Service.DataManagement.Model.Dataset>> CollectAccessibleDatasets(IFieldSet datasetFields, IEnumerable<Service.Discovery.Model.CrossDatasetDiscoveryResult> datas)
 		{
-			if (fields.IsEmpty() || !datas.Any()) return null;
-			this._logger.Debug(new MapLogEntry("building related").And("type", nameof(App.Model.Dataset)).And("fields", fields).And("dataCount", datas?.Count()));
+			List<Guid> datasetIds = (datas ?? []).Select(x => x.DatasetId).Distinct().ToList();
+			if (datasetIds.Count == 0) return [];
+
+			IFieldSet projection = datasetFields.HasOtherField(this.AsIndexer(nameof(Dataset.Id))) ? null : new FieldSet(nameof(Dataset.Id));
+			return (await this._queryFactory.Query<DatasetHttpQuery>().Ids(datasetIds).CollectAsync(projection))?.Items ?? [];
+		}
+
+		private async Task<Dictionary<Guid, Dataset>> CollectDatasets(IFieldSet fields, List<Service.DataManagement.Model.Dataset> models)
+		{
+			if (fields.IsEmpty() || models.Count == 0) return null;
+			this._logger.Debug(new MapLogEntry("building related").And("type", nameof(App.Model.Dataset)).And("fields", fields).And("dataCount", models.Count));
 
 			Dictionary<Guid, Dataset> itemMap = null;
-			if (!fields.HasOtherField(this.AsIndexer(nameof(Dataset.Id)))) itemMap = this.AsEmpty(datas.Select(x => x.DatasetId).Distinct(), x => new Dataset() { Id = x }, x => x.Id.Value);
+			if (!fields.HasOtherField(this.AsIndexer(nameof(Dataset.Id)))) itemMap = this.AsEmpty(models.Select(x => x.Id).Distinct(), x => new Dataset() { Id = x }, x => x.Id.Value);
 			else
 			{
 				IFieldSet clone = new FieldSet(fields.Fields).Ensure(nameof(Dataset.Id));
-				List<Service.DataManagement.Model.Dataset> models = (await this._queryFactory.Query<DatasetHttpQuery>().Ids(datas.Select(x => x.DatasetId).Distinct()).CollectAsync())?.Items ?? [];
 				itemMap = await this._builderFactory.Builder<DatasetBuilder>().Authorize(this._authorize).AsForeignKey(models, clone, x => x.Id.Value);
 			}
 			if (!fields.HasField(nameof(Dataset.Id))) itemMap.Values.Where(x => x != null).ToList().ForEach(x => x.Id = null);
