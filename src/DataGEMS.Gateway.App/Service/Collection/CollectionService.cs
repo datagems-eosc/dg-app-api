@@ -70,7 +70,7 @@ namespace DataGEMS.Gateway.App.Service.Collection
 			await AuthorizeForce(collectionId, Permission.EditCollection);
 		}
 
-		private async Task AuthorizDeleteForce(Guid collectionId)
+		private async Task AuthorizeDeleteForce(Guid collectionId)
 		{
 			await AuthorizeForce(collectionId, Permission.DeleteCollection);
 		}
@@ -250,7 +250,7 @@ namespace DataGEMS.Gateway.App.Service.Collection
 
 		public async Task DeleteAsync(Guid id)
 		{
-			await AuthorizDeleteForce(id);
+			await AuthorizeDeleteForce(id);
 
 			await this._deleterFactory.Deleter<Deleter.CollectionDeleter>().DeleteAndSave([id]);
 
