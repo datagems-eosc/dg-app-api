@@ -34,12 +34,12 @@ namespace DataGEMS.Gateway.App.Censor
 			this._claimExtractor = claimExtractor;
 		}
 
-		public async Task<IFieldSet> Censor(IFieldSet fields, CensorContext context)
+		public Task<IFieldSet> Censor(IFieldSet fields, CensorContext context)
 		{
 			this._logger.Debug(new MapLogEntry("censoring").And("type", nameof(Model.UserGroup)).And("fields", fields).And("context", context));
-			if (fields == null || fields.IsEmpty()) return null;
+			if (fields == null || fields.IsEmpty()) return Task.FromResult<IFieldSet>(null);
 
-			return fields;
+			return Task.FromResult(fields);
 		}
 	}
 }

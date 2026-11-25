@@ -148,11 +148,10 @@ namespace DataGEMS.Gateway.Api.Controllers
 			UserGroupHttpQuery query = lookup.Enrich(this._queryFactory).Authorize(AuthorizationFlags.Any);
 			List<App.Service.AAI.Model.Group> datas = await query.CollectAsync();
 			List<App.Model.UserGroup> models = await this._builderFactory.Builder<UserGroupBuilder>().Authorize(AuthorizationFlags.Any).Build(censoredFields, datas);
-			int count = censoredFields != null && !censoredFields.IsEmpty() ? models.Count : datas.Count; //catches edge case in which the user only wants to get the count without providing any fields
 
 			this._accountingService.AccountFor(KnownActions.Query, KnownResources.UserGroup.AsAccountable());
 
-			return new QueryResult<App.Model.UserGroup>(models, count);
+			return new QueryResult<App.Model.UserGroup>(models, datas.Count);
 		}
 	}
 }
