@@ -1,5 +1,4 @@
-﻿using Cite.Tools.Common.Extensions;
-using Cite.Tools.Data.Builder;
+﻿using Cite.Tools.Data.Builder;
 using Cite.Tools.Data.Deleter;
 using Cite.Tools.Data.Query;
 using Cite.Tools.FieldSet;
@@ -11,7 +10,6 @@ using DataGEMS.Gateway.App.Common;
 using DataGEMS.Gateway.App.ErrorCode;
 using DataGEMS.Gateway.App.Event;
 using DataGEMS.Gateway.App.Exception;
-using DataGEMS.Gateway.App.Model;
 using DataGEMS.Gateway.App.Query;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
@@ -77,8 +75,7 @@ namespace DataGEMS.Gateway.App.Service.UserFavorite
 		{
 			this._logger.Debug(new MapLogEntry("persisting").And("type", nameof(App.Model.UserFavoritePersist)).And("model", model).And("fields", fields));
 
-			Guid? userId = await this._authorizationContentResolver.CurrentUserId();
-			if (!userId.HasValue) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
+			await this.AuthorizeForce(null);
 
 			if (model == null || !model.DatasetId.HasValue)
 				throw new DGNotFoundException(this._localizer["general_notFound", Guid.Empty, nameof(Model.Dataset)]);
@@ -91,16 +88,18 @@ namespace DataGEMS.Gateway.App.Service.UserFavorite
 			if (queryResult?.Items == null || queryResult.Items.Count == 0)
 				throw new DGNotFoundException(this._localizer["general_notFound", model.DatasetId.Value, nameof(Model.Dataset)]);
 
-			Data.UserFavorite data = await this.PatchAndSave(model, userId.Value);
+			Data.UserFavorite data = await this.PatchAndSave(model);
 			Model.UserFavorite persisted = await this._builderFactory.Builder<Model.Builder.UserFavoriteBuilder>().Build(FieldSet.Build(fields, nameof(Model.UserFavorite.Id)), data);
 			return persisted;
 		}
 
-		private async Task<Data.UserFavorite> PatchAndSave(Model.UserFavoritePersist model, Guid userId)
+		private async Task<Data.UserFavorite> PatchAndSave(Model.UserFavoritePersist model)
 		{
 			Data.UserFavorite data = null;
+			Guid? userId = await this._authorizationContentResolver.CurrentUserId();
+			if (!userId.HasValue) throw new DGForbiddenException(this._errors.Forbidden.Code, this._errors.Forbidden.Message);
 
-			var existingData = await this._dbContext.UserFavorites.FirstOrDefaultAsync(x => x.DatasetId == model.DatasetId.Value && x.IsActive == IsActive.Active && x.UserId == userId);
+			var existingData = this._dbContext.UserFavorites.FirstOrDefault(x => x.DatasetId == model.DatasetId.Value && x.IsActive == IsActive.Active && x.UserId == userId.Value); 
 			if (existingData != null) return existingData;
 
 			data = new Data.UserFavorite
@@ -108,7 +107,7 @@ namespace DataGEMS.Gateway.App.Service.UserFavorite
 				Id = Guid.NewGuid(),
 				DatasetId = model.DatasetId.Value,
 				IsActive = IsActive.Active,
-				UserId = userId,
+				UserId = userId.Value,
 				CreatedAt = DateTime.UtcNow,
 				UpdatedAt = DateTime.UtcNow,
 			};
