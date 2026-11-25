@@ -82,7 +82,6 @@ namespace DataGEMS.Gateway.App.Service.UserFavorite
 
 			QueryResult queryResult = await this._queryFactory.Query<DatasetHttpQuery>()
 				.Ids(model.DatasetId.Value)
-				.Permissions(Permission.BrowseDataset)
 				.CollectAsync();
 
 			if (queryResult?.Items == null || queryResult.Items.Count == 0)
