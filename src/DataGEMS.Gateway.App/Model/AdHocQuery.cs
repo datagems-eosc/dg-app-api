@@ -12,6 +12,7 @@ namespace DataGEMS.Gateway.App.Model
 		public Guid? Id { get; set; }
 		public User User { get; set; }
 		public IsActive? IsActive { get; set; }
+		public string IsActiveName { get; set; }
 		public DateTime? CreatedAt { get; set; }
 		public DateTime? UpdatedAt { get; set; }
 

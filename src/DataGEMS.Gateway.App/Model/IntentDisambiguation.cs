@@ -6,6 +6,7 @@ namespace DataGEMS.Gateway.App.Model
 	{
 		public static string ModelVersion = "V1";
 		public IntentDisambiguationIntentType? Intent { get; set; }
+		public string IntentName { get; set; }
 		public decimal? Confidence { get; set; }
 		public string SearchQuery { get; set; }
 		public bool? Degraded { get; set; }

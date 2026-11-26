@@ -3,6 +3,7 @@ using Cite.Tools.Json.Inflater;
 using System.ComponentModel;
 using Newtonsoft.Json;
 
+
 namespace DataGEMS.Gateway.App.Model
 {
 	public class InDataExplore
@@ -15,6 +16,7 @@ namespace DataGEMS.Gateway.App.Model
 		public Dictionary<String, Object> Data { get; set; }
 
 		public ResponseStatus Status { get; set; }
+		public String StatusName { get; set; }
 
 		public List<InDataExploreEntry> Entries { get; set; }
 
@@ -33,6 +35,7 @@ namespace DataGEMS.Gateway.App.Model
 		public InDataExploreResultEntry Result { get; set; }
 
 		public EntryStatus Status { get; set; }
+		public String StatusName { get; set; }
 
 		public enum EntryStatus : short
 		{
@@ -58,6 +61,7 @@ namespace DataGEMS.Gateway.App.Model
 		}
 
 		public abstract InDataExploreProcessKind Kind { get; }
+		public String KindName => Kind.ToString(); //No builder maps Kind
 	}
 
 	public class InDataExploreProcessNoneEntry : InDataExploreProcessEntry
@@ -94,6 +98,7 @@ namespace DataGEMS.Gateway.App.Model
 		}
 
 		public abstract InDataExploreResultKind Kind { get; }
+		public String KindName => Kind.ToString(); //No builder maps Kind
 		public String Message { get; set; }
 	}
 

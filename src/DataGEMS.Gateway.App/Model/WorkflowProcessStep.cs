@@ -14,6 +14,7 @@ namespace DataGEMS.Gateway.App.Model
 		public Guid? StepId { get; set; }
 		public string WorkflowTaskInstanceDetails { get; set; }
 		public WorkflowProcessStatus? Status { get; set; }
+		public string StatusName { get; set; }
 		public DateTime? CreatedAt { get; set; }
 		public DateTime? UpdatedAt { get; set; }
 	}

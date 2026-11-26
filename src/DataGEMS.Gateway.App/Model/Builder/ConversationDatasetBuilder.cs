@@ -48,7 +48,11 @@ namespace DataGEMS.Gateway.App.Model.Builder
 				ConversationDataset m = new ConversationDataset();
 				if (fields.HasField(nameof(ConversationDataset.ETag))) m.ETag = d.UpdatedAt.ToETag();
 				if (fields.HasField(nameof(ConversationDataset.Id))) m.Id = d.Id;
-				if (fields.HasField(nameof(ConversationDataset.IsActive))) m.IsActive = d.IsActive;
+				if (fields.HasField(nameof(ConversationDataset.IsActive)))
+				{
+					m.IsActive = d.IsActive;
+					m.IsActiveName = d.IsActive.ToString();
+				}
 				if (fields.HasField(nameof(ConversationDataset.CreatedAt))) m.CreatedAt = d.CreatedAt;
 				if (fields.HasField(nameof(ConversationDataset.UpdatedAt))) m.UpdatedAt = d.UpdatedAt;
 				if (!conversationFields.IsEmpty() && conversationMap != null && conversationMap.ContainsKey(d.ConversationId)) m.Conversation = conversationMap[d.ConversationId];

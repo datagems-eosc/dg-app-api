@@ -15,8 +15,10 @@ namespace DataGEMS.Gateway.App.Model
 		public DateTime? RunAfter { get; set; }
 		public DateTime? LastSchedulingDecision { get; set; }
 		public WorkflowRunType? RunType { get; set; }
+		public String RunTypeName { get; set; }
 		public String TriggeredBy { get; set; }
 		public WorkflowRunState? State { get; set; }
+		public String StateName { get; set; }
 		public String Note { get;set; }
 		public String BundleVersion { get; set; }
 		public WorkflowDefinition Workflow { get; set; }

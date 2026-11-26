@@ -62,9 +62,17 @@ namespace DataGEMS.Gateway.App.Model.Builder
 				if (fields.HasField(nameof(WorkflowExecution.DataIntervalEnd))) m.DataIntervalEnd = d.IntervalEnd;
 				if (fields.HasField(nameof(WorkflowExecution.RunAfter))) m.RunAfter = d.RunAfter;
 				if (fields.HasField(nameof(WorkflowExecution.LastSchedulingDecision))) m.LastSchedulingDecision = d.LastSchedulingDecision;
-				if (fields.HasField(nameof(WorkflowExecution.RunType)) && Enum.TryParse<Common.WorkflowRunType>(d.RunType, true, out Common.WorkflowRunType runType)) m.RunType = runType;
+				if (fields.HasField(nameof(WorkflowExecution.RunType)) && Enum.TryParse<Common.WorkflowRunType>(d.RunType, true, out Common.WorkflowRunType runType))
+				{
+					m.RunType = runType;
+					m.RunTypeName = runType.ToString();
+				}
 				if (fields.HasField(nameof(WorkflowExecution.TriggeredBy))) m.TriggeredBy = d.TriggeredBy;
-				if (fields.HasField(nameof(WorkflowExecution.State)) && Enum.TryParse<Common.WorkflowRunState>(d.State, true, out Common.WorkflowRunState runState)) m.State = runState;
+				if (fields.HasField(nameof(WorkflowExecution.State)) && Enum.TryParse<Common.WorkflowRunState>(d.State, true, out Common.WorkflowRunState runState))
+				{
+					m.State = runState;
+					m.StateName = m.State.ToString();
+				}
 				if (fields.HasField(nameof(WorkflowExecution.Note))) m.Note = d.Note;
 				if (fields.HasField(nameof(WorkflowExecution.BundleVersion))) m.BundleVersion = d.BundleVersion;
 				if (!workflowTaskInstanceFields.IsEmpty() && workflowTaskInstanceMap != null && workflowTaskInstanceMap.ContainsKey(d.RunId)) m.TaskInstances = workflowTaskInstanceMap[d.RunId];

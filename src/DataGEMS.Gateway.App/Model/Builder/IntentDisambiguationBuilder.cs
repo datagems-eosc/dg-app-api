@@ -31,7 +31,11 @@ namespace DataGEMS.Gateway.App.Model.Builder
 			foreach (Service.IntentDisambiguation.Model.IntentDisambiguationResponse d in datas ?? [])
 			{
 				IntentDisambiguation m = new IntentDisambiguation();
-				if (fields.HasField(nameof(IntentDisambiguation.Intent))) m.Intent = d.Intent;
+				if (fields.HasField(nameof(IntentDisambiguation.Intent)))
+				{
+					m.Intent = d.Intent;
+					m.IntentName = d.Intent.ToString();
+				}
 				if (fields.HasField(nameof(IntentDisambiguation.Confidence))) m.Confidence = d.Confidence;
 				if (fields.HasField(nameof(IntentDisambiguation.SearchQuery))) m.SearchQuery = d.SearchQuery;
 				if (fields.HasField(nameof(IntentDisambiguation.Degraded))) m.Degraded = d.Degraded;

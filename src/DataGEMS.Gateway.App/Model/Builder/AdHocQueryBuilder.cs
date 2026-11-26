@@ -44,7 +44,10 @@ namespace DataGEMS.Gateway.App.Model.Builder
 				AdHocQuery m = new AdHocQuery();
 				if (fields.HasField(nameof(AdHocQuery.Id))) m.Id = d.Id;
 				if(fields.HasField(nameof(AdHocQuery.AnalyticalPattern))) m.AnalyticalPattern = d.AnalyticalPattern;
-				if (fields.HasField(nameof(AdHocQuery.IsActive))) m.IsActive = d.IsActive;
+				if (fields.HasField(nameof(AdHocQuery.IsActive))) { 
+					m.IsActive = d.IsActive;
+					m.IsActiveName = d.IsActive.ToString();
+				}
 				if (fields.HasField(nameof(AdHocQuery.CreatedAt))) m.CreatedAt = d.CreatedAt;
 				if (fields.HasField(nameof(AdHocQuery.UpdatedAt))) m.UpdatedAt = d.UpdatedAt;
 				if (!userFields.IsEmpty() && userMap != null && userMap.ContainsKey(d.UserId)) m.User = userMap[d.UserId];

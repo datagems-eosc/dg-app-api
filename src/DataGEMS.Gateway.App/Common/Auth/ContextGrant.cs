@@ -7,7 +7,9 @@ namespace DataGEMS.Gateway.App.Common.Auth
 	{
 		public String PrincipalId { get; set; }
 		public PrincipalKind PrincipalType { get; set; }
+		public string PrincipalTypeName => PrincipalType.ToString();
 		public TargetKind TargetType { get; set; }
+		public string TargetTypeName => TargetType.ToString();
 		public Guid TargetId { get; set; }
 		public String Role { get; set; }
 

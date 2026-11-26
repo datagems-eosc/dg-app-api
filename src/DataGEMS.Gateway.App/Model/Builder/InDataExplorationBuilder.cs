@@ -38,8 +38,18 @@ namespace DataGEMS.Gateway.App.Model.Builder
 
 				if (fields.HasField(nameof(InDataExplore.Question))) m.Question = d.Question;
 				if (fields.HasField(nameof(InDataExplore.Data))) m.Data = new Dictionary<string, object>() { { nameof(d.InputParams), d.InputParams } };
-				if (fields.HasField(nameof(InDataExplore.Status))) m.Status = this.ToResponseStatus(d);
-				if (fields.HasField(nameof(InDataExplore.Entries))) m.Entries = new List<InDataExploreEntry>() { new InDataExploreEntry() { Status = this.ToEntryStatus(d), Process = this.BuildProcessEntry(d), Result = this.BuildResultEntry(d) } };
+				if (fields.HasField(nameof(InDataExplore.Status)))
+				{
+					m.Status = this.ToResponseStatus(d);
+					m.StatusName = m.Status.ToString();
+				}
+				var entryStatus = this.ToEntryStatus(d);
+				if (fields.HasField(nameof(InDataExplore.Entries))) m.Entries = new List<InDataExploreEntry>() { new InDataExploreEntry() { 
+					Status = entryStatus, 
+					StatusName = entryStatus.ToString(),
+					Process = this.BuildProcessEntry(d), 
+					Result = this.BuildResultEntry(d) } 
+				};
 
 				models.Add(m);
 			}

@@ -10,6 +10,7 @@ namespace DataGEMS.Gateway.App.Model
 		public Dataset Dataset { get; set; }
 		public List<WorkflowProcessStep> Steps { get; set; }
 		public WorkflowProcessStatus? Status { get; set; }
+		public String StatusName { get; set; }
 		public DateTime? CreatedAt { get; set; }
 		public DateTime? UpdatedAt { get; set; }
 	}

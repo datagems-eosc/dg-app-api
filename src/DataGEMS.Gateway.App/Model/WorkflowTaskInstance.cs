@@ -16,6 +16,7 @@ namespace DataGEMS.Gateway.App.Model
 		public DateTime? End { get; set; }
 		public Decimal? Duration { get; set; }
 		public WorkflowTaskInstanceState? State { get; set; }
+		public String StateName { get; set; }
 		public int? TryNumber { get; set; }
 		public int? MaxTries { get; set; }
 		public String TaskDisplayName { get; set; }

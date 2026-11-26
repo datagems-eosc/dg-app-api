@@ -82,6 +82,7 @@ namespace DataGEMS.Gateway.App.Model
 			public Guid? Id { get; set; }
 			[Description("The kind of the distribution")]
 			public DistributionKind? Kind { get; set; }
+			public String KindName { get; set; }
 			[Description("The raw labels of the profile node (e.g. ['Data', 'cr:FileObject', 'Sheet'] or ['Table', 'Data', 'cr:FileObject'])")]
 			public List<String> Labels { get; set; }
 			[Description("The type of the profile node (e.g. 'cr:FileObject')")]

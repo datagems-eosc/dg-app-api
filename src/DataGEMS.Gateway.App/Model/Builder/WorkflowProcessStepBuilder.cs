@@ -44,7 +44,11 @@ namespace DataGEMS.Gateway.App.Model.Builder
 				WorkflowProcessStep m = new WorkflowProcessStep();
 				if (fields.HasField(nameof(WorkflowProcessStep.Id))) m.Id = d.Id;
 				if (fields.HasField(nameof(WorkflowProcessStep.StepId))) m.StepId = d.StepId;
-				if (fields.HasField(nameof(WorkflowProcessStep.Status))) m.Status = d.Status;
+				if (fields.HasField(nameof(WorkflowProcessStep.Status)))
+				{
+					m.Status = d.Status;
+					m.StatusName = d.Status.ToString();
+				}
 				if (fields.HasField(nameof(WorkflowProcessStep.WorkflowTaskInstanceDetails))) m.WorkflowTaskInstanceDetails = d.WorkflowTaskInstanceDetails;
 				if (fields.HasField(nameof(WorkflowProcessStep.CreatedAt))) m.CreatedAt = d.CreatedAt;
 				if (fields.HasField(nameof(WorkflowProcessStep.UpdatedAt))) m.UpdatedAt = d.UpdatedAt;

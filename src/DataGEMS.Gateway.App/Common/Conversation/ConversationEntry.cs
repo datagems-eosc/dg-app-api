@@ -23,6 +23,7 @@ namespace DataGEMS.Gateway.App.Common.Conversation
 	public abstract class ConversationEntry
 	{
 		public abstract ConversationMessageKind Kind { get; }
+		public String KindName => Kind.ToString(); //No builder maps Kind
 		public String Version { get; set; }
 		[JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
 		public String TrackAs { get; set; }

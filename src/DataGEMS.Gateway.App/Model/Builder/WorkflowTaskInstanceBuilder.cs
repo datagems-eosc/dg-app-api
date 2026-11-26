@@ -65,7 +65,11 @@ namespace DataGEMS.Gateway.App.Model.Builder
 				if (fields.HasField(nameof(WorkflowTaskInstance.Start))) m.Start = d.Start;
 				if (fields.HasField(nameof(WorkflowTaskInstance.End))) m.End = d.End;
 				if (fields.HasField(nameof(WorkflowTaskInstance.Duration))) m.Duration = d.Duration;
-				if (fields.HasField(nameof(WorkflowTaskInstance.State)) && Enum.TryParse<Common.WorkflowTaskInstanceState>(d.State, true, out Common.WorkflowTaskInstanceState state)) m.State = state;
+				if (fields.HasField(nameof(WorkflowTaskInstance.State)) && Enum.TryParse<Common.WorkflowTaskInstanceState>(d.State, true, out Common.WorkflowTaskInstanceState state))
+				{
+					m.State = state;
+					m.StateName = state.ToString();
+				}
 				if (fields.HasField(nameof(WorkflowTaskInstance.TryNumber))) m.TryNumber = d.TryNumber;
 				if (fields.HasField(nameof(WorkflowTaskInstance.MaxTries))) m.MaxTries = d.MaxTries;
 				if (fields.HasField(nameof(WorkflowTaskInstance.TaskDisplayName))) m.TaskDisplayName = d.TaskDisplayName;

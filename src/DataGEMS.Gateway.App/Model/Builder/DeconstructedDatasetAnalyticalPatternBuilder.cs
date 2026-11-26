@@ -77,7 +77,11 @@ namespace DataGEMS.Gateway.App.Model.Builder
 			{
 				M.Distribution m = new M.Distribution();
 				if (fields.HasField(nameof(M.Distribution.Id))) m.Id = node.Id;
-				if (fields.HasField(nameof(M.Distribution.Kind))) m.Kind = this.DistributionKindOf(node);
+				if (fields.HasField(nameof(M.Distribution.Kind)))
+				{
+					m.Kind = this.DistributionKindOf(node);
+					m.KindName = m.Kind.ToString();
+				}
 				if (fields.HasField(nameof(M.Distribution.Labels))) m.Labels = node.Labels?.ToList();
 				if (fields.HasField(nameof(M.Distribution.Type))) m.Type = node.PropertyAsString("type");
 				if (fields.HasField(nameof(M.Distribution.Name))) m.Name = node.PropertyAsString("name");

@@ -16,6 +16,7 @@ namespace DataGEMS.Gateway.App.Model
 		public List<ConversationDataset> Datasets { get; set; }
 		public List<ConversationMessage> Messages { get; set; }
 		public IsActive? IsActive { get; set; }
+		public String IsActiveName { get; set; }
 		public DateTime? CreatedAt { get; set; }
 		public DateTime? UpdatedAt { get; set; }
 		public String ETag { get; set; }

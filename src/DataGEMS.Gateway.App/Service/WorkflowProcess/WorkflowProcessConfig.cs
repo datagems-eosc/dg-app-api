@@ -10,6 +10,7 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 		{
 			public Guid Id { get; set; }
 			public WorkflowProcessKind Kind { get; set; }
+			public string KindName => Kind.ToString(); //No builder maps Kind
 			public string Name { get; set; }
 			public string Description { get; set; }
 			public List<WorkflowProcessConfigItemStep> Steps { get; set; }
@@ -18,6 +19,7 @@ namespace DataGEMS.Gateway.App.Service.WorkflowProcess
 			{
 				public Guid Id { get; set; }
 				public WorkflowDefinitionKind Kind { get; set; }
+				public string KindName => Kind.ToString(); //No builder maps Kind
 				public int Order { get; set; }
 				public string TaskId { get; set; }
 			}
