@@ -6,10 +6,10 @@ namespace DataGEMS.Gateway.App.Model
 	/// Typed, hierarchical view of a dataset Analytical Pattern (profile graph).
 	/// Dataset -> Distributions (files / sheets / tables / database connections)
 	/// Dataset -> RecordSets -> Fields
-	///                       -> DataQuality -> Errors
-	/// Column statistics nodes of the AP are intentionally ignored.
+	/// Every node carries the raw labels of its profile node, so consumers can tell node kinds apart.
+	/// Column statistics and data quality nodes of the AP are intentionally ignored.
 	/// </summary>
-	[Description("The properties of a dataset, deconstructed from its profile (Analytical Pattern graph) into a typed hierarchy: the dataset metadata, its distributions (files, sheets, tables, database connections) and its record sets with their fields and data quality findings. Column statistics present in the profile are not exposed.")]
+	[Description("The properties of a dataset, deconstructed from its profile (Analytical Pattern graph) into a typed hierarchy: the dataset metadata, its distributions (files, sheets, tables, database connections) and its record sets with their fields. Every item carries the labels of the profile node it was taken from, so that the kind of each node can be told apart. Column statistics and data quality findings present in the profile are not exposed.")]
 	public class DeconstructedDatasetAnalyticalPattern
 	{
 		[Description("The dataset metadata, taken from the 'sc:Dataset' node of the profile")]
@@ -24,6 +24,8 @@ namespace DataGEMS.Gateway.App.Model
 		{
 			[Description("The id of the dataset")]
 			public Guid? Id { get; set; }
+			[Description("The raw labels of the profile node, identifying the kind of node (e.g. ['sc:Dataset'])")]
+			public List<String> Labels { get; set; }
 			[Description("The name of the dataset")]
 			public String Name { get; set; }
 			[Description("The full description of the dataset")]
@@ -82,7 +84,7 @@ namespace DataGEMS.Gateway.App.Model
 			public Guid? Id { get; set; }
 			[Description("The kind of the distribution")]
 			public DistributionKind? Kind { get; set; }
-			[Description("The raw labels of the profile node (e.g. ['Data', 'cr:FileObject', 'Sheet'] or ['Table', 'Data', 'cr:FileObject'])")]
+			[Description("The raw labels of the profile node, identifying the kind of node (e.g. ['Data', 'cr:FileObject', 'Sheet'], ['Table', 'Data', 'cr:FileObject'] or ['RelationalDatabase', 'Data', 'dg:DatabaseConnection'])")]
 			public List<String> Labels { get; set; }
 			[Description("The type of the profile node (e.g. 'cr:FileObject')")]
 			public String Type { get; set; }
@@ -109,14 +111,14 @@ namespace DataGEMS.Gateway.App.Model
 		{
 			[Description("The id of the record set node in the profile")]
 			public Guid? Id { get; set; }
+			[Description("The raw labels of the profile node, identifying the kind of node (e.g. ['cr:RecordSet'])")]
+			public List<String> Labels { get; set; }
 			[Description("The name of the record set")]
 			public String Name { get; set; }
 			[Description("Example values per column, keyed by column name")]
 			public Dictionary<String, List<Object>> Examples { get; set; }
 			[Description("The fields (columns) of the record set, in profile order")]
 			public List<Field> Fields { get; set; }
-			[Description("The data quality assessments of the record set")]
-			public List<DataQuality> DataQuality { get; set; }
 		}
 
 		[Description("A field (column) of a record set")]
@@ -124,6 +126,8 @@ namespace DataGEMS.Gateway.App.Model
 		{
 			[Description("The id of the field node in the profile")]
 			public Guid? Id { get; set; }
+			[Description("The raw labels of the profile node, identifying the kind of node (e.g. ['Column', 'cr:Field'])")]
+			public List<String> Labels { get; set; }
 			[Description("The name of the field")]
 			public String Name { get; set; }
 			[Description("The name of the source column")]
@@ -138,43 +142,6 @@ namespace DataGEMS.Gateway.App.Model
 			public List<Object> Sample { get; set; }
 			[Description("The ids of the distributions the field is sourced from")]
 			public List<Guid> Sources { get; set; }
-		}
-
-		[Description("A data quality assessment of a record set")]
-		public class DataQuality
-		{
-			[Description("The id of the data quality node in the profile")]
-			public Guid? Id { get; set; }
-			[Description("A human readable summary of the detected data quality issues")]
-			public String Summary { get; set; }
-			[Description("The individual data quality issues detected")]
-			public List<DataQualityError> Errors { get; set; }
-		}
-
-		[Description("An individual data quality issue detected in a column")]
-		public class DataQualityError
-		{
-			[Description("The id of the data quality error node in the profile")]
-			public Guid? Id { get; set; }
-			[Description("The category of the issue (e.g. 'value_error', 'format_inconsistency', 'consistency_error')")]
-			public String ErrorType { get; set; }
-			[Description("The name of the affected column")]
-			public String Column { get; set; }
-			[Description("A human readable description of the issue")]
-			public String Description { get; set; }
-			[Description("The total number of rows affected by the issue")]
-			public long? TotalAffectedRows { get; set; }
-			[Description("Example offending values along with the row they appear in")]
-			public List<DataQualityErrorExample> Examples { get; set; }
-		}
-
-		[Description("An example occurrence of a data quality issue")]
-		public class DataQualityErrorExample
-		{
-			[Description("The offending value")]
-			public String Value { get; set; }
-			[Description("The row the value appears in")]
-			public long? Row { get; set; }
 		}
 	}
 }

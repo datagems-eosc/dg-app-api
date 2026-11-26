@@ -44,6 +44,7 @@ namespace DataGEMS.Gateway.App.Model.Builder
 		{
 			M.DatasetInfo m = new M.DatasetInfo();
 			if (fields.HasField(nameof(M.DatasetInfo.Id))) m.Id = node.Id;
+			if (fields.HasField(nameof(M.DatasetInfo.Labels))) m.Labels = node.Labels?.ToList();
 			if (fields.HasField(nameof(M.DatasetInfo.Name))) m.Name = node.PropertyAsString("name");
 			if (fields.HasField(nameof(M.DatasetInfo.Description))) m.Description = node.PropertyAsString("description");
 			if (fields.HasField(nameof(M.DatasetInfo.Headline))) m.Headline = node.PropertyAsString("headline");
@@ -104,7 +105,6 @@ namespace DataGEMS.Gateway.App.Model.Builder
 		private List<M.RecordSet> BuildRecordSets(IFieldSet fields, Graph graph, AnalyticalPatternNode datasetNode)
 		{
 			IFieldSet fieldFields = fields.ExtractPrefixed(this.AsPrefix(nameof(M.RecordSet.Fields)));
-			IFieldSet dataQualityFields = fields.ExtractPrefixed(this.AsPrefix(nameof(M.RecordSet.DataQuality)));
 
 			IEnumerable<AnalyticalPatternNode> linked = datasetNode == null ? Enumerable.Empty<AnalyticalPatternNode>() : graph.Targets(datasetNode.Id, Labels.Edge.RecordSet);
 			IEnumerable<AnalyticalPatternNode> byLabel = graph.Nodes.Where(x => x.HasLabel(Labels.Node.RecordSet));
@@ -115,10 +115,10 @@ namespace DataGEMS.Gateway.App.Model.Builder
 			{
 				M.RecordSet m = new M.RecordSet();
 				if (fields.HasField(nameof(M.RecordSet.Id))) m.Id = node.Id;
+				if (fields.HasField(nameof(M.RecordSet.Labels))) m.Labels = node.Labels?.ToList();
 				if (fields.HasField(nameof(M.RecordSet.Name))) m.Name = node.PropertyAsString("name");
 				if (fields.HasField(nameof(M.RecordSet.Examples))) m.Examples = this.ParseExamples(node.PropertyAsJToken("examples"));
 				if (!fieldFields.IsEmpty()) m.Fields = graph.Targets(node.Id, Labels.Edge.Field).Select(x => this.BuildField(fieldFields, graph, x)).ToList();
-				if (!dataQualityFields.IsEmpty()) m.DataQuality = graph.Targets(node.Id, Labels.Edge.HasDataQuality).Select(x => this.BuildDataQuality(dataQualityFields, graph, x)).ToList();
 				models.Add(m);
 			}
 			return models;
@@ -134,6 +134,7 @@ namespace DataGEMS.Gateway.App.Model.Builder
 		{
 			M.Field m = new M.Field();
 			if (fields.HasField(nameof(M.Field.Id))) m.Id = node.Id;
+			if (fields.HasField(nameof(M.Field.Labels))) m.Labels = node.Labels?.ToList();
 			if (fields.HasField(nameof(M.Field.Name))) m.Name = node.PropertyAsString("name");
 			if (fields.HasField(nameof(M.Field.Column))) m.Column = node.PropertyAsString("column");
 			if (fields.HasField(nameof(M.Field.Description))) m.Description = node.PropertyAsString("description");
@@ -141,36 +142,6 @@ namespace DataGEMS.Gateway.App.Model.Builder
 			if (fields.HasField(nameof(M.Field.SemanticType))) m.SemanticType = node.PropertyAsString("semanticType");
 			if (fields.HasField(nameof(M.Field.Sample))) m.Sample = AnalyticalPatternExtensions.ToPlainList(node.PropertyAsJToken("sample"));
 			if (fields.HasField(nameof(M.Field.Sources))) m.Sources = graph.TargetIds(node.Id, Labels.Edge.SourceFileObject);
-			return m;
-		}
-
-		private M.DataQuality BuildDataQuality(IFieldSet fields, Graph graph, AnalyticalPatternNode node)
-		{
-			IFieldSet errorFields = fields.ExtractPrefixed(this.AsPrefix(nameof(M.DataQuality.Errors)));
-
-			M.DataQuality m = new M.DataQuality();
-			if (fields.HasField(nameof(M.DataQuality.Id))) m.Id = node.Id;
-			if (fields.HasField(nameof(M.DataQuality.Summary))) m.Summary = node.PropertyAsString("summary");
-			if (!errorFields.IsEmpty()) m.Errors = graph.Targets(node.Id, Labels.Edge.HasError).Select(x => this.BuildDataQualityError(errorFields, x)).ToList();
-			return m;
-		}
-
-		private M.DataQualityError BuildDataQualityError(IFieldSet fields, AnalyticalPatternNode node)
-		{
-			M.DataQualityError m = new M.DataQualityError();
-			if (fields.HasField(nameof(M.DataQualityError.Id))) m.Id = node.Id;
-			if (fields.HasField(nameof(M.DataQualityError.ErrorType))) m.ErrorType = node.PropertyAsString("errorType");
-			if (fields.HasField(nameof(M.DataQualityError.Column))) m.Column = node.PropertyAsString("column");
-			if (fields.HasField(nameof(M.DataQualityError.Description))) m.Description = node.PropertyAsString("description");
-			if (fields.HasField(nameof(M.DataQualityError.TotalAffectedRows))) m.TotalAffectedRows = node.PropertyAsLong("totalAffectedRows");
-			if (fields.HasField(nameof(M.DataQualityError.Examples)) && node.PropertyAsJToken("examples") is JArray examples)
-			{
-				m.Examples = examples.OfType<JObject>().Select(x => new M.DataQualityErrorExample()
-				{
-					Value = AnalyticalPatternExtensions.AsString(x["value"]),
-					Row = AnalyticalPatternExtensions.AsLong(x["row"]),
-				}).ToList();
-			}
 			return m;
 		}
 
