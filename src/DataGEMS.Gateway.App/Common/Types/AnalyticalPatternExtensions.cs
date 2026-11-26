@@ -16,8 +16,6 @@ namespace DataGEMS.Gateway.App.Common
 			public const String FileObject = "cr:FileObject";
 			public const String FileSet = "cr:FileSet";
 			public const String DatabaseConnection = "dg:DatabaseConnection";
-			public const String DataQuality = "dg:DataQuality";
-			public const String DataQualityError = "dg:DataQualityError";
 		}
 
 		public static class Edge
@@ -27,8 +25,6 @@ namespace DataGEMS.Gateway.App.Common
 			public const String Field = "field";
 			public const String SourceFileObject = "source/fileObject";
 			public const String ContainedIn = "containedIn";
-			public const String HasDataQuality = "HAS_DATA_QUALITY";
-			public const String HasError = "HAS_ERROR";
 		}
 	}
 

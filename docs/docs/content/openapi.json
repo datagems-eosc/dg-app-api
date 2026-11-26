@@ -7583,78 +7583,6 @@
           "5 - The dataset is stored in a database."
         ]
       },
-      "DataQuality": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid",
-            "nullable": true
-          },
-          "summary": {
-            "type": "string",
-            "nullable": true
-          },
-          "errors": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/DataQualityError"
-            },
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "DataQualityError": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid",
-            "nullable": true
-          },
-          "errorType": {
-            "type": "string",
-            "nullable": true
-          },
-          "column": {
-            "type": "string",
-            "nullable": true
-          },
-          "description": {
-            "type": "string",
-            "nullable": true
-          },
-          "totalAffectedRows": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "examples": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/DataQualityErrorExample"
-            },
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "DataQualityErrorExample": {
-        "type": "object",
-        "properties": {
-          "value": {
-            "type": "string",
-            "nullable": true
-          },
-          "row": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
       "DataStoreKind": {
         "enum": [
           0,
@@ -7832,6 +7760,13 @@
           "id": {
             "type": "string",
             "format": "uuid",
+            "nullable": true
+          },
+          "labels": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
             "nullable": true
           },
           "name": {
@@ -8424,6 +8359,13 @@
           "id": {
             "type": "string",
             "format": "uuid",
+            "nullable": true
+          },
+          "labels": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
             "nullable": true
           },
           "name": {
@@ -9413,6 +9355,13 @@
             "format": "uuid",
             "nullable": true
           },
+          "labels": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
           "name": {
             "type": "string",
             "nullable": true
@@ -9430,13 +9379,6 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/Field"
-            },
-            "nullable": true
-          },
-          "dataQuality": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/DataQuality"
             },
             "nullable": true
           }
