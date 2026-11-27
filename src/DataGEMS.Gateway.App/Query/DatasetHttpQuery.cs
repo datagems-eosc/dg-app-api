@@ -31,6 +31,7 @@ namespace DataGEMS.Gateway.App.Query
 		private String _like { get; set; }
 		private List<string> _fieldsOfScience { get; set; }
 		private string _license { get; set; }
+		private string _uploadedBy { get; set; }
 		public Paging Page { get; set; }
 		public Ordering Order { get; set; }
 
@@ -86,6 +87,7 @@ namespace DataGEMS.Gateway.App.Query
 		public DatasetHttpQuery State(Common.Enum.DatasetState state) { this._datasetStatus = state; return this; }
 		public DatasetHttpQuery PublishedDateFrom(DateTime date) { this._publishedDateFrom = date; return this; }
 		public DatasetHttpQuery PublishedDateTo(DateTime date) { this._publishedDateTo = date; return this; }
+		public DatasetHttpQuery UploadedBy(string subjectId) { this._uploadedBy = subjectId; return this; }
 
 
 		protected bool IsFalseQuery()
@@ -174,6 +176,7 @@ namespace DataGEMS.Gateway.App.Query
 			if (this._datasetStatus != null) qs = qs.Add("status", this._datasetStatus.Value.ToString().ToLower());
 			if (this._mimeTypes != null) this._mimeTypes.ForEach(x => qs = qs.Add("mimeTypes", x));
 			if (this._fieldsOfScience != null) this._fieldsOfScience.ForEach(x => qs = qs.Add("fieldsOfScience", x));
+			if (!String.IsNullOrEmpty(this._uploadedBy)) qs = qs.Add("userId", this._uploadedBy);
 
 			return qs;
 		}
@@ -223,6 +226,7 @@ namespace DataGEMS.Gateway.App.Query
 			if (projection.HasField(nameof(Model.Dataset.Country))) fields.Add("country");
 			if (projection.HasField(nameof(Model.Dataset.Doi))) fields.Add("dg:doi");
 			if (projection.HasField(nameof(Model.Dataset.Status))) fields.Add("dg:status");
+			if (projection.HasField(nameof(Model.Dataset.UploadedBy))) fields.Add("uploadedBy");
 
 			fields.ForEach(x => qs = qs.Add("properties", x));
 
@@ -290,10 +294,10 @@ namespace DataGEMS.Gateway.App.Query
 							DatePublished = Common.Extensions.TransformJTokenToDateOnly(properties, "datePublished"),
 							Status = Common.Extensions.TransformJTokenToString(properties, "status"),
 							Doi = Common.Extensions.TransformJTokenToString(properties, "doi"),
+							UploadedBy = Common.Extensions.TransformJTokenToString(properties, "uploadedBy"),
 							//TODO: Must hide sensite information
 							ProfileRaw = ds,
 							//TODO: Access
-							//TODO: UploadedBy
 							//TODO: Distribution
 							//TODO: RecordSet
 							//TODO: Type

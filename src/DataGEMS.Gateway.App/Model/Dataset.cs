@@ -35,6 +35,7 @@ namespace DataGEMS.Gateway.App.Model
 		public List<Model.Collection> Collections { get; set; }
 		public List<String> Permissions { get; set; }
 		public FeatureStatus Features { get; set; }
+		public string UploadedBy { get; set; }
 	}
 
 	public class DatasetPersist
@@ -104,12 +105,12 @@ namespace DataGEMS.Gateway.App.Model
 						.FailOn(nameof(DatasetPersist.DatePublished)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.DatePublished)]),
 					//country must always be set
 					this.Spec()
-                        .Must(() => item.Country != null && item.Country.Count > 0)
-                        .FailOn(nameof(DatasetPersist.Country)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.Country)]),
+						.Must(() => item.Country != null && item.Country.Count > 0)
+						.FailOn(nameof(DatasetPersist.Country)).FailWith(this._localizer["validation_required", nameof(DatasetPersist.Country)]),
 					//countries given must be exactly one
 					this.Spec()
-                        .Must(() => item.Country != null && item.Country.Count == 1)
-                        .FailOn(nameof(DatasetPersist.Country)).FailWith(this._localizer["validation_exactlyOneCountry"]),
+						.Must(() => item.Country != null && item.Country.Count == 1)
+						.FailOn(nameof(DatasetPersist.Country)).FailWith(this._localizer["validation_exactlyOneCountry"]),
 					//data location must be set
 					this.Spec()
 						.Must(() => item.DataLocations != null && item.DataLocations.Count > 0)

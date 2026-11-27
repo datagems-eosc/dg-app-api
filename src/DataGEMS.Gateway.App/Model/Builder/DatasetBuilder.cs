@@ -79,6 +79,7 @@ namespace DataGEMS.Gateway.App.Model.Builder
 				if (fields.HasField(nameof(Model.Dataset.CiteAs))) m.CiteAs = d.CiteAs;
 				if (fields.HasField(nameof(Model.Dataset.Status))) m.Status = d.Status;
 				if (fields.HasField(nameof(Model.Dataset.Doi))) m.Doi = d.Doi;
+				if (fields.HasField(nameof(Model.Dataset.UploadedBy))) m.UploadedBy = d.UploadedBy;
 				if (fields.HasField(nameof(Model.Dataset.Features))) m.Features = features.ContainsKey(d.Id) ? features[d.Id] : null;
 				if (!collectionFields.IsEmpty() && collectionMap != null && collectionMap.ContainsKey(d.Id)) m.Collections = collectionMap[d.Id];
 				if (!permissionFields.IsEmpty() && datasetAffiliatedRoles != null && datasetAffiliatedRoles.ContainsKey(d.Id))

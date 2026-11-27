@@ -28,6 +28,8 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 		public List<string> FieldsOfScience { get; set; }
 		[SwaggerSchema(description: "Limit lookup to items with specific license.")]
 		public string License { get; set; }
+		[SwaggerSchema(description: "Limit lookup to items uploaded by specific user, identified by their OIDC subject identifier.")]
+		public string UploadedBy { get; set; }
 
 		public DatasetHttpQuery Enrich(QueryFactory factory)
 		{
@@ -41,6 +43,7 @@ namespace DataGEMS.Gateway.Api.Model.Lookup
 			if (this.State != null) query.State(this.State.Value);
 			if (!String.IsNullOrEmpty(this.Like)) query.Like(this.Like);
 			if (!String.IsNullOrEmpty(this.License)) query.License(this.License);
+			if (!String.IsNullOrEmpty(this.UploadedBy)) query.UploadedBy(this.UploadedBy);
 
 			this.EnrichCommon(query);
 

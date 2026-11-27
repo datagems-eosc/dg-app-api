@@ -18,5 +18,6 @@
 		public string CiteAs { get; set; }
 		public string Status { get; set; }
 		public string Doi { get; set; }
+		public string UploadedBy { get; set; }
 	}
 }
